@@ -31,7 +31,7 @@ using namespace std;
 #define NODE_TYPE_ENDIF 6
 #define NODE_TYPE_FOR_EACH_OF_MEMBERS 7
 #define NODE_TYPE_INCLUDE 8
-// derived types
+#define NODE_TYPE_ASSERT 9// derived types
 //#define NODE_TYPE_TMP 20
 #define NODE_TYPE_IF_TRUE_BRANCHE 21
 #define NODE_TYPE_IF_FALSE_BRANCHE 22
@@ -44,6 +44,7 @@ using namespace std;
 #define KEYWORD_STRING_ELSE "ELSE"
 #define KEYWORD_STRING_ELIF "ELIF"
 #define PARAM_STRING_ENDIF "ENDIF"
+#define PARAM_STRING_ASSERT "ASSERT"
 
 // parameters
 #define PARAM_STRING_TYPE "TYPE"
@@ -58,6 +59,7 @@ using namespace std;
 #define KEYWORD_ELSE 105
 #define KEYWORD_ELIF 106
 #define PARAM_ENDIF 107
+#define PARAM_ASSERT 108
 
 // PARAMETERS (following main keywords)
 #define PARAM_NONE 120
@@ -153,6 +155,7 @@ class idl_generation_template
 			case NODE_TYPE_BEGIN_TEMPLATE: printf( "BEGIN_TEMPLATE " ); break;
 			case NODE_TYPE_END_TEMPLATE: printf( "END_TEMPLATE " ); break;
 			case NODE_TYPE_IF: printf( "IF " ); break;
+			case NODE_TYPE_ASSERT: printf( "ASSERT " ); break;
 			case NODE_TYPE_FOR_EACH_OF_MEMBERS: printf( "FOR_EACH_OF_MEMBERS " ); break;
 			case NODE_TYPE_INCLUDE: printf( "INCLUDE " ); break;
 			case NODE_TYPE_IF_TRUE_BRANCHE: printf( "IF_TRUE" ); break;
@@ -198,6 +201,12 @@ class idl_generation_template
 					validate_node( node.child_nodes[i] );
 				break;
 			}
+			case NODE_TYPE_ASSERT:
+			{
+				int child_cnt = node.child_nodes.size();
+				assert( child_cnt == 0 );
+				break;
+			}
 			case NODE_TYPE_FOR_EACH_OF_MEMBERS:
 			case NODE_TYPE_IF_TRUE_BRANCHE:
 			case NODE_TYPE_IF_FALSE_BRANCHE:
@@ -216,7 +225,10 @@ class idl_generation_template
 
 	bool calc_condition_of_if_node( TEMPLATE_NODE& if_node, void* idlmap, int context )
 	{
-		assert( if_node.line_type == NODE_TYPE_IF );
+		// NOTE: here we have a quite quick and dirty solution just for a couple of immediately necessary cases
+		// TODO: full implementation
+
+		assert( if_node.line_type == NODE_TYPE_IF || if_node.line_type == NODE_TYPE_ASSERT );
 		bool ret;
 
 		unsigned int i, j;
@@ -251,29 +263,35 @@ class idl_generation_template
 		unsigned int command_cnt = commands.size();
 		unsigned int stacksz = argstack.size();
 
-		assert( command_cnt == 1 ); // limitation of a current version; TODO: further development
-		assert( stacksz == 2 ); // limitation of a current version; TODO: further development
+		assert( ( command_cnt == 1 && stacksz == 2 ) || command_cnt == 0 && stacksz == 1 ); // limitation of a current version; TODO: further development
 
-		for ( j=command_cnt; j; j-- )
+		if ( command_cnt == 1 )
 		{
-			switch ( commands[j-1] )
+			for ( j=command_cnt; j; j-- )
 			{
-				case EXPRESSION_PART_EQ:
+				switch ( commands[j-1] )
 				{
-					ret = argstack[0] == argstack[1];
-					break;
-				}
-				case EXPRESSION_PART_NEQ:
-				{
-					ret = !(argstack[0] == argstack[1]);
-					break;
-				}
-				default:
-				{
-					printf( "Type %d is unexpected or unsupported\n", commands[j-1] );
-					assert( 0 == "Error: not supported" );
+					case EXPRESSION_PART_EQ:
+					{
+						ret = argstack[0] == argstack[1];
+						break;
+					}
+					case EXPRESSION_PART_NEQ:
+					{
+						ret = !(argstack[0] == argstack[1]);
+						break;
+					}
+					default:
+					{
+						printf( "Type %d is unexpected or unsupported\n", commands[j-1] );
+						assert( 0 == "Error: not supported" );
+					}
 				}
 			}
+		}
+		else
+		{
+			ret = !( argstack[0] == "0" || argstack[0] == "FALSE" );
 		}
 		return ret;
 		/*
@@ -398,6 +416,15 @@ class idl_generation_template
 						apply_node( node.child_nodes[0], idlmap, context );
 					else if ( node.child_nodes[1].line_type == NODE_TYPE_IF_FALSE_BRANCHE )
 						apply_node( node.child_nodes[1], idlmap, context );
+				}
+				break;
+			}
+			case NODE_TYPE_ASSERT:
+			{
+				bool cond = calc_condition_of_if_node( node, idlmap, context );
+				if ( !cond )					
+				{
+					printf( "Instantiation Error: Assertion failed: Line %d\n", node.src_line_num );
 				}
 				break;
 			}
@@ -529,18 +556,34 @@ class idl_generation_template
 
 					TEMPLATE_NODE if_true, if_false;
 					if_true.line_type = NODE_TYPE_IF_TRUE_BRANCHE;
-					if_true.src_line_num = true_branch_end == it + 1 ? -1 : it->line_type + 1;
+					if_true.src_line_num = true_branch_end == it + 1 ? -1 : it->src_line_num + 1;
 					make_node_tree( if_true, it + 1, true_branch_end );
 
-					if_false.line_type = NODE_TYPE_IF_FALSE_BRANCHE;
-					if_false.src_line_num = true_branch_end != node_block_end ? true_branch_end->line_type : -1;
-					make_node_tree( if_false, true_branch_end, node_block_end );
+					if ( true_branch_end->line_type == NODE_TYPE_ELSE )
+					{
+						if_false.line_type = NODE_TYPE_IF_FALSE_BRANCHE;
+						if_false.src_line_num = true_branch_end != node_block_end ? true_branch_end->src_line_num + 1 : -1;
+						make_node_tree( if_false, true_branch_end + 1, node_block_end );
+					}
+					else
+					{
+						assert( true_branch_end->line_type == NODE_TYPE_ELIF );
+						if_false.line_type = NODE_TYPE_IF_FALSE_BRANCHE;
+						if_false.src_line_num = true_branch_end != node_block_end ? true_branch_end->src_line_num : -1;
+						make_node_tree( if_false, true_branch_end, node_block_end );
+					}
 
 					it->child_nodes.push_back( if_true );
 					it->child_nodes.push_back( if_false );
 
 					root_node.child_nodes.push_back( *it );
 					it = node_block_end;
+					++it;
+					break;
+				}
+				case NODE_TYPE_ASSERT:
+				{
+					root_node.child_nodes.push_back( *it );
 					++it;
 					break;
 				}
@@ -645,6 +688,11 @@ class idl_generation_template
 		{
 			content_start += sizeof(PARAM_STRING_ENDIF)-1;
 			ret = NODE_TYPE_ENDIF;
+		}
+		else if ( line.compare( content_start, sizeof(PARAM_STRING_ASSERT)-1, PARAM_STRING_ASSERT ) == 0 )
+		{
+			content_start += sizeof(PARAM_STRING_ASSERT)-1;
+			ret = NODE_TYPE_ASSERT;
 		}
 		while ( content_start < line.size() && (line[content_start] == ' ' || line[content_start] == '\t')) content_start++;
 		return ret;
@@ -974,6 +1022,7 @@ public:
 			{
 				case NODE_TYPE_IF:
 				case NODE_TYPE_ELIF:
+				case NODE_TYPE_ASSERT:
 				{
 					parse_if_condition( std::string( line.begin() + content_start, line.end() ), tl.line_parts, NODE_TYPE_CONTENT, 0 );
 					break;
