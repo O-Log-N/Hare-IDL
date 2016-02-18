@@ -19,8 +19,8 @@ Copyright (C) 2016 OLogN Technologies AG
 #define __TEMPLATE_PROCESSOR_H__
 
 #include <stdio.h>
-#include "idl.h"
-#include "literal_node.h"
+#include <idl.h>
+#include <literal_node.h>
 
 #define CONTEXT_STRUCT 1
 #define CONTEXT_STRUCT_MEMBER 2
