@@ -47,7 +47,8 @@ bool template_instantiator::calc_condition_of_if_node( TEMPLATE_NODE& if_node/*,
 //				assert( context == CONTEXT_STRUCT_MEMBER );
 //				AttributeDeclNode* attr = (AttributeDeclNode*)idlmap;
 //				argstack.push_back( attr->type->toString() ); 
-				argstack.push_back( member_type() ); 
+//				argstack.push_back( member_type() ); 
+				argstack.push_back( placeholder( PLASEHOLDER_MEMBER_TYPE ) ); 
 				break;
 			}
 			default:
@@ -119,7 +120,8 @@ void template_instantiator::apply_node( TEMPLATE_NODE& node/*, void* idlmap, int
 //							if ( context == CONTEXT_STRUCT )
 //						assert( context == CONTEXT_STRUCT );
 //							printf( ((MappingDeclNode*)idlmap)->name.c_str() ); 
-							printf( struct_name().c_str() ); 
+//							printf( struct_name().c_str() ); 
+							printf( placeholder( PLASEHOLDER_STRUCTNAME ).c_str() ); 
 						break;
 					}
 					case PLASEHOLDER_MEMBER_TYPE: 
@@ -128,7 +130,8 @@ void template_instantiator::apply_node( TEMPLATE_NODE& node/*, void* idlmap, int
 //							printf( PLASEHOLDER_STRING_MEMBER_TYPE ); 
 //						AttributeDeclNode* attr = (AttributeDeclNode*)idlmap;
 //						printf( attr->type->toString().c_str() ); 
-						printf( member_type().c_str() ); 
+//						printf( member_type().c_str() ); 
+						printf( placeholder( PLASEHOLDER_MEMBER_TYPE ).c_str() ); 
 						break;
 					}
 					case PLASEHOLDER_MEMBER_NAME: 
@@ -136,7 +139,8 @@ void template_instantiator::apply_node( TEMPLATE_NODE& node/*, void* idlmap, int
 //						assert( context == CONTEXT_STRUCT_MEMBER );
 //						AttributeDeclNode* attr = (AttributeDeclNode*)idlmap;
 //						printf( attr->name.c_str() ); 
-						printf( member_name().c_str() ); 
+//						printf( member_name().c_str() ); 
+						printf( placeholder( PLASEHOLDER_MEMBER_NAME ).c_str() ); 
 						break;
 					}
 					default:
@@ -165,7 +169,8 @@ void template_instantiator::apply_node( TEMPLATE_NODE& node/*, void* idlmap, int
 				for ( unsigned int k=0; k<node.child_nodes.size(); k++ )
 					apply_node( node.child_nodes[k], &(*(((MappingDeclNode*)idlmap)->attributes[j])), CONTEXT_STRUCT_MEMBER );
 			}*/
-			apply_to_each_member( node );
+//			apply_to_each_member( node );
+			apply_to_each( node );
 			break;
 		}
 		case NODE_TYPE_IF:
@@ -207,7 +212,9 @@ void template_instantiator::apply_node( TEMPLATE_NODE& node/*, void* idlmap, int
 	}
 }
 
-std::string template_instantiator::member_name()
+/////////////////////////////////////////////////////////////////////////
+
+/*std::string template_instantiator::member_name()
 {
 	printf( "error_member_name\n" );
 	assert( 0 );
@@ -227,15 +234,33 @@ std::string template_instantiator::struct_name()
 	assert( 0 );
 	return "";
 }
+*/
 
+/*
 void template_instantiator::apply_to_each_member( TEMPLATE_NODE& node )
 {
 	printf( "apply_to_each_member\n" );
 	assert( 0 );
 }
+*/
+std::string template_instantiator::placeholder( int placeholder_id )
+{
+	printf( "error_placeholder\n" );
+	assert( 0 );
+	return "";
+}
+
+void template_instantiator::apply_to_each( TEMPLATE_NODE& node )
+{
+	printf( "error_apply_to_each\n" );
+	assert( 0 );
+}
+
+/////////////////////////////////////////////////////////////////////////
 
 
 
+/*
 std::string struct_template_instantiator::struct_name()
 {
 	return idlmap->name;
@@ -253,11 +278,41 @@ void struct_template_instantiator::apply_to_each_member( TEMPLATE_NODE& node )
 		}
 	}
 }
+*/
+std::string struct_template_instantiator::placeholder( int placeholder_id )
+{
+	switch( placeholder_id )
+	{
+		case PLASEHOLDER_STRUCTNAME:
+		{
+			return idlmap->name;
+		}
+		default:
+		{
+			return template_instantiator::placeholder( placeholder_id );
+		}
+	}
+}
+
+void struct_template_instantiator::apply_to_each( TEMPLATE_NODE& node )
+{
+	int member_cnt = idlmap->attributes.size();
+	for ( int j=0; j<member_cnt; j++ )
+	{
+		for ( unsigned int k=0; k<node.child_nodes.size(); k++ )
+		{
+			struct_member_template_instantiator smti( &(*(idlmap->attributes[j])) );
+			smti.apply( node.child_nodes[k] );
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////
 
 
 
 
-
+/*
 std::string struct_member_template_instantiator::member_name()
 {
 	return attr->name.c_str();
@@ -266,6 +321,25 @@ std::string struct_member_template_instantiator::member_name()
 std::string struct_member_template_instantiator::member_type()
 {
 	return attr->type->toString();
+}
+*/
+std::string struct_member_template_instantiator::placeholder( int placeholder_id )
+{
+	switch( placeholder_id )
+	{
+		case PLASEHOLDER_MEMBER_NAME:
+		{
+			return attr->name.c_str();
+		}
+		case PLASEHOLDER_MEMBER_TYPE:
+		{
+			return attr->type->toString();
+		}
+		default:
+		{
+			return template_instantiator::placeholder( placeholder_id );
+		}
+	}
 }
 
 

@@ -37,10 +37,10 @@ protected:
 public:
 	template_instantiator() {}
 
-	virtual std::string member_name();
-	virtual std::string member_type();
-	virtual std::string struct_name();
-	virtual void apply_to_each_member( TEMPLATE_NODE& node );
+//	virtual void apply_to_each_member( TEMPLATE_NODE& node );
+
+	virtual std::string placeholder( int placeholder_id );
+	virtual void apply_to_each( TEMPLATE_NODE& node );
 
 #if 0
 	void apply( /*void* idlmap, */ANY_TEMPLATE_ROOT& _root_node/*, int context*/ )
@@ -55,8 +55,10 @@ class struct_template_instantiator : public template_instantiator
 protected:
 	MappingDeclNode* idlmap; // TODO: use actual type!
 
-	virtual std::string struct_name();
-	virtual void apply_to_each_member( TEMPLATE_NODE& node );
+//	virtual void apply_to_each_member( TEMPLATE_NODE& node );
+
+	virtual std::string placeholder( int placeholder_id );
+	virtual void apply_to_each( TEMPLATE_NODE& node );
 
 
 public:
@@ -73,8 +75,8 @@ class struct_member_template_instantiator : public template_instantiator
 protected:
 	AttributeDeclNode* attr; // TODO: use actual type!
 
-	virtual std::string member_name();
-	virtual std::string member_type();
+	virtual std::string placeholder( int placeholder_id );
+//	virtual void apply_to_each( TEMPLATE_NODE& node );
 
 public:
 	struct_member_template_instantiator( AttributeDeclNode* _attr ) { attr = _attr; }
