@@ -22,6 +22,7 @@ Naming conventions examples:
 4. #define MY_STRING "abracadabra" //see below on #defines
 5. #ifndef INCLUDE_FILE_NAME_INCLUDED //"include guard"
 6. **MUST NOT** use identifiers starting with an underscore OR containing adjacent double underscore (technically reserved for C++)
+7. Classes and functions which are used ONLY for debugging purposes (such as "dumpSomething()") SHOULD start with Dbg*/dbg*() respectively
 
 ### I.2 On includes
 
@@ -50,3 +51,4 @@ Naming conventions examples:
 
 1. iterations over the vector SHOULD use  size_t as index variable type: for(size_t i=0; i < v.size(); ++i)
 2. prefixed increment SHOULD be used in standalone statements: for(auto it=v.begin();;++it) is preferred over for(auto it=v.begin();;it++)
+3. All file I/O SHOULD be done via FILE*
