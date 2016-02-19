@@ -24,7 +24,7 @@ bool template_instantiator::calc_condition_of_if_node( TEMPLATE_NODE& if_node )
 	// NOTE: here we have a quite quick and dirty solution just for a couple of immediately necessary cases
 	// TODO: full implementation
 
-	assert( if_node.type == NODE_TYPE_IF || if_node.type == NODE_TYPE_ASSERT );
+	assert( if_node.type == NODE_TYPE::IF || if_node.type == NODE_TYPE::ASSERT );
 	bool ret;
 
 	unsigned int i, j;
@@ -34,16 +34,16 @@ bool template_instantiator::calc_condition_of_if_node( TEMPLATE_NODE& if_node )
 	{
 		switch ( if_node.line_parts[i].type )
 		{
-			case LINE_PART_VERBATIM: argstack.push_back( if_node.line_parts[i].verbatim ); break;
-			case EXPRESSION_PART_EQ:
-			case EXPRESSION_PART_NEQ:
+			case PLACEHOLDER::VERBATIM: argstack.push_back( if_node.line_parts[i].verbatim ); break;
+			case OPERATOR::EQ:
+			case OPERATOR::NEQ:
 			{
 				commands.push_back( if_node.line_parts[i].type );
 				break;
 			}
-			case PLACEHOLDER_MEMBER_TYPE:
+			case PLACEHOLDER::MEMBER_TYPE:
 			{
-				argstack.push_back( placeholder( PLACEHOLDER_MEMBER_TYPE ) ); 
+				argstack.push_back( placeholder( PLACEHOLDER::MEMBER_TYPE ) ); 
 				break;
 			}
 			default:
@@ -65,12 +65,12 @@ bool template_instantiator::calc_condition_of_if_node( TEMPLATE_NODE& if_node )
 		{
 			switch ( commands[j-1] )
 			{
-				case EXPRESSION_PART_EQ:
+				case OPERATOR::EQ:
 				{
 					ret = argstack[0] == argstack[1];
 					break;
 				}
-				case EXPRESSION_PART_NEQ:
+				case OPERATOR::NEQ:
 				{
 					ret = !(argstack[0] == argstack[1]);
 					break;
@@ -94,35 +94,35 @@ void template_instantiator::apply_node( TEMPLATE_NODE& node )
 {
 	switch ( node.type )
 	{
-		case NODE_TYPE_TEMPLATE_ROOT:
+		case NODE_TYPE::TEMPLATE_ROOT:
 		{
 			for ( unsigned int k=0; k<node.child_nodes.size(); k++ )
 				apply_node( node.child_nodes[k]/*, idlmap, context*/ );
 			break;
 		}
-		case NODE_TYPE_CONTENT:
+		case NODE_TYPE::CONTENT:
 		{
 			for ( unsigned int i=0; i<node.line_parts.size(); i++ )
 				switch ( node.line_parts[i].type )
 				{
-					case LINE_PART_VERBATIM:
+					case PLACEHOLDER::VERBATIM:
 					{
 						printf( node.line_parts[i].verbatim.c_str() ); 
 						break;
 					}
-					case PLACEHOLDER_STRUCTNAME: 
+					case PLACEHOLDER::STRUCTNAME: 
 					{
-						printf( placeholder( PLACEHOLDER_STRUCTNAME ).c_str() ); 
+						printf( placeholder( PLACEHOLDER::STRUCTNAME ).c_str() ); 
 						break;
 					}
-					case PLACEHOLDER_MEMBER_TYPE: 
+					case PLACEHOLDER::MEMBER_TYPE: 
 					{
-						printf( placeholder( PLACEHOLDER_MEMBER_TYPE ).c_str() ); 
+						printf( placeholder( PLACEHOLDER::MEMBER_TYPE ).c_str() ); 
 						break;
 					}
-					case PLACEHOLDER_MEMBER_NAME: 
+					case PLACEHOLDER::MEMBER_NAME: 
 					{
-						printf( placeholder( PLACEHOLDER_MEMBER_NAME ).c_str() ); 
+						printf( placeholder( PLACEHOLDER::MEMBER_NAME ).c_str() ); 
 						break;
 					}
 					default:
@@ -134,37 +134,37 @@ void template_instantiator::apply_node( TEMPLATE_NODE& node )
 			printf( "\n" ); 
 			break;
 		}
-		case NODE_TYPE_BEGIN_TEMPLATE:
-		case NODE_TYPE_IF_TRUE_BRANCHE:
-		case NODE_TYPE_IF_FALSE_BRANCHE:
+		case NODE_TYPE::BEGIN_TEMPLATE:
+		case NODE_TYPE::IF_TRUE_BRANCHE:
+		case NODE_TYPE::IF_FALSE_BRANCHE:
 		{
 			for ( unsigned int k=0; k<node.child_nodes.size(); k++ )
 				apply_node( node.child_nodes[k]/*, idlmap, context*/ );
 			break;
 		}
-		case NODE_TYPE_FOR_EACH_OF_MEMBERS:
+		case NODE_TYPE::FOR_EACH_OF_MEMBERS:
 		{
 			apply_to_each( node );
 			break;
 		}
-		case NODE_TYPE_IF:
+		case NODE_TYPE::IF:
 		{
 			bool cond = calc_condition_of_if_node( node/*, idlmap, context*/ );
 			if ( cond )					
 			{
-				if ( node.child_nodes[0].type == NODE_TYPE_IF_TRUE_BRANCHE )
+				if ( node.child_nodes[0].type == NODE_TYPE::IF_TRUE_BRANCHE )
 					apply_node( node.child_nodes[0]/*, idlmap, context*/ );
 			}
 			else
 			{
-				if ( node.child_nodes[0].type == NODE_TYPE_IF_FALSE_BRANCHE )
+				if ( node.child_nodes[0].type == NODE_TYPE::IF_FALSE_BRANCHE )
 					apply_node( node.child_nodes[0]/*, idlmap, context*/ );
-				else if ( node.child_nodes[1].type == NODE_TYPE_IF_FALSE_BRANCHE )
+				else if ( node.child_nodes[1].type == NODE_TYPE::IF_FALSE_BRANCHE )
 					apply_node( node.child_nodes[1]/*, idlmap, context*/ );
 			}
 			break;
 		}
-		case NODE_TYPE_ASSERT:
+		case NODE_TYPE::ASSERT:
 		{
 			bool cond = calc_condition_of_if_node( node/*, idlmap, context*/ );
 			if ( !cond )					
@@ -173,7 +173,7 @@ void template_instantiator::apply_node( TEMPLATE_NODE& node )
 			}
 			break;
 		}
-		case NODE_TYPE_INCLUDE:
+		case NODE_TYPE::INCLUDE:
 		{
 			assert( 0 == "ERROR: NOT IMPLEMENTED" );
 			break;
@@ -207,7 +207,7 @@ std::string struct_template_instantiator::placeholder( int placeholder_id )
 {
 	switch( placeholder_id )
 	{
-		case PLACEHOLDER_STRUCTNAME:
+		case PLACEHOLDER::STRUCTNAME:
 		{
 			return idlmap->name;
 		}
@@ -237,11 +237,11 @@ std::string struct_member_template_instantiator::placeholder( int placeholder_id
 {
 	switch( placeholder_id )
 	{
-		case PLACEHOLDER_MEMBER_NAME:
+		case PLACEHOLDER::MEMBER_NAME:
 		{
 			return attr->name.c_str();
 		}
-		case PLACEHOLDER_MEMBER_TYPE:
+		case PLACEHOLDER::MEMBER_TYPE:
 		{
 			return attr->type->toString();
 		}

@@ -22,47 +22,41 @@ Copyright (C) 2016 OLogN Technologies AG
 #include <vector>
 using namespace std;
 
+enum NODE_TYPE {
+	CONTENT = 0,
+	BEGIN_TEMPLATE,
+	END_TEMPLATE,
+	IF,
+	ELSE,
+	ELIF,
+	ENDIF,
+	FOR_EACH_OF_MEMBERS,
+	INCLUDE,
+	ASSERT,
+	// derived types
+	IF_TRUE_BRANCHE,
+	IF_FALSE_BRANCHE,
+	TEMPLATE_ROOT,
+};
 
-#define NODE_TYPE_CONTENT 0
-#define NODE_TYPE_BEGIN_TEMPLATE 1
-#define NODE_TYPE_END_TEMPLATE 2
-#define NODE_TYPE_IF 3
-#define NODE_TYPE_ELSE 4
-#define NODE_TYPE_ELIF 5
-#define NODE_TYPE_ENDIF 6
-#define NODE_TYPE_FOR_EACH_OF_MEMBERS 7
-#define NODE_TYPE_INCLUDE 8
-#define NODE_TYPE_ASSERT 9
-// derived types
-//#define NODE_TYPE_UNDEFINED 20 // placeholedr
-#define NODE_TYPE_IF_TRUE_BRANCHE 21
-#define NODE_TYPE_IF_FALSE_BRANCHE 22
-#define NODE_TYPE_TEMPLATE_ROOT 23
+enum PARAMETER {
+	NONE = 100,
+	TYPE,
+	BEGIN,
+	END,
+};
 
-#define PARAM_BEGIN_TEMPLATE 101
-#define PARAM_END_TEMPLATE 102
-#define KEYWORD_FOR_EACH_OF_MEMBERS 103
-#define KEYWORD_IF 104
-#define KEYWORD_ELSE 105
-#define KEYWORD_ELIF 106
-#define PARAM_ENDIF 107
-#define PARAM_ASSERT 108
+enum PLACEHOLDER {
+	VERBATIM = 200,
+	STRUCTNAME,
+	MEMBER_TYPE,
+	MEMBER_NAME,
+};
 
-// PARAMETERS (following main keywords)
-#define PARAM_NONE 120
-#define PARAM_TYPE 121
-#define PARAM_BEGIN 122
-#define PARAM_END 123
-
-// plaseholders (single-words between '@')
-#define LINE_PART_VERBATIM 200
-#define PLACEHOLDER_STRUCTNAME 201
-#define PLACEHOLDER_MEMBER_TYPE 202
-#define PLACEHOLDER_MEMBER_NAME 203
-
-// expression parts ( ==, !=, etc)
-#define EXPRESSION_PART_EQ 301
-#define EXPRESSION_PART_NEQ 302
+enum OPERATOR {
+	EQ,
+	NEQ,
+};
 
 typedef struct _LINE_PART
 {
