@@ -16,6 +16,7 @@ We're using very standard C++11.
 
 Naming conventions examples:
 
+0. MUST NOT use identifiers starting with an underscore OR containing adjacent double underscore (technically reserved for C++)
 1. class TheVeryBestClass //also applies to structs, unions, and typedefs
 2. function prettyMuchUnnecessaryFunction(); //also apples to members
 3. enum BACKGROUND_COLOR { RED, GREEN, BLUE }; //see below on constants
