@@ -55,9 +55,9 @@ using namespace std;
 
 // plaseholders (single-words between '@')
 #define LINE_PART_VERBATIM 200
-#define PLASEHOLDER_STRUCTNAME 201
-#define PLASEHOLDER_MEMBER_TYPE 202
-#define PLASEHOLDER_MEMBER_NAME 203
+#define PLACEHOLDER_STRUCTNAME 201
+#define PLACEHOLDER_MEMBER_TYPE 202
+#define PLACEHOLDER_MEMBER_NAME 203
 
 // expression parts ( ==, !=, etc)
 #define EXPRESSION_PART_EQ 301

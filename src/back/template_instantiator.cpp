@@ -41,9 +41,9 @@ bool template_instantiator::calc_condition_of_if_node( TEMPLATE_NODE& if_node )
 				commands.push_back( if_node.line_parts[i].type );
 				break;
 			}
-			case PLASEHOLDER_MEMBER_TYPE:
+			case PLACEHOLDER_MEMBER_TYPE:
 			{
-				argstack.push_back( placeholder( PLASEHOLDER_MEMBER_TYPE ) ); 
+				argstack.push_back( placeholder( PLACEHOLDER_MEMBER_TYPE ) ); 
 				break;
 			}
 			default:
@@ -110,19 +110,19 @@ void template_instantiator::apply_node( TEMPLATE_NODE& node )
 						printf( node.line_parts[i].verbatim.c_str() ); 
 						break;
 					}
-					case PLASEHOLDER_STRUCTNAME: 
+					case PLACEHOLDER_STRUCTNAME: 
 					{
-						printf( placeholder( PLASEHOLDER_STRUCTNAME ).c_str() ); 
+						printf( placeholder( PLACEHOLDER_STRUCTNAME ).c_str() ); 
 						break;
 					}
-					case PLASEHOLDER_MEMBER_TYPE: 
+					case PLACEHOLDER_MEMBER_TYPE: 
 					{
-						printf( placeholder( PLASEHOLDER_MEMBER_TYPE ).c_str() ); 
+						printf( placeholder( PLACEHOLDER_MEMBER_TYPE ).c_str() ); 
 						break;
 					}
-					case PLASEHOLDER_MEMBER_NAME: 
+					case PLACEHOLDER_MEMBER_NAME: 
 					{
-						printf( placeholder( PLASEHOLDER_MEMBER_NAME ).c_str() ); 
+						printf( placeholder( PLACEHOLDER_MEMBER_NAME ).c_str() ); 
 						break;
 					}
 					default:
@@ -207,7 +207,7 @@ std::string struct_template_instantiator::placeholder( int placeholder_id )
 {
 	switch( placeholder_id )
 	{
-		case PLASEHOLDER_STRUCTNAME:
+		case PLACEHOLDER_STRUCTNAME:
 		{
 			return idlmap->name;
 		}
@@ -237,11 +237,11 @@ std::string struct_member_template_instantiator::placeholder( int placeholder_id
 {
 	switch( placeholder_id )
 	{
-		case PLASEHOLDER_MEMBER_NAME:
+		case PLACEHOLDER_MEMBER_NAME:
 		{
 			return attr->name.c_str();
 		}
-		case PLASEHOLDER_MEMBER_TYPE:
+		case PLACEHOLDER_MEMBER_TYPE:
 		{
 			return attr->type->toString();
 		}

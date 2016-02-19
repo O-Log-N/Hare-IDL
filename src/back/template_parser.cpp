@@ -35,9 +35,9 @@ Copyright (C) 2016 OLogN Technologies AG
 #define PARAM_STRING_END "END"
 
 // main keywords ( starting from '@@' )
-#define PLASEHOLDER_STRING_STRUCTNAME "@STRUCTNAME@"
-#define PLASEHOLDER_STRING_MEMBER_TYPE "@MEMBER-TYPE@"
-#define PLASEHOLDER_STRING_MEMBER_NAME "@MEMBER-NAME@"
+#define PLACEHOLDER_STRING_STRUCTNAME "@STRUCT-NAME@"
+#define PLACEHOLDER_STRING_MEMBER_TYPE "@MEMBER-TYPE@"
+#define PLACEHOLDER_STRING_MEMBER_NAME "@MEMBER-NAME@"
 
 /*
 // data types
@@ -63,9 +63,9 @@ class template_parser
 			switch ( parts[i].type )
 			{
 				case LINE_PART_VERBATIM: printf( parts[i].verbatim.c_str() ); break;
-				case PLASEHOLDER_STRUCTNAME: printf( PLASEHOLDER_STRING_STRUCTNAME ); break;
-				case PLASEHOLDER_MEMBER_TYPE: printf( PLASEHOLDER_STRING_MEMBER_TYPE ); break;
-				case PLASEHOLDER_MEMBER_NAME: printf( PLASEHOLDER_STRING_MEMBER_NAME ); break;
+				case PLACEHOLDER_STRUCTNAME: printf( PLACEHOLDER_STRING_STRUCTNAME ); break;
+				case PLACEHOLDER_MEMBER_TYPE: printf( PLACEHOLDER_STRING_MEMBER_TYPE ); break;
+				case PLACEHOLDER_MEMBER_NAME: printf( PLACEHOLDER_STRING_MEMBER_NAME ); break;
 				case PARAM_TYPE: printf( " %s", PARAM_STRING_TYPE ); break;
 				case PARAM_BEGIN: printf( " %s", PARAM_STRING_BEGIN ); break;
 				case PARAM_END: printf( " %s", PARAM_STRING_END ); break;
@@ -370,7 +370,33 @@ class template_parser
 		assert( line.compare( content_start, 2, "@@" ) == 0 );
 		content_start += 2;
 		while ( content_start < line.size() && (line[content_start] == ' ' || line[content_start] == '\t')) content_start++;
-		if ( line.compare( content_start, sizeof(PARAM_STRING_BEGIN_TEMPLATE)-1, PARAM_STRING_BEGIN_TEMPLATE ) == 0 )
+		struct keyword
+		{
+			const char* kw;
+			int size;
+			int id;
+		};
+		keyword keywords[8] = 
+		{
+			{PARAM_STRING_BEGIN_TEMPLATE, sizeof(PARAM_STRING_BEGIN_TEMPLATE)-1, NODE_TYPE_BEGIN_TEMPLATE},
+			{PARAM_STRING_END_TEMPLATE, sizeof(PARAM_STRING_END_TEMPLATE)-1, NODE_TYPE_END_TEMPLATE},
+			{KEYWORD_STRING_FOR_EACH_OF_MEMBERS, sizeof(KEYWORD_STRING_FOR_EACH_OF_MEMBERS)-1, NODE_TYPE_FOR_EACH_OF_MEMBERS},
+			{KEYWORD_STRING_IF, sizeof(KEYWORD_STRING_IF)-1, NODE_TYPE_IF},
+			{PARAM_STRING_ENDIF, sizeof(PARAM_STRING_ENDIF)-1, NODE_TYPE_ENDIF},
+			{KEYWORD_STRING_ELIF, sizeof(KEYWORD_STRING_ELIF)-1, NODE_TYPE_ELIF},
+			{KEYWORD_STRING_ELSE, sizeof(KEYWORD_STRING_ELSE)-1, NODE_TYPE_ELSE},
+			{PARAM_STRING_ASSERT, sizeof(PARAM_STRING_ASSERT)-1, NODE_TYPE_ASSERT},
+		};
+		int i;
+		for ( i=0; i<8; i++ )
+		{
+			if ( line.compare( content_start, keywords[i].size, keywords[i].kw ) == 0 )
+			{
+				content_start += keywords[i].size;
+				ret = keywords[i].id;
+			}
+		}
+/*		if ( line.compare( content_start, sizeof(PARAM_STRING_BEGIN_TEMPLATE)-1, PARAM_STRING_BEGIN_TEMPLATE ) == 0 )
 		{
 			content_start += sizeof(PARAM_STRING_BEGIN_TEMPLATE)-1;
 			ret = NODE_TYPE_BEGIN_TEMPLATE;
@@ -409,7 +435,7 @@ class template_parser
 		{
 			content_start += sizeof(PARAM_STRING_ASSERT)-1;
 			ret = NODE_TYPE_ASSERT;
-		}
+		}*/
 		while ( content_start < line.size() && (line[content_start] == ' ' || line[content_start] == '\t')) content_start++;
 		return ret;
 	}
@@ -423,7 +449,28 @@ class template_parser
 	{
 		int ret = PARAM_NONE;
 		while ( content_start < line.size() && (line[content_start] == ' ' || line[content_start] == '\t')) content_start++;
-		if ( line.compare( content_start, sizeof(PARAM_STRING_BEGIN)-1, PARAM_STRING_BEGIN ) == 0 )
+		struct param
+		{
+			const char* word;
+			int size;
+			int id;
+		};
+		param params[3] = 
+		{
+			{PARAM_STRING_BEGIN, sizeof(PARAM_STRING_BEGIN)-1, PARAM_BEGIN},
+			{PARAM_STRING_END, sizeof(PARAM_STRING_END)-1, PARAM_END},
+			{PARAM_STRING_TYPE, sizeof(PARAM_STRING_TYPE)-1, PARAM_TYPE},
+		};
+		int i;
+		for ( i=0; i<3; i++ )
+		{
+			if ( line.compare( content_start, params[i].size, params[i].word ) == 0 )
+			{
+				content_start += params[i].size;
+				ret = params[i].id;
+			}
+		}
+/*		if ( line.compare( content_start, sizeof(PARAM_STRING_BEGIN)-1, PARAM_STRING_BEGIN ) == 0 )
 		{
 			content_start += sizeof(PARAM_STRING_BEGIN)-1;
 			ret = PARAM_BEGIN;
@@ -437,7 +484,7 @@ class template_parser
 		{
 			content_start += sizeof(PARAM_STRING_TYPE)-1;
 			ret = PARAM_TYPE;
-		}
+		}*/
 //		while ( content_start < line.size() && (line[content_start] == ' ' || line[content_start] == '\t')) content_start++;
 		return ret;
 	}
@@ -446,22 +493,43 @@ class template_parser
 	{
 		int ret = LINE_PART_VERBATIM;
 		while ( content_start < line.size() && (line[content_start] == ' ' || line[content_start] == '\t')) content_start++;
-		if ( line.compare( content_start, sizeof(PLASEHOLDER_STRING_STRUCTNAME)-1, PLASEHOLDER_STRING_STRUCTNAME ) == 0 )
+		struct param
 		{
-			content_start += sizeof(PLASEHOLDER_STRING_STRUCTNAME)-1;
-			ret = PLASEHOLDER_STRUCTNAME;
-		}
-		else if ( line.compare( content_start, sizeof(PLASEHOLDER_STRING_MEMBER_TYPE)-1, PLASEHOLDER_STRING_MEMBER_TYPE ) == 0 )
+			const char* word;
+			int size;
+			int id;
+		};
+		param params[3] = 
 		{
-			content_start += sizeof(PLASEHOLDER_STRING_MEMBER_TYPE)-1;
-			ret = PLASEHOLDER_MEMBER_TYPE;
-		}
-		else if ( line.compare( content_start, sizeof(PLASEHOLDER_STRING_MEMBER_NAME)-1, PLASEHOLDER_STRING_MEMBER_NAME ) == 0 )
+			{PLACEHOLDER_STRING_STRUCTNAME, sizeof(PLACEHOLDER_STRING_STRUCTNAME)-1, PLACEHOLDER_STRUCTNAME},
+			{PLACEHOLDER_STRING_MEMBER_TYPE, sizeof(PLACEHOLDER_STRING_MEMBER_TYPE)-1, PLACEHOLDER_MEMBER_TYPE},
+			{PLACEHOLDER_STRING_MEMBER_NAME, sizeof(PLACEHOLDER_STRING_MEMBER_NAME)-1, PLACEHOLDER_MEMBER_NAME},
+		};
+		int i;
+		for ( i=0; i<3; i++ )
 		{
-			content_start += sizeof(PLASEHOLDER_STRING_MEMBER_NAME)-1;
-			ret = PLASEHOLDER_MEMBER_NAME;
+			if ( line.compare( content_start, params[i].size, params[i].word ) == 0 )
+			{
+				content_start += params[i].size;
+				ret = params[i].id;
+			}
 		}
-//		while ( content_start < line.size() && (line[content_start] == ' ' || line[content_start] == '\t')) content_start++;
+/*		if ( line.compare( content_start, sizeof(PLACEHOLDER_STRING_STRUCTNAME)-1, PLACEHOLDER_STRING_STRUCTNAME ) == 0 )
+		{
+			content_start += sizeof(PLACEHOLDER_STRING_STRUCTNAME)-1;
+			ret = PLACEHOLDER_STRUCTNAME;
+		}
+		else if ( line.compare( content_start, sizeof(PLACEHOLDER_STRING_MEMBER_TYPE)-1, PLACEHOLDER_STRING_MEMBER_TYPE ) == 0 )
+		{
+			content_start += sizeof(PLACEHOLDER_STRING_MEMBER_TYPE)-1;
+			ret = PLACEHOLDER_MEMBER_TYPE;
+		}
+		else if ( line.compare( content_start, sizeof(PLACEHOLDER_STRING_MEMBER_NAME)-1, PLACEHOLDER_STRING_MEMBER_NAME ) == 0 )
+		{
+			content_start += sizeof(PLACEHOLDER_STRING_MEMBER_NAME)-1;
+			ret = PLACEHOLDER_MEMBER_NAME;
+		}*/
+
 		return ret;
 	}
 
@@ -490,9 +558,9 @@ class template_parser
 								pos ++; 
 								break;
 							}
-							case PLASEHOLDER_STRUCTNAME:
-							case PLASEHOLDER_MEMBER_TYPE:
-							case PLASEHOLDER_MEMBER_NAME:
+							case PLACEHOLDER_STRUCTNAME:
+							case PLACEHOLDER_MEMBER_TYPE:
+							case PLACEHOLDER_MEMBER_NAME:
 							{
 								parts.push_back( part ); 
 								part.verbatim.clear(); 
@@ -538,8 +606,8 @@ class template_parser
 								pos ++; 
 								break;
 							}
-							case PLASEHOLDER_MEMBER_TYPE:
-							case PLASEHOLDER_MEMBER_NAME:
+							case PLACEHOLDER_MEMBER_TYPE:
+							case PLACEHOLDER_MEMBER_NAME:
 							{
 								assert( part.type == LINE_PART_VERBATIM );
 								if ( part.verbatim.size() )
