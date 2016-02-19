@@ -31,31 +31,20 @@ using namespace kpm;
 class template_instantiator
 {
 protected:
-	bool calc_condition_of_if_node( TEMPLATE_NODE& if_node/*, void* idlmap, int context*/ );
-	void apply_node( TEMPLATE_NODE& node/*, void* idlmap, int context*/ );
+	bool calc_condition_of_if_node( TEMPLATE_NODE& if_node );
+	void apply_node( TEMPLATE_NODE& node );
 
 public:
 	template_instantiator() {}
 
-//	virtual void apply_to_each_member( TEMPLATE_NODE& node );
-
 	virtual std::string placeholder( int placeholder_id );
 	virtual void apply_to_each( TEMPLATE_NODE& node );
-
-#if 0
-	void apply( /*void* idlmap, */ANY_TEMPLATE_ROOT& _root_node/*, int context*/ )
-	{
-		apply_node( _root_node.root/*, idlmap, context*/ );
-	}
-#endif
 };
 
 class struct_template_instantiator : public template_instantiator
 {
 protected:
 	MappingDeclNode* idlmap; // TODO: use actual type!
-
-//	virtual void apply_to_each_member( TEMPLATE_NODE& node );
 
 	virtual std::string placeholder( int placeholder_id );
 	virtual void apply_to_each( TEMPLATE_NODE& node );
@@ -64,9 +53,9 @@ protected:
 public:
 	struct_template_instantiator( MappingDeclNode* _idlmap ) { idlmap = _idlmap; }
 
-	void apply( /*void* idlmap,*/ ANY_TEMPLATE_ROOT& _root_node/*, int context*/ )
+	void apply( ANY_TEMPLATE_ROOT& node )
 	{
-		apply_node( _root_node.root/*, idlmap, context*/ );
+		apply_node( node.root );
 	}
 };
 
@@ -81,14 +70,14 @@ protected:
 public:
 	struct_member_template_instantiator( AttributeDeclNode* _attr ) { attr = _attr; }
 
-	void apply( /*void* idlmap, */TEMPLATE_NODE& _root_node/*, int context*/ )
+	void apply( TEMPLATE_NODE& node )
 	{
-		apply_node( _root_node/*, idlmap, context*/ );
+		apply_node( node );
 	}
 };
 
 
-void apply( MappingDeclNode* idlmap, ANY_TEMPLATE_ROOT& _root_node/*, int context*/ );
+void apply( MappingDeclNode* idlmap, ANY_TEMPLATE_ROOT& _root_node );
 
 
 #endif // __TEMPLATE_INSTANTIATOR_H__
