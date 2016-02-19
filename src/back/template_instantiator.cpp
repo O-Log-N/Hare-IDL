@@ -225,7 +225,7 @@ void struct_template_instantiator::apply_to_each( TEMPLATE_NODE& node )
 	{
 		for ( unsigned int k=0; k<node.child_nodes.size(); k++ )
 		{
-			struct_member_template_instantiator smti( &(*(idlmap->attributes[j])) );
+			struct_member_template_instantiator smti( *(idlmap->attributes[j]) );
 			smti.apply( node.child_nodes[k] );
 		}
 	}
@@ -255,7 +255,7 @@ std::string struct_member_template_instantiator::placeholder( int placeholder_id
 /////////////////////////////////////////////////////////////////////////
 
 
-void apply( MappingDeclNode* idlmap, ANY_TEMPLATE_ROOT& root_node )
+void apply( MappingDeclNode& idlmap, ANY_TEMPLATE_ROOT& root_node )
 {
 	struct_template_instantiator ti( idlmap );
 	ti.apply( root_node );

@@ -51,7 +51,7 @@ protected:
 
 
 public:
-	struct_template_instantiator( MappingDeclNode* _idlmap ) { idlmap = _idlmap; }
+	struct_template_instantiator( MappingDeclNode& _idlmap ) { idlmap = &_idlmap; }
 
 	void apply( ANY_TEMPLATE_ROOT& node )
 	{
@@ -68,7 +68,7 @@ protected:
 //	virtual void apply_to_each( TEMPLATE_NODE& node );
 
 public:
-	struct_member_template_instantiator( AttributeDeclNode* _attr ) { attr = _attr; }
+	struct_member_template_instantiator( AttributeDeclNode& _attr ) { attr = &_attr; }
 
 	void apply( TEMPLATE_NODE& node )
 	{
@@ -77,7 +77,7 @@ public:
 };
 
 
-void apply( MappingDeclNode* idlmap, ANY_TEMPLATE_ROOT& _root_node );
+void apply( MappingDeclNode& idlmap, ANY_TEMPLATE_ROOT& root_node );
 
 
 #endif // __TEMPLATE_INSTANTIATOR_H__

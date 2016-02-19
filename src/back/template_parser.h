@@ -32,8 +32,9 @@ using namespace std;
 #define NODE_TYPE_ENDIF 6
 #define NODE_TYPE_FOR_EACH_OF_MEMBERS 7
 #define NODE_TYPE_INCLUDE 8
-#define NODE_TYPE_ASSERT 9// derived types
-//#define NODE_TYPE_TMP 20
+#define NODE_TYPE_ASSERT 9
+// derived types
+//#define NODE_TYPE_UNDEFINED 20 // placeholedr
 #define NODE_TYPE_IF_TRUE_BRANCHE 21
 #define NODE_TYPE_IF_FALSE_BRANCHE 22
 #define NODE_TYPE_TEMPLATE_ROOT 23

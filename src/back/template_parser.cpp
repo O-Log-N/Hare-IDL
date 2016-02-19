@@ -16,8 +16,8 @@ Copyright (C) 2016 OLogN Technologies AG
 *******************************************************************************/
 
 #include "template_parser.h"
-#include <string.h> // for memmov()
 #include <assert.h> // for assert()
+
 
 // main keywords
 #define PARAM_STRING_BEGIN_TEMPLATE "BEGIN-TEMPLATE"
@@ -364,39 +364,66 @@ class template_parser
 		return something_found;
 	}
 
-	int parse_main_keyword( std::string& line, unsigned int& content_start )
-	{
-		int ret = NODE_TYPE_CONTENT;
-		assert( line.compare( content_start, 2, "@@" ) == 0 );
-		content_start += 2;
-		while ( content_start < line.size() && (line[content_start] == ' ' || line[content_start] == '\t')) content_start++;
-		struct keyword
+		struct special_word
 		{
 			const char* kw;
 			int size;
 			int id;
 		};
-		keyword keywords[8] = 
-		{
-			{PARAM_STRING_BEGIN_TEMPLATE, sizeof(PARAM_STRING_BEGIN_TEMPLATE)-1, NODE_TYPE_BEGIN_TEMPLATE},
-			{PARAM_STRING_END_TEMPLATE, sizeof(PARAM_STRING_END_TEMPLATE)-1, NODE_TYPE_END_TEMPLATE},
-			{KEYWORD_STRING_FOR_EACH_OF_MEMBERS, sizeof(KEYWORD_STRING_FOR_EACH_OF_MEMBERS)-1, NODE_TYPE_FOR_EACH_OF_MEMBERS},
-			{KEYWORD_STRING_IF, sizeof(KEYWORD_STRING_IF)-1, NODE_TYPE_IF},
-			{PARAM_STRING_ENDIF, sizeof(PARAM_STRING_ENDIF)-1, NODE_TYPE_ENDIF},
-			{KEYWORD_STRING_ELIF, sizeof(KEYWORD_STRING_ELIF)-1, NODE_TYPE_ELIF},
-			{KEYWORD_STRING_ELSE, sizeof(KEYWORD_STRING_ELSE)-1, NODE_TYPE_ELSE},
-			{PARAM_STRING_ASSERT, sizeof(PARAM_STRING_ASSERT)-1, NODE_TYPE_ASSERT},
-		};
+	int parse_special_word( std::string& line, unsigned int& content_start, special_word* words )
+	{
+		int ret;
 		int i;
-		for ( i=0; i<8; i++ )
+		for ( i=0; ; i++ )
 		{
-			if ( line.compare( content_start, keywords[i].size, keywords[i].kw ) == 0 )
+			if ( words[i].size == 0 )
+			{
+				ret = words[i].id;
+				break;
+			}
+			else if ( line.compare( content_start, words[i].size, words[i].kw ) == 0 )
+			{
+				content_start += words[i].size;
+				ret = words[i].id;
+				break;
+			}
+		}
+		return ret;
+	}
+
+	int parse_main_keyword( std::string& line, unsigned int& content_start )
+	{
+		assert( line.compare( content_start, 2, "@@" ) == 0 );
+		content_start += 2;
+		while ( content_start < line.size() && (line[content_start] == ' ' || line[content_start] == '\t')) content_start++;
+		special_word keywords[] = 
+		{
+			{"BEGIN-TEMPLATE", sizeof("BEGIN-TEMPLATE")-1, NODE_TYPE_BEGIN_TEMPLATE},
+			{"END-TEMPLATE", sizeof("END-TEMPLATE")-1, NODE_TYPE_END_TEMPLATE},
+			{"FOR-EACH-OF-MEMBERS", sizeof("FOR-EACH-OF-MEMBERS")-1, NODE_TYPE_FOR_EACH_OF_MEMBERS},
+			{"IF", sizeof("IF")-1, NODE_TYPE_IF},
+			{"ENDIF", sizeof("ENDIF")-1, NODE_TYPE_ENDIF},
+			{"ELIF", sizeof("ELIF")-1, NODE_TYPE_ELIF},
+			{"ELSE", sizeof("ELSE")-1, NODE_TYPE_ELSE},
+			{"ASSERT", sizeof("ASSERT")-1, NODE_TYPE_ASSERT},
+			{NULL, 0, NODE_TYPE_CONTENT}
+		};
+/*		int i;
+		for ( i=0; ; i++ )
+		{
+			if ( keywords[i].size == 0 )
+			{
+				ret = keywords[i].id;
+				break;
+			}
+			else if ( line.compare( content_start, keywords[i].size, keywords[i].kw ) == 0 )
 			{
 				content_start += keywords[i].size;
 				ret = keywords[i].id;
+				break;
 			}
 		}
-/*		if ( line.compare( content_start, sizeof(PARAM_STRING_BEGIN_TEMPLATE)-1, PARAM_STRING_BEGIN_TEMPLATE ) == 0 )
+		if ( line.compare( content_start, sizeof(PARAM_STRING_BEGIN_TEMPLATE)-1, PARAM_STRING_BEGIN_TEMPLATE ) == 0 )
 		{
 			content_start += sizeof(PARAM_STRING_BEGIN_TEMPLATE)-1;
 			ret = NODE_TYPE_BEGIN_TEMPLATE;
@@ -436,6 +463,7 @@ class template_parser
 			content_start += sizeof(PARAM_STRING_ASSERT)-1;
 			ret = NODE_TYPE_ASSERT;
 		}*/
+		int ret = parse_special_word( line, content_start, keywords );
 		while ( content_start < line.size() && (line[content_start] == ' ' || line[content_start] == '\t')) content_start++;
 		return ret;
 	}
@@ -447,21 +475,16 @@ class template_parser
 
 	int parse_param( std::string& line, unsigned int& content_start )
 	{
-		int ret = PARAM_NONE;
+//		int ret = PARAM_NONE;
 		while ( content_start < line.size() && (line[content_start] == ' ' || line[content_start] == '\t')) content_start++;
-		struct param
+		special_word params[] = 
 		{
-			const char* word;
-			int size;
-			int id;
+			{"BEGIN", sizeof("BEGIN")-1, PARAM_BEGIN},
+			{"END", sizeof("END")-1, PARAM_END},
+			{"TYPE", sizeof("TYPE")-1, PARAM_TYPE},
+			{NULL, 0, PARAM_NONE},
 		};
-		param params[3] = 
-		{
-			{PARAM_STRING_BEGIN, sizeof(PARAM_STRING_BEGIN)-1, PARAM_BEGIN},
-			{PARAM_STRING_END, sizeof(PARAM_STRING_END)-1, PARAM_END},
-			{PARAM_STRING_TYPE, sizeof(PARAM_STRING_TYPE)-1, PARAM_TYPE},
-		};
-		int i;
+/*		int i;
 		for ( i=0; i<3; i++ )
 		{
 			if ( line.compare( content_start, params[i].size, params[i].word ) == 0 )
@@ -470,7 +493,7 @@ class template_parser
 				ret = params[i].id;
 			}
 		}
-/*		if ( line.compare( content_start, sizeof(PARAM_STRING_BEGIN)-1, PARAM_STRING_BEGIN ) == 0 )
+		if ( line.compare( content_start, sizeof(PARAM_STRING_BEGIN)-1, PARAM_STRING_BEGIN ) == 0 )
 		{
 			content_start += sizeof(PARAM_STRING_BEGIN)-1;
 			ret = PARAM_BEGIN;
@@ -486,26 +509,28 @@ class template_parser
 			ret = PARAM_TYPE;
 		}*/
 //		while ( content_start < line.size() && (line[content_start] == ' ' || line[content_start] == '\t')) content_start++;
+		int ret = parse_special_word( line, content_start, params );
 		return ret;
 	}
 
 	int parse_placeholder( std::string& line, unsigned int& content_start )
 	{
-		int ret = LINE_PART_VERBATIM;
+//		int ret = LINE_PART_VERBATIM;
 		while ( content_start < line.size() && (line[content_start] == ' ' || line[content_start] == '\t')) content_start++;
-		struct param
+/*		struct param
 		{
 			const char* word;
 			int size;
 			int id;
-		};
-		param params[3] = 
+		};*/
+		special_word params[] = 
 		{
-			{PLACEHOLDER_STRING_STRUCTNAME, sizeof(PLACEHOLDER_STRING_STRUCTNAME)-1, PLACEHOLDER_STRUCTNAME},
-			{PLACEHOLDER_STRING_MEMBER_TYPE, sizeof(PLACEHOLDER_STRING_MEMBER_TYPE)-1, PLACEHOLDER_MEMBER_TYPE},
-			{PLACEHOLDER_STRING_MEMBER_NAME, sizeof(PLACEHOLDER_STRING_MEMBER_NAME)-1, PLACEHOLDER_MEMBER_NAME},
+			{"@STRUCT-NAME@", sizeof("@STRUCT-NAME@")-1, PLACEHOLDER_STRUCTNAME},
+			{"@MEMBER-TYPE@", sizeof("@MEMBER-TYPE@")-1, PLACEHOLDER_MEMBER_TYPE},
+			{"@MEMBER-NAME@", sizeof("@MEMBER-NAME@")-1, PLACEHOLDER_MEMBER_NAME},
+			{NULL, 0, LINE_PART_VERBATIM},
 		};
-		int i;
+/*		int i;
 		for ( i=0; i<3; i++ )
 		{
 			if ( line.compare( content_start, params[i].size, params[i].word ) == 0 )
@@ -513,7 +538,7 @@ class template_parser
 				content_start += params[i].size;
 				ret = params[i].id;
 			}
-		}
+		}*/
 /*		if ( line.compare( content_start, sizeof(PLACEHOLDER_STRING_STRUCTNAME)-1, PLACEHOLDER_STRING_STRUCTNAME ) == 0 )
 		{
 			content_start += sizeof(PLACEHOLDER_STRING_STRUCTNAME)-1;
@@ -530,6 +555,7 @@ class template_parser
 			ret = PLACEHOLDER_MEMBER_NAME;
 		}*/
 
+		int ret = parse_special_word( line, content_start, params );
 		return ret;
 	}
 
