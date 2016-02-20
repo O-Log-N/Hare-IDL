@@ -1,5 +1,5 @@
-Development Flow and Relese Versioning
-======================================
+Development Flow and Release Versioning
+=======================================
 
 Development Flow
 ----------------
