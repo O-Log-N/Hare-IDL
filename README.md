@@ -66,5 +66,5 @@ Eventually, we hope to provide the following features (those features **not foun
 -  **Support for the differential handling for relevant encoding(s)**
 -  **Support for lossy encoding(s)**
 -  **bit-oriented encoding(s) with associated goodies (including per-field Huffman)**
--  **statistics gathering during test run and encoding optimization recommendations **
+-  **statistics gathering during test run and encoding optimization recommendations**
  
