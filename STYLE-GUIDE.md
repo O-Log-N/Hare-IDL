@@ -26,8 +26,9 @@ Naming conventions examples:
 
 ### I.2 On includes
 
-1. **MUST NOT** have any duplicate declarations for the same entity. In particular, function declarations in .cpp files are **PROHIBITED** for non-static functions
-2. Each include **MUST** have #ifndef INCLUDE_FILE_NAME_INCLUDED - #define INCLUDE_FILE_NAME_INCLUDED "include guard"
+1. **MUST NOT** have any duplicate declarations for the same entity. In particular, function declarations in .cpp files are** PROHIBITED** for non-static functions
+2. Each include **MUST** have "include guard" #ifndef INCLUDE_FILE_NAME_INCLUDED - #define INCLUDE_FILE_NAME_INCLUDED "include guard"
+    - #pragma once SHOULD NOT be used as non-standard
 3. C++ standard includes SHOULD go before our own includes
 4. C++ standard includes **MUST** be included via <include_file_name.h>
 5. Our own includes **MUST** be included via "include_file_name.h" (with a relative path if necessary(!))
@@ -46,6 +47,7 @@ Naming conventions examples:
 5. SHOULD use C++11-style "range-based for loops" such as for(int i:v) {} where applicable
 6. SHOULD use C++11 auto for iterators such as auto it = v.begin(); where applicable. This also SHOULD reduce the need for iterator typedefs
 7. SHOULD NOT overuse C++11 auto for short-and-obvious types.
+8. SHOULD use "f() = delete;" to prohibit calling functions (instead of C++03's declaring as private and not implementing)
 
 ### I.5 Misc
 
