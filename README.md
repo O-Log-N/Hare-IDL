@@ -38,7 +38,7 @@ Encodings
 In theory, Hare-IDL can support pretty much any encoding. In the long run, we hope to support the following standard and our own encodings:
 
 - STANDARD: Google Protocol Buffers
-    * Google Protocol Buffers is probably the best all-around byte-oriented protocol
+    * Google Protocol Buffers is one of the the best all-around byte-oriented protocols
 - OUR-OWN: bitstream; optimized for games and simulations (with deltas of all kinds, dead reckoning etc., see http://ithare.com/mmog-world-states-and-reducing-traffic/ for further discussion)
 - STANDARD: JSON
 - STANDARD: ASN.1 DER
