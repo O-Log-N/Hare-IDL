@@ -15,7 +15,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#pragma once
+#ifndef LITERAL_NODE_H_INCLUDED
+#define LITERAL_NODE_H_INCLUDED "include guard"
 
 #include <list>
 
@@ -167,3 +168,5 @@ namespace hare
 		static void insertIntExtension(const ResolvedType& rtype, std::unique_ptr<ExpressionNode>& expr);
 	};
 }
+
+#endif // LITERAL_NODE_H_INCLUDED

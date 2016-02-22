@@ -15,7 +15,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#pragma once
+#ifndef FORWARD_DECL_H_INCLUDED
+#define FORWARD_DECL_H_INCLUDED "include guard"
+
 
 namespace hare
 {
@@ -55,3 +57,5 @@ namespace hare
 	class FloatLiteralExprNode;
 	class IdentifierExprNode;
 }
+
+#endif // FORWARD_DECL_H_INCLUDED

@@ -15,7 +15,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#pragma once
+#ifndef ERROR_H_INCLUDED
+#define ERROR_H_INCLUDED "include guard"
 
 #include <string>
 #include <ostream>
@@ -140,4 +141,4 @@ namespace hare
 
 }
 
-
+#endif // ERROR_H_INCLUDED

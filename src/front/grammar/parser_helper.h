@@ -23,8 +23,8 @@ Also leaves function calls only at scan.l and parse.y files, and
 all code goes inside parser_helper.cpp
 */
 
-#pragma once
-
+#ifndef PARSER_HELPER_H_INCLUDED
+#define PARSER_HELPER_H_INCLUDED "include guard"
 
 struct YyBase;
 typedef struct YyBase* YYSTYPE;
@@ -106,3 +106,4 @@ extern "C" {
 }
 #endif
 
+#endif // PARSER_HELPER_H_INCLUDED

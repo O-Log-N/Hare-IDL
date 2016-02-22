@@ -15,7 +15,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#pragma once
+#ifndef BASE_NODE_H_INCLUDED
+#define BASE_NODE_H_INCLUDED "include guard"
 
 #include <string>
 #include <vector>
@@ -453,9 +454,9 @@ namespace hare
 			return fullTypeName;
 		}
 
-//		void setTypeCode(const Location& loc, int token, const std::string& text);
+		//		void setTypeCode(const Location& loc, int token, const std::string& text);
 
-//		static std::string getArgumentsName(const std::vector<ResolvedType>& argTypes, const std::vector<int>& argValues);
+		//		static std::string getArgumentsName(const std::vector<ResolvedType>& argTypes, const std::vector<int>& argValues);
 	};
-
 }
+#endif // BASE_NODE_H_INCLUDED
