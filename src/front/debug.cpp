@@ -63,7 +63,7 @@ public:
 	DumpWalker(std::ostream& os) : os(os), offset(0) {}
 
 	void walkNode(Node* node) {
-		ASSERT(node);
+		HAREASSERT(node);
 		os << getOffset(offset);
 		dumpNode(os, node);
 		++offset;
@@ -87,7 +87,7 @@ public:
 
 void dumpNode(std::ostream& os, Node* node)
 {
-	ASSERT(node);
+	HAREASSERT(node);
 	os << "#" << node->nodeId;
 	os << " ";
 	node->location.write(os);
@@ -105,7 +105,7 @@ void dumpNode(std::ostream& os, Node* node)
 
 void dumpDown(std::ostream& os, Node* node)
 {
-	ASSERT(node);
+	HAREASSERT(node);
 	DumpWalker walker(os);
 	walker.walkNode(node);
 }

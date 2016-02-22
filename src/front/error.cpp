@@ -43,7 +43,7 @@ std::string formatError(const Location& loc, const std::string& msg)
 
 std::string formatMessage(const std::string& msg, const std::string& arg)
 {
-	ASSERT(msg.size() < 160); //arbitrary limit
+	HAREASSERT(msg.size() < 160); //arbitrary limit
 	char buffer[1100];
 	const char* a = arg.size() < 1000 ? arg.c_str() : "<...message too long...>";
 	sprintf(buffer, msg.c_str(), a);
@@ -51,14 +51,14 @@ std::string formatMessage(const std::string& msg, const std::string& arg)
 }
 std::string formatMessage(const std::string& msg, size_t arg)
 {
-	ASSERT(msg.size() < 80); //arbitrary limit
+	HAREASSERT(msg.size() < 80); //arbitrary limit
 	char buffer[100];
 	sprintf(buffer, msg.c_str(), arg);
 	return buffer;
 }
 std::string formatMessage(const std::string& msg, const std::string& arg0, const std::string& arg1)
 {
-	ASSERT(msg.size() < 80); //arbitrary limit
+	HAREASSERT(msg.size() < 80); //arbitrary limit
 	char buffer[2100];
 	const char* a0 = arg0.size() < 1000 ? arg0.c_str() : "<...message too long...>";
 	const char* a1 = arg1.size() < 1000 ? arg1.c_str() : "<...message too long...>";

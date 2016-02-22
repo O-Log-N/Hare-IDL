@@ -28,7 +28,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 /*
 TODO maybe throw an exception, by now is better to assert and let the debugger kickin.
 */
-#define ASSERT(condition) assert(condition)
 #define HAREASSERT(condition) assert(condition)
 
 class Node;
@@ -86,7 +85,7 @@ private:
 	std::vector<Child<T> > child_list;
 
 	Child<T> make_child(T* new_child) const {
-		ASSERT(new_child != 0);
+		HAREASSERT(new_child != 0);
 		Child<T> ch(parent);
 		ch.set(new_child);
 		return ch;

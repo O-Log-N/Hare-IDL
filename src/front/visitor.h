@@ -46,34 +46,34 @@ public:
 class NodeVisitor
 {
 public:
-	virtual void visitMe(RootNode* node) { ASSERT(false); }
+	virtual void visitMe(RootNode* node) { HAREASSERT(false); }
 
 	virtual void visitMe(FileNode* node) { /*do nothing*/ }
 
-	virtual void visitMe(BooleanLiteralExprNode* node) { ASSERT(false); }
-	virtual void visitMe(IntegerLiteralExprNode* node) { ASSERT(false); }
+	virtual void visitMe(BooleanLiteralExprNode* node) { HAREASSERT(false); }
+	virtual void visitMe(IntegerLiteralExprNode* node) { HAREASSERT(false); }
 
-	virtual void visitMe(AttributeDeclNode* node) { ASSERT(false); }
+	virtual void visitMe(AttributeDeclNode* node) { HAREASSERT(false); }
 
-	virtual void visitMe(PublishableStructDeclNode* node) { ASSERT(false); }
-	virtual void visitMe(FenceDeclNode* node) { ASSERT(false); }
-	virtual void visitMe(FencedAttributeDeclNode* node) { ASSERT(false); }
-	virtual void visitMe(EncodingDeclNode* node) { ASSERT(false); }
-	virtual void visitMe(MappingDeclNode* node) { ASSERT(false); }
+	virtual void visitMe(PublishableStructDeclNode* node) { HAREASSERT(false); }
+	virtual void visitMe(FenceDeclNode* node) { HAREASSERT(false); }
+	virtual void visitMe(FencedAttributeDeclNode* node) { HAREASSERT(false); }
+	virtual void visitMe(EncodingDeclNode* node) { HAREASSERT(false); }
+	virtual void visitMe(MappingDeclNode* node) { HAREASSERT(false); }
 
-	virtual void visitMe(NameTypeNode* node) { ASSERT(false); }
-	virtual void visitMe(NumericTypeNode* node) { ASSERT(false); }
-	virtual void visitMe(IntTypeNode* node) { ASSERT(false); }
-	virtual void visitMe(FixedPointTypeNode* node) { ASSERT(false); }
-	virtual void visitMe(BitTypeNode* node) { ASSERT(false); }
-	virtual void visitMe(SequenceOfTypeNode* node) { ASSERT(false); }
-	virtual void visitMe(ClassRefTypeNode* node) { ASSERT(false); }
-	virtual void visitMe(InlineEnumTypeNode* node) { ASSERT(false); }
-	virtual void visitMe(EnumValueDeclNode* node) { ASSERT(false); }
+	virtual void visitMe(NameTypeNode* node) { HAREASSERT(false); }
+	virtual void visitMe(NumericTypeNode* node) { HAREASSERT(false); }
+	virtual void visitMe(IntTypeNode* node) { HAREASSERT(false); }
+	virtual void visitMe(FixedPointTypeNode* node) { HAREASSERT(false); }
+	virtual void visitMe(BitTypeNode* node) { HAREASSERT(false); }
+	virtual void visitMe(SequenceOfTypeNode* node) { HAREASSERT(false); }
+	virtual void visitMe(ClassRefTypeNode* node) { HAREASSERT(false); }
+	virtual void visitMe(InlineEnumTypeNode* node) { HAREASSERT(false); }
+	virtual void visitMe(EnumValueDeclNode* node) { HAREASSERT(false); }
 
 
-	virtual void visitMe(FloatLiteralExprNode* node) { ASSERT(false); }
-	virtual void visitMe(IdentifierExprNode* node) { ASSERT(false); }
+	virtual void visitMe(FloatLiteralExprNode* node) { HAREASSERT(false); }
+	virtual void visitMe(IdentifierExprNode* node) { HAREASSERT(false); }
 
 
 };

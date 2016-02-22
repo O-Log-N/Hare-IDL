@@ -72,7 +72,7 @@ void BooleanLiteralExprNode::setBooleanLiteral(const char* text)
 	else if (booleanFalse == text)
 		value = false;
 	else
-		ASSERT(false);
+		HAREASSERT(false);
 }
 
 static_assert(sizeof(long long) == 8, "type 'long long' must have 64 bits");
@@ -105,7 +105,7 @@ int IntegerLiteralExprNode::textToIntValue(const Location& loc, const string& te
 {
 	long long integerValue = textToValue(loc, textValue);
 
-	ASSERT(integerValue >= 0LL);
+	HAREASSERT(integerValue >= 0LL);
 
 	if (integerValue > intMax) {
 		reportError(loc, "Integer literal overflows int signed limit.");

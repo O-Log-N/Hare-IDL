@@ -265,9 +265,9 @@ YYSTYPE createZeroLiteral(const char* text, int line)
 
 YYSTYPE createStringLiteral(const char* text, int line)
 {
-	ASSERT(text);
+	HAREASSERT(text);
 	string t = text;
-	ASSERT(t.size() >= 2);
+	HAREASSERT(t.size() >= 2);
 	t = t.substr(1, t.size() - 2);
 
 	YyStringLiteral* yy = new YyStringLiteral();
@@ -278,9 +278,9 @@ YYSTYPE createStringLiteral(const char* text, int line)
 
 YYSTYPE createCharLiteral(const char* text, int line)
 {
-	//ASSERT(text);
+	//HAREASSERT(text);
 	//string t = text;
-	//ASSERT(t.size() >= 2);
+	//HAREASSERT(t.size() >= 2);
 	//t = t.substr(1, t.size() - 2);
 
 	//CharLiteralExprNode* yy = new CharLiteralExprNode();
@@ -384,7 +384,7 @@ YYSTYPE addToEncoding(YYSTYPE decl, YYSTYPE elem)
 
 YYSTYPE addGroupToEncoding(YYSTYPE decl, YYSTYPE group)
 {
-	ASSERT(NotImplementedYet);
+	HAREASSERT(NotImplementedYet);
 
 	return decl;
 }
@@ -417,7 +417,7 @@ YYSTYPE createIdentifierAttribute(YYSTYPE id_type, YYSTYPE id)
 
 YYSTYPE addTagToAttribute(YYSTYPE id, YYSTYPE arg_list, YYSTYPE element)
 {
-	ASSERT(NotImplementedYet);
+	HAREASSERT(NotImplementedYet);
 
 	return 0;
 }
@@ -425,14 +425,14 @@ YYSTYPE addTagToAttribute(YYSTYPE id, YYSTYPE arg_list, YYSTYPE element)
 
 YYSTYPE createTagGroup(YYSTYPE id, YYSTYPE arg_list)
 {
-	ASSERT(NotImplementedYet);
+	HAREASSERT(NotImplementedYet);
 
 	return 0;
 }
 
 YYSTYPE addToTagGroup(YYSTYPE group, YYSTYPE element)
 {
-	ASSERT(NotImplementedYet);
+	HAREASSERT(NotImplementedYet);
 
 	return 0;
 }
@@ -602,7 +602,7 @@ YYSTYPE addToFile(YYSTYPE file, YYSTYPE item);
 
 YYSTYPE addToFile(YYSTYPE file, YYSTYPE item)
 {
-	ASSERT(acceptFile);
+	HAREASSERT(acceptFile);
 
 	Node* d = yystype_cast<Node*>(item);
 	acceptFile->items.push_back(d);
@@ -626,7 +626,7 @@ extern "C" void yy_delete_buffer(yy_buffer_state*);
 
 static FileNode* parseInternal(const std::string& fileName, bool debugDump, bool internalFile)
 {
-	ASSERT(!acceptFile);
+	HAREASSERT(!acceptFile);
 	try {
 		unique_ptr<FileNode> file(new FileNode(fileName));
 		file->isInternalFile = internalFile;
@@ -662,7 +662,7 @@ static FileNode* parseInternal(const std::string& fileName, bool debugDump, bool
 
 FileNode* parseCode(const char* code, const std::string& pseudoFileName, bool debugDump, bool internalFile)
 {
-	ASSERT(code);
+	HAREASSERT(code);
 
 	unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> buff(yy_scan_string(code), &yy_delete_buffer);
 
@@ -673,7 +673,7 @@ FileNode* parseCode(const char* code, const std::string& pseudoFileName, bool de
 
 FileNode* parseSourceFile(const string& fileName, bool debugDump, bool internalFile)
 {
-	ASSERT(!fileName.empty());
+	HAREASSERT(!fileName.empty());
 
 #pragma warning( push )
 #pragma warning( disable : 4996 )

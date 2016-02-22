@@ -68,7 +68,7 @@ public:
 	const size_t nodeId;
 	Node* parent;
 public:
-	Node() : nodeId(++nodeIdNext), parent(0) { ASSERT(nodeIdNext != 0); }
+	Node() : nodeId(++nodeIdNext), parent(0) { HAREASSERT(nodeIdNext != 0); }
 	virtual ~Node() {}
 
 public:
