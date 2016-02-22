@@ -25,41 +25,32 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 using namespace std;
 
-const bool enableLeakDetector = true;
-set<YyBase*> leakDetector;
+const bool dbgEnableLeakDetector = true;
+set<YyBase*> dbgLeakDetector;
 
 YyBase::YyBase()
 {
-	if (enableLeakDetector)
-		leakDetector.insert(this);
+	if (dbgEnableLeakDetector)
+		dbgLeakDetector.insert(this);
 }
 
 YyBase::~YyBase()
 {
-	if (enableLeakDetector)
-		leakDetector.erase(this);
+	if (dbgEnableLeakDetector)
+		dbgLeakDetector.erase(this);
 }
 
 size_t Node::nodeIdNext = 0;
 
-void dumpLeaks(std::ostream& os)
+void dbgDumpLeaks(std::ostream& os)
 {
-	for (set<YyBase*>::const_iterator it = leakDetector.begin(); it != leakDetector.end(); ++it) {
+	for (set<YyBase*>::const_iterator it = dbgLeakDetector.begin(); it != dbgLeakDetector.end(); ++it) {
 		if (Node* n = dynamic_cast<Node*>(*it))
-			dumpNode(os, n);
+			dbgDumpNode(os, n);
 		else {
 			(*it)->location.write(os);
 			os << endl;
 		}
 	}
-}
-
-
-void setKeywordFlag(bool& flag, const Location& loc, const std::string& flagName)
-{
-	if (flag)
-		reportWarning(loc, "Duplicated keyword '%s'.", flagName);
-	else
-		flag = true;
 }
 

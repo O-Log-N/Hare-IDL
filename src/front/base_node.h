@@ -38,8 +38,7 @@ struct YyBase {
 };
 
 
-void dumpLeaks(std::ostream& os);
-void setKeywordFlag(bool& flag, const Location& loc, const std::string& flagName);
+void dbgDumpLeaks(std::ostream& os);
 
 template<class T>
 std::string integerToString(T t)
@@ -85,9 +84,8 @@ public:
 	/* resolve */
 	virtual void resolve() {}
 
-	/* dump node specific data */
-	virtual void dump(std::ostream& os) const {}
-	virtual void dumpSymbols(const std::string& prefix, std::ostream& os) const {}
+	/* dbgDump node specific data */
+	virtual void dbgDump(std::ostream& os) const {}
 
 	const Node* getRoot() const {
 
@@ -101,18 +99,18 @@ public:
 
 protected:
 	/* Commmon tasks helpers */
-	void dumpResolved(std::ostream& os, const Node* resolved) const {
+	void dbgDumpResolved(std::ostream& os, const Node* resolved) const {
 		if (resolved)
 			os << " resolved=>#" << resolved->nodeId;
 	}
 
 	template<class T>
-	void dumpAttribute(std::ostream& os, const char* name, const T& value) const {
+	void dbgDumpAttribute(std::ostream& os, const char* name, const T& value) const {
 		os << " " << name << "='" << value << "'";
 	}
 
 	template<class T>
-	void dumpAttribute(std::ostream& os, const char* name, const std::vector<T>& values) const {
+	void dbgDumpAttribute(std::ostream& os, const char* name, const std::vector<T>& values) const {
 		os << " " << name << "='";
 		for (auto it = values.begin(); it != values.end(); ++it) {
 			if (it != values.begin())
@@ -150,7 +148,7 @@ public:
 	TypeNode() {}
 
 	virtual std::string toString() const = 0;
-	virtual void dump(std::ostream& os) const {
+	virtual void dbgDump(std::ostream& os) const {
 		os << " type='" << toString() << "'";
 	}
 };

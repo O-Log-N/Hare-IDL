@@ -69,8 +69,8 @@ public:
 		walker.walkChild(this, attributes);
 	}
 
-	virtual void dump(std::ostream& os) const {
-		dumpAttribute(os, "name", name);
+	virtual void dbgDump(std::ostream& os) const {
+		dbgDumpAttribute(os, "name", name);
 	}
 };
 
@@ -89,8 +89,8 @@ public:
 		walker.walkChild(this, type);
 	}
 
-	virtual void dump(std::ostream& os) const {
-		dumpAttribute(os, "name", name);
+	virtual void dbgDump(std::ostream& os) const {
+		dbgDumpAttribute(os, "name", name);
 	}
 };
 
@@ -143,9 +143,9 @@ public:
 		walker.walkChild(this, fences);
 	}
 
-	virtual void dump(std::ostream& os) const {
-		dumpAttribute(os, "name", name);
-		dumpAttribute(os, "encoding", encoding);
+	virtual void dbgDump(std::ostream& os) const {
+		dbgDumpAttribute(os, "name", name);
+		dbgDumpAttribute(os, "encoding", encoding);
 	}
 };
 
@@ -164,9 +164,9 @@ public:
 		walker.walkChild(this, attributes);
 	}
 
-	virtual void dump(std::ostream& os) const {
-		dumpAttribute(os, "name", name);
-		dumpAttribute(os, "tags", tags);
+	virtual void dbgDump(std::ostream& os) const {
+		dbgDumpAttribute(os, "name", name);
+		dbgDumpAttribute(os, "tags", tags);
 	}
 };
 
@@ -344,9 +344,9 @@ public:
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
 
-	virtual void dump(std::ostream& os) const {
-		dumpAttribute(os, "name", name);
-		dumpResolved(os, resolved);
+	virtual void dbgDump(std::ostream& os) const {
+		dbgDumpAttribute(os, "name", name);
+		dbgDumpResolved(os, resolved);
 	}
 };
 

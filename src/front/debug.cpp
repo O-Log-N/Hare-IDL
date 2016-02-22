@@ -29,50 +29,32 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 using namespace std;
 
-vector<string> offsets;
-
-string createOffset(size_t offset)
-{
-	string r;
-	if (offset != 0) {
-		for (size_t i = 0; i < offset; ++i) {
-			if (i != 0)
-				r.push_back(' ');
-
-			r.push_back('|');
-		}
-		r.push_back('-');
-	}
-	return r;
-}
-
-const string& getOffset(size_t offset)
-{
-	while (offsets.size() <= offset)
-		offsets.push_back(createOffset(offset));
-
-	return offsets[offset];
-}
 
 
-class DumpWalker : public NodeWalker
+
+
+class DbgDumpWalker : public NodeWalker
 {
 public:
 	std::ostream& os;
 	size_t offset;
-	DumpWalker(std::ostream& os) : os(os), offset(0) {}
+	vector<string> offsets;
+
+	DbgDumpWalker(std::ostream& os) : os(os), offset(0)
+	{
+		offsets.push_back("");
+	}
 
 	void walkNode(Node* node) {
 		HAREASSERT(node);
 		os << getOffset(offset);
-		dumpNode(os, node);
+		dbgDumpNode(os, node);
 		++offset;
 		node->walk(*this);
-		node->dumpSymbols(getOffset(offset), os);
 		--offset;
 	}
 
-	void dumpNullChild() {
+	void dbgDumpNullChild() {
 	}
 
 	virtual void walkChildNode(Node* parent, Node* child) {
@@ -82,10 +64,28 @@ public:
 			os << getOffset(offset) << "!NULL!" << endl;
 		}
 	}
+private:
+	void addOffset()
+	{
+		string r;
+		for (size_t i = 0; i < offsets.size() - 1; ++i) {
+			r.append("| ");
+		}
+		r.append("|-");
+		offsets.push_back(r);
+	}
+
+	const string& getOffset(size_t offset)
+	{
+		while (offsets.size() <= offset)
+			addOffset();
+
+		return offsets[offset];
+	}
 };
 
 
-void dumpNode(std::ostream& os, Node* node)
+void dbgDumpNode(std::ostream& os, Node* node)
 {
 	HAREASSERT(node);
 	os << "#" << node->nodeId;
@@ -98,44 +98,25 @@ void dumpNode(std::ostream& os, Node* node)
 		name += 6;
 
 	os << " '" << name << "'";
-	node->dump(os);
+	node->dbgDump(os);
 
 	os << endl;
 }
 
-void dumpDown(std::ostream& os, Node* node)
+void dbgDumpDown(std::ostream& os, Node* node)
 {
 	HAREASSERT(node);
-	DumpWalker walker(os);
+	DbgDumpWalker walker(os);
 	walker.walkNode(node);
 }
-void dumpUp(std::ostream& os, Node* node)
-{
-	size_t offset = 0;
-	Node* current = node;
-	while (current) {
-		for (size_t i = 0; i < offset; ++i)
-			os << "|<";
 
-		os << "Node #" << node->nodeId;
-		os << " '" << typeid(*node).name() << "'";
-		if (node->location.isValid()) {
-			os << " ";
-			node->location.write(os);
-		}
-
-		node->dump(os);
-		++offset;
-		current = node->parent;
-	}
-}
 
 //	const long ticks = 0;
-DebugTimer::DebugTimer(const string& message) : begin(clock()), message(message)
+DbgTimer::DbgTimer(const string& message) : begin(clock()), message(message)
 {
 }
 
-DebugTimer::~DebugTimer()
+DbgTimer::~DbgTimer()
 {
 	long ticks = clock() - begin;
 	cout << "'" << message << "' completed in " << ticks << " ticks" << endl;

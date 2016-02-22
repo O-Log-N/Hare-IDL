@@ -44,8 +44,8 @@ public:
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
 
-	virtual void dump(std::ostream& os) const {
-		dumpAttribute(os, "value", value ? booleanTrue : booleanFalse);
+	virtual void dbgDump(std::ostream& os) const {
+		dbgDumpAttribute(os, "value", value ? booleanTrue : booleanFalse);
 	}
 
 	void setBooleanLiteral(bool value) { this->value = value; }
@@ -67,8 +67,8 @@ public:
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
 
-	virtual void dump(std::ostream& os) const {
-		dumpAttribute(os, "value", value);
+	virtual void dbgDump(std::ostream& os) const {
+		dbgDumpAttribute(os, "value", value);
 	}
 
 	virtual IntegerLiteralExprNode* getIntegerLiteral() { return this; }
@@ -99,8 +99,8 @@ public:
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
 
-	virtual void dump(std::ostream& os) const {
-		dumpAttribute(os, "value", value);
+	virtual void dbgDump(std::ostream& os) const {
+		dbgDumpAttribute(os, "value", value);
 	}
 
 	void setFloatLiteral(FloatType value) {

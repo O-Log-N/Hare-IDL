@@ -151,7 +151,7 @@ int main()
 	map2->attributes.push_back(make_named_att("UINT8", "animation_frame"));
 	map2->attributes.push_back(make_named_att("MyInventory", "inventory"));
 
-	dumpDown(std::cout, root);
+	dbgDumpDown(std::cout, root);
 
 	return 0;
 }

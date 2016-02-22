@@ -23,17 +23,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 class Node;
 
-void dumpNode(std::ostream& os, Node* node);
-void dumpDown(std::ostream& os, Node* node);
-void dumpUp(std::ostream& os, Node* node);
+void dbgDumpNode(std::ostream& os, Node* node);
+void dbgDumpDown(std::ostream& os, Node* node);
 
-class DebugTimer
+class DbgTimer
 {
 	long begin;
 	std::string message;
 public:
-	DebugTimer(const std::string& message);
-	~DebugTimer();
+	DbgTimer(const std::string& message);
+	~DbgTimer();
 };
 
 #endif // DEBUG_H_INCLUDED
