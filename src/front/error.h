@@ -44,43 +44,6 @@ public:
 	AbortException() {}
 };
 
-class UnresolvedException : public std::exception
-{
-public:
-	Location location;
-	std::string message;
-	std::vector<std::string> extendedMessage;
-
-	UnresolvedException(const Location& location, const std::string& message) :
-		location(location), message(message) {}
-	UnresolvedException(const Location& location, const std::string& message, const std::vector<std::string>& extendedMessage) :
-		location(location), message(message), extendedMessage(extendedMessage) {}
-	UnresolvedException(const Location& location, const std::string& message, const std::string& extraLine) :
-		location(location), message(message), extendedMessage() {
-		extendedMessage.push_back(extraLine);
-	}
-
-	~UnresolvedException() throw() {}
-};
-
-class ResolutionCycleException : public std::exception
-{
-public:
-	Location location;
-	std::string message;
-
-	ResolutionCycleException(const Location& location, const std::string& message) :
-		location(location), message(message) {}
-
-	~ResolutionCycleException() throw() {}
-};
-
-class PreviousResolutionException : public std::exception
-{
-public:
-	PreviousResolutionException() {}
-	~PreviousResolutionException() throw() {}
-};
 
 std::string formatError(const Location& loc, const std::string& msg);
 
@@ -122,14 +85,8 @@ void reportPreviousDef(const Location& loc)
 }
 
 
-struct ResolvedType;
-void reportTypeError(const Location& loc, const std::string& msg, const ResolvedType& ctype);
-void reportTypePairError(const Location& loc, const std::string& msg, const ResolvedType& to, const ResolvedType& from);
-
 void reportAbortException(const AbortException& e);
 void reportAssertException(const AssertException& e);
-void reportUnresolvedException(const UnresolvedException& e);
-void reportResolutionCycleException(const ResolutionCycleException& e);
 void reportUnknownFatalException(const std::exception& e);
 void reportUnknownFatalException();
 

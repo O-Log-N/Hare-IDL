@@ -516,10 +516,7 @@ YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type)
 	ClassRefTypeNode* yy = new ClassRefTypeNode();
 
 	setLocationFromToken(yy, token);
-
-	NameTypeNode* t = new NameTypeNode();
-	setNameFromYyIdentifier(t, id_type);
-	yy->type.set(t);
+	yy->name = getNameFromYyIdentifier(id_type);
 
 	return yy;
 }

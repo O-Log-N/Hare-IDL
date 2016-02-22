@@ -85,18 +85,6 @@ void reportError(const Location& loc, const std::string& msg)
 	cerr << "error: " << loc.toString() << " - " << msg << " -" << endl;
 }
 
-void reportTypeError(const Location& loc, const std::string& msg, const ResolvedType& ctype)
-{
-	setError();
-	cerr << "error: " << loc.toString() << " - " << msg << " <" << ctype.toString() << "> -" << endl;
-}
-
-void reportTypePairError(const Location& loc, const std::string& msg, const ResolvedType& to, const ResolvedType& from)
-{
-	setError();
-	cerr << "error: " << loc.toString() << " - " << msg << " <" << to.toString() << ", " << from.toString() << "> -" << endl;
-}
-
 void reportAssertException(const AssertException& e)
 {
 	cerr << "assert: @" << e.file << ":" << e.line << " - " << e.what() << " -" << endl;
@@ -105,18 +93,6 @@ void reportAssertException(const AssertException& e)
 void reportAbortException(const AbortException& e)
 {
 	cerr << "fatal: - Aborting due to previous errors -" << endl;
-}
-
-void reportUnresolvedException(const UnresolvedException& e)
-{
-	reportError(e.location, e.message);
-
-	for (vector<string>::const_iterator it = e.extendedMessage.begin(); it != e.extendedMessage.end(); ++it)
-		cerr << (*it) << endl;
-}
-void reportResolutionCycleException(const ResolutionCycleException& e)
-{
-	reportError(e.location, e.message);
 }
 
 void reportUnknownFatalException(const std::exception& e)

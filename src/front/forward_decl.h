@@ -21,9 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 class Node;
 class ExpressionNode;
-class StatementNode;
 class TypeNode;
-class InitializerNode;
 
 
 class RootNode;
@@ -31,7 +29,6 @@ class FileNode;
 
 class BooleanLiteralExprNode;
 class IntegerLiteralExprNode;
-class IntegerCastExprNode;
 
 class AttributeDeclNode;
 

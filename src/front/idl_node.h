@@ -45,14 +45,7 @@ class RootNode : public Node
 public:
 	ChildList<FileNode> files;
 
-	//std::unique_ptr<NamedScope> named;
-	//std::unique_ptr<RootContext> rootContext;
-
-	//		std::unique_ptr<VerilogMapper> mapper;
-
-
 	RootNode() :files(this) {}
-	RootNode(const RootNode&) = delete;
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
 	virtual void walk(NodeWalker& walker) {
@@ -60,34 +53,6 @@ public:
 		walker.walkChild(this, files);
 	}
 
-	//virtual void buildLookupTables() {
-		//ASSERT(!named);
-		//named.reset(new NamedScope());
-
-		//ASSERT(!rootContext);
-		//rootContext.reset(new RootContext(this));
-
-		//ASSERT(!mapper);
-		//mapper.reset(new VerilogMapper());
-	//}
-
-
-	//virtual Scope* getScope() const { return 0; }
-
-	//virtual NamedScope* getNamedScope() const {
-	//	ASSERT(named);
-	//	return named.get();
-	//}
-
-	//virtual RootContext* getRootContext() const {
-	//	ASSERT(rootContext);
-	//	return rootContext.get();
-	//}
-
-	//virtual void dumpSymbols(const std::string& prefix, std::ostream& os) const {
-	//	//if (named)
-	//	//	named->dump(prefix, os);
-	//}
 };
 
 class PublishableStructDeclNode : public DeclarationNode
@@ -95,8 +60,6 @@ class PublishableStructDeclNode : public DeclarationNode
 public:
 	std::string name;
 	ChildList<AttributeDeclNode> attributes;
-
-	//std::unique_ptr<NamedScope> classScope;
 
 	PublishableStructDeclNode() :attributes(this) {}
 
@@ -106,50 +69,17 @@ public:
 		walker.walkChild(this, attributes);
 	}
 
-	//virtual void checkSyntax(SyntaxCheckStack& stack) const;
-	//virtual void buildLookupTables();
-	//virtual void resolveType() {
-	//	cType.initialize(this, false);
-	//	cType.typeCode = typeCode;
-	//}
-
-
-	//virtual Scope* getScope() const {
-	//	ASSERT(classScope);
-	//	return 0;
-	//}
-
-	//virtual NamedScope* getNamedScope() const {
-	//	ASSERT(classScope);
-	//	return classScope.get();
-	//}
-
 	virtual void dump(std::ostream& os) const {
 		dumpAttribute(os, "name", name);
 	}
-
-	//virtual void dumpSymbols(const std::string& prefix, std::ostream& os) const {
-	//	//		if(classScope)
-	//	//			classScope->dump(prefix, os);
-	//}
-	//virtual std::string toString() const {
-	//	return name;
-	//}
-
 };
 
-class AttributeDeclNode : public DeclarationNode, public HasResolutionFlag
+class AttributeDeclNode : public DeclarationNode
 {
 public:
 	std::string name;
 
 	Child<TypeNode> type;
-	//		std::unique_ptr<InitializerNode> initializer;
-
-	//bool isStatic;
-	//bool isMember;
-
-	//bool useBuffered; //TODO improve
 
 	AttributeDeclNode() : type(this) {}
 
@@ -157,61 +87,11 @@ public:
 	virtual void walk(NodeWalker& walker) {
 		DeclarationNode::walk(walker);
 		walker.walkChild(this, type);
-		//			walker.walkChild(this, initializer);
 	}
-	//	virtual void checkSyntax(SyntaxCheckStack& stack) const;
-	//virtual void buildLookupTables();
-	//virtual void resolve();
-
-	//virtual void checkTypes() {
-	//	if (initializer)
-	//		initializer->checkInitializer(location, getType());
-	//}
 
 	virtual void dump(std::ostream& os) const {
 		dumpAttribute(os, "name", name);
 	}
-	//virtual std::string toString() const {
-	//	return name;
-	//}
-
-	//AttributeDeclNode
-	//virtual void checkVisibility(const Location& loc, const NamedScope* context, bool isSet) const;
-
-	//const ResolvedType& getType() const {
-	//	return type->getType();
-	//}
-
-	//const ExpressionNode* getConstantValue() const;
-
-
-	//void setType(TypeNode* node) {
-	//	setNodeParent(node);
-	//	type.reset(node);
-	//}
-	//void setInitializer(InitializerNode* node) {
-	//	setNodeParent(node);
-	//	initializer.reset(node);
-	//}
-
-	//void addQualifier(const Location& loc, int token, const std::string& text);
-
-	//void setMember() { isMember = true; }
-
-	//AttributeDeclNode* templateClone() const {
-
-	//	ASSERT(!initializer);
-	//	std::unique_ptr<AttributeDeclNode> clone(new AttributeDeclNode());
-	//	clone->location = this->location;
-	//	//		clone->access = this->access;
-	//	clone->name = this->name;
-	//	clone->isStatic = this->isStatic;
-	//	clone->isMember = this->isMember;
-
-	//	//		clone->setType(this->type->deepClone());
-
-	//	return clone.release();
-	//}
 };
 
 
@@ -229,23 +109,6 @@ public:
 		walker.walkChild(this, extended_type);
 		walker.walkChild(this, default_value);
 	}
-	//	virtual void checkSyntax(SyntaxCheckStack& stack) const;
-	//virtual void buildLookupTables();
-	//virtual void resolve();
-
-	//virtual void checkTypes() {
-	//	if (initializer)
-	//		initializer->checkInitializer(location, getType());
-	//}
-
-	//virtual void dump(std::ostream& os) const {
-	//	dumpAttribute(os, "name", name);
-	//}
-	//virtual std::string toString() const {
-	//	return name;
-	//}
-
-	//AttributeDeclNode
 };
 
 
@@ -271,8 +134,6 @@ public:
 	ChildList<AttributeDeclNode> attributes;
 	ChildList<FenceDeclNode> fences;
 
-	//std::unique_ptr<NamedScope> classScope;
-
 	EncodingDeclNode() :attributes(this), fences(this) {}
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
@@ -282,36 +143,10 @@ public:
 		walker.walkChild(this, fences);
 	}
 
-	//virtual void checkSyntax(SyntaxCheckStack& stack) const;
-	//virtual void buildLookupTables();
-	//virtual void resolveType() {
-	//	cType.initialize(this, false);
-	//	cType.typeCode = typeCode;
-	//}
-
-
-	//virtual Scope* getScope() const {
-	//	ASSERT(classScope);
-	//	return 0;
-	//}
-
-	//virtual NamedScope* getNamedScope() const {
-	//	ASSERT(classScope);
-	//	return classScope.get();
-	//}
-
 	virtual void dump(std::ostream& os) const {
 		dumpAttribute(os, "name", name);
 		dumpAttribute(os, "encoding", encoding);
 	}
-
-	//virtual void dumpSymbols(const std::string& prefix, std::ostream& os) const {
-	//	//		if(classScope)
-	//	//			classScope->dump(prefix, os);
-	//}
-	//virtual std::string toString() const {
-	//	return name;
-	//}
 };
 
 class MappingDeclNode : public DeclarationNode
@@ -321,8 +156,6 @@ public:
 	std::vector<std::string> tags;
 	ChildList<AttributeDeclNode> attributes;
 
-	//std::unique_ptr<NamedScope> classScope;
-
 	MappingDeclNode() :attributes(this) {}
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
@@ -331,36 +164,10 @@ public:
 		walker.walkChild(this, attributes);
 	}
 
-	//virtual void checkSyntax(SyntaxCheckStack& stack) const;
-	//virtual void buildLookupTables();
-	//virtual void resolveType() {
-	//	cType.initialize(this, false);
-	//	cType.typeCode = typeCode;
-	//}
-
-
-	//virtual Scope* getScope() const {
-	//	ASSERT(classScope);
-	//	return 0;
-	//}
-
-	//virtual NamedScope* getNamedScope() const {
-	//	ASSERT(classScope);
-	//	return classScope.get();
-	//}
-
 	virtual void dump(std::ostream& os) const {
 		dumpAttribute(os, "name", name);
 		dumpAttribute(os, "tags", tags);
 	}
-
-	//virtual void dumpSymbols(const std::string& prefix, std::ostream& os) const {
-	//	//		if(classScope)
-	//	//			classScope->dump(prefix, os);
-	//}
-	//virtual std::string toString() const {
-	//	return name;
-	//}
 };
 
 
@@ -374,23 +181,10 @@ public:
 	NameTypeNode() {}
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
-	//virtual void walk(NodeWalker& walker) {
-	//	TypeNode::walk(walker);
-	//}
 
-//		virtual void resolveT(const InitializerNode* initializer);
 	virtual std::string toString() const {
 		return name;
 	}
-
-	//virtual NameTypeNode* deepClone() const {
-	//	NameTypeNode* node = new NameTypeNode();
-
-	//	node->typeNodeClone(this);
-	//	node->name = this->name;
-
-	//	return node;
-	//}
 };
 
 
@@ -411,23 +205,8 @@ public:
 		TypeNode::walk(walker);
 		walker.walkChild(this, arguments);
 	}
-	//virtual NumberTypeNode* clone() const {
-	//	return new NumberTypeNode(*this);
-	//}
-
-	//virtual void checkSyntax(SyntaxCheckStack& stack) const;
-	//virtual void resolveT(const InitializerNode* initializer);
 	virtual std::string toString() const { return "NUMERIC"; }
 
-	//virtual NumberTypeNode* deepClone() const {
-	//	NumberTypeNode* node = new NumberTypeNode();
-
-	//	node->typeNodeClone(this);
-	//	ASSERT(false);
-
-	//	return node;
-	//}
-	//void setType(const Location& loc, int token, const std::string& text);
 };
 
 class IntTypeNode : public TypeNode
@@ -447,23 +226,8 @@ public:
 		TypeNode::walk(walker);
 		walker.walkChild(this, arguments);
 	}
-	//virtual NumberTypeNode* clone() const {
-	//	return new NumberTypeNode(*this);
-	//}
 
-	//virtual void checkSyntax(SyntaxCheckStack& stack) const;
-	//virtual void resolveT(const InitializerNode* initializer);
 	virtual std::string toString() const { return "INT"; }
-
-	//virtual NumberTypeNode* deepClone() const {
-	//	NumberTypeNode* node = new NumberTypeNode();
-
-	//	node->typeNodeClone(this);
-	//	ASSERT(false);
-
-	//	return node;
-	//}
-	//void setType(const Location& loc, int token, const std::string& text);
 };
 
 class FixedPointTypeNode : public TypeNode
@@ -479,23 +243,8 @@ public:
 		TypeNode::walk(walker);
 		walker.walkChild(this, arguments);
 	}
-	//virtual NumberTypeNode* clone() const {
-	//	return new NumberTypeNode(*this);
-	//}
 
-	//virtual void checkSyntax(SyntaxCheckStack& stack) const;
-	//virtual void resolveT(const InitializerNode* initializer);
 	virtual std::string toString() const { return "FIXED_POINT"; }
-
-	//virtual NumberTypeNode* deepClone() const {
-	//	NumberTypeNode* node = new NumberTypeNode();
-
-	//	node->typeNodeClone(this);
-	//	ASSERT(false);
-
-	//	return node;
-	//}
-	//void setType(const Location& loc, int token, const std::string& text);
 };
 
 class BitTypeNode : public TypeNode
@@ -518,7 +267,6 @@ public:
 class SequenceOfTypeNode : public TypeNode
 {
 public:
-	//std::string name;
 	Child<TypeNode> type;
 
 	SequenceOfTypeNode() :type(this) {}
@@ -529,8 +277,6 @@ public:
 		walker.walkChild(this, type);
 	}
 
-	//virtual void checkSyntax(SyntaxCheckStack& stack) const;
-	//virtual void resolveT(const InitializerNode* initializer);
 	virtual std::string toString() const {
 		return "SEQUENCE< " + type->toString() + " >";
 	}
@@ -540,21 +286,14 @@ public:
 class ClassRefTypeNode : public TypeNode
 {
 public:
-	//std::string name;
-	Child<TypeNode> type;
+	std::string name;
 
-	ClassRefTypeNode() :type(this) {}
+	ClassRefTypeNode() {}
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
-	virtual void walk(NodeWalker& walker) {
-		TypeNode::walk(walker);
-		walker.walkChild(this, type);
-	}
 
-	//virtual void checkSyntax(SyntaxCheckStack& stack) const;
-	//virtual void resolveT(const InitializerNode* initializer);
 	virtual std::string toString() const {
-		return "class " + type->toString();
+		return "class " + name;
 	}
 
 };
@@ -573,10 +312,7 @@ public:
 		walker.walkChild(this, values);
 	}
 
-	//virtual void checkSyntax(SyntaxCheckStack& stack) const;
-	//virtual void resolveT(const InitializerNode* initializer);
 	virtual std::string toString() const { return "enum " + name; }
-
 };
 
 class EnumValueDeclNode : public DeclarationNode
@@ -593,8 +329,6 @@ public:
 		walker.walkChild(this, value);
 	}
 
-	//virtual void checkSyntax(SyntaxCheckStack& stack) const;
-	//virtual void resolveT(const InitializerNode* initializer);
 	virtual std::string toString() const { return "enum " + name; }
 
 };
@@ -614,8 +348,6 @@ public:
 		dumpAttribute(os, "name", name);
 		dumpResolved(os, resolved);
 	}
-
-	//		static VariableExprNode* createVariable(const Location& location, VariableDeclNode* decl);
 };
 
 #endif // IDL_NODE_H_INCLUDED

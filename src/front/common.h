@@ -57,7 +57,6 @@ private:
 public:
 	Child(Node* parent) :parent(parent) {}
 	Child(Child &&) = default;
-	Child(const Child& other) :parent(other.parent), child() { set(other->clone()); }
 
 	void set(T* new_child) {
 		assert(new_child);
@@ -95,7 +94,6 @@ private:
 
 public:
 	ChildList(Node* parent) :parent(parent) {}
-	//		~ChildList() { ASSERT(child_list.empty()); }
 
 	typedef typename std::vector<Child<T> >::iterator iterator;
 	typedef typename std::vector<Child<T> >::const_iterator const_iterator;
@@ -127,13 +125,6 @@ public:
 	void insert_at(size_t index, T* new_child) {
 		child_list.insert(child_list.begin() + index, make_child(new_child));
 	}
-
-	T* release_at(size_t index) {
-		ch = child_list.at(index).release();
-		child_list.erase(child_list.begin() + index);
-		return ch;
-	}
-
 };
 
 #endif // COMMON_H_INCLUDED

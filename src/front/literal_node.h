@@ -44,10 +44,6 @@ public:
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
 
-	virtual void resolveE(ExpressionResolver& resolver) {
-		cType.initialize(Ctype::Bool);
-	}
-
 	virtual void dump(std::ostream& os) const {
 		dumpAttribute(os, "value", value ? booleanTrue : booleanFalse);
 	}
@@ -70,10 +66,6 @@ public:
 	IntegerLiteralExprNode() :value(0) {}
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
-
-	virtual void resolveE(ExpressionResolver& resolver) {
-		cType.initialize(Ctype::Int);
-	}
 
 	virtual void dump(std::ostream& os) const {
 		dumpAttribute(os, "value", value);
@@ -100,9 +92,6 @@ class FloatLiteralExprNode : public ExpressionNode
 {
 public:
 	typedef double FloatType;
-	//static const std::string integerMax;
-	//static const IntegerType intMax;
-	//static const IntegerType intMin;
 
 	FloatType value;
 
@@ -110,16 +99,9 @@ public:
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
 
-	virtual void resolveE(ExpressionResolver& resolver) {
-		cType.initialize(Ctype::Int);
-	}
-
 	virtual void dump(std::ostream& os) const {
 		dumpAttribute(os, "value", value);
 	}
-
-	//virtual IntegerLiteralExprNode* getIntegerLiteral() { return this; }
-	//virtual const ExpressionNode* getConstantValue() const { return this; }
 
 	void setFloatLiteral(FloatType value) {
 		this->value = value;
@@ -128,40 +110,8 @@ public:
 		setFloatLiteral(textToValue(location, textValue));
 	}
 
-	//IntegerType getValue() const {
-	//	return integerValue;
-	//}
-
-	//int getIntValue() const;
-
 	static FloatType textToValue(const Location& loc, const std::string& textValue);
 };
 
-/*
-	IntegerCastExprNode
-	Handles automatic integer casts, and has the target type as its own type
-	Is needed by verilog to know the bit width of literal constants
-*/
-class IntegerCastExprNode : public ExpressionNode
-{
-public:
-	Child<ExpressionNode> expression;
-
-	IntegerCastExprNode() :expression(this) {}
-
-	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
-	virtual void walk(NodeWalker& walker) {
-		walker.walkChild(this, expression);
-	}
-
-	virtual void resolveE(ExpressionResolver& resolver) { cType.assertResolved(); }
-
-	void setResolvedType(const ResolvedType& rtype) {
-		cType = rtype;
-	}
-
-	static void insertLiteralCast(const ResolvedType& rtype, std::unique_ptr<ExpressionNode>& expr);
-	static void insertIntExtension(const ResolvedType& rtype, std::unique_ptr<ExpressionNode>& expr);
-};
 
 #endif // LITERAL_NODE_H_INCLUDED
