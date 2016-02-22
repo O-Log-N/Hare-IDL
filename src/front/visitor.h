@@ -25,8 +25,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "forward_decl.h"
 #include "common.h"
 
-namespace hare
-{
 
 class NodeWalker
 {
@@ -140,7 +138,7 @@ public:
 	virtual void visitMe(IntegerCastExprNode* node) { ASSERT(false); }
 
 	virtual void visitMe(AttributeDeclNode* node) { ASSERT(false); }
-	
+
 	virtual void visitMe(PublishableStructDeclNode* node) { ASSERT(false); }
 	virtual void visitMe(FenceDeclNode* node) { ASSERT(false); }
 	virtual void visitMe(FencedAttributeDeclNode* node) { ASSERT(false); }
@@ -157,13 +155,11 @@ public:
 	virtual void visitMe(InlineEnumTypeNode* node) { ASSERT(false); }
 	virtual void visitMe(EnumValueDeclNode* node) { ASSERT(false); }
 
-	
+
 	virtual void visitMe(FloatLiteralExprNode* node) { ASSERT(false); }
 	virtual void visitMe(IdentifierExprNode* node) { ASSERT(false); }
-	
+
 
 };
-
-}
 
 #endif // VISITOR_H_INCLUDED

@@ -20,23 +20,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <ostream>
 
-namespace hare
+
+class Node;
+
+void dumpNode(std::ostream& os, Node* node);
+void dumpDown(std::ostream& os, Node* node);
+void dumpUp(std::ostream& os, Node* node);
+
+class DebugTimer
 {
+	long begin;
+	std::string message;
+public:
+	DebugTimer(const std::string& message);
+	~DebugTimer();
+};
 
-	class Node;
-
-	void dumpNode(std::ostream& os, Node* node);
-	void dumpDown(std::ostream& os, Node* node);
-	void dumpUp(std::ostream& os, Node* node);
-
-	class DebugTimer
-	{
-		long begin;
-		std::string message;
-	public:
-		DebugTimer(const std::string& message);
-		~DebugTimer();
-	};
-
-}
 #endif // DEBUG_H_INCLUDED

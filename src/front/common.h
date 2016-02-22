@@ -24,124 +24,116 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <ostream>
 #include <cassert>
 
+
 /*
 TODO maybe throw an exception, by now is better to assert and let the debugger kickin.
 */
 #define ASSERT(condition) assert(condition)
+#define HAREASSERT(condition) assert(condition)
 
-namespace hare
+class Node;
+
+const bool NotImplementedYet = false;
+
+struct Location {
+	const char* fileName;
+	int lineNumber;
+	Location() : fileName(0), lineNumber(0) {}
+
+	bool isValid() const {
+		return fileName != 0;
+	}
+	std::string toString() const;
+	std::ostream& write(std::ostream& os) const;
+};
+
+
+template <class T>
+class Child
 {
-	class Node;
+private:
+	Node* const parent;
+	std::unique_ptr<T> child;
+public:
+	Child(Node* parent) :parent(parent) {}
+	Child(Child &&) = default;
+	Child(const Child& other) :parent(other.parent), child() { set(other->clone()); }
 
-	const bool NotImplementedYet = false;
-//	inline void HARESERT(bool condition) { assert(condition); }
+	void set(T* new_child) {
+		assert(new_child);
+		assert(!child);
+		new_child->parent = parent;
+		child.reset(new_child);
+	}
 
-	struct Location {
-		const char* fileName;
-		int lineNumber;
-		Location() : fileName(0), lineNumber(0) {}
+	T* operator->() const {
+		return get();
+	}
 
-		bool isValid() const {
-			return fileName != 0;
-		}
-		std::string toString() const;
-		std::ostream& write(std::ostream& os) const;
-	};
+	T* get() const {
+		return child.get();
+	}
 
+	explicit operator bool() const {
+		return static_cast<bool>(child);
+	}
+};
 
-	template <class T>
-	class Child
-	{
-	private:
-		Node* const parent;
-		std::unique_ptr<T> child;
-	public:
-		Child(Node* parent) :parent(parent) {}
-		Child(Child &&) = default;
-		Child(const Child& other) :parent(other.parent), child() { set(other->clone()); }
-//		~Child() { ASSERT(!child); }
+template <class T>
+class ChildList
+{
+private:
+	Node* const parent;
+	std::vector<Child<T> > child_list;
 
-		void release() {
-			assert(child);
-			return child.release();
-		}
+	Child<T> make_child(T* new_child) const {
+		ASSERT(new_child != 0);
+		Child<T> ch(parent);
+		ch.set(new_child);
+		return ch;
+	}
 
-		void set(T* new_child) {
-			assert(new_child);
-			assert(!child);
-			new_child->parent = parent;
-			child.reset(new_child);
-		}
+public:
+	ChildList(Node* parent) :parent(parent) {}
+	//		~ChildList() { ASSERT(child_list.empty()); }
 
-		T* operator->() const {
-			return get();
-		}
+	typedef typename std::vector<Child<T> >::iterator iterator;
+	typedef typename std::vector<Child<T> >::const_iterator const_iterator;
 
-		T* get() const {
-			return child.get();
-		}
+	iterator begin() { return child_list.begin(); }
+	const_iterator begin() const { return child_list.begin(); }
+	const_iterator cbegin() const { return child_list.cbegin(); }
 
-		explicit operator bool() const {
-			return static_cast<bool>(child);
-		}
-	};
+	iterator end() { return child_list.end(); }
+	const_iterator end() const { return child_list.end(); }
+	const_iterator cend() const { return child_list.cend(); }
 
-	template <class T>
-	class ChildList
-	{
-	private:
-		Node* const parent;
-		std::vector<Child<T> > child_list;
+	bool empty() const {
+		return child_list.empty();
+	}
 
-		Child<T> make_child(T* new_child) const {
-			ASSERT(new_child != 0);
-			Child<T> ch(parent);
-			ch.set(new_child);
-			return ch;
-		}
+	Child<T>& at(size_t index) {
+		return child_list.at(index);
+	}
 
-	public:
-		ChildList(Node* parent) :parent(parent) {}
-//		~ChildList() { ASSERT(child_list.empty()); }
+	const Child<T>& at(size_t index) const {
+		return child_list.at(index);
+	}
 
-		typedef typename std::vector<Child<T> >::iterator iterator;
-		typedef typename std::vector<Child<T> >::const_iterator const_iterator;
+	void push_back(T* new_child) {
+		child_list.push_back(make_child(new_child));
+	}
 
-		iterator begin() { return child_list.begin(); }
-		const_iterator begin() const { return child_list.begin(); }
-		const_iterator cbegin() const { return child_list.cbegin(); }
+	void insert_at(size_t index, T* new_child) {
+		child_list.insert(child_list.begin() + index, make_child(new_child));
+	}
 
-		iterator end() { return child_list.end(); }
-		const_iterator end() const { return child_list.end(); }
-		const_iterator cend() const { return child_list.cend(); }
+	T* release_at(size_t index) {
+		ch = child_list.at(index).release();
+		child_list.erase(child_list.begin() + index);
+		return ch;
+	}
 
-		bool empty() const {
-			return child_list.empty();
-		}
+};
 
-		Child<T>& at(size_t index) {
-			return child_list.at(index);
-		}
-
-		const Child<T>& at(size_t index) const {
-			return child_list.at(index);
-		}
-
-		void push_back(T* new_child) {
-			child_list.push_back(make_child(new_child));
-		}
-
-		void insert_at(size_t index, T* new_child) {
-			child_list.insert(child_list.begin() + index, make_child(new_child));
-		}
-
-		T* release_at(size_t index) {
-			ch = child_list.at(index).release();
-			child_list.erase(child_list.begin() + index);
-			return ch;
-		}
-
-	};
-
-}
 #endif // COMMON_H_INCLUDED

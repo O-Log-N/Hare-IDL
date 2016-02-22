@@ -25,13 +25,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "base_node.h"
 #include "idl_node.h"
-//#include "declaration_node.h"
 #include "parser.h"
 #include "error.h"
 #include "literal_node.h"
 
 using namespace std;
-using namespace hare;
 
 FileNode* acceptFile = 0;
 vector<string> fileNames;
@@ -370,7 +368,7 @@ YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_lit, YYSTYPE id)
 	setLocationFromToken(yy, token);
 	yy->name = getNameFromYyIdentifier(id);
 	yy->encoding = getNameFromYyIdentifier(str_lit);
-	
+
 	return yy;
 }
 
@@ -395,7 +393,7 @@ YYSTYPE addGroupToEncoding(YYSTYPE decl, YYSTYPE group)
 YYSTYPE createAttribute(YYSTYPE type, YYSTYPE id)
 {
 	AttributeDeclNode* yy = new AttributeDeclNode();
-	
+
 	setNameFromYyIdentifier(yy, id);
 
 	TypeNode* t = yystype_cast<TypeNode*>(type);
@@ -628,82 +626,77 @@ extern "C" yy_buffer_state* yy_scan_string(const char* yy_str);
 extern "C" yy_buffer_state* yy_scan_bytes(const char* bytes, int len);
 extern "C" void yy_delete_buffer(yy_buffer_state*);
 
-namespace hare
+
+static FileNode* parseInternal(const std::string& fileName, bool debugDump, bool internalFile)
 {
+	ASSERT(!acceptFile);
+	try {
+		unique_ptr<FileNode> file(new FileNode(fileName));
+		file->isInternalFile = internalFile;
+		acceptFile = file.get();
+		currentFileName = file->fileName.c_str();
+		allowAtIdentifier = internalFile;
+		yydebug = static_cast<int>(debugDump);
 
+		int err = yyparse();
 
-	static FileNode* parseInternal(const std::string& fileName, bool debugDump, bool internalFile)
-	{
-		ASSERT(!acceptFile);
-		try {
-			unique_ptr<FileNode> file(new FileNode(fileName));
-			file->isInternalFile = internalFile;
-			acceptFile = file.get();
-			currentFileName = file->fileName.c_str();
-			allowAtIdentifier = internalFile;
-			yydebug = static_cast<int>(debugDump);
+		acceptFile = 0;
+		currentFileName = 0;
+		allowAtIdentifier = 0;
+		yydebug = 0;
 
-			int err = yyparse();
-
-			acceptFile = 0;
-			currentFileName = 0;
-			allowAtIdentifier = 0;
-			yydebug = 0;
-
-			if (err != 0) {
-				plainError("Errors found while parsing file '%s'.", fileName);
-			}
-
-			return file.release();
+		if (err != 0) {
+			plainError("Errors found while parsing file '%s'.", fileName);
 		}
-		catch (...) {
-			plainError("Exception thrown while parsing file '%s'.", fileName);
 
-			acceptFile = 0;
-			currentFileName = 0;
-			allowAtIdentifier = 0;
-			yydebug = 0;
-			throw;
-		}
+		return file.release();
 	}
+	catch (...) {
+		plainError("Exception thrown while parsing file '%s'.", fileName);
 
-
-	FileNode* parseCode(const char* code, const std::string& pseudoFileName, bool debugDump, bool internalFile)
-	{
-		ASSERT(code);
-
-		unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> buff(yy_scan_string(code), &yy_delete_buffer);
-
-		yylineno = 0;
-		return parseInternal(pseudoFileName, debugDump, internalFile);
+		acceptFile = 0;
+		currentFileName = 0;
+		allowAtIdentifier = 0;
+		yydebug = 0;
+		throw;
 	}
+}
 
 
-	FileNode* parseSourceFile(const string& fileName, bool debugDump, bool internalFile)
-	{
-		ASSERT(!fileName.empty());
+FileNode* parseCode(const char* code, const std::string& pseudoFileName, bool debugDump, bool internalFile)
+{
+	ASSERT(code);
+
+	unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> buff(yy_scan_string(code), &yy_delete_buffer);
+
+	yylineno = 0;
+	return parseInternal(pseudoFileName, debugDump, internalFile);
+}
+
+
+FileNode* parseSourceFile(const string& fileName, bool debugDump, bool internalFile)
+{
+	ASSERT(!fileName.empty());
 
 #pragma warning( push )
 #pragma warning( disable : 4996 )
-		unique_ptr<FILE, int(*)(FILE*)> file(fopen(fileName.c_str(), "r"), &fclose);
+	unique_ptr<FILE, int(*)(FILE*)> file(fopen(fileName.c_str(), "r"), &fclose);
 #pragma warning( pop )
-		if (!file) {
-			plainError("Failed to open file '%s'.", fileName);
-			return 0;
-		}
-
-		unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> buff(yy_create_buffer(file.get(), 16000), &yy_delete_buffer);
-
-		if (!buff) {
-			plainError("Failed to allocate read buffer for file '%s'.", fileName);
-			return 0;
-		}
-
-		yy_switch_to_buffer(buff.get());
-		yylineno = 1;
-		return parseInternal(fileName, debugDump, internalFile);
+	if (!file) {
+		plainError("Failed to open file '%s'.", fileName);
+		return 0;
 	}
 
-} // namespace kpm
+	unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> buff(yy_create_buffer(file.get(), 16000), &yy_delete_buffer);
+
+	if (!buff) {
+		plainError("Failed to allocate read buffer for file '%s'.", fileName);
+		return 0;
+	}
+
+	yy_switch_to_buffer(buff.get());
+	yylineno = 1;
+	return parseInternal(fileName, debugDump, internalFile);
+}
 
 //////////////////////////////////////////////////////////////////////////////

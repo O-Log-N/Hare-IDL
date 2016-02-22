@@ -25,148 +25,143 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "base_node.h"
 
 
+bool isIntegerConstant(const ExpressionNode* expr);
+const IntegerLiteralExprNode* getIntegerConstantExpression(const ExpressionNode* expr);
+std::pair<bool, int> tryGetIntegerConstantValue(const ExpressionNode* expr);
 
-namespace hare
+
+class CalculatedBooleanExprNode;
+
+class BooleanLiteralExprNode : public ExpressionNode
 {
+public:
+	static const std::string booleanTrue;
+	static const std::string booleanFalse;
 
-	bool isIntegerConstant(const ExpressionNode* expr);
-	const IntegerLiteralExprNode* getIntegerConstantExpression(const ExpressionNode* expr);
-	std::pair<bool, int> tryGetIntegerConstantValue(const ExpressionNode* expr);
+	bool value;
 
+	BooleanLiteralExprNode() :value(false) {}
 
-	class CalculatedBooleanExprNode;
+	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
 
-	class BooleanLiteralExprNode : public ExpressionNode
-	{
-	public:
-		static const std::string booleanTrue;
-		static const std::string booleanFalse;
+	virtual void resolveE(ExpressionResolver& resolver) {
+		cType.initialize(Ctype::Bool);
+	}
 
-		bool value;
+	virtual void dump(std::ostream& os) const {
+		dumpAttribute(os, "value", value ? booleanTrue : booleanFalse);
+	}
 
-		BooleanLiteralExprNode() :value(false) {}
-
-		virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
-
-		virtual void resolveE(ExpressionResolver& resolver) {
-			cType.initialize(Ctype::Bool);
-		}
-
-		virtual void dump(std::ostream& os) const {
-			dumpAttribute(os, "value", value ? booleanTrue : booleanFalse);
-		}
-
-		void setBooleanLiteral(bool value) { this->value = value; }
-		void setBooleanLiteral(const char* text);
-	};
+	void setBooleanLiteral(bool value) { this->value = value; }
+	void setBooleanLiteral(const char* text);
+};
 
 
-	class IntegerLiteralExprNode : public ExpressionNode
-	{
-	public:
-		typedef long long IntegerType;
-		static const std::string integerMax;
-		static const IntegerType intMax;
-		static const IntegerType intMin;
+class IntegerLiteralExprNode : public ExpressionNode
+{
+public:
+	typedef long long IntegerType;
+	static const std::string integerMax;
+	static const IntegerType intMax;
+	static const IntegerType intMin;
 
-		IntegerType value;
+	IntegerType value;
 
-		IntegerLiteralExprNode() :value(0) {}
+	IntegerLiteralExprNode() :value(0) {}
 
-		virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
+	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
 
-		virtual void resolveE(ExpressionResolver& resolver) {
-			cType.initialize(Ctype::Int);
-		}
+	virtual void resolveE(ExpressionResolver& resolver) {
+		cType.initialize(Ctype::Int);
+	}
 
-		virtual void dump(std::ostream& os) const {
-			dumpAttribute(os, "value", value);
-		}
+	virtual void dump(std::ostream& os) const {
+		dumpAttribute(os, "value", value);
+	}
 
-		virtual IntegerLiteralExprNode* getIntegerLiteral() { return this; }
-		virtual const ExpressionNode* getConstantValue() const { return this; }
+	virtual IntegerLiteralExprNode* getIntegerLiteral() { return this; }
+	virtual const ExpressionNode* getConstantValue() const { return this; }
 
-		void setIntegerLiteral(IntegerType value) {
-			this->value = value;
-		}
-		void setIntegerLiteral(const std::string& textValue) {
-			setIntegerLiteral(textToValue(location, textValue));
-		}
+	void setIntegerLiteral(IntegerType value) {
+		this->value = value;
+	}
+	void setIntegerLiteral(const std::string& textValue) {
+		setIntegerLiteral(textToValue(location, textValue));
+	}
 
-		int getIntValue() const;
+	int getIntValue() const;
 
-		static IntegerType textToValue(const Location& loc, const std::string& textValue);
-		static int textToIntValue(const Location& loc, const std::string& textValue);
-	};
+	static IntegerType textToValue(const Location& loc, const std::string& textValue);
+	static int textToIntValue(const Location& loc, const std::string& textValue);
+};
 
 
-	class FloatLiteralExprNode : public ExpressionNode
-	{
-	public:
-		typedef double FloatType;
-		//static const std::string integerMax;
-		//static const IntegerType intMax;
-		//static const IntegerType intMin;
+class FloatLiteralExprNode : public ExpressionNode
+{
+public:
+	typedef double FloatType;
+	//static const std::string integerMax;
+	//static const IntegerType intMax;
+	//static const IntegerType intMin;
 
-		FloatType value;
+	FloatType value;
 
-		FloatLiteralExprNode() :value(0) {}
+	FloatLiteralExprNode() :value(0) {}
 
-		virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
+	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
 
-		virtual void resolveE(ExpressionResolver& resolver) {
-			cType.initialize(Ctype::Int);
-		}
+	virtual void resolveE(ExpressionResolver& resolver) {
+		cType.initialize(Ctype::Int);
+	}
 
-		virtual void dump(std::ostream& os) const {
-			dumpAttribute(os, "value", value);
-		}
+	virtual void dump(std::ostream& os) const {
+		dumpAttribute(os, "value", value);
+	}
 
-		//virtual IntegerLiteralExprNode* getIntegerLiteral() { return this; }
-		//virtual const ExpressionNode* getConstantValue() const { return this; }
+	//virtual IntegerLiteralExprNode* getIntegerLiteral() { return this; }
+	//virtual const ExpressionNode* getConstantValue() const { return this; }
 
-		void setFloatLiteral(FloatType value) {
-			this->value = value;
-		}
-		void setFloatLiteral(const std::string& textValue) {
-			setFloatLiteral(textToValue(location, textValue));
-		}
+	void setFloatLiteral(FloatType value) {
+		this->value = value;
+	}
+	void setFloatLiteral(const std::string& textValue) {
+		setFloatLiteral(textToValue(location, textValue));
+	}
 
-		//IntegerType getValue() const {
-		//	return integerValue;
-		//}
+	//IntegerType getValue() const {
+	//	return integerValue;
+	//}
 
-		//int getIntValue() const;
+	//int getIntValue() const;
 
-		static FloatType textToValue(const Location& loc, const std::string& textValue);
-	};
+	static FloatType textToValue(const Location& loc, const std::string& textValue);
+};
 
-	/*
-		IntegerCastExprNode
-		Handles automatic integer casts, and has the target type as its own type
-		Is needed by verilog to know the bit width of literal constants
-	*/
-	class IntegerCastExprNode : public ExpressionNode
-	{
-	public:
-		Child<ExpressionNode> expression;
+/*
+	IntegerCastExprNode
+	Handles automatic integer casts, and has the target type as its own type
+	Is needed by verilog to know the bit width of literal constants
+*/
+class IntegerCastExprNode : public ExpressionNode
+{
+public:
+	Child<ExpressionNode> expression;
 
-		IntegerCastExprNode() :expression(this) {}
+	IntegerCastExprNode() :expression(this) {}
 
-		virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
-		virtual void walk(NodeWalker& walker) {
-			walker.walkChild(this, expression);
-		}
+	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
+	virtual void walk(NodeWalker& walker) {
+		walker.walkChild(this, expression);
+	}
 
-		virtual void resolveE(ExpressionResolver& resolver) { cType.assertResolved(); }
+	virtual void resolveE(ExpressionResolver& resolver) { cType.assertResolved(); }
 
-		void setResolvedType(const ResolvedType& rtype) {
-			cType = rtype;
-		}
+	void setResolvedType(const ResolvedType& rtype) {
+		cType = rtype;
+	}
 
-		static void insertLiteralCast(const ResolvedType& rtype, std::unique_ptr<ExpressionNode>& expr);
-		static void insertIntExtension(const ResolvedType& rtype, std::unique_ptr<ExpressionNode>& expr);
-	};
-}
+	static void insertLiteralCast(const ResolvedType& rtype, std::unique_ptr<ExpressionNode>& expr);
+	static void insertIntExtension(const ResolvedType& rtype, std::unique_ptr<ExpressionNode>& expr);
+};
 
 #endif // LITERAL_NODE_H_INCLUDED

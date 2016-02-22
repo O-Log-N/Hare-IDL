@@ -26,119 +26,115 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "common.h"
 
-namespace hare
+
+class AssertException : public std::exception
 {
+public:
+	const char* msg;
+	const char* file;
+	int line;
 
-	class AssertException : public std::exception
-	{
-	public:
-		const char* msg;
-		const char* file;
-		int line;
+	AssertException() : msg(), file(0), line(0) {}
+	AssertException(const char* msg, const char* file, int line) : msg(msg), file(file), line(line) {}
+};
 
-		AssertException() : msg(), file(0), line(0) {}
-		AssertException(const char* msg, const char* file, int line) : msg(msg), file(file), line(line) {}
-	};
+class AbortException : public std::exception
+{
+public:
+	AbortException() {}
+};
 
-	class AbortException : public std::exception
-	{
-	public:
-		AbortException() {}
-	};
+class UnresolvedException : public std::exception
+{
+public:
+	Location location;
+	std::string message;
+	std::vector<std::string> extendedMessage;
 
-	class UnresolvedException : public std::exception
-	{
-	public:
-		Location location;
-		std::string message;
-		std::vector<std::string> extendedMessage;
-
-		UnresolvedException(const Location& location, const std::string& message) :
-			location(location), message(message) {}
-		UnresolvedException(const Location& location, const std::string& message, const std::vector<std::string>& extendedMessage) :
-			location(location), message(message), extendedMessage(extendedMessage) {}
-		UnresolvedException(const Location& location, const std::string& message, const std::string& extraLine) :
-			location(location), message(message), extendedMessage() {
-			extendedMessage.push_back(extraLine);
-		}
-
-		~UnresolvedException() throw() {}
-	};
-
-	class ResolutionCycleException : public std::exception
-	{
-	public:
-		Location location;
-		std::string message;
-
-		ResolutionCycleException(const Location& location, const std::string& message) :
-			location(location), message(message) {}
-
-		~ResolutionCycleException() throw() {}
-	};
-
-	class PreviousResolutionException : public std::exception
-	{
-	public:
-		PreviousResolutionException() {}
-		~PreviousResolutionException() throw() {}
-	};
-
-	std::string formatError(const Location& loc, const std::string& msg);
-
-	std::string formatMessage(const std::string& msg, const std::string& arg);
-	std::string formatMessage(const std::string& msg, size_t arg);
-	std::string formatMessage(const std::string& msg, const std::string& arg0, const std::string& arg1);
-
-	void reportWarning(const Location& loc, const std::string& msg);
-	inline void reportWarning(const Location& loc, const std::string& msg, const std::string& arg)
-	{
-		reportWarning(loc, formatMessage(msg, arg));
+	UnresolvedException(const Location& location, const std::string& message) :
+		location(location), message(message) {}
+	UnresolvedException(const Location& location, const std::string& message, const std::vector<std::string>& extendedMessage) :
+		location(location), message(message), extendedMessage(extendedMessage) {}
+	UnresolvedException(const Location& location, const std::string& message, const std::string& extraLine) :
+		location(location), message(message), extendedMessage() {
+		extendedMessage.push_back(extraLine);
 	}
 
+	~UnresolvedException() throw() {}
+};
 
-	void plainError(const std::string& msg);
-	inline void plainError(const std::string& msg, const std::string& arg)
-	{
-		plainError(formatMessage(msg, arg));
-	}
-	inline void plainError(const std::string& msg, const std::string& arg0, const std::string& arg1)
-	{
-		plainError(formatMessage(msg, arg0, arg1));
-	}
+class ResolutionCycleException : public std::exception
+{
+public:
+	Location location;
+	std::string message;
 
-	void reportError(const Location& loc, const std::string& msg);
-	inline void reportError(const Location& loc, const std::string& msg, const std::string& arg)
-	{
-		reportError(loc, formatMessage(msg, arg));
-	}
-	inline void reportError(const Location& loc, const std::string& msg, const std::string& arg0, const std::string& arg1)
-	{
-		reportError(loc, formatMessage(msg, arg0, arg1));
-	}
+	ResolutionCycleException(const Location& location, const std::string& message) :
+		location(location), message(message) {}
 
-	inline
-		void reportPreviousDef(const Location& loc)
-	{
-		reportError(loc, "Previous definition here");
-	}
+	~ResolutionCycleException() throw() {}
+};
 
+class PreviousResolutionException : public std::exception
+{
+public:
+	PreviousResolutionException() {}
+	~PreviousResolutionException() throw() {}
+};
 
-	struct ResolvedType;
-	void reportTypeError(const Location& loc, const std::string& msg, const ResolvedType& ctype);
-	void reportTypePairError(const Location& loc, const std::string& msg, const ResolvedType& to, const ResolvedType& from);
+std::string formatError(const Location& loc, const std::string& msg);
 
-	void reportAbortException(const AbortException& e);
-	void reportAssertException(const AssertException& e);
-	void reportUnresolvedException(const UnresolvedException& e);
-	void reportResolutionCycleException(const ResolutionCycleException& e);
-	void reportUnknownFatalException(const std::exception& e);
-	void reportUnknownFatalException();
+std::string formatMessage(const std::string& msg, const std::string& arg);
+std::string formatMessage(const std::string& msg, size_t arg);
+std::string formatMessage(const std::string& msg, const std::string& arg0, const std::string& arg1);
 
-	void catchedException(const Location& loc, const std::exception& e);
-	void setError();
-	bool hasError();
-
+void reportWarning(const Location& loc, const std::string& msg);
+inline void reportWarning(const Location& loc, const std::string& msg, const std::string& arg)
+{
+	reportWarning(loc, formatMessage(msg, arg));
 }
+
+
+void plainError(const std::string& msg);
+inline void plainError(const std::string& msg, const std::string& arg)
+{
+	plainError(formatMessage(msg, arg));
+}
+inline void plainError(const std::string& msg, const std::string& arg0, const std::string& arg1)
+{
+	plainError(formatMessage(msg, arg0, arg1));
+}
+
+void reportError(const Location& loc, const std::string& msg);
+inline void reportError(const Location& loc, const std::string& msg, const std::string& arg)
+{
+	reportError(loc, formatMessage(msg, arg));
+}
+inline void reportError(const Location& loc, const std::string& msg, const std::string& arg0, const std::string& arg1)
+{
+	reportError(loc, formatMessage(msg, arg0, arg1));
+}
+
+inline
+void reportPreviousDef(const Location& loc)
+{
+	reportError(loc, "Previous definition here");
+}
+
+
+struct ResolvedType;
+void reportTypeError(const Location& loc, const std::string& msg, const ResolvedType& ctype);
+void reportTypePairError(const Location& loc, const std::string& msg, const ResolvedType& to, const ResolvedType& from);
+
+void reportAbortException(const AbortException& e);
+void reportAssertException(const AssertException& e);
+void reportUnresolvedException(const UnresolvedException& e);
+void reportResolutionCycleException(const ResolutionCycleException& e);
+void reportUnknownFatalException(const std::exception& e);
+void reportUnknownFatalException();
+
+void catchedException(const Location& loc, const std::exception& e);
+void setError();
+bool hasError();
 
 #endif // ERROR_H_INCLUDED

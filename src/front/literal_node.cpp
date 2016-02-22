@@ -23,147 +23,139 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "error.h"
 #include "visitor.h"
 
-//#include "declaration_node.h"
-
 
 using namespace std;
 
-namespace hare
+bool isIntegerConstant(const ExpressionNode* expr)
 {
-
-	bool isIntegerConstant(const ExpressionNode* expr)
-	{
-		const ExpressionNode* ic = expr->getConstantValue();
-		if (ic) {
-			const IntegerLiteralExprNode* lit = dynamic_cast<const IntegerLiteralExprNode*>(ic);
-			if (lit)
-				return true;
-		}
-
-		return false;
+	const ExpressionNode* ic = expr->getConstantValue();
+	if (ic) {
+		const IntegerLiteralExprNode* lit = dynamic_cast<const IntegerLiteralExprNode*>(ic);
+		if (lit)
+			return true;
 	}
 
-	const IntegerLiteralExprNode* getIntegerConstantExpression(const ExpressionNode* expr)
-	{
-		const ExpressionNode* ic = expr->getConstantValue();
-		if (ic) {
-			const IntegerLiteralExprNode* lit = dynamic_cast<const IntegerLiteralExprNode*>(ic);
-			if (lit)
-				return lit;
-		}
+	return false;
+}
 
+const IntegerLiteralExprNode* getIntegerConstantExpression(const ExpressionNode* expr)
+{
+	const ExpressionNode* ic = expr->getConstantValue();
+	if (ic) {
+		const IntegerLiteralExprNode* lit = dynamic_cast<const IntegerLiteralExprNode*>(ic);
+		if (lit)
+			return lit;
+	}
+
+	return 0;
+}
+
+pair<bool, int> tryGetIntegerConstantValue(const ExpressionNode* expr)
+{
+	const ExpressionNode* ic = expr->getConstantValue();
+	if (ic) {
+		const IntegerLiteralExprNode* lit = dynamic_cast<const IntegerLiteralExprNode*>(ic);
+		if (lit)
+			return make_pair(true, lit->getIntValue());
+	}
+
+	return make_pair(false, 0);
+}
+
+const string BooleanLiteralExprNode::booleanTrue = "true";
+const string BooleanLiteralExprNode::booleanFalse = "false";
+
+void BooleanLiteralExprNode::setBooleanLiteral(const char* text)
+{
+	if (booleanTrue == text)
+		value = true;
+	else if (booleanFalse == text)
+		value = false;
+	else
+		ASSERT(false);
+}
+
+static_assert(sizeof(long long) == 8, "type 'long long' must have 64 bits");
+
+const string IntegerLiteralExprNode::integerMax = "9223372036854775807"; //64 bit signed max
+const IntegerLiteralExprNode::IntegerType IntegerLiteralExprNode::intMax = std::numeric_limits<int>::max();
+const IntegerLiteralExprNode::IntegerType IntegerLiteralExprNode::intMin = std::numeric_limits<int>::min();
+
+
+int IntegerLiteralExprNode::getIntValue() const
+{
+	if (value > intMax)
+		reportError(location, "Integer literal overflows signed int max limit.");
+	else if (value < intMin)
+		reportError(location, "Integer literal overflows signed int min limit.");
+	else
+		return static_cast<int>(value);
+
+	return 0;
+}
+
+/* static */
+IntegerLiteralExprNode::IntegerType IntegerLiteralExprNode::textToValue(const Location& loc, const string& textValue)
+{
+	return atoll(textValue.c_str());
+}
+
+/* static */
+int IntegerLiteralExprNode::textToIntValue(const Location& loc, const string& textValue)
+{
+	long long integerValue = textToValue(loc, textValue);
+
+	ASSERT(integerValue >= 0LL);
+
+	if (integerValue > intMax) {
+		reportError(loc, "Integer literal overflows int signed limit.");
 		return 0;
 	}
 
-	pair<bool, int> tryGetIntegerConstantValue(const ExpressionNode* expr)
-	{
-		const ExpressionNode* ic = expr->getConstantValue();
-		if (ic) {
-			const IntegerLiteralExprNode* lit = dynamic_cast<const IntegerLiteralExprNode*>(ic);
-			if (lit)
-				return make_pair(true, lit->getIntValue());
-		}
+	return static_cast<int>(integerValue);
 
-		return make_pair(false, 0);
-	}
+}
 
-	const string BooleanLiteralExprNode::booleanTrue = "true";
-	const string BooleanLiteralExprNode::booleanFalse = "false";
+/* static */
+FloatLiteralExprNode::FloatType FloatLiteralExprNode::textToValue(const Location& loc, const string& textValue)
+{
+	return atof(textValue.c_str());
+}
 
-	void BooleanLiteralExprNode::setBooleanLiteral(const char* text)
-	{
-		if (booleanTrue == text)
-			value = true;
-		else if (booleanFalse == text)
-			value = false;
-		else
-			ASSERT(false);
-	}
+/* static */
+void IntegerCastExprNode::insertLiteralCast(const ResolvedType& rtype, std::unique_ptr<ExpressionNode>& expr)
+{
+	//pair<bool, pair<int, int> > left = getIntegerMinMax(rtype);
+	//ASSERT(left.first);
+	//pair<bool, int> litValue = tryGetIntegerConstantValue(expr.get());
+	//ASSERT(litValue.first);
 
-	static_assert(sizeof(long long) == 8, "type 'long long' must have 64 bits");
+	//if (litValue.second < left.second.first || litValue.second > left.second.second)
+	//	reportError(expr->location, formatMessage("Integer literal '%s' outside range %s",
+	//	integerToString(litValue.second), pairToString(left.second)));
 
-	const string IntegerLiteralExprNode::integerMax = "9223372036854775807"; //64 bit signed max
-	const IntegerLiteralExprNode::IntegerType IntegerLiteralExprNode::intMax = std::numeric_limits<int>::max();
-	const IntegerLiteralExprNode::IntegerType IntegerLiteralExprNode::intMin = std::numeric_limits<int>::min();
+	//IntegerCastExprNode* node = new IntegerCastExprNode();
+	//node->setResolvedType(rtype);
 
+	//node->setExpression(replaceTemplate<ExpressionNode>(expr, node));
+	//ExpressionNode::resolveExpression(node->expression); // not really needed.
+}
 
-	int IntegerLiteralExprNode::getIntValue() const
-	{
-		if (value > intMax)
-			reportError(location, "Integer literal overflows signed int max limit.");
-		else if (value < intMin)
-			reportError(location, "Integer literal overflows signed int min limit.");
-		else
-			return static_cast<int>(value);
+/* static */
+void IntegerCastExprNode::insertIntExtension(const ResolvedType& rtype, std::unique_ptr<ExpressionNode>& expr)
+{
+	//pair<bool, pair<int, int> > left = getIntegerMinMax(rtype);
+	//ASSERT(left.first);
+	//pair<bool, pair<int, int> > right = getIntegerMinMax(expr->getType());
+	//ASSERT(right.first);
 
-		return 0;
-	}
+	//if (right.second.first < left.second.first || right.second.second > left.second.second)
+	//	reportError(expr->location, formatMessage("Integer range %s outside range %s",
+	//	pairToString(right.second), pairToString(left.second)));
 
-	/* static */
-	IntegerLiteralExprNode::IntegerType IntegerLiteralExprNode::textToValue(const Location& loc, const string& textValue)
-	{
-		return atoll(textValue.c_str());
-	}
+	//IntegerCastExprNode* node = new IntegerCastExprNode();
+	//node->setResolvedType(rtype);
 
-	/* static */
-	int IntegerLiteralExprNode::textToIntValue(const Location& loc, const string& textValue)
-	{
-		long long integerValue = textToValue(loc, textValue);
-
-		ASSERT(integerValue >= 0LL);
-
-		if (integerValue > intMax) {
-			reportError(loc, "Integer literal overflows int signed limit.");
-			return 0;
-		}
-
-		return static_cast<int>(integerValue);
-
-	}
-
-	/* static */
-	FloatLiteralExprNode::FloatType FloatLiteralExprNode::textToValue(const Location& loc, const string& textValue)
-	{
-		return atof(textValue.c_str());
-	}
-
-	/* static */
-	void IntegerCastExprNode::insertLiteralCast(const ResolvedType& rtype, std::unique_ptr<ExpressionNode>& expr)
-	{
-		//pair<bool, pair<int, int> > left = getIntegerMinMax(rtype);
-		//ASSERT(left.first);
-		//pair<bool, int> litValue = tryGetIntegerConstantValue(expr.get());
-		//ASSERT(litValue.first);
-
-		//if (litValue.second < left.second.first || litValue.second > left.second.second)
-		//	reportError(expr->location, formatMessage("Integer literal '%s' outside range %s",
-		//	integerToString(litValue.second), pairToString(left.second)));
-
-		//IntegerCastExprNode* node = new IntegerCastExprNode();
-		//node->setResolvedType(rtype);
-
-		//node->setExpression(replaceTemplate<ExpressionNode>(expr, node));
-		//ExpressionNode::resolveExpression(node->expression); // not really needed.
-	}
-
-	/* static */
-	void IntegerCastExprNode::insertIntExtension(const ResolvedType& rtype, std::unique_ptr<ExpressionNode>& expr)
-	{
-		//pair<bool, pair<int, int> > left = getIntegerMinMax(rtype);
-		//ASSERT(left.first);
-		//pair<bool, pair<int, int> > right = getIntegerMinMax(expr->getType());
-		//ASSERT(right.first);
-
-		//if (right.second.first < left.second.first || right.second.second > left.second.second)
-		//	reportError(expr->location, formatMessage("Integer range %s outside range %s",
-		//	pairToString(right.second), pairToString(left.second)));
-
-		//IntegerCastExprNode* node = new IntegerCastExprNode();
-		//node->setResolvedType(rtype);
-
-		//node->setExpression(replaceTemplate<ExpressionNode>(expr, node));
-		//ExpressionNode::resolveExpression(node->expression); // not really needed.
-	}
-
-
-} //namespace kpm
+	//node->setExpression(replaceTemplate<ExpressionNode>(expr, node));
+	//ExpressionNode::resolveExpression(node->expression); // not really needed.
+}

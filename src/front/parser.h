@@ -21,14 +21,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <string>
 #include <cstdio>
 
-namespace hare
-{
 
-	class FileNode;
+class FileNode;
 
-	FileNode* parseCode(const char* code, const std::string& pseudoFileName, bool debugDump, bool internalFile);
-	FileNode* parseSourceFile(const std::string& fileName, bool debugDump, bool internalFile);
-
-}
+FileNode* parseCode(const char* code, const std::string& pseudoFileName, bool debugDump, bool internalFile);
+FileNode* parseSourceFile(const std::string& fileName, bool debugDump, bool internalFile);
 
 #endif // PARSER_H_INCLUDED

@@ -22,7 +22,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "debug.h"
 #include "parser.h"
 
-using namespace hare;
 using namespace std;
 
 AttributeDeclNode* make_named_att(const string& type_name, const string& att_name) {

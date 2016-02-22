@@ -19,43 +19,39 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define FORWARD_DECL_H_INCLUDED "include guard"
 
 
-namespace hare
-{
-
-	class Node;
-	class ExpressionNode;
-	class StatementNode;
-	class TypeNode;
-	class InitializerNode;
+class Node;
+class ExpressionNode;
+class StatementNode;
+class TypeNode;
+class InitializerNode;
 
 
-	class RootNode;
-	class FileNode;
+class RootNode;
+class FileNode;
 
-	class BooleanLiteralExprNode;
-	class IntegerLiteralExprNode;
-	class IntegerCastExprNode;
+class BooleanLiteralExprNode;
+class IntegerLiteralExprNode;
+class IntegerCastExprNode;
 
-	class AttributeDeclNode;
+class AttributeDeclNode;
 
-	class PublishableStructDeclNode;
-	class FenceDeclNode;
-	class FencedAttributeDeclNode;
-	class EncodingDeclNode;
-	class MappingDeclNode;
+class PublishableStructDeclNode;
+class FenceDeclNode;
+class FencedAttributeDeclNode;
+class EncodingDeclNode;
+class MappingDeclNode;
 
-	class NameTypeNode;
-	class NumericTypeNode;
-	class IntTypeNode;
-	class FixedPointTypeNode;
-	class BitTypeNode;
-	class SequenceOfTypeNode;
-	class ClassRefTypeNode;
-	class InlineEnumTypeNode;
-	class EnumValueDeclNode;
+class NameTypeNode;
+class NumericTypeNode;
+class IntTypeNode;
+class FixedPointTypeNode;
+class BitTypeNode;
+class SequenceOfTypeNode;
+class ClassRefTypeNode;
+class InlineEnumTypeNode;
+class EnumValueDeclNode;
 
-	class FloatLiteralExprNode;
-	class IdentifierExprNode;
-}
+class FloatLiteralExprNode;
+class IdentifierExprNode;
 
 #endif // FORWARD_DECL_H_INCLUDED

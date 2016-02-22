@@ -21,26 +21,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 using namespace std;
 
-namespace hare
+ostream& Location::write(ostream& os) const
 {
-
-	ostream& Location::write(ostream& os) const
-	{
-		if (fileName != 0) {
-			os << "@" << fileName;
-			if (lineNumber != 0)
-				os << ":" << lineNumber;
-		}
-
-		return os;
+	if (fileName != 0) {
+		os << "@" << fileName;
+		if (lineNumber != 0)
+			os << ":" << lineNumber;
 	}
 
-	std::string Location::toString() const
-	{
-		stringstream ss;
-		write(ss);
+	return os;
+}
 
-		return ss.str();
-	}
+std::string Location::toString() const
+{
+	stringstream ss;
+	write(ss);
 
-} // namespace hare
+	return ss.str();
+}

@@ -29,121 +29,114 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 using namespace std;
 
-namespace hare
+vector<string> offsets;
+
+string createOffset(size_t offset)
 {
+	string r;
+	if (offset != 0) {
+		for (size_t i = 0; i < offset; ++i) {
+			if (i != 0)
+				r.push_back(' ');
 
-	vector<string> offsets;
-
-	string createOffset(size_t offset)
-	{
-		string r;
-		if (offset != 0) {
-			for (size_t i = 0; i < offset; ++i) {
-				if (i != 0)
-					r.push_back(' ');
-
-				r.push_back('|');
-			}
-			r.push_back('-');
+			r.push_back('|');
 		}
-		return r;
+		r.push_back('-');
 	}
+	return r;
+}
 
-	const string& getOffset(size_t offset)
-	{
-		while (offsets.size() <= offset)
-			offsets.push_back(createOffset(offset));
+const string& getOffset(size_t offset)
+{
+	while (offsets.size() <= offset)
+		offsets.push_back(createOffset(offset));
 
-		return offsets[offset];
-	}
-
-
-	class DumpWalker : public NodeWalker
-	{
-	public:
-		std::ostream& os;
-		size_t offset;
-		DumpWalker(std::ostream& os) : os(os), offset(0) {}
-
-		void walkNode(Node* node) {
-			ASSERT(node);
-			os << getOffset(offset);
-			dumpNode(os, node);
-			++offset;
-			node->walk(*this);
-			node->dumpSymbols(getOffset(offset), os);
-			--offset;
-		}
-
-		void dumpNullChild() {
-		}
-
-		virtual void walkChildNode(Node* parent, Node* child) {
-			if (child)
-				walkNode(child);
-			else {
-				os << getOffset(offset) << "!NULL!" << endl;
-			}
-		}
-	};
+	return offsets[offset];
+}
 
 
-	void dumpNode(std::ostream& os, Node* node)
-	{
+class DumpWalker : public NodeWalker
+{
+public:
+	std::ostream& os;
+	size_t offset;
+	DumpWalker(std::ostream& os) : os(os), offset(0) {}
+
+	void walkNode(Node* node) {
 		ASSERT(node);
-		os << "#" << node->nodeId;
-		os << " ";
-		node->location.write(os);
-		const char* name = typeid(*node).name();
-		if (strncmp(name, "class ", 6) == 0)
-			name += 6;
-		if (strncmp(name, "hare::", 6) == 0)
-			name += 6;
+		os << getOffset(offset);
+		dumpNode(os, node);
+		++offset;
+		node->walk(*this);
+		node->dumpSymbols(getOffset(offset), os);
+		--offset;
+	}
 
-		os << " '" << name << "'";
+	void dumpNullChild() {
+	}
+
+	virtual void walkChildNode(Node* parent, Node* child) {
+		if (child)
+			walkNode(child);
+		else {
+			os << getOffset(offset) << "!NULL!" << endl;
+		}
+	}
+};
+
+
+void dumpNode(std::ostream& os, Node* node)
+{
+	ASSERT(node);
+	os << "#" << node->nodeId;
+	os << " ";
+	node->location.write(os);
+	const char* name = typeid(*node).name();
+	if (strncmp(name, "class ", 6) == 0)
+		name += 6;
+	if (strncmp(name, "hare::", 6) == 0)
+		name += 6;
+
+	os << " '" << name << "'";
+	node->dump(os);
+
+	os << endl;
+}
+
+void dumpDown(std::ostream& os, Node* node)
+{
+	ASSERT(node);
+	DumpWalker walker(os);
+	walker.walkNode(node);
+}
+void dumpUp(std::ostream& os, Node* node)
+{
+	size_t offset = 0;
+	Node* current = node;
+	while (current) {
+		for (size_t i = 0; i < offset; ++i)
+			os << "|<";
+
+		os << "Node #" << node->nodeId;
+		os << " '" << typeid(*node).name() << "'";
+		if (node->location.isValid()) {
+			os << " ";
+			node->location.write(os);
+		}
+
 		node->dump(os);
-
-		os << endl;
+		++offset;
+		current = node->parent;
 	}
+}
 
-	void dumpDown(std::ostream& os, Node* node)
-	{
-		ASSERT(node);
-		DumpWalker walker(os);
-		walker.walkNode(node);
-	}
-	void dumpUp(std::ostream& os, Node* node)
-	{
-		size_t offset = 0;
-		Node* current = node;
-		while (current) {
-			for (size_t i = 0; i < offset; ++i)
-				os << "|<";
+//	const long ticks = 0;
+DebugTimer::DebugTimer(const string& message) : begin(clock()), message(message)
+{
+}
 
-			os << "Node #" << node->nodeId;
-			os << " '" << typeid(*node).name() << "'";
-			if (node->location.isValid()) {
-				os << " ";
-				node->location.write(os);
-			}
-
-			node->dump(os);
-			++offset;
-			current = node->parent;
-		}
-	}
-
-	//	const long ticks = 0;
-	DebugTimer::DebugTimer(const string& message) : begin(clock()), message(message)
-	{
-	}
-
-	DebugTimer::~DebugTimer()
-	{
-		long ticks = clock() - begin;
-		cout << "'" << message << "' completed in " << ticks << " ticks" << endl;
-	}
-
-
-
-} // namespace kpm
+DebugTimer::~DebugTimer()
+{
+	long ticks = clock() - begin;
+	cout << "'" << message << "' completed in " << ticks << " ticks" << endl;
+}
