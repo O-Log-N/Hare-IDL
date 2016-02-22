@@ -48,6 +48,10 @@ Naming conventions examples:
 6. SHOULD use C++11 auto for iterators such as auto it = v.begin(); where applicable. This also SHOULD reduce the need for iterator typedefs
 7. SHOULD NOT overuse C++11 auto for short-and-obvious types.
 8. SHOULD use "f() = delete;" to prohibit calling functions (instead of C++03's declaring as private and not implementing)
+9. namespace policy:
+    - project-specific stuff belongs to global namespace
+    - libraries which are shared among projects, belong to separate folder /src/hare/<library-name>, AND to hare::<library-name> namespace
+    - if by any chance, libraries do need macros, they SHOULD be prefixed with HARE_, for example: HARE_ASSERT()
 
 ### I.5 Misc
 
