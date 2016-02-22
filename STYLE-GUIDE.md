@@ -57,5 +57,5 @@ Naming conventions examples:
 
 1. iterations over the vector SHOULD use  size_t as index variable type: for(size_t i=0; i < v.size(); ++i)
 2. prefixed increment SHOULD be used in standalone statements: for(auto it=v.begin();;++it) is preferred over for(auto it=v.begin();;it++)
-3. All text-formatted file output SHOULD be done via C++ Format library: https://github.com/cppformat/cppformat . Will be provided within /src/3rdparty/ . 
+3. All text-formatted file output SHOULD be done via C++ Format library: https://github.com/cppformat/cppformat . This library is available as 'git submodule' within /3rdparty/cppformat/ .
 4. All file I/O (except for-text-formatted one, see item I.5.3 right above) SHOULD be done via std::iostream
