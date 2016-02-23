@@ -38,6 +38,11 @@ class FencedAttributeDeclNode;
 class EncodingDeclNode;
 class MappingDeclNode;
 
+class EncodingAttributeNode;
+class ExtendedAttributeNode;
+class EncodingOptionNode;
+class AttributeGroupNode;
+
 class NameTypeNode;
 class NumericTypeNode;
 class IntTypeNode;

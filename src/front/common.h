@@ -117,6 +117,14 @@ public:
 		return child_list.at(index);
 	}
 
+	Child<T>& back() {
+		return child_list.back();
+	}
+
+	const Child<T>& back() const {
+		return child_list.back();
+	}
+
 	void push_back(T* new_child) {
 		child_list.push_back(make_child(new_child));
 	}

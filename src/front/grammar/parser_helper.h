@@ -68,22 +68,23 @@ extern "C" {
 	YYSTYPE createErrorDeclaration();
 	
 	YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id);
-	YYSTYPE addToPublishableStruct(YYSTYPE decl, YYSTYPE elem);
+	YYSTYPE addToPublishableStruct(YYSTYPE decl, YYSTYPE type, YYSTYPE id);
 
 	YYSTYPE createMapping(YYSTYPE token, YYSTYPE str_list, YYSTYPE id);
-	YYSTYPE addToMapping(YYSTYPE decl, YYSTYPE elem);
+	YYSTYPE addToMapping(YYSTYPE decl, YYSTYPE type, YYSTYPE id);
 
 	YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_lit, YYSTYPE id);
 	YYSTYPE addToEncoding(YYSTYPE decl, YYSTYPE elem);
-	YYSTYPE addGroupToEncoding(YYSTYPE decl, YYSTYPE group);
+	YYSTYPE addFenceToEncoding(YYSTYPE decl, YYSTYPE token);
 
-	YYSTYPE createAttribute(YYSTYPE type, YYSTYPE id);
-	YYSTYPE createIdentifierAttribute(YYSTYPE id_type, YYSTYPE id);
-	YYSTYPE addTagToAttribute(YYSTYPE id, YYSTYPE arg_list, YYSTYPE element);
+	YYSTYPE createEncodingAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE expr);
+	YYSTYPE createExtendAttribute(YYSTYPE id, YYSTYPE type);
 
-	YYSTYPE createTagGroup(YYSTYPE id, YYSTYPE arg_list);
-	YYSTYPE addToTagGroup(YYSTYPE group, YYSTYPE element);
+	YYSTYPE createEncodingGroup(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE opt_att);
+	YYSTYPE addToEncodingGroup(YYSTYPE group, YYSTYPE element);
+	YYSTYPE addEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE group);
 
+	YYSTYPE createIdType(YYSTYPE id);
 	YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE high_literal, bool high_flag);
 	YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE high_literal, bool high_flag);
 	YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE float_lit);

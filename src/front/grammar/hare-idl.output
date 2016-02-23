@@ -13,156 +13,171 @@ Gramática
     4     | file encoding
 
     5 publishable_struct_begin: KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
-    6                         | publishable_struct_begin data_element
+    6                         | publishable_struct_begin data_type IDENTIFIER ';'
+    7                         | publishable_struct_begin IDENTIFIER IDENTIFIER ';'
 
-    7 publishable_struct: publishable_struct_begin '}' ';'
+    8 publishable_struct: publishable_struct_begin '}' ';'
 
-    8 mapping_begin: KW_MAPPING '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
-    9              | mapping_begin data_element
+    9 mapping_begin: KW_MAPPING '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+   10              | mapping_begin data_type IDENTIFIER ';'
+   11              | mapping_begin IDENTIFIER IDENTIFIER ';'
 
-   10 mapping: mapping_begin '}' ';'
+   12 mapping: mapping_begin '}' ';'
 
-   11 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
-   12               | encoding_begin data_element
-   13               | encoding_begin data_group
+   13 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+   14               | encoding_begin data_element
+   15               | encoding_begin data_group
+   16               | encoding_begin KW_FENCE
 
-   14 encoding: encoding_begin '}' ';'
+   17 encoding: encoding_begin '}' ';'
 
-   15 data_element: data_type IDENTIFIER ';'
-   16             | IDENTIFIER IDENTIFIER ';'
-   17             | IDENTIFIER data_element
-   18             | IDENTIFIER '(' arg_list ')' data_element
+   18 data_element: data_type IDENTIFIER ';'
+   19             | data_type IDENTIFIER KW_DEFAULT '=' expr ';'
+   20             | IDENTIFIER IDENTIFIER ';'
+   21             | IDENTIFIER IDENTIFIER KW_DEFAULT '=' expr ';'
+   22             | KW_EXTEND IDENTIFIER KW_TO data_type ';'
+   23             | KW_EXTEND IDENTIFIER KW_TO IDENTIFIER ';'
 
-   19 data_group_begin: IDENTIFIER '{'
-   20                 | IDENTIFIER '(' arg_list ')' '{'
-   21                 | data_group_begin data_element
-   22                 | data_group_begin data_group
+   24 data_group_begin: IDENTIFIER '{'
+   25                 | IDENTIFIER '(' arg_list ')' '{'
+   26                 | data_group_begin data_element
+   27                 | data_group_begin data_group
 
-   23 data_group: data_group_begin '}'
+   28 data_group: data_group_begin '}'
+   29           | IDENTIFIER data_element
+   30           | IDENTIFIER '(' arg_list ')' data_element
+   31           | IDENTIFIER data_group
+   32           | IDENTIFIER '(' arg_list ')' data_group
 
-   24 data_type: numeric_type
-   25          | int_type
-   26          | sequence_type
-   27          | inline_enum_type
-   28          | class_ref_type
-   29          | bit_type
-   30          | fixed_point_type
+   33 data_type: numeric_type
+   34          | int_type
+   35          | sequence_type
+   36          | inline_enum_type
+   37          | class_ref_type
+   38          | bit_type
+   39          | fixed_point_type
 
-   31 numeric_type: KW_NUMERIC '[' expr ',' expr ']'
-   32             | KW_NUMERIC '(' expr ',' expr ']'
-   33             | KW_NUMERIC '[' expr ',' expr ')'
-   34             | KW_NUMERIC '(' expr ',' expr ')'
+   40 numeric_type: KW_NUMERIC '[' expr ',' expr ']'
+   41             | KW_NUMERIC '(' expr ',' expr ']'
+   42             | KW_NUMERIC '[' expr ',' expr ')'
+   43             | KW_NUMERIC '(' expr ',' expr ')'
 
-   35 int_type: KW_INT '[' expr ',' expr ']'
-   36         | KW_INT '(' expr ',' expr ']'
-   37         | KW_INT '[' expr ',' expr ')'
-   38         | KW_INT '(' expr ',' expr ')'
+   44 int_type: KW_INT '[' expr ',' expr ']'
+   45         | KW_INT '(' expr ',' expr ']'
+   46         | KW_INT '[' expr ',' expr ')'
+   47         | KW_INT '(' expr ',' expr ')'
 
-   39 fixed_point_type: KW_FIXED_POINT '(' expr ')'
+   48 fixed_point_type: KW_FIXED_POINT '(' expr ')'
 
-   40 bit_type: KW_BIT '(' expr ')'
+   49 bit_type: KW_BIT '(' expr ')'
 
-   41 sequence_type: KW_SEQUENCE '<' IDENTIFIER '>'
+   50 sequence_type: KW_SEQUENCE '<' IDENTIFIER '>'
 
-   42 class_ref_type: KW_CLASS IDENTIFIER
+   51 class_ref_type: KW_CLASS IDENTIFIER
 
-   43 inline_enum_type: KW_ENUM IDENTIFIER '{' enum_values '}'
+   52 inline_enum_type: KW_ENUM IDENTIFIER '{' enum_values '}'
 
-   44 enum_values: IDENTIFIER '=' INTEGER_LITERAL
-   45            | enum_values ',' IDENTIFIER '=' INTEGER_LITERAL
+   53 enum_values: IDENTIFIER '=' INTEGER_LITERAL
+   54            | enum_values ',' IDENTIFIER '=' INTEGER_LITERAL
 
-   46 str_list: STRING_LITERAL
-   47         | str_list ',' STRING_LITERAL
+   55 str_list: STRING_LITERAL
+   56         | str_list ',' STRING_LITERAL
 
-   48 arg_list: expr
-   49         | arg_list ',' expr
+   57 arg_list: expr
+   58         | arg_list ',' expr
 
-   50 expr: INTEGER_LITERAL
-   51     | FLOAT_LITERAL
-   52     | IDENTIFIER
+   59 expr: INTEGER_LITERAL
+   60     | FLOAT_LITERAL
+   61     | IDENTIFIER
 
 
 Terminales con las reglas donde aparecen
 
 $end (0) 0
-'(' (40) 8 11 18 20 32 34 36 38 39 40
-')' (41) 8 11 18 20 33 34 37 38 39 40
-',' (44) 31 32 33 34 35 36 37 38 45 47 49
-';' (59) 7 10 14 15 16
-'<' (60) 41
-'=' (61) 44 45
-'>' (62) 41
-'[' (91) 31 33 35 37
-']' (93) 31 32 35 36
-'{' (123) 5 8 11 19 20 43
-'}' (125) 7 10 14 23 43
+'(' (40) 9 13 25 30 32 41 43 45 47 48 49
+')' (41) 9 13 25 30 32 42 43 46 47 48 49
+',' (44) 40 41 42 43 44 45 46 47 54 56 58
+';' (59) 6 7 8 10 11 12 17 18 19 20 21 22 23
+'<' (60) 50
+'=' (61) 19 21 53 54
+'>' (62) 50
+'[' (91) 40 42 44 46
+']' (93) 40 41 44 45
+'{' (123) 5 9 13 24 25 52
+'}' (125) 8 12 17 28 52
 error (256)
-KW_PUBLISHABLE_STRUCT (258) 5 8 11
-KW_ENUM (259) 43
-KW_CLASS (260) 42
-KW_MAPPING (261) 8
-KW_ENCODING (262) 11
-KW_NUMERIC (263) 31 32 33 34
-KW_INT (264) 35 36 37 38
-KW_SEQUENCE (265) 41
-KW_FIXED_POINT (266) 39
-KW_BIT (267) 40
-IDENTIFIER (268) 5 8 11 15 16 17 18 19 20 41 42 43 44 45 52
-STRING_LITERAL (269) 11 46 47
-INTEGER_LITERAL (270) 44 45 50
-CHAR_LITERAL (271)
-FLOAT_LITERAL (272) 51
+KW_PUBLISHABLE_STRUCT (258) 5 9 13
+KW_ENUM (259) 52
+KW_CLASS (260) 51
+KW_MAPPING (261) 9
+KW_ENCODING (262) 13
+KW_NUMERIC (263) 40 41 42 43
+KW_INT (264) 44 45 46 47
+KW_SEQUENCE (265) 50
+KW_FIXED_POINT (266) 48
+KW_BIT (267) 49
+KW_EXTEND (268) 22 23
+KW_TO (269) 22 23
+KW_DEFAULT (270) 19 21
+KW_FENCE (271) 16
+IDENTIFIER (272) 5 6 7 9 10 11 13 18 19 20 21 22 23 24 25 29 30 31
+    32 50 51 52 53 54 61
+STRING_LITERAL (273) 13 55 56
+INTEGER_LITERAL (274) 53 54 59
+CHAR_LITERAL (275)
+FLOAT_LITERAL (276) 60
 
 
 No terminales con las reglas donde aparecen
 
-$accept (29)
+$accept (33)
     en la izquierda: 0
-file (30)
+file (34)
     en la izquierda: 1 2 3 4, en la derecha: 0 2 3 4
-publishable_struct_begin (31)
-    en la izquierda: 5 6, en la derecha: 6 7
-publishable_struct (32)
-    en la izquierda: 7, en la derecha: 2
-mapping_begin (33)
-    en la izquierda: 8 9, en la derecha: 9 10
-mapping (34)
-    en la izquierda: 10, en la derecha: 3
-encoding_begin (35)
-    en la izquierda: 11 12 13, en la derecha: 12 13 14
-encoding (36)
-    en la izquierda: 14, en la derecha: 4
-data_element (37)
-    en la izquierda: 15 16 17 18, en la derecha: 6 9 12 17 18 21
-data_group_begin (38)
-    en la izquierda: 19 20 21 22, en la derecha: 21 22 23
-data_group (39)
-    en la izquierda: 23, en la derecha: 13 22
-data_type (40)
-    en la izquierda: 24 25 26 27 28 29 30, en la derecha: 15
-numeric_type (41)
-    en la izquierda: 31 32 33 34, en la derecha: 24
-int_type (42)
-    en la izquierda: 35 36 37 38, en la derecha: 25
-fixed_point_type (43)
-    en la izquierda: 39, en la derecha: 30
-bit_type (44)
-    en la izquierda: 40, en la derecha: 29
-sequence_type (45)
-    en la izquierda: 41, en la derecha: 26
-class_ref_type (46)
-    en la izquierda: 42, en la derecha: 28
-inline_enum_type (47)
-    en la izquierda: 43, en la derecha: 27
-enum_values (48)
-    en la izquierda: 44 45, en la derecha: 43 45
-str_list (49)
-    en la izquierda: 46 47, en la derecha: 8 47
-arg_list (50)
-    en la izquierda: 48 49, en la derecha: 18 20 49
-expr (51)
-    en la izquierda: 50 51 52, en la derecha: 31 32 33 34 35 36 37
-    38 39 40 48 49
+publishable_struct_begin (35)
+    en la izquierda: 5 6 7, en la derecha: 6 7 8
+publishable_struct (36)
+    en la izquierda: 8, en la derecha: 2
+mapping_begin (37)
+    en la izquierda: 9 10 11, en la derecha: 10 11 12
+mapping (38)
+    en la izquierda: 12, en la derecha: 3
+encoding_begin (39)
+    en la izquierda: 13 14 15 16, en la derecha: 14 15 16 17
+encoding (40)
+    en la izquierda: 17, en la derecha: 4
+data_element (41)
+    en la izquierda: 18 19 20 21 22 23, en la derecha: 14 26 29 30
+data_group_begin (42)
+    en la izquierda: 24 25 26 27, en la derecha: 26 27 28
+data_group (43)
+    en la izquierda: 28 29 30 31 32, en la derecha: 15 27 31 32
+data_type (44)
+    en la izquierda: 33 34 35 36 37 38 39, en la derecha: 6 10 18 19
+    22
+numeric_type (45)
+    en la izquierda: 40 41 42 43, en la derecha: 33
+int_type (46)
+    en la izquierda: 44 45 46 47, en la derecha: 34
+fixed_point_type (47)
+    en la izquierda: 48, en la derecha: 39
+bit_type (48)
+    en la izquierda: 49, en la derecha: 38
+sequence_type (49)
+    en la izquierda: 50, en la derecha: 35
+class_ref_type (50)
+    en la izquierda: 51, en la derecha: 37
+inline_enum_type (51)
+    en la izquierda: 52, en la derecha: 36
+enum_values (52)
+    en la izquierda: 53 54, en la derecha: 52 54
+str_list (53)
+    en la izquierda: 55 56, en la derecha: 9 56
+arg_list (54)
+    en la izquierda: 57 58, en la derecha: 25 30 32 58
+expr (55)
+    en la izquierda: 59 60 61, en la derecha: 19 21 40 41 42 43 44
+    45 46 47 48 49 57 58
 
 
 estado 0
@@ -210,22 +225,23 @@ estado 3
 
 estado 4
 
-    8 mapping_begin: KW_MAPPING . '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+    9 mapping_begin: KW_MAPPING . '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
 
     '('  desplazar e ir al estado 13
 
 
 estado 5
 
-   11 encoding_begin: KW_ENCODING . '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+   13 encoding_begin: KW_ENCODING . '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
 
     '('  desplazar e ir al estado 14
 
 
 estado 6
 
-    6 publishable_struct_begin: publishable_struct_begin . data_element
-    7 publishable_struct: publishable_struct_begin . '}' ';'
+    6 publishable_struct_begin: publishable_struct_begin . data_type IDENTIFIER ';'
+    7                         | publishable_struct_begin . IDENTIFIER IDENTIFIER ';'
+    8 publishable_struct: publishable_struct_begin . '}' ';'
 
     KW_ENUM         desplazar e ir al estado 15
     KW_CLASS        desplazar e ir al estado 16
@@ -237,15 +253,14 @@ estado 6
     IDENTIFIER      desplazar e ir al estado 22
     '}'             desplazar e ir al estado 23
 
-    data_element      ir al estado 24
-    data_type         ir al estado 25
-    numeric_type      ir al estado 26
-    int_type          ir al estado 27
-    fixed_point_type  ir al estado 28
-    bit_type          ir al estado 29
-    sequence_type     ir al estado 30
-    class_ref_type    ir al estado 31
-    inline_enum_type  ir al estado 32
+    data_type         ir al estado 24
+    numeric_type      ir al estado 25
+    int_type          ir al estado 26
+    fixed_point_type  ir al estado 27
+    bit_type          ir al estado 28
+    sequence_type     ir al estado 29
+    class_ref_type    ir al estado 30
+    inline_enum_type  ir al estado 31
 
 
 estado 7
@@ -257,8 +272,9 @@ estado 7
 
 estado 8
 
-    9 mapping_begin: mapping_begin . data_element
-   10 mapping: mapping_begin . '}' ';'
+   10 mapping_begin: mapping_begin . data_type IDENTIFIER ';'
+   11              | mapping_begin . IDENTIFIER IDENTIFIER ';'
+   12 mapping: mapping_begin . '}' ';'
 
     KW_ENUM         desplazar e ir al estado 15
     KW_CLASS        desplazar e ir al estado 16
@@ -267,18 +283,17 @@ estado 8
     KW_SEQUENCE     desplazar e ir al estado 19
     KW_FIXED_POINT  desplazar e ir al estado 20
     KW_BIT          desplazar e ir al estado 21
-    IDENTIFIER      desplazar e ir al estado 22
+    IDENTIFIER      desplazar e ir al estado 32
     '}'             desplazar e ir al estado 33
 
-    data_element      ir al estado 34
-    data_type         ir al estado 25
-    numeric_type      ir al estado 26
-    int_type          ir al estado 27
-    fixed_point_type  ir al estado 28
-    bit_type          ir al estado 29
-    sequence_type     ir al estado 30
-    class_ref_type    ir al estado 31
-    inline_enum_type  ir al estado 32
+    data_type         ir al estado 34
+    numeric_type      ir al estado 25
+    int_type          ir al estado 26
+    fixed_point_type  ir al estado 27
+    bit_type          ir al estado 28
+    sequence_type     ir al estado 29
+    class_ref_type    ir al estado 30
+    inline_enum_type  ir al estado 31
 
 
 estado 9
@@ -290,9 +305,10 @@ estado 9
 
 estado 10
 
-   12 encoding_begin: encoding_begin . data_element
-   13               | encoding_begin . data_group
-   14 encoding: encoding_begin . '}' ';'
+   14 encoding_begin: encoding_begin . data_element
+   15               | encoding_begin . data_group
+   16               | encoding_begin . KW_FENCE
+   17 encoding: encoding_begin . '}' ';'
 
     KW_ENUM         desplazar e ir al estado 15
     KW_CLASS        desplazar e ir al estado 16
@@ -301,20 +317,22 @@ estado 10
     KW_SEQUENCE     desplazar e ir al estado 19
     KW_FIXED_POINT  desplazar e ir al estado 20
     KW_BIT          desplazar e ir al estado 21
-    IDENTIFIER      desplazar e ir al estado 35
-    '}'             desplazar e ir al estado 36
+    KW_EXTEND       desplazar e ir al estado 35
+    KW_FENCE        desplazar e ir al estado 36
+    IDENTIFIER      desplazar e ir al estado 37
+    '}'             desplazar e ir al estado 38
 
-    data_element      ir al estado 37
-    data_group_begin  ir al estado 38
-    data_group        ir al estado 39
-    data_type         ir al estado 25
-    numeric_type      ir al estado 26
-    int_type          ir al estado 27
-    fixed_point_type  ir al estado 28
-    bit_type          ir al estado 29
-    sequence_type     ir al estado 30
-    class_ref_type    ir al estado 31
-    inline_enum_type  ir al estado 32
+    data_element      ir al estado 39
+    data_group_begin  ir al estado 40
+    data_group        ir al estado 41
+    data_type         ir al estado 42
+    numeric_type      ir al estado 25
+    int_type          ir al estado 26
+    fixed_point_type  ir al estado 27
+    bit_type          ir al estado 28
+    sequence_type     ir al estado 29
+    class_ref_type    ir al estado 30
+    inline_enum_type  ir al estado 31
 
 
 estado 11
@@ -328,242 +346,198 @@ estado 12
 
     5 publishable_struct_begin: KW_PUBLISHABLE_STRUCT IDENTIFIER . '{'
 
-    '{'  desplazar e ir al estado 40
+    '{'  desplazar e ir al estado 43
 
 
 estado 13
 
-    8 mapping_begin: KW_MAPPING '(' . str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+    9 mapping_begin: KW_MAPPING '(' . str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
 
-    STRING_LITERAL  desplazar e ir al estado 41
+    STRING_LITERAL  desplazar e ir al estado 44
 
-    str_list  ir al estado 42
+    str_list  ir al estado 45
 
 
 estado 14
 
-   11 encoding_begin: KW_ENCODING '(' . STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+   13 encoding_begin: KW_ENCODING '(' . STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
 
-    STRING_LITERAL  desplazar e ir al estado 43
+    STRING_LITERAL  desplazar e ir al estado 46
 
 
 estado 15
 
-   43 inline_enum_type: KW_ENUM . IDENTIFIER '{' enum_values '}'
+   52 inline_enum_type: KW_ENUM . IDENTIFIER '{' enum_values '}'
 
-    IDENTIFIER  desplazar e ir al estado 44
+    IDENTIFIER  desplazar e ir al estado 47
 
 
 estado 16
 
-   42 class_ref_type: KW_CLASS . IDENTIFIER
+   51 class_ref_type: KW_CLASS . IDENTIFIER
 
-    IDENTIFIER  desplazar e ir al estado 45
+    IDENTIFIER  desplazar e ir al estado 48
 
 
 estado 17
 
-   31 numeric_type: KW_NUMERIC . '[' expr ',' expr ']'
-   32             | KW_NUMERIC . '(' expr ',' expr ']'
-   33             | KW_NUMERIC . '[' expr ',' expr ')'
-   34             | KW_NUMERIC . '(' expr ',' expr ')'
+   40 numeric_type: KW_NUMERIC . '[' expr ',' expr ']'
+   41             | KW_NUMERIC . '(' expr ',' expr ']'
+   42             | KW_NUMERIC . '[' expr ',' expr ')'
+   43             | KW_NUMERIC . '(' expr ',' expr ')'
 
-    '('  desplazar e ir al estado 46
-    '['  desplazar e ir al estado 47
+    '('  desplazar e ir al estado 49
+    '['  desplazar e ir al estado 50
 
 
 estado 18
 
-   35 int_type: KW_INT . '[' expr ',' expr ']'
-   36         | KW_INT . '(' expr ',' expr ']'
-   37         | KW_INT . '[' expr ',' expr ')'
-   38         | KW_INT . '(' expr ',' expr ')'
+   44 int_type: KW_INT . '[' expr ',' expr ']'
+   45         | KW_INT . '(' expr ',' expr ']'
+   46         | KW_INT . '[' expr ',' expr ')'
+   47         | KW_INT . '(' expr ',' expr ')'
 
-    '('  desplazar e ir al estado 48
-    '['  desplazar e ir al estado 49
+    '('  desplazar e ir al estado 51
+    '['  desplazar e ir al estado 52
 
 
 estado 19
 
-   41 sequence_type: KW_SEQUENCE . '<' IDENTIFIER '>'
+   50 sequence_type: KW_SEQUENCE . '<' IDENTIFIER '>'
 
-    '<'  desplazar e ir al estado 50
+    '<'  desplazar e ir al estado 53
 
 
 estado 20
 
-   39 fixed_point_type: KW_FIXED_POINT . '(' expr ')'
+   48 fixed_point_type: KW_FIXED_POINT . '(' expr ')'
 
-    '('  desplazar e ir al estado 51
+    '('  desplazar e ir al estado 54
 
 
 estado 21
 
-   40 bit_type: KW_BIT . '(' expr ')'
+   49 bit_type: KW_BIT . '(' expr ')'
 
-    '('  desplazar e ir al estado 52
+    '('  desplazar e ir al estado 55
 
 
 estado 22
 
-   16 data_element: IDENTIFIER . IDENTIFIER ';'
-   17             | IDENTIFIER . data_element
-   18             | IDENTIFIER . '(' arg_list ')' data_element
+    7 publishable_struct_begin: publishable_struct_begin IDENTIFIER . IDENTIFIER ';'
 
-    KW_ENUM         desplazar e ir al estado 15
-    KW_CLASS        desplazar e ir al estado 16
-    KW_NUMERIC      desplazar e ir al estado 17
-    KW_INT          desplazar e ir al estado 18
-    KW_SEQUENCE     desplazar e ir al estado 19
-    KW_FIXED_POINT  desplazar e ir al estado 20
-    KW_BIT          desplazar e ir al estado 21
-    IDENTIFIER      desplazar e ir al estado 53
-    '('             desplazar e ir al estado 54
-
-    data_element      ir al estado 55
-    data_type         ir al estado 25
-    numeric_type      ir al estado 26
-    int_type          ir al estado 27
-    fixed_point_type  ir al estado 28
-    bit_type          ir al estado 29
-    sequence_type     ir al estado 30
-    class_ref_type    ir al estado 31
-    inline_enum_type  ir al estado 32
+    IDENTIFIER  desplazar e ir al estado 56
 
 
 estado 23
 
-    7 publishable_struct: publishable_struct_begin '}' . ';'
+    8 publishable_struct: publishable_struct_begin '}' . ';'
 
-    ';'  desplazar e ir al estado 56
+    ';'  desplazar e ir al estado 57
 
 
 estado 24
 
-    6 publishable_struct_begin: publishable_struct_begin data_element .
+    6 publishable_struct_begin: publishable_struct_begin data_type . IDENTIFIER ';'
 
-    $default  reduce usando la regla 6 (publishable_struct_begin)
+    IDENTIFIER  desplazar e ir al estado 58
 
 
 estado 25
 
-   15 data_element: data_type . IDENTIFIER ';'
+   33 data_type: numeric_type .
 
-    IDENTIFIER  desplazar e ir al estado 57
+    $default  reduce usando la regla 33 (data_type)
 
 
 estado 26
 
-   24 data_type: numeric_type .
+   34 data_type: int_type .
 
-    $default  reduce usando la regla 24 (data_type)
+    $default  reduce usando la regla 34 (data_type)
 
 
 estado 27
 
-   25 data_type: int_type .
+   39 data_type: fixed_point_type .
 
-    $default  reduce usando la regla 25 (data_type)
+    $default  reduce usando la regla 39 (data_type)
 
 
 estado 28
 
-   30 data_type: fixed_point_type .
+   38 data_type: bit_type .
 
-    $default  reduce usando la regla 30 (data_type)
+    $default  reduce usando la regla 38 (data_type)
 
 
 estado 29
 
-   29 data_type: bit_type .
+   35 data_type: sequence_type .
 
-    $default  reduce usando la regla 29 (data_type)
+    $default  reduce usando la regla 35 (data_type)
 
 
 estado 30
 
-   26 data_type: sequence_type .
+   37 data_type: class_ref_type .
 
-    $default  reduce usando la regla 26 (data_type)
+    $default  reduce usando la regla 37 (data_type)
 
 
 estado 31
 
-   28 data_type: class_ref_type .
+   36 data_type: inline_enum_type .
 
-    $default  reduce usando la regla 28 (data_type)
+    $default  reduce usando la regla 36 (data_type)
 
 
 estado 32
 
-   27 data_type: inline_enum_type .
+   11 mapping_begin: mapping_begin IDENTIFIER . IDENTIFIER ';'
 
-    $default  reduce usando la regla 27 (data_type)
+    IDENTIFIER  desplazar e ir al estado 59
 
 
 estado 33
 
-   10 mapping: mapping_begin '}' . ';'
+   12 mapping: mapping_begin '}' . ';'
 
-    ';'  desplazar e ir al estado 58
+    ';'  desplazar e ir al estado 60
 
 
 estado 34
 
-    9 mapping_begin: mapping_begin data_element .
+   10 mapping_begin: mapping_begin data_type . IDENTIFIER ';'
 
-    $default  reduce usando la regla 9 (mapping_begin)
+    IDENTIFIER  desplazar e ir al estado 61
 
 
 estado 35
 
-   16 data_element: IDENTIFIER . IDENTIFIER ';'
-   17             | IDENTIFIER . data_element
-   18             | IDENTIFIER . '(' arg_list ')' data_element
-   19 data_group_begin: IDENTIFIER . '{'
-   20                 | IDENTIFIER . '(' arg_list ')' '{'
+   22 data_element: KW_EXTEND . IDENTIFIER KW_TO data_type ';'
+   23             | KW_EXTEND . IDENTIFIER KW_TO IDENTIFIER ';'
 
-    KW_ENUM         desplazar e ir al estado 15
-    KW_CLASS        desplazar e ir al estado 16
-    KW_NUMERIC      desplazar e ir al estado 17
-    KW_INT          desplazar e ir al estado 18
-    KW_SEQUENCE     desplazar e ir al estado 19
-    KW_FIXED_POINT  desplazar e ir al estado 20
-    KW_BIT          desplazar e ir al estado 21
-    IDENTIFIER      desplazar e ir al estado 53
-    '{'             desplazar e ir al estado 59
-    '('             desplazar e ir al estado 60
-
-    data_element      ir al estado 55
-    data_type         ir al estado 25
-    numeric_type      ir al estado 26
-    int_type          ir al estado 27
-    fixed_point_type  ir al estado 28
-    bit_type          ir al estado 29
-    sequence_type     ir al estado 30
-    class_ref_type    ir al estado 31
-    inline_enum_type  ir al estado 32
+    IDENTIFIER  desplazar e ir al estado 62
 
 
 estado 36
 
-   14 encoding: encoding_begin '}' . ';'
+   16 encoding_begin: encoding_begin KW_FENCE .
 
-    ';'  desplazar e ir al estado 61
+    $default  reduce usando la regla 16 (encoding_begin)
 
 
 estado 37
 
-   12 encoding_begin: encoding_begin data_element .
-
-    $default  reduce usando la regla 12 (encoding_begin)
-
-
-estado 38
-
-   21 data_group_begin: data_group_begin . data_element
-   22                 | data_group_begin . data_group
-   23 data_group: data_group_begin . '}'
+   20 data_element: IDENTIFIER . IDENTIFIER ';'
+   21             | IDENTIFIER . IDENTIFIER KW_DEFAULT '=' expr ';'
+   24 data_group_begin: IDENTIFIER . '{'
+   25                 | IDENTIFIER . '(' arg_list ')' '{'
+   29 data_group: IDENTIFIER . data_element
+   30           | IDENTIFIER . '(' arg_list ')' data_element
+   31           | IDENTIFIER . data_group
+   32           | IDENTIFIER . '(' arg_list ')' data_group
 
     KW_ENUM         desplazar e ir al estado 15
     KW_CLASS        desplazar e ir al estado 16
@@ -572,556 +546,704 @@ estado 38
     KW_SEQUENCE     desplazar e ir al estado 19
     KW_FIXED_POINT  desplazar e ir al estado 20
     KW_BIT          desplazar e ir al estado 21
-    IDENTIFIER      desplazar e ir al estado 35
-    '}'             desplazar e ir al estado 62
+    KW_EXTEND       desplazar e ir al estado 35
+    IDENTIFIER      desplazar e ir al estado 63
+    '{'             desplazar e ir al estado 64
+    '('             desplazar e ir al estado 65
 
-    data_element      ir al estado 63
-    data_group_begin  ir al estado 38
-    data_group        ir al estado 64
-    data_type         ir al estado 25
-    numeric_type      ir al estado 26
-    int_type          ir al estado 27
-    fixed_point_type  ir al estado 28
-    bit_type          ir al estado 29
-    sequence_type     ir al estado 30
-    class_ref_type    ir al estado 31
-    inline_enum_type  ir al estado 32
+    data_element      ir al estado 66
+    data_group_begin  ir al estado 40
+    data_group        ir al estado 67
+    data_type         ir al estado 42
+    numeric_type      ir al estado 25
+    int_type          ir al estado 26
+    fixed_point_type  ir al estado 27
+    bit_type          ir al estado 28
+    sequence_type     ir al estado 29
+    class_ref_type    ir al estado 30
+    inline_enum_type  ir al estado 31
+
+
+estado 38
+
+   17 encoding: encoding_begin '}' . ';'
+
+    ';'  desplazar e ir al estado 68
 
 
 estado 39
 
-   13 encoding_begin: encoding_begin data_group .
+   14 encoding_begin: encoding_begin data_element .
 
-    $default  reduce usando la regla 13 (encoding_begin)
+    $default  reduce usando la regla 14 (encoding_begin)
 
 
 estado 40
+
+   26 data_group_begin: data_group_begin . data_element
+   27                 | data_group_begin . data_group
+   28 data_group: data_group_begin . '}'
+
+    KW_ENUM         desplazar e ir al estado 15
+    KW_CLASS        desplazar e ir al estado 16
+    KW_NUMERIC      desplazar e ir al estado 17
+    KW_INT          desplazar e ir al estado 18
+    KW_SEQUENCE     desplazar e ir al estado 19
+    KW_FIXED_POINT  desplazar e ir al estado 20
+    KW_BIT          desplazar e ir al estado 21
+    KW_EXTEND       desplazar e ir al estado 35
+    IDENTIFIER      desplazar e ir al estado 37
+    '}'             desplazar e ir al estado 69
+
+    data_element      ir al estado 70
+    data_group_begin  ir al estado 40
+    data_group        ir al estado 71
+    data_type         ir al estado 42
+    numeric_type      ir al estado 25
+    int_type          ir al estado 26
+    fixed_point_type  ir al estado 27
+    bit_type          ir al estado 28
+    sequence_type     ir al estado 29
+    class_ref_type    ir al estado 30
+    inline_enum_type  ir al estado 31
+
+
+estado 41
+
+   15 encoding_begin: encoding_begin data_group .
+
+    $default  reduce usando la regla 15 (encoding_begin)
+
+
+estado 42
+
+   18 data_element: data_type . IDENTIFIER ';'
+   19             | data_type . IDENTIFIER KW_DEFAULT '=' expr ';'
+
+    IDENTIFIER  desplazar e ir al estado 72
+
+
+estado 43
 
     5 publishable_struct_begin: KW_PUBLISHABLE_STRUCT IDENTIFIER '{' .
 
     $default  reduce usando la regla 5 (publishable_struct_begin)
 
 
-estado 41
-
-   46 str_list: STRING_LITERAL .
-
-    $default  reduce usando la regla 46 (str_list)
-
-
-estado 42
-
-    8 mapping_begin: KW_MAPPING '(' str_list . ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
-   47 str_list: str_list . ',' STRING_LITERAL
-
-    ')'  desplazar e ir al estado 65
-    ','  desplazar e ir al estado 66
-
-
-estado 43
-
-   11 encoding_begin: KW_ENCODING '(' STRING_LITERAL . ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
-
-    ')'  desplazar e ir al estado 67
-
-
 estado 44
 
-   43 inline_enum_type: KW_ENUM IDENTIFIER . '{' enum_values '}'
+   55 str_list: STRING_LITERAL .
 
-    '{'  desplazar e ir al estado 68
+    $default  reduce usando la regla 55 (str_list)
 
 
 estado 45
 
-   42 class_ref_type: KW_CLASS IDENTIFIER .
+    9 mapping_begin: KW_MAPPING '(' str_list . ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+   56 str_list: str_list . ',' STRING_LITERAL
 
-    $default  reduce usando la regla 42 (class_ref_type)
+    ')'  desplazar e ir al estado 73
+    ','  desplazar e ir al estado 74
 
 
 estado 46
 
-   32 numeric_type: KW_NUMERIC '(' . expr ',' expr ']'
-   34             | KW_NUMERIC '(' . expr ',' expr ')'
+   13 encoding_begin: KW_ENCODING '(' STRING_LITERAL . ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
 
-    IDENTIFIER       desplazar e ir al estado 69
-    INTEGER_LITERAL  desplazar e ir al estado 70
-    FLOAT_LITERAL    desplazar e ir al estado 71
-
-    expr  ir al estado 72
+    ')'  desplazar e ir al estado 75
 
 
 estado 47
 
-   31 numeric_type: KW_NUMERIC '[' . expr ',' expr ']'
-   33             | KW_NUMERIC '[' . expr ',' expr ')'
+   52 inline_enum_type: KW_ENUM IDENTIFIER . '{' enum_values '}'
 
-    IDENTIFIER       desplazar e ir al estado 69
-    INTEGER_LITERAL  desplazar e ir al estado 70
-    FLOAT_LITERAL    desplazar e ir al estado 71
-
-    expr  ir al estado 73
+    '{'  desplazar e ir al estado 76
 
 
 estado 48
 
-   36 int_type: KW_INT '(' . expr ',' expr ']'
-   38         | KW_INT '(' . expr ',' expr ')'
+   51 class_ref_type: KW_CLASS IDENTIFIER .
 
-    IDENTIFIER       desplazar e ir al estado 69
-    INTEGER_LITERAL  desplazar e ir al estado 70
-    FLOAT_LITERAL    desplazar e ir al estado 71
-
-    expr  ir al estado 74
+    $default  reduce usando la regla 51 (class_ref_type)
 
 
 estado 49
 
-   35 int_type: KW_INT '[' . expr ',' expr ']'
-   37         | KW_INT '[' . expr ',' expr ')'
+   41 numeric_type: KW_NUMERIC '(' . expr ',' expr ']'
+   43             | KW_NUMERIC '(' . expr ',' expr ')'
 
-    IDENTIFIER       desplazar e ir al estado 69
-    INTEGER_LITERAL  desplazar e ir al estado 70
-    FLOAT_LITERAL    desplazar e ir al estado 71
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
 
-    expr  ir al estado 75
+    expr  ir al estado 80
 
 
 estado 50
 
-   41 sequence_type: KW_SEQUENCE '<' . IDENTIFIER '>'
+   40 numeric_type: KW_NUMERIC '[' . expr ',' expr ']'
+   42             | KW_NUMERIC '[' . expr ',' expr ')'
 
-    IDENTIFIER  desplazar e ir al estado 76
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
+
+    expr  ir al estado 81
 
 
 estado 51
 
-   39 fixed_point_type: KW_FIXED_POINT '(' . expr ')'
+   45 int_type: KW_INT '(' . expr ',' expr ']'
+   47         | KW_INT '(' . expr ',' expr ')'
 
-    IDENTIFIER       desplazar e ir al estado 69
-    INTEGER_LITERAL  desplazar e ir al estado 70
-    FLOAT_LITERAL    desplazar e ir al estado 71
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
 
-    expr  ir al estado 77
+    expr  ir al estado 82
 
 
 estado 52
 
-   40 bit_type: KW_BIT '(' . expr ')'
+   44 int_type: KW_INT '[' . expr ',' expr ']'
+   46         | KW_INT '[' . expr ',' expr ')'
 
-    IDENTIFIER       desplazar e ir al estado 69
-    INTEGER_LITERAL  desplazar e ir al estado 70
-    FLOAT_LITERAL    desplazar e ir al estado 71
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
 
-    expr  ir al estado 78
+    expr  ir al estado 83
 
 
 estado 53
 
-   16 data_element: IDENTIFIER . IDENTIFIER ';'
-   16             | IDENTIFIER IDENTIFIER . ';'
-   17             | IDENTIFIER . data_element
-   18             | IDENTIFIER . '(' arg_list ')' data_element
+   50 sequence_type: KW_SEQUENCE '<' . IDENTIFIER '>'
 
-    KW_ENUM         desplazar e ir al estado 15
-    KW_CLASS        desplazar e ir al estado 16
-    KW_NUMERIC      desplazar e ir al estado 17
-    KW_INT          desplazar e ir al estado 18
-    KW_SEQUENCE     desplazar e ir al estado 19
-    KW_FIXED_POINT  desplazar e ir al estado 20
-    KW_BIT          desplazar e ir al estado 21
-    IDENTIFIER      desplazar e ir al estado 53
-    ';'             desplazar e ir al estado 79
-    '('             desplazar e ir al estado 54
-
-    data_element      ir al estado 55
-    data_type         ir al estado 25
-    numeric_type      ir al estado 26
-    int_type          ir al estado 27
-    fixed_point_type  ir al estado 28
-    bit_type          ir al estado 29
-    sequence_type     ir al estado 30
-    class_ref_type    ir al estado 31
-    inline_enum_type  ir al estado 32
+    IDENTIFIER  desplazar e ir al estado 84
 
 
 estado 54
 
-   18 data_element: IDENTIFIER '(' . arg_list ')' data_element
+   48 fixed_point_type: KW_FIXED_POINT '(' . expr ')'
 
-    IDENTIFIER       desplazar e ir al estado 69
-    INTEGER_LITERAL  desplazar e ir al estado 70
-    FLOAT_LITERAL    desplazar e ir al estado 71
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
 
-    arg_list  ir al estado 80
-    expr      ir al estado 81
+    expr  ir al estado 85
 
 
 estado 55
 
-   17 data_element: IDENTIFIER data_element .
+   49 bit_type: KW_BIT '(' . expr ')'
 
-    $default  reduce usando la regla 17 (data_element)
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
+
+    expr  ir al estado 86
 
 
 estado 56
 
-    7 publishable_struct: publishable_struct_begin '}' ';' .
+    7 publishable_struct_begin: publishable_struct_begin IDENTIFIER IDENTIFIER . ';'
 
-    $default  reduce usando la regla 7 (publishable_struct)
+    ';'  desplazar e ir al estado 87
 
 
 estado 57
 
-   15 data_element: data_type IDENTIFIER . ';'
+    8 publishable_struct: publishable_struct_begin '}' ';' .
 
-    ';'  desplazar e ir al estado 82
+    $default  reduce usando la regla 8 (publishable_struct)
 
 
 estado 58
 
-   10 mapping: mapping_begin '}' ';' .
+    6 publishable_struct_begin: publishable_struct_begin data_type IDENTIFIER . ';'
 
-    $default  reduce usando la regla 10 (mapping)
+    ';'  desplazar e ir al estado 88
 
 
 estado 59
 
-   19 data_group_begin: IDENTIFIER '{' .
+   11 mapping_begin: mapping_begin IDENTIFIER IDENTIFIER . ';'
 
-    $default  reduce usando la regla 19 (data_group_begin)
+    ';'  desplazar e ir al estado 89
 
 
 estado 60
 
-   18 data_element: IDENTIFIER '(' . arg_list ')' data_element
-   20 data_group_begin: IDENTIFIER '(' . arg_list ')' '{'
+   12 mapping: mapping_begin '}' ';' .
 
-    IDENTIFIER       desplazar e ir al estado 69
-    INTEGER_LITERAL  desplazar e ir al estado 70
-    FLOAT_LITERAL    desplazar e ir al estado 71
-
-    arg_list  ir al estado 83
-    expr      ir al estado 81
+    $default  reduce usando la regla 12 (mapping)
 
 
 estado 61
 
-   14 encoding: encoding_begin '}' ';' .
+   10 mapping_begin: mapping_begin data_type IDENTIFIER . ';'
 
-    $default  reduce usando la regla 14 (encoding)
+    ';'  desplazar e ir al estado 90
 
 
 estado 62
 
-   23 data_group: data_group_begin '}' .
+   22 data_element: KW_EXTEND IDENTIFIER . KW_TO data_type ';'
+   23             | KW_EXTEND IDENTIFIER . KW_TO IDENTIFIER ';'
 
-    $default  reduce usando la regla 23 (data_group)
+    KW_TO  desplazar e ir al estado 91
 
 
 estado 63
 
-   21 data_group_begin: data_group_begin data_element .
+   20 data_element: IDENTIFIER . IDENTIFIER ';'
+   20             | IDENTIFIER IDENTIFIER . ';'
+   21             | IDENTIFIER . IDENTIFIER KW_DEFAULT '=' expr ';'
+   21             | IDENTIFIER IDENTIFIER . KW_DEFAULT '=' expr ';'
+   24 data_group_begin: IDENTIFIER . '{'
+   25                 | IDENTIFIER . '(' arg_list ')' '{'
+   29 data_group: IDENTIFIER . data_element
+   30           | IDENTIFIER . '(' arg_list ')' data_element
+   31           | IDENTIFIER . data_group
+   32           | IDENTIFIER . '(' arg_list ')' data_group
 
-    $default  reduce usando la regla 21 (data_group_begin)
+    KW_ENUM         desplazar e ir al estado 15
+    KW_CLASS        desplazar e ir al estado 16
+    KW_NUMERIC      desplazar e ir al estado 17
+    KW_INT          desplazar e ir al estado 18
+    KW_SEQUENCE     desplazar e ir al estado 19
+    KW_FIXED_POINT  desplazar e ir al estado 20
+    KW_BIT          desplazar e ir al estado 21
+    KW_EXTEND       desplazar e ir al estado 35
+    KW_DEFAULT      desplazar e ir al estado 92
+    IDENTIFIER      desplazar e ir al estado 63
+    '{'             desplazar e ir al estado 64
+    ';'             desplazar e ir al estado 93
+    '('             desplazar e ir al estado 65
+
+    data_element      ir al estado 66
+    data_group_begin  ir al estado 40
+    data_group        ir al estado 67
+    data_type         ir al estado 42
+    numeric_type      ir al estado 25
+    int_type          ir al estado 26
+    fixed_point_type  ir al estado 27
+    bit_type          ir al estado 28
+    sequence_type     ir al estado 29
+    class_ref_type    ir al estado 30
+    inline_enum_type  ir al estado 31
 
 
 estado 64
 
-   22 data_group_begin: data_group_begin data_group .
+   24 data_group_begin: IDENTIFIER '{' .
 
-    $default  reduce usando la regla 22 (data_group_begin)
+    $default  reduce usando la regla 24 (data_group_begin)
 
 
 estado 65
 
-    8 mapping_begin: KW_MAPPING '(' str_list ')' . KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+   25 data_group_begin: IDENTIFIER '(' . arg_list ')' '{'
+   30 data_group: IDENTIFIER '(' . arg_list ')' data_element
+   32           | IDENTIFIER '(' . arg_list ')' data_group
 
-    KW_PUBLISHABLE_STRUCT  desplazar e ir al estado 84
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
+
+    arg_list  ir al estado 94
+    expr      ir al estado 95
 
 
 estado 66
 
-   47 str_list: str_list ',' . STRING_LITERAL
+   29 data_group: IDENTIFIER data_element .
 
-    STRING_LITERAL  desplazar e ir al estado 85
+    $default  reduce usando la regla 29 (data_group)
 
 
 estado 67
 
-   11 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' . KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+   31 data_group: IDENTIFIER data_group .
 
-    KW_PUBLISHABLE_STRUCT  desplazar e ir al estado 86
+    $default  reduce usando la regla 31 (data_group)
 
 
 estado 68
 
-   43 inline_enum_type: KW_ENUM IDENTIFIER '{' . enum_values '}'
+   17 encoding: encoding_begin '}' ';' .
 
-    IDENTIFIER  desplazar e ir al estado 87
-
-    enum_values  ir al estado 88
+    $default  reduce usando la regla 17 (encoding)
 
 
 estado 69
 
-   52 expr: IDENTIFIER .
+   28 data_group: data_group_begin '}' .
 
-    $default  reduce usando la regla 52 (expr)
+    $default  reduce usando la regla 28 (data_group)
 
 
 estado 70
 
-   50 expr: INTEGER_LITERAL .
+   26 data_group_begin: data_group_begin data_element .
 
-    $default  reduce usando la regla 50 (expr)
+    $default  reduce usando la regla 26 (data_group_begin)
 
 
 estado 71
 
-   51 expr: FLOAT_LITERAL .
+   27 data_group_begin: data_group_begin data_group .
 
-    $default  reduce usando la regla 51 (expr)
+    $default  reduce usando la regla 27 (data_group_begin)
 
 
 estado 72
 
-   32 numeric_type: KW_NUMERIC '(' expr . ',' expr ']'
-   34             | KW_NUMERIC '(' expr . ',' expr ')'
+   18 data_element: data_type IDENTIFIER . ';'
+   19             | data_type IDENTIFIER . KW_DEFAULT '=' expr ';'
 
-    ','  desplazar e ir al estado 89
+    KW_DEFAULT  desplazar e ir al estado 96
+    ';'         desplazar e ir al estado 97
 
 
 estado 73
 
-   31 numeric_type: KW_NUMERIC '[' expr . ',' expr ']'
-   33             | KW_NUMERIC '[' expr . ',' expr ')'
+    9 mapping_begin: KW_MAPPING '(' str_list ')' . KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
 
-    ','  desplazar e ir al estado 90
+    KW_PUBLISHABLE_STRUCT  desplazar e ir al estado 98
 
 
 estado 74
 
-   36 int_type: KW_INT '(' expr . ',' expr ']'
-   38         | KW_INT '(' expr . ',' expr ')'
+   56 str_list: str_list ',' . STRING_LITERAL
 
-    ','  desplazar e ir al estado 91
+    STRING_LITERAL  desplazar e ir al estado 99
 
 
 estado 75
 
-   35 int_type: KW_INT '[' expr . ',' expr ']'
-   37         | KW_INT '[' expr . ',' expr ')'
+   13 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' . KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
 
-    ','  desplazar e ir al estado 92
+    KW_PUBLISHABLE_STRUCT  desplazar e ir al estado 100
 
 
 estado 76
 
-   41 sequence_type: KW_SEQUENCE '<' IDENTIFIER . '>'
+   52 inline_enum_type: KW_ENUM IDENTIFIER '{' . enum_values '}'
 
-    '>'  desplazar e ir al estado 93
+    IDENTIFIER  desplazar e ir al estado 101
+
+    enum_values  ir al estado 102
 
 
 estado 77
 
-   39 fixed_point_type: KW_FIXED_POINT '(' expr . ')'
+   61 expr: IDENTIFIER .
 
-    ')'  desplazar e ir al estado 94
+    $default  reduce usando la regla 61 (expr)
 
 
 estado 78
 
-   40 bit_type: KW_BIT '(' expr . ')'
+   59 expr: INTEGER_LITERAL .
 
-    ')'  desplazar e ir al estado 95
+    $default  reduce usando la regla 59 (expr)
 
 
 estado 79
 
-   16 data_element: IDENTIFIER IDENTIFIER ';' .
+   60 expr: FLOAT_LITERAL .
 
-    $default  reduce usando la regla 16 (data_element)
+    $default  reduce usando la regla 60 (expr)
 
 
 estado 80
 
-   18 data_element: IDENTIFIER '(' arg_list . ')' data_element
-   49 arg_list: arg_list . ',' expr
+   41 numeric_type: KW_NUMERIC '(' expr . ',' expr ']'
+   43             | KW_NUMERIC '(' expr . ',' expr ')'
 
-    ')'  desplazar e ir al estado 96
-    ','  desplazar e ir al estado 97
+    ','  desplazar e ir al estado 103
 
 
 estado 81
 
-   48 arg_list: expr .
+   40 numeric_type: KW_NUMERIC '[' expr . ',' expr ']'
+   42             | KW_NUMERIC '[' expr . ',' expr ')'
 
-    $default  reduce usando la regla 48 (arg_list)
+    ','  desplazar e ir al estado 104
 
 
 estado 82
 
-   15 data_element: data_type IDENTIFIER ';' .
+   45 int_type: KW_INT '(' expr . ',' expr ']'
+   47         | KW_INT '(' expr . ',' expr ')'
 
-    $default  reduce usando la regla 15 (data_element)
+    ','  desplazar e ir al estado 105
 
 
 estado 83
 
-   18 data_element: IDENTIFIER '(' arg_list . ')' data_element
-   20 data_group_begin: IDENTIFIER '(' arg_list . ')' '{'
-   49 arg_list: arg_list . ',' expr
+   44 int_type: KW_INT '[' expr . ',' expr ']'
+   46         | KW_INT '[' expr . ',' expr ')'
 
-    ')'  desplazar e ir al estado 98
-    ','  desplazar e ir al estado 97
+    ','  desplazar e ir al estado 106
 
 
 estado 84
 
-    8 mapping_begin: KW_MAPPING '(' str_list ')' KW_PUBLISHABLE_STRUCT . IDENTIFIER '{'
+   50 sequence_type: KW_SEQUENCE '<' IDENTIFIER . '>'
 
-    IDENTIFIER  desplazar e ir al estado 99
+    '>'  desplazar e ir al estado 107
 
 
 estado 85
 
-   47 str_list: str_list ',' STRING_LITERAL .
+   48 fixed_point_type: KW_FIXED_POINT '(' expr . ')'
 
-    $default  reduce usando la regla 47 (str_list)
+    ')'  desplazar e ir al estado 108
 
 
 estado 86
 
-   11 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT . IDENTIFIER '{'
+   49 bit_type: KW_BIT '(' expr . ')'
 
-    IDENTIFIER  desplazar e ir al estado 100
+    ')'  desplazar e ir al estado 109
 
 
 estado 87
 
-   44 enum_values: IDENTIFIER . '=' INTEGER_LITERAL
+    7 publishable_struct_begin: publishable_struct_begin IDENTIFIER IDENTIFIER ';' .
 
-    '='  desplazar e ir al estado 101
+    $default  reduce usando la regla 7 (publishable_struct_begin)
 
 
 estado 88
 
-   43 inline_enum_type: KW_ENUM IDENTIFIER '{' enum_values . '}'
-   45 enum_values: enum_values . ',' IDENTIFIER '=' INTEGER_LITERAL
+    6 publishable_struct_begin: publishable_struct_begin data_type IDENTIFIER ';' .
 
-    '}'  desplazar e ir al estado 102
-    ','  desplazar e ir al estado 103
+    $default  reduce usando la regla 6 (publishable_struct_begin)
 
 
 estado 89
 
-   32 numeric_type: KW_NUMERIC '(' expr ',' . expr ']'
-   34             | KW_NUMERIC '(' expr ',' . expr ')'
+   11 mapping_begin: mapping_begin IDENTIFIER IDENTIFIER ';' .
 
-    IDENTIFIER       desplazar e ir al estado 69
-    INTEGER_LITERAL  desplazar e ir al estado 70
-    FLOAT_LITERAL    desplazar e ir al estado 71
-
-    expr  ir al estado 104
+    $default  reduce usando la regla 11 (mapping_begin)
 
 
 estado 90
 
-   31 numeric_type: KW_NUMERIC '[' expr ',' . expr ']'
-   33             | KW_NUMERIC '[' expr ',' . expr ')'
+   10 mapping_begin: mapping_begin data_type IDENTIFIER ';' .
 
-    IDENTIFIER       desplazar e ir al estado 69
-    INTEGER_LITERAL  desplazar e ir al estado 70
-    FLOAT_LITERAL    desplazar e ir al estado 71
-
-    expr  ir al estado 105
+    $default  reduce usando la regla 10 (mapping_begin)
 
 
 estado 91
 
-   36 int_type: KW_INT '(' expr ',' . expr ']'
-   38         | KW_INT '(' expr ',' . expr ')'
+   22 data_element: KW_EXTEND IDENTIFIER KW_TO . data_type ';'
+   23             | KW_EXTEND IDENTIFIER KW_TO . IDENTIFIER ';'
 
-    IDENTIFIER       desplazar e ir al estado 69
-    INTEGER_LITERAL  desplazar e ir al estado 70
-    FLOAT_LITERAL    desplazar e ir al estado 71
+    KW_ENUM         desplazar e ir al estado 15
+    KW_CLASS        desplazar e ir al estado 16
+    KW_NUMERIC      desplazar e ir al estado 17
+    KW_INT          desplazar e ir al estado 18
+    KW_SEQUENCE     desplazar e ir al estado 19
+    KW_FIXED_POINT  desplazar e ir al estado 20
+    KW_BIT          desplazar e ir al estado 21
+    IDENTIFIER      desplazar e ir al estado 110
 
-    expr  ir al estado 106
+    data_type         ir al estado 111
+    numeric_type      ir al estado 25
+    int_type          ir al estado 26
+    fixed_point_type  ir al estado 27
+    bit_type          ir al estado 28
+    sequence_type     ir al estado 29
+    class_ref_type    ir al estado 30
+    inline_enum_type  ir al estado 31
 
 
 estado 92
 
-   35 int_type: KW_INT '[' expr ',' . expr ']'
-   37         | KW_INT '[' expr ',' . expr ')'
+   21 data_element: IDENTIFIER IDENTIFIER KW_DEFAULT . '=' expr ';'
 
-    IDENTIFIER       desplazar e ir al estado 69
-    INTEGER_LITERAL  desplazar e ir al estado 70
-    FLOAT_LITERAL    desplazar e ir al estado 71
-
-    expr  ir al estado 107
+    '='  desplazar e ir al estado 112
 
 
 estado 93
 
-   41 sequence_type: KW_SEQUENCE '<' IDENTIFIER '>' .
+   20 data_element: IDENTIFIER IDENTIFIER ';' .
 
-    $default  reduce usando la regla 41 (sequence_type)
+    $default  reduce usando la regla 20 (data_element)
 
 
 estado 94
 
-   39 fixed_point_type: KW_FIXED_POINT '(' expr ')' .
+   25 data_group_begin: IDENTIFIER '(' arg_list . ')' '{'
+   30 data_group: IDENTIFIER '(' arg_list . ')' data_element
+   32           | IDENTIFIER '(' arg_list . ')' data_group
+   58 arg_list: arg_list . ',' expr
 
-    $default  reduce usando la regla 39 (fixed_point_type)
+    ')'  desplazar e ir al estado 113
+    ','  desplazar e ir al estado 114
 
 
 estado 95
 
-   40 bit_type: KW_BIT '(' expr ')' .
+   57 arg_list: expr .
 
-    $default  reduce usando la regla 40 (bit_type)
+    $default  reduce usando la regla 57 (arg_list)
 
 
 estado 96
 
-   18 data_element: IDENTIFIER '(' arg_list ')' . data_element
+   19 data_element: data_type IDENTIFIER KW_DEFAULT . '=' expr ';'
 
-    KW_ENUM         desplazar e ir al estado 15
-    KW_CLASS        desplazar e ir al estado 16
-    KW_NUMERIC      desplazar e ir al estado 17
-    KW_INT          desplazar e ir al estado 18
-    KW_SEQUENCE     desplazar e ir al estado 19
-    KW_FIXED_POINT  desplazar e ir al estado 20
-    KW_BIT          desplazar e ir al estado 21
-    IDENTIFIER      desplazar e ir al estado 22
-
-    data_element      ir al estado 108
-    data_type         ir al estado 25
-    numeric_type      ir al estado 26
-    int_type          ir al estado 27
-    fixed_point_type  ir al estado 28
-    bit_type          ir al estado 29
-    sequence_type     ir al estado 30
-    class_ref_type    ir al estado 31
-    inline_enum_type  ir al estado 32
+    '='  desplazar e ir al estado 115
 
 
 estado 97
 
-   49 arg_list: arg_list ',' . expr
+   18 data_element: data_type IDENTIFIER ';' .
 
-    IDENTIFIER       desplazar e ir al estado 69
-    INTEGER_LITERAL  desplazar e ir al estado 70
-    FLOAT_LITERAL    desplazar e ir al estado 71
-
-    expr  ir al estado 109
+    $default  reduce usando la regla 18 (data_element)
 
 
 estado 98
 
-   18 data_element: IDENTIFIER '(' arg_list ')' . data_element
-   20 data_group_begin: IDENTIFIER '(' arg_list ')' . '{'
+    9 mapping_begin: KW_MAPPING '(' str_list ')' KW_PUBLISHABLE_STRUCT . IDENTIFIER '{'
+
+    IDENTIFIER  desplazar e ir al estado 116
+
+
+estado 99
+
+   56 str_list: str_list ',' STRING_LITERAL .
+
+    $default  reduce usando la regla 56 (str_list)
+
+
+estado 100
+
+   13 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT . IDENTIFIER '{'
+
+    IDENTIFIER  desplazar e ir al estado 117
+
+
+estado 101
+
+   53 enum_values: IDENTIFIER . '=' INTEGER_LITERAL
+
+    '='  desplazar e ir al estado 118
+
+
+estado 102
+
+   52 inline_enum_type: KW_ENUM IDENTIFIER '{' enum_values . '}'
+   54 enum_values: enum_values . ',' IDENTIFIER '=' INTEGER_LITERAL
+
+    '}'  desplazar e ir al estado 119
+    ','  desplazar e ir al estado 120
+
+
+estado 103
+
+   41 numeric_type: KW_NUMERIC '(' expr ',' . expr ']'
+   43             | KW_NUMERIC '(' expr ',' . expr ')'
+
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
+
+    expr  ir al estado 121
+
+
+estado 104
+
+   40 numeric_type: KW_NUMERIC '[' expr ',' . expr ']'
+   42             | KW_NUMERIC '[' expr ',' . expr ')'
+
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
+
+    expr  ir al estado 122
+
+
+estado 105
+
+   45 int_type: KW_INT '(' expr ',' . expr ']'
+   47         | KW_INT '(' expr ',' . expr ')'
+
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
+
+    expr  ir al estado 123
+
+
+estado 106
+
+   44 int_type: KW_INT '[' expr ',' . expr ']'
+   46         | KW_INT '[' expr ',' . expr ')'
+
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
+
+    expr  ir al estado 124
+
+
+estado 107
+
+   50 sequence_type: KW_SEQUENCE '<' IDENTIFIER '>' .
+
+    $default  reduce usando la regla 50 (sequence_type)
+
+
+estado 108
+
+   48 fixed_point_type: KW_FIXED_POINT '(' expr ')' .
+
+    $default  reduce usando la regla 48 (fixed_point_type)
+
+
+estado 109
+
+   49 bit_type: KW_BIT '(' expr ')' .
+
+    $default  reduce usando la regla 49 (bit_type)
+
+
+estado 110
+
+   23 data_element: KW_EXTEND IDENTIFIER KW_TO IDENTIFIER . ';'
+
+    ';'  desplazar e ir al estado 125
+
+
+estado 111
+
+   22 data_element: KW_EXTEND IDENTIFIER KW_TO data_type . ';'
+
+    ';'  desplazar e ir al estado 126
+
+
+estado 112
+
+   21 data_element: IDENTIFIER IDENTIFIER KW_DEFAULT '=' . expr ';'
+
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
+
+    expr  ir al estado 127
+
+
+estado 113
+
+   25 data_group_begin: IDENTIFIER '(' arg_list ')' . '{'
+   30 data_group: IDENTIFIER '(' arg_list ')' . data_element
+   32           | IDENTIFIER '(' arg_list ')' . data_group
 
     KW_ENUM         desplazar e ir al estado 15
     KW_CLASS        desplazar e ir al estado 16
@@ -1130,205 +1252,279 @@ estado 98
     KW_SEQUENCE     desplazar e ir al estado 19
     KW_FIXED_POINT  desplazar e ir al estado 20
     KW_BIT          desplazar e ir al estado 21
-    IDENTIFIER      desplazar e ir al estado 22
-    '{'             desplazar e ir al estado 110
+    KW_EXTEND       desplazar e ir al estado 35
+    IDENTIFIER      desplazar e ir al estado 37
+    '{'             desplazar e ir al estado 128
 
-    data_element      ir al estado 108
-    data_type         ir al estado 25
-    numeric_type      ir al estado 26
-    int_type          ir al estado 27
-    fixed_point_type  ir al estado 28
-    bit_type          ir al estado 29
-    sequence_type     ir al estado 30
-    class_ref_type    ir al estado 31
-    inline_enum_type  ir al estado 32
-
-
-estado 99
-
-    8 mapping_begin: KW_MAPPING '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER . '{'
-
-    '{'  desplazar e ir al estado 111
-
-
-estado 100
-
-   11 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER . '{'
-
-    '{'  desplazar e ir al estado 112
-
-
-estado 101
-
-   44 enum_values: IDENTIFIER '=' . INTEGER_LITERAL
-
-    INTEGER_LITERAL  desplazar e ir al estado 113
-
-
-estado 102
-
-   43 inline_enum_type: KW_ENUM IDENTIFIER '{' enum_values '}' .
-
-    $default  reduce usando la regla 43 (inline_enum_type)
-
-
-estado 103
-
-   45 enum_values: enum_values ',' . IDENTIFIER '=' INTEGER_LITERAL
-
-    IDENTIFIER  desplazar e ir al estado 114
-
-
-estado 104
-
-   32 numeric_type: KW_NUMERIC '(' expr ',' expr . ']'
-   34             | KW_NUMERIC '(' expr ',' expr . ')'
-
-    ')'  desplazar e ir al estado 115
-    ']'  desplazar e ir al estado 116
-
-
-estado 105
-
-   31 numeric_type: KW_NUMERIC '[' expr ',' expr . ']'
-   33             | KW_NUMERIC '[' expr ',' expr . ')'
-
-    ')'  desplazar e ir al estado 117
-    ']'  desplazar e ir al estado 118
-
-
-estado 106
-
-   36 int_type: KW_INT '(' expr ',' expr . ']'
-   38         | KW_INT '(' expr ',' expr . ')'
-
-    ')'  desplazar e ir al estado 119
-    ']'  desplazar e ir al estado 120
-
-
-estado 107
-
-   35 int_type: KW_INT '[' expr ',' expr . ']'
-   37         | KW_INT '[' expr ',' expr . ')'
-
-    ')'  desplazar e ir al estado 121
-    ']'  desplazar e ir al estado 122
-
-
-estado 108
-
-   18 data_element: IDENTIFIER '(' arg_list ')' data_element .
-
-    $default  reduce usando la regla 18 (data_element)
-
-
-estado 109
-
-   49 arg_list: arg_list ',' expr .
-
-    $default  reduce usando la regla 49 (arg_list)
-
-
-estado 110
-
-   20 data_group_begin: IDENTIFIER '(' arg_list ')' '{' .
-
-    $default  reduce usando la regla 20 (data_group_begin)
-
-
-estado 111
-
-    8 mapping_begin: KW_MAPPING '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' .
-
-    $default  reduce usando la regla 8 (mapping_begin)
-
-
-estado 112
-
-   11 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' .
-
-    $default  reduce usando la regla 11 (encoding_begin)
-
-
-estado 113
-
-   44 enum_values: IDENTIFIER '=' INTEGER_LITERAL .
-
-    $default  reduce usando la regla 44 (enum_values)
+    data_element      ir al estado 129
+    data_group_begin  ir al estado 40
+    data_group        ir al estado 130
+    data_type         ir al estado 42
+    numeric_type      ir al estado 25
+    int_type          ir al estado 26
+    fixed_point_type  ir al estado 27
+    bit_type          ir al estado 28
+    sequence_type     ir al estado 29
+    class_ref_type    ir al estado 30
+    inline_enum_type  ir al estado 31
 
 
 estado 114
 
-   45 enum_values: enum_values ',' IDENTIFIER . '=' INTEGER_LITERAL
+   58 arg_list: arg_list ',' . expr
 
-    '='  desplazar e ir al estado 123
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
+
+    expr  ir al estado 131
 
 
 estado 115
 
-   34 numeric_type: KW_NUMERIC '(' expr ',' expr ')' .
+   19 data_element: data_type IDENTIFIER KW_DEFAULT '=' . expr ';'
 
-    $default  reduce usando la regla 34 (numeric_type)
+    IDENTIFIER       desplazar e ir al estado 77
+    INTEGER_LITERAL  desplazar e ir al estado 78
+    FLOAT_LITERAL    desplazar e ir al estado 79
+
+    expr  ir al estado 132
 
 
 estado 116
 
-   32 numeric_type: KW_NUMERIC '(' expr ',' expr ']' .
+    9 mapping_begin: KW_MAPPING '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER . '{'
 
-    $default  reduce usando la regla 32 (numeric_type)
+    '{'  desplazar e ir al estado 133
 
 
 estado 117
 
-   33 numeric_type: KW_NUMERIC '[' expr ',' expr ')' .
+   13 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER . '{'
 
-    $default  reduce usando la regla 33 (numeric_type)
+    '{'  desplazar e ir al estado 134
 
 
 estado 118
 
-   31 numeric_type: KW_NUMERIC '[' expr ',' expr ']' .
+   53 enum_values: IDENTIFIER '=' . INTEGER_LITERAL
 
-    $default  reduce usando la regla 31 (numeric_type)
+    INTEGER_LITERAL  desplazar e ir al estado 135
 
 
 estado 119
 
-   38 int_type: KW_INT '(' expr ',' expr ')' .
+   52 inline_enum_type: KW_ENUM IDENTIFIER '{' enum_values '}' .
 
-    $default  reduce usando la regla 38 (int_type)
+    $default  reduce usando la regla 52 (inline_enum_type)
 
 
 estado 120
 
-   36 int_type: KW_INT '(' expr ',' expr ']' .
+   54 enum_values: enum_values ',' . IDENTIFIER '=' INTEGER_LITERAL
 
-    $default  reduce usando la regla 36 (int_type)
+    IDENTIFIER  desplazar e ir al estado 136
 
 
 estado 121
 
-   37 int_type: KW_INT '[' expr ',' expr ')' .
+   41 numeric_type: KW_NUMERIC '(' expr ',' expr . ']'
+   43             | KW_NUMERIC '(' expr ',' expr . ')'
 
-    $default  reduce usando la regla 37 (int_type)
+    ')'  desplazar e ir al estado 137
+    ']'  desplazar e ir al estado 138
 
 
 estado 122
 
-   35 int_type: KW_INT '[' expr ',' expr ']' .
+   40 numeric_type: KW_NUMERIC '[' expr ',' expr . ']'
+   42             | KW_NUMERIC '[' expr ',' expr . ')'
 
-    $default  reduce usando la regla 35 (int_type)
+    ')'  desplazar e ir al estado 139
+    ']'  desplazar e ir al estado 140
 
 
 estado 123
 
-   45 enum_values: enum_values ',' IDENTIFIER '=' . INTEGER_LITERAL
+   45 int_type: KW_INT '(' expr ',' expr . ']'
+   47         | KW_INT '(' expr ',' expr . ')'
 
-    INTEGER_LITERAL  desplazar e ir al estado 124
+    ')'  desplazar e ir al estado 141
+    ']'  desplazar e ir al estado 142
 
 
 estado 124
 
-   45 enum_values: enum_values ',' IDENTIFIER '=' INTEGER_LITERAL .
+   44 int_type: KW_INT '[' expr ',' expr . ']'
+   46         | KW_INT '[' expr ',' expr . ')'
 
-    $default  reduce usando la regla 45 (enum_values)
+    ')'  desplazar e ir al estado 143
+    ']'  desplazar e ir al estado 144
+
+
+estado 125
+
+   23 data_element: KW_EXTEND IDENTIFIER KW_TO IDENTIFIER ';' .
+
+    $default  reduce usando la regla 23 (data_element)
+
+
+estado 126
+
+   22 data_element: KW_EXTEND IDENTIFIER KW_TO data_type ';' .
+
+    $default  reduce usando la regla 22 (data_element)
+
+
+estado 127
+
+   21 data_element: IDENTIFIER IDENTIFIER KW_DEFAULT '=' expr . ';'
+
+    ';'  desplazar e ir al estado 145
+
+
+estado 128
+
+   25 data_group_begin: IDENTIFIER '(' arg_list ')' '{' .
+
+    $default  reduce usando la regla 25 (data_group_begin)
+
+
+estado 129
+
+   30 data_group: IDENTIFIER '(' arg_list ')' data_element .
+
+    $default  reduce usando la regla 30 (data_group)
+
+
+estado 130
+
+   32 data_group: IDENTIFIER '(' arg_list ')' data_group .
+
+    $default  reduce usando la regla 32 (data_group)
+
+
+estado 131
+
+   58 arg_list: arg_list ',' expr .
+
+    $default  reduce usando la regla 58 (arg_list)
+
+
+estado 132
+
+   19 data_element: data_type IDENTIFIER KW_DEFAULT '=' expr . ';'
+
+    ';'  desplazar e ir al estado 146
+
+
+estado 133
+
+    9 mapping_begin: KW_MAPPING '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' .
+
+    $default  reduce usando la regla 9 (mapping_begin)
+
+
+estado 134
+
+   13 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' .
+
+    $default  reduce usando la regla 13 (encoding_begin)
+
+
+estado 135
+
+   53 enum_values: IDENTIFIER '=' INTEGER_LITERAL .
+
+    $default  reduce usando la regla 53 (enum_values)
+
+
+estado 136
+
+   54 enum_values: enum_values ',' IDENTIFIER . '=' INTEGER_LITERAL
+
+    '='  desplazar e ir al estado 147
+
+
+estado 137
+
+   43 numeric_type: KW_NUMERIC '(' expr ',' expr ')' .
+
+    $default  reduce usando la regla 43 (numeric_type)
+
+
+estado 138
+
+   41 numeric_type: KW_NUMERIC '(' expr ',' expr ']' .
+
+    $default  reduce usando la regla 41 (numeric_type)
+
+
+estado 139
+
+   42 numeric_type: KW_NUMERIC '[' expr ',' expr ')' .
+
+    $default  reduce usando la regla 42 (numeric_type)
+
+
+estado 140
+
+   40 numeric_type: KW_NUMERIC '[' expr ',' expr ']' .
+
+    $default  reduce usando la regla 40 (numeric_type)
+
+
+estado 141
+
+   47 int_type: KW_INT '(' expr ',' expr ')' .
+
+    $default  reduce usando la regla 47 (int_type)
+
+
+estado 142
+
+   45 int_type: KW_INT '(' expr ',' expr ']' .
+
+    $default  reduce usando la regla 45 (int_type)
+
+
+estado 143
+
+   46 int_type: KW_INT '[' expr ',' expr ')' .
+
+    $default  reduce usando la regla 46 (int_type)
+
+
+estado 144
+
+   44 int_type: KW_INT '[' expr ',' expr ']' .
+
+    $default  reduce usando la regla 44 (int_type)
+
+
+estado 145
+
+   21 data_element: IDENTIFIER IDENTIFIER KW_DEFAULT '=' expr ';' .
+
+    $default  reduce usando la regla 21 (data_element)
+
+
+estado 146
+
+   19 data_element: data_type IDENTIFIER KW_DEFAULT '=' expr ';' .
+
+    $default  reduce usando la regla 19 (data_element)
+
+
+estado 147
+
+   54 enum_values: enum_values ',' IDENTIFIER '=' . INTEGER_LITERAL
+
+    INTEGER_LITERAL  desplazar e ir al estado 148
+
+
+estado 148
+
+   54 enum_values: enum_values ',' IDENTIFIER '=' INTEGER_LITERAL .
+
+    $default  reduce usando la regla 54 (enum_values)

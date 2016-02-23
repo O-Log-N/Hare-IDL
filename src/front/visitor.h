@@ -61,6 +61,11 @@ public:
 	virtual void visitMe(EncodingDeclNode* node) { HAREASSERT(false); }
 	virtual void visitMe(MappingDeclNode* node) { HAREASSERT(false); }
 
+	virtual void visitMe(EncodingAttributeNode* node) { HAREASSERT(false); }
+	virtual void visitMe(ExtendedAttributeNode* node) { HAREASSERT(false); }
+	virtual void visitMe(EncodingOptionNode* node) { HAREASSERT(false); }
+	virtual void visitMe(AttributeGroupNode* node) { HAREASSERT(false); }
+
 	virtual void visitMe(NameTypeNode* node) { HAREASSERT(false); }
 	virtual void visitMe(NumericTypeNode* node) { HAREASSERT(false); }
 	virtual void visitMe(IntTypeNode* node) { HAREASSERT(false); }

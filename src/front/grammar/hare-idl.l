@@ -67,6 +67,12 @@ int createToken(int token)
 
 	"MAPPING" { return createToken( KW_MAPPING ); }
 	"ENCODING" { return createToken( KW_ENCODING ); }
+    "FENCE" { return createToken( KW_FENCE ); }
+    "EXTEND" { return createToken( KW_EXTEND ); }
+    "TO" { return createToken( KW_TO ); }
+    "DEFAULT" { return createToken( KW_DEFAULT ); }
+
+
 	"NUMERIC" { return createToken( KW_NUMERIC ); }
     "INT" { return createToken( KW_INT ); }
 	"SEQUENCE" { return createToken( KW_SEQUENCE ); }

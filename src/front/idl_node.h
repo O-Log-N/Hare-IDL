@@ -95,33 +95,79 @@ public:
 };
 
 
-class FencedAttributeDeclNode : public AttributeDeclNode
+class EncodingAttributeNode : public Node
 {
 public:
-	Child<TypeNode> extended_type;
-	Child<ExpressionNode> default_value;
+	std::string name;
+	Child<TypeNode> type;
+	Child<ExpressionNode> defaultValue;
 
-	FencedAttributeDeclNode() :extended_type(this), default_value(this) {}
+	EncodingAttributeNode() :type(this), defaultValue(this) {}
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
 	virtual void walk(NodeWalker& walker) {
-		AttributeDeclNode::walk(walker);
-		walker.walkChild(this, extended_type);
-		walker.walkChild(this, default_value);
+		Node::walk(walker);
+		walker.walkChild(this, type);
+		walker.walkChild(this, defaultValue);
+	}
+
+	virtual void dbgDump(std::ostream& os) const {
+		dbgDumpAttribute(os, "name", name);
 	}
 };
 
-
-class FenceDeclNode : public DeclarationNode
+class ExtendedAttributeNode : public Node
 {
 public:
-	ChildList<FencedAttributeDeclNode> attributes;
+	std::string name;
+	Child<TypeNode> extendedType;
 
-	FenceDeclNode() :attributes(this) {}
+	ExtendedAttributeNode() :extendedType(this) {}
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
 	virtual void walk(NodeWalker& walker) {
-		DeclarationNode::walk(walker);
+		Node::walk(walker);
+		walker.walkChild(this, extendedType);
+	}
+
+	virtual void dbgDump(std::ostream& os) const {
+		dbgDumpAttribute(os, "name", name);
+	}
+};
+
+class EncodingOptionNode : public Node
+{
+public:
+	std::string name;
+	ChildList<ExpressionNode> arguments;
+
+	EncodingOptionNode() :arguments(this) {}
+
+	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
+	virtual void walk(NodeWalker& walker) {
+		Node::walk(walker);
+		walker.walkChild(this, arguments);
+	}
+
+	virtual void dbgDump(std::ostream& os) const {
+		dbgDumpAttribute(os, "name", name);
+	}
+
+};
+
+
+class AttributeGroupNode : public Node
+{
+public:
+	ChildList<EncodingOptionNode> options;
+	ChildList<Node> attributes;
+
+	AttributeGroupNode() :options(this), attributes(this) {}
+
+	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
+	virtual void walk(NodeWalker& walker) {
+		Node::walk(walker);
+		walker.walkChild(this, options);
 		walker.walkChild(this, attributes);
 	}
 };
@@ -131,15 +177,13 @@ class EncodingDeclNode : public DeclarationNode
 public:
 	std::string name;
 	std::string encoding;
-	ChildList<AttributeDeclNode> attributes;
-	ChildList<FenceDeclNode> fences;
+	ChildList<AttributeGroupNode> fences;
 
-	EncodingDeclNode() :attributes(this), fences(this) {}
+	EncodingDeclNode() :fences(this) {}
 
 	virtual void visit(NodeVisitor& visitor) { visitor.visitMe(this); }
 	virtual void walk(NodeWalker& walker) {
 		DeclarationNode::walk(walker);
-		walker.walkChild(this, attributes);
 		walker.walkChild(this, fences);
 	}
 

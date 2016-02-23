@@ -324,14 +324,19 @@ YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id)
 	return yy;
 }
 
-YYSTYPE addToPublishableStruct(YYSTYPE decl, YYSTYPE elem)
+YYSTYPE addToPublishableStruct(YYSTYPE decl, YYSTYPE type, YYSTYPE id)
 {
 	PublishableStructDeclNode* yy = yystype_cast<PublishableStructDeclNode*>(decl);
 
-	AttributeDeclNode* e = yystype_cast<AttributeDeclNode*>(elem);
-	yy->attributes.push_back(e);
+	AttributeDeclNode* att = new AttributeDeclNode();
+	setNameFromYyIdentifier(att, id);
 
-	return decl;
+	TypeNode* t = yystype_cast<TypeNode*>(type);
+	att->type.set(t);
+
+	yy->attributes.push_back(att);
+
+	return yy;
 }
 
 YYSTYPE createMapping(YYSTYPE token, YYSTYPE str_list, YYSTYPE id)
@@ -350,14 +355,19 @@ YYSTYPE createMapping(YYSTYPE token, YYSTYPE str_list, YYSTYPE id)
 	return yy;
 }
 
-YYSTYPE addToMapping(YYSTYPE decl, YYSTYPE elem)
+YYSTYPE addToMapping(YYSTYPE decl, YYSTYPE type, YYSTYPE id)
 {
 	MappingDeclNode* yy = yystype_cast<MappingDeclNode*>(decl);
 
-	AttributeDeclNode* e = yystype_cast<AttributeDeclNode*>(elem);
-	yy->attributes.push_back(e);
+	AttributeDeclNode* att = new AttributeDeclNode();
+	setNameFromYyIdentifier(att, id);
 
-	return decl;
+	TypeNode* t = yystype_cast<TypeNode*>(type);
+	att->type.set(t);
+
+	yy->attributes.push_back(att);
+
+	return yy;
 }
 
 
@@ -369,6 +379,11 @@ YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_lit, YYSTYPE id)
 	yy->name = getNameFromYyIdentifier(id);
 	yy->encoding = getNameFromYyIdentifier(str_lit);
 
+	AttributeGroupNode* f = new AttributeGroupNode();
+	f->location = yy->location;
+
+	yy->fences.push_back(f);
+
 	return yy;
 }
 
@@ -376,65 +391,112 @@ YYSTYPE addToEncoding(YYSTYPE decl, YYSTYPE elem)
 {
 	EncodingDeclNode* yy = yystype_cast<EncodingDeclNode*>(decl);
 
-	AttributeDeclNode* e = yystype_cast<AttributeDeclNode*>(elem);
-	yy->attributes.push_back(e);
+	Node* e = yystype_cast<Node*>(elem);
+	yy->fences.back()->attributes.push_back(e);
 
-	return decl;
+	return yy;
 }
 
-YYSTYPE addGroupToEncoding(YYSTYPE decl, YYSTYPE group)
+YYSTYPE addFenceToEncoding(YYSTYPE decl, YYSTYPE token)
 {
-	HAREASSERT(NotImplementedYet);
+	EncodingDeclNode* yy = yystype_cast<EncodingDeclNode*>(decl);
 
-	return decl;
+	AttributeGroupNode* f = new AttributeGroupNode();
+	setLocationFromToken(f, token);
+
+	yy->fences.push_back(f);
+
+	return yy;
 }
 
-
-YYSTYPE createAttribute(YYSTYPE type, YYSTYPE id)
+YYSTYPE createEncodingAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE opt_expr)
 {
-	AttributeDeclNode* yy = new AttributeDeclNode();
+	EncodingAttributeNode* yy = new EncodingAttributeNode();
 
 	setNameFromYyIdentifier(yy, id);
 
 	TypeNode* t = yystype_cast<TypeNode*>(type);
 	yy->type.set(t);
 
+	if (opt_expr) {
+		ExpressionNode* e = yystype_cast<ExpressionNode*>(opt_expr);
+		yy->defaultValue.set(e);
+	}
+
 	return yy;
 }
 
-YYSTYPE createIdentifierAttribute(YYSTYPE id_type, YYSTYPE id)
+YYSTYPE createExtendAttribute(YYSTYPE id, YYSTYPE type)
 {
-	AttributeDeclNode* yy = new AttributeDeclNode();
+	ExtendedAttributeNode* yy = new ExtendedAttributeNode();
 
 	setNameFromYyIdentifier(yy, id);
 
-	NameTypeNode* t = new NameTypeNode();
-	setNameFromYyIdentifier(yy, id_type);
-	yy->type.set(t);
+	TypeNode* t = yystype_cast<TypeNode*>(type);
+	yy->extendedType.set(t);
 
 	return yy;
 }
 
-YYSTYPE addTagToAttribute(YYSTYPE id, YYSTYPE arg_list, YYSTYPE element)
+static
+EncodingOptionNode* createEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list)
 {
-	HAREASSERT(NotImplementedYet);
+	EncodingOptionNode* yy = new EncodingOptionNode();
 
-	return 0;
+	setNameFromYyIdentifier(yy, id);
+
+	if (opt_arg_list) {
+		YyExpressionList* al = yystype_cast<YyExpressionList*>(opt_arg_list);
+		for (auto& each : al->items)
+			yy->arguments.push_back(each.release());
+	}
+	return yy;
+}
+
+YYSTYPE createEncodingGroup(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE opt_att)
+{
+	AttributeGroupNode* yy = new AttributeGroupNode();
+
+	EncodingOptionNode* enc = createEncodingOption(id, opt_arg_list);
+	yy->options.push_back(enc);
+
+	if (opt_att) {
+		Node* t = yystype_cast<Node*>(opt_att);
+		yy->attributes.push_back(t);
+	}
+
+	return yy;
 }
 
 
-YYSTYPE createTagGroup(YYSTYPE id, YYSTYPE arg_list)
+YYSTYPE addToEncodingGroup(YYSTYPE group, YYSTYPE element)
 {
-	HAREASSERT(NotImplementedYet);
+	AttributeGroupNode* yy = yystype_cast<AttributeGroupNode*>(group);
 
-	return 0;
+	Node* t = yystype_cast<Node*>(element);
+	yy->attributes.push_back(t);
+
+	return yy;
 }
 
-YYSTYPE addToTagGroup(YYSTYPE group, YYSTYPE element)
-{
-	HAREASSERT(NotImplementedYet);
 
-	return 0;
+YYSTYPE addEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE group)
+{
+	AttributeGroupNode* yy = yystype_cast<AttributeGroupNode*>(group);
+
+	EncodingOptionNode* enc = createEncodingOption(id, opt_arg_list);
+	yy->options.push_back(enc);
+
+	return yy;
+}
+
+
+YYSTYPE createIdType(YYSTYPE id)
+{
+	NameTypeNode* yy = new NameTypeNode();
+	setNameFromYyIdentifier(yy, id);
+
+	return yy;
 }
 
 

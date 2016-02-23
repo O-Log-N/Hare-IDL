@@ -85,71 +85,11 @@ int main()
 
 	RootNode* root = new RootNode();
 
-	FileNode* file2 = parseSourceFile("sample.idl", true, false);
-	if (file2) {
+	FileNode* file2 = parseSourceFile("grammar/sample.idl", true, false);
+	if (file2)
 		root->files.push_back(file2);
-	}
 
 
-	FileNode* file = new FileNode("input.idl");
-	//file->fileName = "input.idl";
-	root->files.push_back(file);
-
-	PublishableStructDeclNode* ps = new PublishableStructDeclNode();
-	ps->name = "Character";
-	file->items.push_back(ps);
-
-	ps->attributes.push_back(make_named_att("UINT16", "character_id"));
-	ps->attributes.push_back(make_number_att("NUMERIC", -10000, 10000, "x"));
-	ps->attributes.push_back(make_number_att("NUMERIC", -10000, 10000, "y"));
-	ps->attributes.push_back(make_number_att("NUMERIC", -100, 100, "z"));
-	ps->attributes.push_back(make_number_att("NUMERIC", -10, 10, "vx"));
-	ps->attributes.push_back(make_number_att("NUMERIC", -10, 10, "vy"));
-	ps->attributes.push_back(make_number_att("NUMERIC", -10, 10, "vz"));
-
-	ps->attributes.push_back(make_number_att("NUMERIC", 0, 360, "angle"));
-	ps->attributes.push_back(make_inline_enum_att("Animation", /* TODO Standing, Walking, Running */ "anim"));
-	ps->attributes.push_back(make_number_att("INT", 0, 120, "animation_frame"));
-	ps->attributes.push_back(make_sequence_of_att("Item", "inventory"));
-
-
-	MappingDeclNode* map1 = new MappingDeclNode();
-	map1->name = "Character";
-	map1->tags.push_back("CPP");
-	map1->tags.push_back("Client");
-	file->items.push_back(map1);
-
-	map1->attributes.push_back(make_named_att("UINT16", "character_id"));
-	map1->attributes.push_back(make_named_att("double", "x"));
-	map1->attributes.push_back(make_named_att("double", "y"));
-	map1->attributes.push_back(make_named_att("double", "z"));
-	map1->attributes.push_back(make_named_att("double", "vx"));
-	map1->attributes.push_back(make_named_att("double", "vy"));
-	map1->attributes.push_back(make_named_att("double", "vz"));
-
-	map1->attributes.push_back(make_named_att("float", "angle"));
-	map1->attributes.push_back(make_inline_enum_att("Animation", /* TODO Standing, Walking, Running */ "anim"));
-	map1->attributes.push_back(make_named_att("UINT8", "animation_frame"));
-//	map1->attributes.push_back(make_sequence_of_att("vector", "Item", "inventory"));
-
-	MappingDeclNode* map2 = new MappingDeclNode();
-	map2->name = "Character";
-	map2->tags.push_back("CPP");
-	map2->tags.push_back("Server");
-	file->items.push_back(map2);
-
-	map2->attributes.push_back(make_named_att("UINT16", "character_id"));
-	map2->attributes.push_back(make_named_att("double", "x"));
-	map2->attributes.push_back(make_named_att("double", "y"));
-	map2->attributes.push_back(make_named_att("double", "z"));
-	map2->attributes.push_back(make_named_att("double", "vx"));
-	map2->attributes.push_back(make_named_att("double", "vy"));
-	map2->attributes.push_back(make_named_att("double", "vz"));
-
-	map2->attributes.push_back(make_named_att("float", "angle"));
-	map2->attributes.push_back(make_inline_enum_att("Animation", /* TODO Standing, Walking, Running */ "anim"));
-	map2->attributes.push_back(make_named_att("UINT8", "animation_frame"));
-	map2->attributes.push_back(make_named_att("MyInventory", "inventory"));
 
 	dbgDumpDown(std::cout, root);
 

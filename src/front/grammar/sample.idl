@@ -1,0 +1,109 @@
+
+
+PUBLISHABLE_STRUCT Character {
+  UINT16 character_id;
+  NUMERIC[-10000.,10000.] x;//for our example IDL compiler, notation [a,b] means
+                          //  “from a to b inclusive”
+                          //our Game World has size of 20000x20000m
+  NUMERIC[-10000.,10000.] y;
+  NUMERIC[-100.,100.] z;//Z coordinate is just +- 100m
+  NUMERIC[-10.,10.] vx;
+  NUMERIC[-10.,10.] vy;
+  NUMERIC[-10.,10.] vz;
+  NUMERIC[0.,360.) angle;//where our Character is facing
+                       //notation [a,b) means “from a inclusive to b exclusive”
+  enum Animation {Standing=0,Walking=1, Running=2} anim;
+  INT[0,120) animation_frame;//120 is 2 seconds of animation at 60fps
+
+  SEQUENCE<Item> inventory;//Item is another PUBLISHABLE_STRUCT
+                           // defined elsewhere
+};
+
+MAPPING("CPP","Client") PUBLISHABLE_STRUCT Character {
+  UINT16 character_id;//can be omitted, as default mapping
+                      //  for UINT16 is UINT16
+  double x;//all 'double' declarations can be omitted too
+  double y;
+  double z;
+  double vx;
+  double vy;
+  double vz;
+  float angle;//this is the only Encoding specification in this fragment
+              //  which makes any difference compared to defaults
+              // if we want angle to be double, we can omit it too
+  enum Animation {Standing=0,Walking=1, Running=2} anim;
+              //can be omitted too
+  UINT8 animation_frame;//can be omitted, as
+                        //  UINT8 is a default mapping for INT[0,120)
+
+//  vector<Item> inventory;//can be also omitted,
+                         //  as default mapping for SEQUENCE<Item>
+                         //  is vector<Item>
+};
+
+
+MAPPING("CPP","Server") PUBLISHABLE_STRUCT Character {
+  // here we're omitting all the default mappings
+  float angle;
+  class MyInventory inventory;
+    //class MyInventory will be used as a type for generated
+    //  Character.inventory
+    //To enable serialization/deserialization,
+    //  MyInventory MUST implement the following member functions:
+    // size_t idl_serialize_collection_get_size(),
+    // const Item& idl_serialize_collection_get_item(size_t idx),
+    // void idl_deserialize_collection_reserve_size(size_t),
+    // void idl_deserialize_collection_add_item(const Item&)
+};
+
+
+ENCODING("MYENCODING1") PUBLISHABLE_STRUCT Character {
+  VLQ character_id;
+  DELTA {
+    FIXED_POINT(0.01) x;//for rendering purposes, we need our coordinates
+                        //only with precision of 1cm
+                        //validity range is already defined in IDL
+                        //NB: given the range and precision,
+                        // 'x' has 20'000'000 possible values,
+                        // so it can be encoded with 21 bits
+    FIXED_POINT(0.01) y;
+    FIXED_POINT(0.01) z;
+    FIXED_POINT(0.01) vx;
+    FIXED_POINT(0.01) vy;
+    FIXED_POINT(0.01) vz;
+  }
+  DELTA FIXED_POINT(0.01) angle;//given the range specified in IDL,
+                                //  FIXED_POINT(0.01) can be encoded
+                                //  with 16 bits
+  DELTA BIT(2) Animation;//can be omitted, as 2-bit is default
+                         //  for 3-value enum in MYENCODING1
+  DELTA VLQ animation_frame;
+  DELTA SEQUENCE<Item> inventory;
+};
+
+
+ENCODING("MYENCODING2") PUBLISHABLE_STRUCT Character {
+  VLQ character_id;
+  DELTA {
+    DEAD_RECKONING(0.02) {//0.02 is maximum acceptable coordinate
+                          // deviation due to dead reckoning
+      FIXED_POINT(0.01) x;
+      FIXED_POINT(0.01) vx;
+    }
+    DEAD_RECKONING(0.02) {
+      FIXED_POINT(0.01) y;
+      FIXED_POINT(0.01) vy;
+    }
+    DEAD_RECKONING { //by default, maximum acceptable deviation
+                     //  due to dead reckoning
+                     // is the same as for coordinate
+                     //  (0.01 in this case)
+      FIXED_POINT(0.01) z;
+      FIXED_POINT(0.01) vz;
+    }
+  }//DELTA
+  DELTA FIXED_POINT(0.01) angle;
+  DELTA BIT(2) Animation;
+  DELTA VLQ animation_frame;
+  DELTA SEQUENCE<Item> inventory;
+};

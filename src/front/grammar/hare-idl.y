@@ -21,6 +21,7 @@ Copyright (C) 2016 OLogN Technologies AG
 %token KW_MAPPING KW_ENCODING
 %token KW_NUMERIC KW_INT KW_SEQUENCE
 %token KW_FIXED_POINT KW_BIT
+%token KW_EXTEND KW_TO KW_DEFAULT KW_FENCE
 
 %token IDENTIFIER STRING_LITERAL INTEGER_LITERAL CHAR_LITERAL FLOAT_LITERAL
 
@@ -44,7 +45,8 @@ file : { $$ = 0; }
 
 publishable_struct_begin
 	: KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createPublishableStruct($1, $2); releaseYys($3); }
-	| publishable_struct_begin data_element { $$ = addToPublishableStruct($1, $2); }
+	| publishable_struct_begin data_type IDENTIFIER ';' { $$ = addToPublishableStruct($1, $2, $3); releaseYys($4);}
+	| publishable_struct_begin IDENTIFIER IDENTIFIER ';' { $$ = addToPublishableStruct($1, createIdType($2), $3); releaseYys($4); }
 ;
 
 publishable_struct
@@ -53,7 +55,8 @@ publishable_struct
 
 mapping_begin
 	: KW_MAPPING '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createMapping($1, $3, $6); releaseYys4($2, $4, $5, $7); }
-	| mapping_begin data_element { $$ = addToMapping($1, $2); }
+	| mapping_begin data_type IDENTIFIER ';' { $$ = addToMapping($1, $2, $3);  releaseYys($4); }
+    | mapping_begin IDENTIFIER IDENTIFIER ';' { $$ = addToMapping($1, createIdType($2), $3);  releaseYys($4); }
 ;
 
 mapping
@@ -63,7 +66,8 @@ mapping
 encoding_begin
 	: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createEncoding($1, $3, $6); releaseYys4($2, $4, $5, $7); }
 	| encoding_begin data_element { $$ = addToEncoding($1, $2); }
-	| encoding_begin data_group { $$ = addGroupToEncoding($1, $2); }
+	| encoding_begin data_group { $$ = addToEncoding($1, $2); }
+    | encoding_begin KW_FENCE { $$ = addFenceToEncoding($1, $2); }
 ;
 
 encoding
@@ -71,23 +75,28 @@ encoding
 ;
 
 data_element
-	: data_type IDENTIFIER ';' { $$ = createAttribute($1, $2); releaseYys($3);}
-	| IDENTIFIER IDENTIFIER ';' { $$ = createIdentifierAttribute($1, $2); releaseYys($3); }
-	| IDENTIFIER data_element { $$ = addTagToAttribute($1, 0, $2); }
-	| IDENTIFIER '(' arg_list ')' data_element { $$ = addTagToAttribute($1, $3, $5); releaseYys2($2, $4);}
+	: data_type IDENTIFIER ';' { $$ = createEncodingAttribute($1, $2, 0); releaseYys($3);}
+    | data_type IDENTIFIER KW_DEFAULT '=' expr ';' { $$ = createEncodingAttribute($1, $2, $5); releaseYys3($3, $4, $6);}
+	| IDENTIFIER IDENTIFIER ';' { $$ = createEncodingAttribute(createIdType($1), $2, 0); releaseYys($3); }
+    | IDENTIFIER IDENTIFIER KW_DEFAULT '=' expr ';' { $$ = createEncodingAttribute(createIdType($1), $2, $5); releaseYys3($3, $4, $6);}
+    | KW_EXTEND IDENTIFIER KW_TO data_type ';' { $$ = createExtendAttribute($2, $4); releaseYys3($1, $3, $5);}
+    | KW_EXTEND IDENTIFIER KW_TO IDENTIFIER ';' { $$ = createExtendAttribute($2, createIdType($4)); releaseYys3($1, $3, $5);}
 ;
 
 data_group_begin
-	: IDENTIFIER '{' { $$ = createTagGroup($1, 0); releaseYys($2); }
-	| IDENTIFIER '(' arg_list ')' '{' { $$ = createTagGroup($1, $3); releaseYys3($2, $4, $5); }
-	| data_group_begin data_element { $$ = addToTagGroup($1, $2); }
-	| data_group_begin data_group { $$ = addToTagGroup($1, $2); }
+	: IDENTIFIER '{' { $$ = createEncodingGroup($1, 0, 0); releaseYys($2); }
+	| IDENTIFIER '(' arg_list ')' '{' { $$ = createEncodingGroup($1, $3, 0); releaseYys3($2, $4, $5); }
+	| data_group_begin data_element { $$ = addToEncodingGroup($1, $2); }
+	| data_group_begin data_group { $$ = addToEncodingGroup($1, $2); }
 ;
 
 data_group
 	: data_group_begin '}' { $$ = $1; releaseYys($2); }
+    | IDENTIFIER data_element { $$ = createEncodingGroup($1, 0, $2); }
+	| IDENTIFIER '(' arg_list ')' data_element { $$ = createEncodingGroup($1, $3, $5); releaseYys2($2, $4);}
+    | IDENTIFIER data_group { $$ = addEncodingOption($1, 0, $2); }
+	| IDENTIFIER '(' arg_list ')'  data_group { $$ = addEncodingOption($1, $3, $5); releaseYys2($2, $4);}
 ;
-
 
 data_type
 	: numeric_type
