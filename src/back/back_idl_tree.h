@@ -42,13 +42,42 @@ public:
 
 class BackEncodedMembers : public BackEncodedOrMember 
 {
+protected:
+	vector<unique_ptr<BackEncodedOrMember>> members; 
 public:
 	EncodingAttributes encodingAttr; 
-	vector<unique_ptr<BackEncodedOrMember>> members; 
 	void addChild( BackEncodedOrMember* child )
 	{
 		parent = this;
 		members.push_back( unique_ptr<BackEncodedOrMember>(child) );
+	}
+	unsigned int getChildCount()
+	{
+		return members.size();
+	}
+	bool isChildAMember( unsigned int childIndex ) const
+	{
+		return childIndex < members.size() && dynamic_cast<const BackDataMember*>( &(*members[childIndex])) != NULL;
+	}
+	const BackDataMember* getConstMember( unsigned int childIndex ) const
+	{
+		if ( childIndex >= members.size() ) return NULL;
+		return dynamic_cast<const BackDataMember*>( &(*members[childIndex]));
+	}
+	BackDataMember* getMember( unsigned int childIndex )
+	{
+		if ( childIndex >= members.size() ) return NULL;
+		return dynamic_cast<BackDataMember*>( &(*members[childIndex]));
+	}
+	const BackEncodedMembers* getConstEncodedMembers( unsigned int childIndex ) const
+	{
+		if ( childIndex >= members.size() ) return NULL;
+		return dynamic_cast<const BackEncodedMembers*>( &(*members[childIndex]));
+	}
+	BackEncodedMembers* getEncodedMembers( unsigned int childIndex )
+	{
+		if ( childIndex >= members.size() ) return NULL;
+		return dynamic_cast<BackEncodedMembers*>( &(*members[childIndex]));
 	}
 };
 
@@ -66,6 +95,8 @@ public:
 	vector<unique_ptr<BackStructure>> structures;
 };
 
-//typedef vector<unique_ptr<BackStructure>> VectorOfBackStructures;
+
+void convertToBackTree( const Root& root, BackRoot& backRoot );
+
 
 #endif // BACK_IDL_TREE_H

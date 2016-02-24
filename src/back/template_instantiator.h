@@ -20,13 +20,10 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "template_parser.h"
 #include <stdio.h>
-#include <idl.h>
-#include <literal_node.h>
+#include "back_idl_tree.h"
 
 #define CONTEXT_STRUCT 1
 #define CONTEXT_STRUCT_MEMBER 2
-
-using namespace kpm;
 
 class template_instantiator
 {
@@ -44,14 +41,14 @@ public:
 class struct_template_instantiator : public template_instantiator
 {
 protected:
-	MappingDeclNode* idlmap; // TODO: use actual type!
+	BackStructure* structure;
 
 	virtual std::string placeholder( int placeholder_id );
 	virtual void apply_to_each( TEMPLATE_NODE& node );
 
 
 public:
-	struct_template_instantiator( MappingDeclNode& _idlmap ) { idlmap = &_idlmap; }
+	struct_template_instantiator( BackStructure& currentStruct ) { structure = &currentStruct; }
 
 	void apply( ANY_TEMPLATE_ROOT& node )
 	{
@@ -62,13 +59,13 @@ public:
 class struct_member_template_instantiator : public template_instantiator
 {
 protected:
-	AttributeDeclNode* attr; // TODO: use actual type!
+	BackDataMember* member;
 
 	virtual std::string placeholder( int placeholder_id );
 //	virtual void apply_to_each( TEMPLATE_NODE& node );
 
 public:
-	struct_member_template_instantiator( AttributeDeclNode& _attr ) { attr = &_attr; }
+	struct_member_template_instantiator( BackDataMember& currentMember ) { member = &currentMember; }
 
 	void apply( TEMPLATE_NODE& node )
 	{
@@ -77,7 +74,7 @@ public:
 };
 
 
-void apply( MappingDeclNode& idlmap, ANY_TEMPLATE_ROOT& root_node );
+void apply( BackStructure& structure, ANY_TEMPLATE_ROOT& root_node );
 
 
 #endif // TEMPLATE_INSTANTIATOR_H

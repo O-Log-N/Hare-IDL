@@ -71,7 +71,7 @@ struct TEMPLATE_NODE
 	int type;
 	int src_line_num;
 	LINE_PARTS line_parts;
-	vector<_TEMPLATE_NODE> child_nodes;
+	vector<TEMPLATE_NODE> child_nodes;
 };
 
 typedef vector<TEMPLATE_NODE> TEMPLATE_NODES;

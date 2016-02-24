@@ -17,7 +17,7 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "back_idl_tree.h"
 
-BackDataMember* copy_member( const DataMember* src )
+BackDataMember* copyMember( const DataMember* src )
 {
 	BackDataMember* ret = new BackDataMember;
 	ret->name = src->name;
@@ -25,29 +25,29 @@ BackDataMember* copy_member( const DataMember* src )
 	return ret;
 }
 
-BackEncodedOrMember* copy_encoded( const EncodedOrMember* src )
+BackEncodedOrMember* copyEncoded( const EncodedOrMember* src )
 {
 	if ( dynamic_cast<const DataMember*>(src) != NULL )
 	{
-		BackDataMember* current_member = copy_member( reinterpret_cast<const DataMember*>(src) );
-		return current_member;
+		BackDataMember* currentMember = copyMember( reinterpret_cast<const DataMember*>(src) );
+		return currentMember;
 	}
 	else
 	{
 		const EncodedMembers* encsrc = reinterpret_cast<const EncodedMembers*>(src);
 		unsigned int i;
-		BackEncodedMembers* current_encoded = new BackEncodedMembers;
-		current_encoded->encodingAttr = encsrc->encodingAttr;
+		BackEncodedMembers* currentEncoded = new BackEncodedMembers;
+		currentEncoded->encodingAttr = encsrc->encodingAttr;
 		for ( i=0; i<encsrc->members.size(); i++ )
 		{ 
-			BackEncodedOrMember* ret = copy_encoded( &(*(encsrc->members[i])) );
-			current_encoded->addChild( ret );
+			BackEncodedOrMember* ret = copyEncoded( &(*(encsrc->members[i])) );
+			currentEncoded->addChild( ret );
 		}
-		return current_encoded;
+		return currentEncoded;
 	}
 }
 
-BackStructure* copy_structure( const Structure* src )
+BackStructure* copyStructure( const Structure* src )
 {
 	BackStructure* ret = new BackStructure;
 	ret->declType = src->declType;
@@ -57,19 +57,18 @@ BackStructure* copy_structure( const Structure* src )
 	unsigned int i;
 	for ( i=0; i<src->members.size(); i++ )
 	{
-		BackEncodedOrMember* ret_child = copy_encoded( &(*(src->members[i])) );
-//		ret->members.push_back( unique_ptr<BackEncodedOrMember>(ret_child) );
-		ret->addChild( ret_child );
+		BackEncodedOrMember* retChild = copyEncoded( &(*(src->members[i])) );
+		ret->addChild( retChild );
 	}
 	return ret;
 }
 
-void convert_to_back_tree( const Root& root, BackRoot& back_root )
+void convertToBackTree( const Root& root, BackRoot& backRoot )
 {
 	unsigned int i;
 	for ( i=0; i<root.structures.size(); i++ )
 	{
-		BackStructure* ret = copy_structure( &(*(root.structures[i])) );
-		back_root.structures.push_back( unique_ptr<BackStructure>(ret) );
+		BackStructure* ret = copyStructure( &(*(root.structures[i])) );
+		backRoot.structures.push_back( unique_ptr<BackStructure>(ret) );
 	}
 }

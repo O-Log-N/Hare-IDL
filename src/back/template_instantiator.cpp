@@ -209,7 +209,7 @@ std::string struct_template_instantiator::placeholder( int placeholder_id )
 	{
 		case PLACEHOLDER::STRUCTNAME:
 		{
-			return idlmap->name;
+			return structure->name;
 		}
 		default:
 		{
@@ -220,30 +220,36 @@ std::string struct_template_instantiator::placeholder( int placeholder_id )
 
 void struct_template_instantiator::apply_to_each( TEMPLATE_NODE& node )
 {
-	int member_cnt = idlmap->attributes.size();
+	unsigned int member_cnt = structure->getChildCount();
 	for ( int j=0; j<member_cnt; j++ )
 	{
 		for ( unsigned int k=0; k<node.child_nodes.size(); k++ )
 		{
-			struct_member_template_instantiator smti( *(idlmap->attributes[j]) );
-			smti.apply( node.child_nodes[k] );
+			if ( structure->isChildAMember(j) )
+			{
+//				const BackDataMember* member = structure->getConstMember( j );
+				BackDataMember* member = structure->getMember( j );
+				assert( member != NULL );
+				struct_member_template_instantiator smti( *member );
+				smti.apply( node.child_nodes[k] );
+			}
 		}
 	}
 }
 
 /////////////////////////////////////////////////////////////////////////
 
-std::string struct_member_template_instantiator::placeholder( int placeholder_id )
+string struct_member_template_instantiator::placeholder( int placeholder_id )
 {
 	switch( placeholder_id )
 	{
 		case PLACEHOLDER::MEMBER_NAME:
 		{
-			return attr->name.c_str();
+			return member->name;
 		}
 		case PLACEHOLDER::MEMBER_TYPE:
 		{
-			return attr->type->toString();
+			return member->type.name;
 		}
 		default:
 		{
@@ -255,8 +261,8 @@ std::string struct_member_template_instantiator::placeholder( int placeholder_id
 /////////////////////////////////////////////////////////////////////////
 
 
-void apply( MappingDeclNode& idlmap, ANY_TEMPLATE_ROOT& root_node )
+void apply( BackStructure& structure, ANY_TEMPLATE_ROOT& root_node )
 {
-	struct_template_instantiator ti( idlmap );
+	struct_template_instantiator ti( structure );
 	ti.apply( root_node );
 }
