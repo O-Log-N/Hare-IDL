@@ -20,7 +20,7 @@ Naming conventions examples:
 2. function prettyMuchUnnecessaryFunction(); //also apples to members
 3. enum BACKGROUND_COLOR { RED, GREEN, BLUE }; //see below on constants
 4. #define MY_STRING "abracadabra" //see below on #defines
-5. #ifndef INCLUDE_FILE_NAME_INCLUDED //"include guard"
+5. #ifndef FILE_NAME_INCLUDED //"include guard"
 6. **MUST NOT** use identifiers starting with an underscore OR containing adjacent double underscore (technically reserved for C++)
 7. Classes and functions which are used ONLY for debugging purposes (such as "dumpSomething()") SHOULD start with Dbg*/dbg*() respectively
 8. file names: file_name.h
@@ -28,10 +28,10 @@ Naming conventions examples:
 ### I.2 On includes
 
 1. **MUST NOT** have any duplicate declarations for the same entity. In particular, function declarations in .cpp files are** PROHIBITED** for non-static functions
-2. Each include **MUST** have "include guard" consisting of #ifndef INCLUDE_FILE_NAME_INCLUDED - #define INCLUDE_FILE_NAME_INCLUDED
+2. Each include **MUST** have "include guard" consisting of #ifndef FILE_NAME_INCLUDED - #define FILE_NAME_INCLUDED
     - #pragma once SHOULD NOT be used as non-standard
 3. C++ standard includes SHOULD go before our own includes
-4. C++ standard includes **MUST** be included via <include_file_name.h>
+4. C++ standard includes **MUST** be included via `<include_file_name.h>`
 5. Our own includes **MUST** be included via "include_file_name.h" (with a relative path if necessary(!))
 
 ### I.3 On Constants and #defines
