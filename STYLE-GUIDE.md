@@ -25,7 +25,7 @@ Naming conventions examples:
 7. Classes and functions which are used ONLY for debugging purposes (such as "dumpSomething()") SHOULD start with Dbg*/dbg*() respectively
 8. file names: file_name.h
 
-### I.2 On includes
+### I.2 On #includes
 
 1. **MUST NOT** have any duplicate declarations for the same entity. In particular, function declarations in .cpp files are** PROHIBITED** for non-static functions
 2. Each include **MUST** have "include guard" consisting of #ifndef FILE_NAME_INCLUDED - #define FILE_NAME_INCLUDED
@@ -58,5 +58,5 @@ Naming conventions examples:
 
 1. iterations over the vector SHOULD use  size_t as index variable type: for(size_t i=0; i < v.size(); ++i)
 2. prefixed increment SHOULD be used in standalone statements: for(auto it=v.begin();;++it) is preferred over for(auto it=v.begin();;it++)
-3. All text-formatted file output SHOULD be done via C++ Format library: https://github.com/cppformat/cppformat . This library is available as 'git submodule' within /3rdparty/cppformat/ .
-4. All file I/O (except for-text-formatted one, see item I.5.3 right above) SHOULD be done via std::iostream
+3. All text-formatted file/console output SHOULD be done via C++ Format library: https://github.com/cppformat/cppformat . This library is available as 'git submodule' within /3rdparty/cppformat/ .
+4. All file/console I/O (except for-text-formatted output, see item I.5.3 right above) SHOULD be done via std::iostream
