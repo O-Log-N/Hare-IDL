@@ -55,14 +55,14 @@ int main()
 
 	// back end
 	ANY_TEMPLATE_ROOTS template_roots;
-	ANY_TEMPLATE_ROOT template_root;
+	AnyTemplateRoot template_root;
 
 	FILE* ft = fopen( "template.txt", "rb" );
 	int line = 0;
-	if ( load_template( ft, template_root, &line ) != 0 )
+	if ( loadTemplate( ft, template_root, &line ) != 0 )
 		return 0;
 	printf( "\n\n" );
-	print_tree( template_root );
+	dbgPrintTree( template_root );
 	printf( "\n\n" );
 	apply( *(backRoot.structures[0]), template_root );
 

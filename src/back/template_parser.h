@@ -15,7 +15,7 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#if !defined TEMPLATE_PARSER_H
+#ifndef TEMPLATE_PARSER_H
 #define TEMPLATE_PARSER_H
 
 #include <stdio.h>
@@ -48,7 +48,7 @@ enum PARAMETER {
 
 enum PLACEHOLDER {
 	VERBATIM = 200,
-	STRUCTNAME,
+	STRUCT_NAME,
 	MEMBER_TYPE,
 	MEMBER_NAME,
 };
@@ -58,39 +58,36 @@ enum OPERATOR {
 	NEQ,
 };
 
-struct LINE_PART
+struct LinePart
 {
 	int type;
 	string verbatim;
 };
 
-typedef vector<LINE_PART> LINE_PARTS;
-
-struct TEMPLATE_NODE
+struct TemplateNode
 {
 	int type;
-	int src_line_num;
-	LINE_PARTS line_parts;
-	vector<TEMPLATE_NODE> child_nodes;
+	int srcLineNum;
+	vector<LinePart> lineParts;
+	vector<TemplateNode> childNodes;
 };
 
-typedef vector<TEMPLATE_NODE> TEMPLATE_NODES;
-typedef vector<TEMPLATE_NODE>::iterator TEMPLATE_NODES_ITERATOR;
+typedef vector<TemplateNode> TEMPLATE_NODES;
+typedef vector<TemplateNode>::iterator TEMPLATE_NODES_ITERATOR;
 
-typedef struct _ANY_TEMPLATE_ROOT
+struct AnyTemplateRoot
 {
-	std::string name;
-	std::string type;
-	int src_line_num;
-	TEMPLATE_NODE root;
-} ANY_TEMPLATE_ROOT;
+	string name;
+	string type;
+	int srcLineNum;
+	TemplateNode root;
+};
 
-typedef vector<ANY_TEMPLATE_ROOT> ANY_TEMPLATE_ROOTS;
-typedef vector<ANY_TEMPLATE_ROOT>::iterator ANY_TEMPLATE_ROOTS_ITERATOR;
+typedef vector<AnyTemplateRoot> ANY_TEMPLATE_ROOTS;
 
 
-bool load_template( FILE* ft, ANY_TEMPLATE_ROOT& root_node, int* current_line_num );
-void print_tree( ANY_TEMPLATE_ROOT& root_node );
+bool loadTemplate( FILE* ft, AnyTemplateRoot& rootNode, int* currentLineNum );
+void dbgPrintTree( AnyTemplateRoot& rootNode );
 
 
 #endif // TEMPLATE_PARSER_H

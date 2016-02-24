@@ -15,7 +15,7 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#if !defined IDL_TREE_H
+#ifndef IDL_TREE_H
 #define IDL_TREE_H
 
 #include <memory>

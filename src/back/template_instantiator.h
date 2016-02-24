@@ -15,66 +15,66 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#if !defined TEMPLATE_INSTANTIATOR_H
+#ifndef TEMPLATE_INSTANTIATOR_H
 #define TEMPLATE_INSTANTIATOR_H
 
-#include "template_parser.h"
 #include <stdio.h>
+#include "template_parser.h"
 #include "back_idl_tree.h"
 
 #define CONTEXT_STRUCT 1
 #define CONTEXT_STRUCT_MEMBER 2
 
-class template_instantiator
+class TemplateInstantiator
 {
 protected:
-	bool calc_condition_of_if_node( TEMPLATE_NODE& if_node );
-	void apply_node( TEMPLATE_NODE& node );
+	bool calcConditionOfIfNode( TemplateNode& ifNode );
+	void applyNode( TemplateNode& node );
 
 public:
-	template_instantiator() {}
+	TemplateInstantiator() {}
 
-	virtual std::string placeholder( int placeholder_id );
-	virtual void apply_to_each( TEMPLATE_NODE& node );
+	virtual string placeholder( int placeholderId );
+	virtual void applyToEach( TemplateNode& node );
 };
 
-class struct_template_instantiator : public template_instantiator
+class StructTemplateInstantiator : public TemplateInstantiator
 {
 protected:
 	BackStructure* structure;
 
-	virtual std::string placeholder( int placeholder_id );
-	virtual void apply_to_each( TEMPLATE_NODE& node );
+	virtual string placeholder( int placeholderId );
+	virtual void applyToEach( TemplateNode& node );
 
 
 public:
-	struct_template_instantiator( BackStructure& currentStruct ) { structure = &currentStruct; }
+	StructTemplateInstantiator( BackStructure& currentStruct ) { structure = &currentStruct; }
 
-	void apply( ANY_TEMPLATE_ROOT& node )
+	void apply( AnyTemplateRoot& node )
 	{
-		apply_node( node.root );
+		applyNode( node.root );
 	}
 };
 
-class struct_member_template_instantiator : public template_instantiator
+class StructMemberTemplateInstantiator : public TemplateInstantiator
 {
 protected:
 	BackDataMember* member;
 
-	virtual std::string placeholder( int placeholder_id );
-//	virtual void apply_to_each( TEMPLATE_NODE& node );
+	virtual string placeholder( int placeholderId );
+//	virtual void applyToEach( TemplateNode& node );
 
 public:
-	struct_member_template_instantiator( BackDataMember& currentMember ) { member = &currentMember; }
+	StructMemberTemplateInstantiator( BackDataMember& currentMember ) { member = &currentMember; }
 
-	void apply( TEMPLATE_NODE& node )
+	void apply( TemplateNode& node )
 	{
-		apply_node( node );
+		applyNode( node );
 	}
 };
 
 
-void apply( BackStructure& structure, ANY_TEMPLATE_ROOT& root_node );
+void apply( BackStructure& structure, AnyTemplateRoot& rootNode );
 
 
 #endif // TEMPLATE_INSTANTIATOR_H

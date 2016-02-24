@@ -19,26 +19,26 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_parser.h"
 #include <assert.h> // for assert()
 
-bool template_instantiator::calc_condition_of_if_node( TEMPLATE_NODE& if_node )
+bool TemplateInstantiator::calcConditionOfIfNode( TemplateNode& ifNode )
 {
 	// NOTE: here we have a quite quick and dirty solution just for a couple of immediately necessary cases
 	// TODO: full implementation
 
-	assert( if_node.type == NODE_TYPE::IF || if_node.type == NODE_TYPE::ASSERT );
+	assert( ifNode.type == NODE_TYPE::IF || ifNode.type == NODE_TYPE::ASSERT );
 	bool ret;
 
 	unsigned int i, j;
-	vector<std::string> argstack;
+	vector<string> argstack;
 	vector<int> commands;
-	for ( i=0; i<if_node.line_parts.size(); i++ )
+	for ( i=0; i<ifNode.lineParts.size(); i++ )
 	{
-		switch ( if_node.line_parts[i].type )
+		switch ( ifNode.lineParts[i].type )
 		{
-			case PLACEHOLDER::VERBATIM: argstack.push_back( if_node.line_parts[i].verbatim ); break;
+			case PLACEHOLDER::VERBATIM: argstack.push_back( ifNode.lineParts[i].verbatim ); break;
 			case OPERATOR::EQ:
 			case OPERATOR::NEQ:
 			{
-				commands.push_back( if_node.line_parts[i].type );
+				commands.push_back( ifNode.lineParts[i].type );
 				break;
 			}
 			case PLACEHOLDER::MEMBER_TYPE:
@@ -48,20 +48,20 @@ bool template_instantiator::calc_condition_of_if_node( TEMPLATE_NODE& if_node )
 			}
 			default:
 			{
-				printf( "Type %d is unexpected or unsupported\n", if_node.line_parts[i].type );
+				printf( "Type %d is unexpected or unsupported\n", ifNode.lineParts[i].type );
 				assert( 0 == "Error: not supported" );
 			}
 		}
 	}
 
-	unsigned int command_cnt = commands.size();
+	unsigned int commandCnt = commands.size();
 	unsigned int stacksz = argstack.size();
 
-	assert( ( command_cnt == 1 && stacksz == 2 ) || command_cnt == 0 && stacksz == 1 ); // limitation of a current version; TODO: further development
+	assert( ( commandCnt == 1 && stacksz == 2 ) || commandCnt == 0 && stacksz == 1 ); // limitation of a current version; TODO: further development
 
-	if ( command_cnt == 1 )
+	if ( commandCnt == 1 )
 	{
-		for ( j=command_cnt; j; j-- )
+		for ( j=commandCnt; j; j-- )
 		{
 			switch ( commands[j-1] )
 			{
@@ -90,29 +90,29 @@ bool template_instantiator::calc_condition_of_if_node( TEMPLATE_NODE& if_node )
 	return ret;
 }
 
-void template_instantiator::apply_node( TEMPLATE_NODE& node )
+void TemplateInstantiator::applyNode( TemplateNode& node )
 {
 	switch ( node.type )
 	{
 		case NODE_TYPE::TEMPLATE_ROOT:
 		{
-			for ( unsigned int k=0; k<node.child_nodes.size(); k++ )
-				apply_node( node.child_nodes[k]/*, idlmap, context*/ );
+			for ( unsigned int k=0; k<node.childNodes.size(); k++ )
+				applyNode( node.childNodes[k]/*, idlmap, context*/ );
 			break;
 		}
 		case NODE_TYPE::CONTENT:
 		{
-			for ( unsigned int i=0; i<node.line_parts.size(); i++ )
-				switch ( node.line_parts[i].type )
+			for ( unsigned int i=0; i<node.lineParts.size(); i++ )
+				switch ( node.lineParts[i].type )
 				{
 					case PLACEHOLDER::VERBATIM:
 					{
-						printf( node.line_parts[i].verbatim.c_str() ); 
+						printf( node.lineParts[i].verbatim.c_str() ); 
 						break;
 					}
-					case PLACEHOLDER::STRUCTNAME: 
+					case PLACEHOLDER::STRUCT_NAME: 
 					{
-						printf( placeholder( PLACEHOLDER::STRUCTNAME ).c_str() ); 
+						printf( placeholder( PLACEHOLDER::STRUCT_NAME ).c_str() ); 
 						break;
 					}
 					case PLACEHOLDER::MEMBER_TYPE: 
@@ -127,7 +127,7 @@ void template_instantiator::apply_node( TEMPLATE_NODE& node )
 					}
 					default:
 					{
-						printf( "Unknown line_part.type = %d found", node.line_parts[i].type );
+						printf( "Unknown line_part.type = %d found", node.lineParts[i].type );
 						assert( 0 == "Error: Not Implemented" );
 					}
 				}
@@ -138,38 +138,38 @@ void template_instantiator::apply_node( TEMPLATE_NODE& node )
 		case NODE_TYPE::IF_TRUE_BRANCHE:
 		case NODE_TYPE::IF_FALSE_BRANCHE:
 		{
-			for ( unsigned int k=0; k<node.child_nodes.size(); k++ )
-				apply_node( node.child_nodes[k]/*, idlmap, context*/ );
+			for ( unsigned int k=0; k<node.childNodes.size(); k++ )
+				applyNode( node.childNodes[k]/*, idlmap, context*/ );
 			break;
 		}
 		case NODE_TYPE::FOR_EACH_OF_MEMBERS:
 		{
-			apply_to_each( node );
+			applyToEach( node );
 			break;
 		}
 		case NODE_TYPE::IF:
 		{
-			bool cond = calc_condition_of_if_node( node/*, idlmap, context*/ );
+			bool cond = calcConditionOfIfNode( node/*, idlmap, context*/ );
 			if ( cond )					
 			{
-				if ( node.child_nodes[0].type == NODE_TYPE::IF_TRUE_BRANCHE )
-					apply_node( node.child_nodes[0]/*, idlmap, context*/ );
+				if ( node.childNodes[0].type == NODE_TYPE::IF_TRUE_BRANCHE )
+					applyNode( node.childNodes[0]/*, idlmap, context*/ );
 			}
 			else
 			{
-				if ( node.child_nodes[0].type == NODE_TYPE::IF_FALSE_BRANCHE )
-					apply_node( node.child_nodes[0]/*, idlmap, context*/ );
-				else if ( node.child_nodes[1].type == NODE_TYPE::IF_FALSE_BRANCHE )
-					apply_node( node.child_nodes[1]/*, idlmap, context*/ );
+				if ( node.childNodes[0].type == NODE_TYPE::IF_FALSE_BRANCHE )
+					applyNode( node.childNodes[0]/*, idlmap, context*/ );
+				else if ( node.childNodes[1].type == NODE_TYPE::IF_FALSE_BRANCHE )
+					applyNode( node.childNodes[1]/*, idlmap, context*/ );
 			}
 			break;
 		}
 		case NODE_TYPE::ASSERT:
 		{
-			bool cond = calc_condition_of_if_node( node/*, idlmap, context*/ );
+			bool cond = calcConditionOfIfNode( node/*, idlmap, context*/ );
 			if ( !cond )					
 			{
-				printf( "Instantiation Error: Assertion failed: Line %d\n", node.src_line_num );
+				printf( "Instantiation Error: Assertion failed: Line %d\n", node.srcLineNum );
 			}
 			break;
 		}
@@ -188,50 +188,50 @@ void template_instantiator::apply_node( TEMPLATE_NODE& node )
 
 /////////////////////////////////////////////////////////////////////////
 
-std::string template_instantiator::placeholder( int placeholder_id )
+string TemplateInstantiator::placeholder( int placeholderId )
 {
 	printf( "error_placeholder\n" );
 	assert( 0 );
 	return "";
 }
 
-void template_instantiator::apply_to_each( TEMPLATE_NODE& node )
+void TemplateInstantiator::applyToEach( TemplateNode& node )
 {
-	printf( "error_apply_to_each\n" );
+	printf( "error_applyToEach\n" );
 	assert( 0 );
 }
 
 /////////////////////////////////////////////////////////////////////////
 
-std::string struct_template_instantiator::placeholder( int placeholder_id )
+string StructTemplateInstantiator::placeholder( int placeholderId )
 {
-	switch( placeholder_id )
+	switch( placeholderId )
 	{
-		case PLACEHOLDER::STRUCTNAME:
+		case PLACEHOLDER::STRUCT_NAME:
 		{
 			return structure->name;
 		}
 		default:
 		{
-			return template_instantiator::placeholder( placeholder_id );
+			return TemplateInstantiator::placeholder( placeholderId );
 		}
 	}
 }
 
-void struct_template_instantiator::apply_to_each( TEMPLATE_NODE& node )
+void StructTemplateInstantiator::applyToEach( TemplateNode& node )
 {
-	unsigned int member_cnt = structure->getChildCount();
-	for ( int j=0; j<member_cnt; j++ )
+	unsigned int memberCnt = structure->getChildCount();
+	for ( unsigned int j=0; j<memberCnt; j++ )
 	{
-		for ( unsigned int k=0; k<node.child_nodes.size(); k++ )
+		for ( unsigned int k=0; k<node.childNodes.size(); k++ )
 		{
 			if ( structure->isChildAMember(j) )
 			{
 //				const BackDataMember* member = structure->getConstMember( j );
 				BackDataMember* member = structure->getMember( j );
 				assert( member != NULL );
-				struct_member_template_instantiator smti( *member );
-				smti.apply( node.child_nodes[k] );
+				StructMemberTemplateInstantiator smti( *member );
+				smti.apply( node.childNodes[k] );
 			}
 		}
 	}
@@ -239,9 +239,9 @@ void struct_template_instantiator::apply_to_each( TEMPLATE_NODE& node )
 
 /////////////////////////////////////////////////////////////////////////
 
-string struct_member_template_instantiator::placeholder( int placeholder_id )
+string StructMemberTemplateInstantiator::placeholder( int placeholderId )
 {
-	switch( placeholder_id )
+	switch( placeholderId )
 	{
 		case PLACEHOLDER::MEMBER_NAME:
 		{
@@ -253,7 +253,7 @@ string struct_member_template_instantiator::placeholder( int placeholder_id )
 		}
 		default:
 		{
-			return template_instantiator::placeholder( placeholder_id );
+			return TemplateInstantiator::placeholder( placeholderId );
 		}
 	}
 }
@@ -261,8 +261,8 @@ string struct_member_template_instantiator::placeholder( int placeholder_id )
 /////////////////////////////////////////////////////////////////////////
 
 
-void apply( BackStructure& structure, ANY_TEMPLATE_ROOT& root_node )
+void apply( BackStructure& structure, AnyTemplateRoot& rootNode )
 {
-	struct_template_instantiator ti( structure );
-	ti.apply( root_node );
+	StructTemplateInstantiator ti( structure );
+	ti.apply( rootNode );
 }
