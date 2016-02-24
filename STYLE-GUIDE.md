@@ -52,7 +52,7 @@ Naming conventions examples:
 9. namespace policy:
     - project-specific stuff belongs to global namespace
     - libraries which are shared among projects, belong to separate folder /src/hare/<library-name>, AND to hare::<library-name> namespace
-    - if by any chance, libraries do need macros, they SHOULD be prefixed with HARE_, for example: HARE_ASSERT()
+    - if by any chance, libraries do need macros, they SHOULD be prefixed with HARE, for example: HAREASSERT()
 
 ### I.5 Misc
 
