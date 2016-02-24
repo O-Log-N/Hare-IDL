@@ -15,30 +15,98 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#include "grammar/parser_helper.h"
+#include "parser_helper.h"
 
 #include <vector>
 #include <string>
 #include <cassert>
 #include <sstream>
 #include <iomanip>
+#include <set>
+#include <cstdio>
+#include <iostream>
 
-#include "base_node.h"
-#include "idl_node.h"
+
 #include "parser.h"
-#include "error.h"
-#include "literal_node.h"
+//#include "error.h"
 
 using namespace std;
 
-FileNode* acceptFile = 0;
+Root* rootPtr = 0;
+
 vector<string> fileNames;
 const char* currentFileName = 0;
 int returnState = 0;
 
-bool allowAtIdentifier = false;
-
 vector<int> stateStack;
+
+const bool dbgEnableLeakDetector = true;
+set<YyBase*> dbgLeakDetector;
+
+
+ostream& Location::write(ostream& os) const
+{
+	if (fileName != 0) {
+		os << "@" << fileName;
+		if (lineNumber != 0)
+			os << ":" << lineNumber;
+	}
+
+	return os;
+}
+
+std::string Location::toString() const
+{
+	stringstream ss;
+	write(ss);
+
+	return ss.str();
+}
+
+
+YyBase::YyBase()
+{
+	if (dbgEnableLeakDetector)
+		dbgLeakDetector.insert(this);
+}
+
+YyBase::~YyBase()
+{
+	if (dbgEnableLeakDetector)
+		dbgLeakDetector.erase(this);
+}
+
+void dbgDumpLeaks(std::ostream& os)
+{
+	for (set<YyBase*>::const_iterator it = dbgLeakDetector.begin(); it != dbgLeakDetector.end(); ++it) {
+		//if (Node* n = dynamic_cast<Node*>(*it))
+		//	dbgDumpNode(os, n);
+		//else {
+			(*it)->location.write(os);
+			os << endl;
+		//}
+	}
+}
+
+void reportError(const Location& loc, const std::string& msg)
+{
+	/* TODO */
+	cerr << loc.toString() << " - " << msg << endl;
+}
+
+void reportError(const Location& loc, const std::string& msg, const std::string& arg)
+{
+	/* TODO */
+	cerr << loc.toString() << " - " << msg << " - " << arg << endl;
+}
+
+void plainError(const std::string& msg, const std::string& arg)
+{
+	/* TODO */
+	cerr << msg << " - " << arg << endl;
+}
+
+
 
 template<class T>
 struct YyList : public YyBase {
@@ -48,23 +116,35 @@ struct YyList : public YyBase {
 	}
 };
 
+template<class T>
+struct YyPtr : public YyBase {
+	unique_ptr<T> ptr;
+	YyPtr(T* ptr) : ptr(ptr) {}
+	T* operator->() const {return ptr.get();}
+};
+
 struct YyToken : public YyBase {
 	int token;
 	std::string text;
 	YyToken() : token(0) {}
 };
-typedef YyList<YyToken> YyTokenList;
 
 struct YyIdentifier : public YyBase {
 	std::string text;
 };
+
+struct YyIntegerLiteral : public YyBase {
+	long long value;
+};
+
+struct YyFloatLiteral : public YyBase {
+	double value;
+};
+
 typedef YyIdentifier YyStringLiteral;
-typedef YyIdentifier YyIntegerLiteral;
 
 typedef YyList<YyIdentifier> YyIdentifierList;
 typedef YyList<YyStringLiteral> YyStringLiteralList;
-typedef YyList<ExpressionNode> YyExpressionList;
-typedef YyList<EnumValueDeclNode> YyEnumValueList;
 
 /*
 	yystype_cast is used to cast YYSTYPE elements from the parser.
@@ -74,23 +154,39 @@ typedef YyList<EnumValueDeclNode> YyEnumValueList;
 template<typename T>
 T yystype_cast(YYSTYPE yys)
 {
+	HAREASSERT(yys);
 	T t = dynamic_cast<T>(yys);
-	if (!t)
-		assert(false);
+	HAREASSERT(t);
 	return t;
 }
+
+template<typename T, typename U = T>
+T* yystype_ptr_cast(YYSTYPE yys)
+{
+	HAREASSERT(yys);
+	YyPtr<U>* t = dynamic_cast<YyPtr<U>*>(yys);
+	HAREASSERT(t);
+	T* t2 = dynamic_cast<T*>(t->ptr.get());
+	HAREASSERT(t2);
+	return t2;
+}
+
+template<typename T>
+T* yystype_ptr_release(YYSTYPE yys)
+{
+	HAREASSERT(yys);
+	YyPtr<T>* t = dynamic_cast<YyPtr<T>*>(yys);
+	HAREASSERT(t);
+	T* ptr = t->ptr.release();
+	delete yys;
+	return ptr;
+}
+
 
 void setLocation(Location& loc, int line)
 {
 	loc.fileName = currentFileName;
 	loc.lineNumber = line;
-}
-void setLocationFromToken(Node* node, YyBase* token)
-{
-	YyToken* t = yystype_cast<YyToken*>(token);
-	node->location = t->location;
-
-	delete token;
 }
 
 std::string getNameFromYyIdentifier(YyBase* id)
@@ -101,17 +197,6 @@ std::string getNameFromYyIdentifier(YyBase* id)
 	delete id;
 	return temp;
 }
-
-template<class T>
-void setNameFromYyIdentifier(T* node, YyBase* id)
-{
-	YyIdentifier* i = yystype_cast<YyIdentifier*>(id);
-	node->location = i->location;
-	node->name = i->text;
-
-	delete id;
-}
-
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -219,8 +304,6 @@ YYSTYPE createYyToken(const char* text, int line, int token)
 	yy->text = text;
 
 	return yy;
-	//	*yys = yy;
-	//	return token;
 }
 
 YYSTYPE createIdentifier(const char* text, int line)
@@ -231,20 +314,12 @@ YYSTYPE createIdentifier(const char* text, int line)
 	return yy;
 }
 
-YYSTYPE createAtIdentifier(const char* text, int line)
-{
-	if (!allowAtIdentifier)
-		parserError("Unknown keyword", text, line);
-
-	return createIdentifier(text, line);
-}
-
 YYSTYPE createIntegerLiteral(const char* text, int line)
 {
-	IntegerLiteralExprNode* yy = new IntegerLiteralExprNode();
+	YyIntegerLiteral* yy = new YyIntegerLiteral();
 
 	setLocation(yy->location, line);
-	yy->setIntegerLiteral(text);
+	yy->value =  atoll(text);
 
 	return yy;
 }
@@ -294,19 +369,19 @@ YYSTYPE createCharLiteral(const char* text, int line)
 
 YYSTYPE createBooleanLiteral(const char* text, int line)
 {
-	BooleanLiteralExprNode* yy = new BooleanLiteralExprNode();
+	YyStringLiteral* yy = new YyStringLiteral();
 	setLocation(yy->location, line);
-	yy->setBooleanLiteral(text);
+	yy->text = text;
 
 	return yy;
 }
 
 YYSTYPE createFloatLiteral(const char* text, int line)
 {
-	FloatLiteralExprNode* yy = new FloatLiteralExprNode();
+	YyFloatLiteral* yy = new YyFloatLiteral();
 
 	setLocation(yy->location, line);
-	yy->setFloatLiteral(text);
+	yy->value = atof(text);
 
 	return yy;
 }
@@ -314,309 +389,328 @@ YYSTYPE createFloatLiteral(const char* text, int line)
 
 //////////////////////////////////////////////////////////////////////////////
 
+YYSTYPE addToFile(YYSTYPE file, YYSTYPE item)
+{
+	Structure* s = yystype_ptr_release<Structure>(item);
+	rootPtr->structures.push_back(unique_ptr<Structure>(s));
+
+	return 0;
+}
+
 YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id)
 {
-	PublishableStructDeclNode* yy = new PublishableStructDeclNode();
+	Structure* yy = new Structure();
 
-	setLocationFromToken(yy, token);
+	delete token;
 	yy->name = getNameFromYyIdentifier(id);
+	yy->declType = Structure::IDL;
+	yy->type = Structure::STRUCT;
+
+	return new YyPtr<Structure>(yy);
+}
+
+DataMember* makeDataMember(YYSTYPE type, YYSTYPE id)
+{
+	DataMember* yy = new DataMember();
+	yy->name = getNameFromYyIdentifier(id);
+	yy->type.name = "TODO";
+	delete type;
 
 	return yy;
 }
 
 YYSTYPE addToPublishableStruct(YYSTYPE decl, YYSTYPE type, YYSTYPE id)
 {
-	PublishableStructDeclNode* yy = yystype_cast<PublishableStructDeclNode*>(decl);
+	Structure* yy = yystype_ptr_cast<Structure>(decl);
 
-	AttributeDeclNode* att = new AttributeDeclNode();
-	setNameFromYyIdentifier(att, id);
+	DataMember* att = makeDataMember(type, id);
+	yy->members.push_back(unique_ptr<EncodedOrMember>(att));
 
-	TypeNode* t = yystype_cast<TypeNode*>(type);
-	att->type.set(t);
-
-	yy->attributes.push_back(att);
-
-	return yy;
+	return decl;
 }
 
 YYSTYPE createMapping(YYSTYPE token, YYSTYPE str_list, YYSTYPE id)
 {
-	MappingDeclNode* yy = new MappingDeclNode();
+	Structure* yy = new Structure();
 
-	setLocationFromToken(yy, token);
+	delete token;
 	yy->name = getNameFromYyIdentifier(id);
+	yy->declType = Structure::MAPPING;
+	yy->type = Structure::STRUCT;
 
 	YyStringLiteralList* l = yystype_cast<YyStringLiteralList*>(str_list);
 	for (const std::unique_ptr<YyStringLiteral>& each : l->items)
-		yy->tags.push_back(each->text);
+//		yy->tags.push_back(each->text);
+	;
 
 	delete str_list;
 
-	return yy;
+	return new YyPtr<Structure>(yy);
 }
 
 YYSTYPE addToMapping(YYSTYPE decl, YYSTYPE type, YYSTYPE id)
 {
-	MappingDeclNode* yy = yystype_cast<MappingDeclNode*>(decl);
+	Structure* yy = yystype_ptr_cast<Structure>(decl);
 
-	AttributeDeclNode* att = new AttributeDeclNode();
-	setNameFromYyIdentifier(att, id);
+	DataMember* att = makeDataMember(type, id);
+	yy->members.push_back(unique_ptr<EncodedOrMember>(att));
 
-	TypeNode* t = yystype_cast<TypeNode*>(type);
-	att->type.set(t);
-
-	yy->attributes.push_back(att);
-
-	return yy;
+	return decl;
 }
 
 
 YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_lit, YYSTYPE id)
 {
-	EncodingDeclNode* yy = new EncodingDeclNode();
+	Structure* yy = new Structure();
 
-	setLocationFromToken(yy, token);
+	delete token;
 	yy->name = getNameFromYyIdentifier(id);
-	yy->encoding = getNameFromYyIdentifier(str_lit);
+	yy->declType = Structure::ENCODING;
+	yy->type = Structure::STRUCT;
 
-	AttributeGroupNode* f = new AttributeGroupNode();
-	f->location = yy->location;
+//	(*yy)->tags.push_back(getNameFromYyIdentifier(str_lit));
+	delete str_lit;
 
-	yy->fences.push_back(f);
+	EncodedMembers* g = new EncodedMembers();
+	yy->members.push_back(unique_ptr<EncodedOrMember>(g));
 
-	return yy;
+	return new YyPtr<Structure>(yy);
 }
 
 YYSTYPE addToEncoding(YYSTYPE decl, YYSTYPE elem)
 {
-	EncodingDeclNode* yy = yystype_cast<EncodingDeclNode*>(decl);
+	Structure* yy = yystype_ptr_cast<Structure>(decl);
 
-	Node* e = yystype_cast<Node*>(elem);
-	yy->fences.back()->attributes.push_back(e);
+	EncodedOrMember* g = yystype_ptr_release<EncodedOrMember>(elem);
+	EncodedMembers* em = dynamic_cast<EncodedMembers*>(yy->members.back().get());
+	em->members.push_back(unique_ptr<EncodedOrMember>(g));
 
-	return yy;
+	return decl;
 }
 
 YYSTYPE addFenceToEncoding(YYSTYPE decl, YYSTYPE token)
 {
-	EncodingDeclNode* yy = yystype_cast<EncodingDeclNode*>(decl);
+	Structure* yy = yystype_ptr_cast<Structure>(decl);
 
-	AttributeGroupNode* f = new AttributeGroupNode();
-	setLocationFromToken(f, token);
+	EncodedMembers* g = new EncodedMembers();
+	yy->members.push_back(unique_ptr<EncodedOrMember>(g));
 
-	yy->fences.push_back(f);
-
-	return yy;
+	return decl;
 }
 
 YYSTYPE createEncodingAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE opt_expr)
 {
-	EncodingAttributeNode* yy = new EncodingAttributeNode();
+	DataMember* att = makeDataMember(type, id);
 
-	setNameFromYyIdentifier(yy, id);
+	delete opt_expr;
 
-	TypeNode* t = yystype_cast<TypeNode*>(type);
-	yy->type.set(t);
-
-	if (opt_expr) {
-		ExpressionNode* e = yystype_cast<ExpressionNode*>(opt_expr);
-		yy->defaultValue.set(e);
-	}
-
-	return yy;
+	return new YyPtr<EncodedOrMember>(att);
 }
 
 YYSTYPE createExtendAttribute(YYSTYPE id, YYSTYPE type)
 {
-	ExtendedAttributeNode* yy = new ExtendedAttributeNode();
+	DataMember* att = makeDataMember(type, id);
 
-	setNameFromYyIdentifier(yy, id);
-
-	TypeNode* t = yystype_cast<TypeNode*>(type);
-	yy->extendedType.set(t);
-
-	return yy;
+	return new YyPtr<EncodedOrMember>(att);
 }
 
 static
-EncodingOptionNode* createEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list)
+EncodingAttributes createEncodingAttributes(YYSTYPE id, YYSTYPE opt_arg_list)
 {
-	EncodingOptionNode* yy = new EncodingOptionNode();
+	EncodingAttributes att;
+	att.name = getNameFromYyIdentifier(id);
 
-	setNameFromYyIdentifier(yy, id);
+	//if (opt_arg_list) {
+	//	YyExpressionList* al = yystype_cast<YyExpressionList*>(opt_arg_list);
+	//	for (auto& each : al->items)
+	//		yy->arguments.push_back(each.release());
+	//}
+	delete opt_arg_list;
 
-	if (opt_arg_list) {
-		YyExpressionList* al = yystype_cast<YyExpressionList*>(opt_arg_list);
-		for (auto& each : al->items)
-			yy->arguments.push_back(each.release());
-	}
-	return yy;
+	return att;
 }
 
 YYSTYPE createEncodingGroup(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE opt_att)
 {
-	AttributeGroupNode* yy = new AttributeGroupNode();
+	EncodedMembers* yy = new EncodedMembers();
 
-	EncodingOptionNode* enc = createEncodingOption(id, opt_arg_list);
-	yy->options.push_back(enc);
+	yy->encodingAttr = createEncodingAttributes(id, opt_arg_list);
 
 	if (opt_att) {
-		Node* t = yystype_cast<Node*>(opt_att);
-		yy->attributes.push_back(t);
+		EncodedOrMember* g = yystype_ptr_release<EncodedOrMember>(opt_att);
+		yy->members.push_back(unique_ptr<EncodedOrMember>(g));
 	}
 
-	return yy;
+	return new YyPtr<EncodedOrMember>(yy);
 }
 
 
 YYSTYPE addToEncodingGroup(YYSTYPE group, YYSTYPE element)
 {
-	AttributeGroupNode* yy = yystype_cast<AttributeGroupNode*>(group);
+	EncodedMembers* yy = yystype_ptr_cast<EncodedMembers, EncodedOrMember>(group);
 
-	Node* t = yystype_cast<Node*>(element);
-	yy->attributes.push_back(t);
+	EncodedOrMember* g = yystype_ptr_release<EncodedOrMember>(element);
+	yy->members.push_back(unique_ptr<EncodedOrMember>(g));
 
-	return yy;
+	return group;
 }
 
 
 YYSTYPE addEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE group)
 {
-	AttributeGroupNode* yy = yystype_cast<AttributeGroupNode*>(group);
-
-	EncodingOptionNode* enc = createEncodingOption(id, opt_arg_list);
-	yy->options.push_back(enc);
-
-	return yy;
+	return createEncodingGroup(id, opt_arg_list, group);
 }
 
 
 YYSTYPE createIdType(YYSTYPE id)
 {
-	NameTypeNode* yy = new NameTypeNode();
-	setNameFromYyIdentifier(yy, id);
+	//NameTypeNode* yy = new NameTypeNode();
+	//setNameFromYyIdentifier(yy, id);
 
-	return yy;
+	delete id;
+	return 0;
 }
 
 
 YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE high_literal, bool high_flag)
 {
-	NumericTypeNode* yy = new NumericTypeNode();
+	//NumericTypeNode* yy = new NumericTypeNode();
 
-	setLocationFromToken(yy, token);
+	//setLocationFromToken(yy, token);
 
-	yy->low_open = low_flag;
-	yy->high_open = high_flag;
+	//yy->low_open = low_flag;
+	//yy->high_open = high_flag;
 
-	ExpressionNode* l = yystype_cast<ExpressionNode*>(low_literal);
-	yy->arguments.push_back(l);
+	//ExpressionNode* l = yystype_cast<ExpressionNode*>(low_literal);
+	//yy->arguments.push_back(l);
 
-	ExpressionNode* h = yystype_cast<ExpressionNode*>(high_literal);
-	yy->arguments.push_back(h);
+	//ExpressionNode* h = yystype_cast<ExpressionNode*>(high_literal);
+	//yy->arguments.push_back(h);
+	delete token;
+	delete low_literal;
+	delete high_literal;
 
-	return yy;
+	return 0;
 }
 
 YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE high_literal, bool high_flag)
 {
-	IntTypeNode* yy = new IntTypeNode();
+	//IntTypeNode* yy = new IntTypeNode();
 
-	setLocationFromToken(yy, token);
+	//setLocationFromToken(yy, token);
 
-	yy->low_open = low_flag;
-	yy->high_open = high_flag;
+	//yy->low_open = low_flag;
+	//yy->high_open = high_flag;
 
-	ExpressionNode* l = yystype_cast<ExpressionNode*>(low_literal);
-	yy->arguments.push_back(l);
+	//ExpressionNode* l = yystype_cast<ExpressionNode*>(low_literal);
+	//yy->arguments.push_back(l);
 
-	ExpressionNode* h = yystype_cast<ExpressionNode*>(high_literal);
-	yy->arguments.push_back(h);
+	//ExpressionNode* h = yystype_cast<ExpressionNode*>(high_literal);
+	//yy->arguments.push_back(h);
 
-	return yy;
+	delete token;
+	delete low_literal;
+	delete high_literal;
+
+	return 0;
 }
 
 YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE float_lit)
 {
-	FixedPointTypeNode* yy = new FixedPointTypeNode();
+	//FixedPointTypeNode* yy = new FixedPointTypeNode();
 
-	setLocationFromToken(yy, token);
+	//setLocationFromToken(yy, token);
 
-	ExpressionNode* e = yystype_cast<ExpressionNode*>(float_lit);
-	yy->arguments.push_back(e);
+	//ExpressionNode* e = yystype_cast<ExpressionNode*>(float_lit);
+	//yy->arguments.push_back(e);
 
-	return yy;
+	delete token;
+	delete float_lit;
+
+	return 0;
 }
 
 YYSTYPE createBit(YYSTYPE token, YYSTYPE int_lit)
 {
-	FixedPointTypeNode* yy = new FixedPointTypeNode();
+	//FixedPointTypeNode* yy = new FixedPointTypeNode();
 
-	setLocationFromToken(yy, token);
+	//setLocationFromToken(yy, token);
 
-	ExpressionNode* e = yystype_cast<ExpressionNode*>(int_lit);
-	yy->arguments.push_back(e);
+	//ExpressionNode* e = yystype_cast<ExpressionNode*>(int_lit);
+	//yy->arguments.push_back(e);
+	delete token;
+	delete int_lit;
 
-	return yy;
+	return 0;
 }
 
 YYSTYPE createSequence(YYSTYPE token, YYSTYPE id_type)
 {
-	SequenceOfTypeNode* yy = new SequenceOfTypeNode();
+	//SequenceOfTypeNode* yy = new SequenceOfTypeNode();
 
-	setLocationFromToken(yy, token);
+	//setLocationFromToken(yy, token);
 
-	NameTypeNode* t = new NameTypeNode();
-	setNameFromYyIdentifier(t, id_type);
-	yy->type.set(t);
+	//NameTypeNode* t = new NameTypeNode();
+	//setNameFromYyIdentifier(t, id_type);
+	//yy->type.set(t);
+	delete token;
+	delete id_type;
 
-	return yy;
+	return 0;
 }
 
 YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type)
 {
-	ClassRefTypeNode* yy = new ClassRefTypeNode();
+	//ClassRefTypeNode* yy = new ClassRefTypeNode();
 
-	setLocationFromToken(yy, token);
-	yy->name = getNameFromYyIdentifier(id_type);
+	//setLocationFromToken(yy, token);
+	//yy->name = getNameFromYyIdentifier(id_type);
 
-	return yy;
+	delete token;
+	delete id_type;
+
+	return 0;
 }
 
 YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE id, YYSTYPE values)
 {
-	InlineEnumTypeNode* yy = new InlineEnumTypeNode();
+	//InlineEnumTypeNode* yy = new InlineEnumTypeNode();
 
-	setLocationFromToken(yy, token);
-	yy->name = getNameFromYyIdentifier(id);
+	//setLocationFromToken(yy, token);
+	//yy->name = getNameFromYyIdentifier(id);
 
-	YyEnumValueList* l = yystype_cast<YyEnumValueList*>(values);
-	for (std::unique_ptr<EnumValueDeclNode>& each : l->items)
-		yy->values.push_back(each.release());
+	//YyEnumValueList* l = yystype_cast<YyEnumValueList*>(values);
+	//for (std::unique_ptr<EnumValueDeclNode>& each : l->items)
+	//	yy->values.push_back(each.release());
 
+	delete token;
+	delete id;
 	delete values;
 
-	return yy;
+	return 0;
 }
 
 YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit)
 {
-	YyEnumValueList* yy = 0;
-	if (list)
-		yy = yystype_cast<YyEnumValueList*>(list);
-	else
-		yy = new YyEnumValueList();
+	//YyEnumValueList* yy = 0;
+	//if (list)
+	//	yy = yystype_cast<YyEnumValueList*>(list);
+	//else
+	//	yy = new YyEnumValueList();
 
-	EnumValueDeclNode* ev = new EnumValueDeclNode();
+	//EnumValueDeclNode* ev = new EnumValueDeclNode();
 
-	setNameFromYyIdentifier(ev, id);
+	//setNameFromYyIdentifier(ev, id);
 
-	ExpressionNode* e = yystype_cast<ExpressionNode*>(int_lit);
-	ev->value.set(e);
+	//ExpressionNode* e = yystype_cast<ExpressionNode*>(int_lit);
+	//ev->value.set(e);
 
-	yy->addItem(ev);
+	//yy->addItem(ev);
+	delete list;
+	delete id;
+	delete int_lit;
 
-	return yy;
+	return 0;
 }
 
 
@@ -636,13 +730,13 @@ YYSTYPE addString(YYSTYPE list, YYSTYPE str)
 
 YYSTYPE addExpression(YYSTYPE list, YYSTYPE expr)
 {
-	YyExpressionList* yy = 0;
+	YyIdentifierList* yy = 0;
 	if (list)
-		yy = yystype_cast<YyExpressionList*>(list);
+		yy = yystype_cast<YyIdentifierList*>(list);
 	else
-		yy = new YyExpressionList();
+		yy = new YyIdentifierList();
 
-	ExpressionNode* e = yystype_cast<ExpressionNode*>(expr);
+	YyIdentifier* e = yystype_cast<YyIdentifier*>(expr);
 	yy->addItem(e);
 
 	return yy;
@@ -650,27 +744,16 @@ YYSTYPE addExpression(YYSTYPE list, YYSTYPE expr)
 
 YYSTYPE createIdentifierExpression(YYSTYPE id)
 {
-	IdentifierExprNode* yy = new IdentifierExprNode();
+	YyIdentifier* yy = new YyIdentifier();
 
-	setNameFromYyIdentifier(yy, id);
+	yy->text = getNameFromYyIdentifier(id);
 
 	return yy;
 }
 
 
 
-YYSTYPE addToFile(YYSTYPE file, YYSTYPE item);
 
-
-YYSTYPE addToFile(YYSTYPE file, YYSTYPE item)
-{
-	HAREASSERT(acceptFile);
-
-	Node* d = yystype_cast<Node*>(item);
-	acceptFile->items.push_back(d);
-
-	return 0;
-}
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -686,54 +769,54 @@ extern "C" yy_buffer_state* yy_scan_bytes(const char* bytes, int len);
 extern "C" void yy_delete_buffer(yy_buffer_state*);
 
 
-static FileNode* parseInternal(const std::string& fileName, bool debugDump, bool internalFile)
+static
+void parseInternal(const std::string& fileName, bool debugDump, Root* result)
 {
-	HAREASSERT(!acceptFile);
+	HAREASSERT(!rootPtr);
 	try {
-		unique_ptr<FileNode> file(new FileNode(fileName));
-		file->isInternalFile = internalFile;
-		acceptFile = file.get();
-		currentFileName = file->fileName.c_str();
-		allowAtIdentifier = internalFile;
+		rootPtr = result;
+//		unique_ptr<FileNode> file(new FileNode(fileName));
+//		file->isInternalFile = internalFile;
+//		acceptFile = file.get();
+		currentFileName = fileName.c_str();
+//		allowAtIdentifier = internalFile;
 		yydebug = static_cast<int>(debugDump);
 
 		int err = yyparse();
 
-		acceptFile = 0;
+		rootPtr = 0;
 		currentFileName = 0;
-		allowAtIdentifier = 0;
 		yydebug = 0;
 
 		if (err != 0) {
 			plainError("Errors found while parsing file '%s'.", fileName);
 		}
 
-		return file.release();
+		return;
 	}
 	catch (...) {
 		plainError("Exception thrown while parsing file '%s'.", fileName);
 
-		acceptFile = 0;
+		rootPtr = 0;
 		currentFileName = 0;
-		allowAtIdentifier = 0;
 		yydebug = 0;
 		throw;
 	}
 }
 
 
-FileNode* parseCode(const char* code, const std::string& pseudoFileName, bool debugDump, bool internalFile)
+void parseCode(const char* code, const std::string& pseudoFileName, bool debugDump, Root* result)
 {
 	HAREASSERT(code);
 
 	unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> buff(yy_scan_string(code), &yy_delete_buffer);
 
 	yylineno = 0;
-	return parseInternal(pseudoFileName, debugDump, internalFile);
+	parseInternal(pseudoFileName, debugDump, result);
 }
 
 
-FileNode* parseSourceFile(const string& fileName, bool debugDump, bool internalFile)
+void parseSourceFile(const string& fileName, bool debugDump, Root* result)
 {
 	HAREASSERT(!fileName.empty());
 
@@ -743,19 +826,19 @@ FileNode* parseSourceFile(const string& fileName, bool debugDump, bool internalF
 #pragma warning( pop )
 	if (!file) {
 		plainError("Failed to open file '%s'.", fileName);
-		return 0;
+		return;
 	}
 
 	unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> buff(yy_create_buffer(file.get(), 16000), &yy_delete_buffer);
 
 	if (!buff) {
 		plainError("Failed to allocate read buffer for file '%s'.", fileName);
-		return 0;
+		return;
 	}
 
 	yy_switch_to_buffer(buff.get());
 	yylineno = 1;
-	return parseInternal(fileName, debugDump, internalFile);
+	parseInternal(fileName, debugDump, result);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -56,7 +56,6 @@ extern "C" {
 	YYSTYPE createYyToken(const char* text, int line, int token);
 	
 	YYSTYPE createIdentifier(const char* text, int line);
-	YYSTYPE createAtIdentifier(const char* text, int line);
 	YYSTYPE createIntegerLiteral(const char* text, int line);
 	YYSTYPE createHexIntegerLiteral(const char* text, int line);
 	YYSTYPE createStringLiteral(const char* text, int line);
@@ -65,8 +64,8 @@ extern "C" {
 	YYSTYPE createBooleanLiteral(const char* text, int line);
 	YYSTYPE createFloatLiteral(const char* text, int line);
 	
-	YYSTYPE createErrorDeclaration();
-	
+	YYSTYPE addToFile(YYSTYPE file, YYSTYPE item);
+
 	YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id);
 	YYSTYPE addToPublishableStruct(YYSTYPE decl, YYSTYPE type, YYSTYPE id);
 
@@ -100,7 +99,6 @@ extern "C" {
 	YYSTYPE createIdentifierExpression(YYSTYPE id);
 	
 
-	YYSTYPE addToFile(YYSTYPE file, YYSTYPE item);
 
 	
 #ifdef __cplusplus

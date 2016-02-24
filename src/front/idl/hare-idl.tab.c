@@ -70,12 +70,13 @@
 /* Line 189 of yacc.c  */
 #line 33 "hare-idl.y"
 
+#include <stdbool.h>
 #include "parser_helper.h"
 extern int yylex();
 
 
 /* Line 189 of yacc.c  */
-#line 79 "hare-idl.tab.c"
+#line 80 "hare-idl.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -138,7 +139,7 @@ typedef int YYSTYPE;
 
 
 /* Line 264 of yacc.c  */
-#line 142 "hare-idl.tab.c"
+#line 143 "hare-idl.tab.c"
 
 #ifdef short
 # undef short
@@ -453,13 +454,13 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    40,    40,    41,    42,    43,    47,    48,    49,    53,
-      57,    58,    59,    63,    67,    68,    69,    70,    74,    78,
-      79,    80,    81,    82,    83,    87,    88,    89,    90,    94,
-      95,    96,    97,    98,   102,   103,   104,   105,   106,   107,
-     108,   112,   113,   114,   115,   119,   120,   121,   122,   126,
-     130,   134,   138,   142,   146,   147,   151,   152,   156,   157,
-     161,   162,   163
+       0,    41,    41,    42,    43,    44,    48,    49,    50,    54,
+      58,    59,    60,    64,    68,    69,    70,    71,    75,    79,
+      80,    81,    82,    83,    84,    88,    89,    90,    91,    95,
+      96,    97,    98,    99,   103,   104,   105,   106,   107,   108,
+     109,   113,   114,   115,   116,   120,   121,   122,   123,   127,
+     131,   135,   139,   143,   147,   148,   152,   153,   157,   158,
+     162,   163,   164
 };
 #endif
 
@@ -1166,7 +1167,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1170 "hare-idl.tab.c"
+#line 1171 "hare-idl.tab.c"
 	break;
       case 4: /* "KW_ENUM" */
 
@@ -1175,7 +1176,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1179 "hare-idl.tab.c"
+#line 1180 "hare-idl.tab.c"
 	break;
       case 5: /* "KW_CLASS" */
 
@@ -1184,7 +1185,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1188 "hare-idl.tab.c"
+#line 1189 "hare-idl.tab.c"
 	break;
       case 6: /* "KW_MAPPING" */
 
@@ -1193,7 +1194,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1197 "hare-idl.tab.c"
+#line 1198 "hare-idl.tab.c"
 	break;
       case 7: /* "KW_ENCODING" */
 
@@ -1202,7 +1203,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1206 "hare-idl.tab.c"
+#line 1207 "hare-idl.tab.c"
 	break;
       case 8: /* "KW_NUMERIC" */
 
@@ -1211,7 +1212,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1215 "hare-idl.tab.c"
+#line 1216 "hare-idl.tab.c"
 	break;
       case 9: /* "KW_INT" */
 
@@ -1220,7 +1221,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1224 "hare-idl.tab.c"
+#line 1225 "hare-idl.tab.c"
 	break;
       case 10: /* "KW_SEQUENCE" */
 
@@ -1229,7 +1230,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1233 "hare-idl.tab.c"
+#line 1234 "hare-idl.tab.c"
 	break;
       case 11: /* "KW_FIXED_POINT" */
 
@@ -1238,7 +1239,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1242 "hare-idl.tab.c"
+#line 1243 "hare-idl.tab.c"
 	break;
       case 12: /* "KW_BIT" */
 
@@ -1247,7 +1248,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1251 "hare-idl.tab.c"
+#line 1252 "hare-idl.tab.c"
 	break;
       case 13: /* "KW_EXTEND" */
 
@@ -1256,7 +1257,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1260 "hare-idl.tab.c"
+#line 1261 "hare-idl.tab.c"
 	break;
       case 14: /* "KW_TO" */
 
@@ -1265,7 +1266,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1269 "hare-idl.tab.c"
+#line 1270 "hare-idl.tab.c"
 	break;
       case 15: /* "KW_DEFAULT" */
 
@@ -1274,7 +1275,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1278 "hare-idl.tab.c"
+#line 1279 "hare-idl.tab.c"
 	break;
       case 16: /* "KW_FENCE" */
 
@@ -1283,7 +1284,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1287 "hare-idl.tab.c"
+#line 1288 "hare-idl.tab.c"
 	break;
       case 17: /* "IDENTIFIER" */
 
@@ -1292,7 +1293,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1296 "hare-idl.tab.c"
+#line 1297 "hare-idl.tab.c"
 	break;
       case 18: /* "STRING_LITERAL" */
 
@@ -1301,7 +1302,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1305 "hare-idl.tab.c"
+#line 1306 "hare-idl.tab.c"
 	break;
       case 19: /* "INTEGER_LITERAL" */
 
@@ -1310,7 +1311,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1314 "hare-idl.tab.c"
+#line 1315 "hare-idl.tab.c"
 	break;
       case 20: /* "CHAR_LITERAL" */
 
@@ -1319,7 +1320,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1323 "hare-idl.tab.c"
+#line 1324 "hare-idl.tab.c"
 	break;
       case 21: /* "FLOAT_LITERAL" */
 
@@ -1328,7 +1329,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1332 "hare-idl.tab.c"
+#line 1333 "hare-idl.tab.c"
 	break;
       case 22: /* "'{'" */
 
@@ -1337,7 +1338,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1341 "hare-idl.tab.c"
+#line 1342 "hare-idl.tab.c"
 	break;
       case 23: /* "';'" */
 
@@ -1346,7 +1347,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1350 "hare-idl.tab.c"
+#line 1351 "hare-idl.tab.c"
 	break;
       case 24: /* "'}'" */
 
@@ -1355,7 +1356,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1359 "hare-idl.tab.c"
+#line 1360 "hare-idl.tab.c"
 	break;
       case 25: /* "'('" */
 
@@ -1364,7 +1365,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1368 "hare-idl.tab.c"
+#line 1369 "hare-idl.tab.c"
 	break;
       case 26: /* "')'" */
 
@@ -1373,7 +1374,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1377 "hare-idl.tab.c"
+#line 1378 "hare-idl.tab.c"
 	break;
       case 27: /* "'='" */
 
@@ -1382,7 +1383,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1386 "hare-idl.tab.c"
+#line 1387 "hare-idl.tab.c"
 	break;
       case 28: /* "'['" */
 
@@ -1391,7 +1392,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1395 "hare-idl.tab.c"
+#line 1396 "hare-idl.tab.c"
 	break;
       case 29: /* "','" */
 
@@ -1400,7 +1401,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1404 "hare-idl.tab.c"
+#line 1405 "hare-idl.tab.c"
 	break;
       case 30: /* "']'" */
 
@@ -1409,7 +1410,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1413 "hare-idl.tab.c"
+#line 1414 "hare-idl.tab.c"
 	break;
       case 31: /* "'<'" */
 
@@ -1418,7 +1419,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1422 "hare-idl.tab.c"
+#line 1423 "hare-idl.tab.c"
 	break;
       case 32: /* "'>'" */
 
@@ -1427,7 +1428,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1431 "hare-idl.tab.c"
+#line 1432 "hare-idl.tab.c"
 	break;
       case 34: /* "file" */
 
@@ -1436,7 +1437,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1440 "hare-idl.tab.c"
+#line 1441 "hare-idl.tab.c"
 	break;
       case 35: /* "publishable_struct_begin" */
 
@@ -1445,7 +1446,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1449 "hare-idl.tab.c"
+#line 1450 "hare-idl.tab.c"
 	break;
       case 36: /* "publishable_struct" */
 
@@ -1454,7 +1455,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1458 "hare-idl.tab.c"
+#line 1459 "hare-idl.tab.c"
 	break;
       case 37: /* "mapping_begin" */
 
@@ -1463,7 +1464,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1467 "hare-idl.tab.c"
+#line 1468 "hare-idl.tab.c"
 	break;
       case 38: /* "mapping" */
 
@@ -1472,7 +1473,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1476 "hare-idl.tab.c"
+#line 1477 "hare-idl.tab.c"
 	break;
       case 39: /* "encoding_begin" */
 
@@ -1481,7 +1482,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1485 "hare-idl.tab.c"
+#line 1486 "hare-idl.tab.c"
 	break;
       case 40: /* "encoding" */
 
@@ -1490,7 +1491,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1494 "hare-idl.tab.c"
+#line 1495 "hare-idl.tab.c"
 	break;
       case 41: /* "data_element" */
 
@@ -1499,7 +1500,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1503 "hare-idl.tab.c"
+#line 1504 "hare-idl.tab.c"
 	break;
       case 42: /* "data_group_begin" */
 
@@ -1508,7 +1509,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1512 "hare-idl.tab.c"
+#line 1513 "hare-idl.tab.c"
 	break;
       case 43: /* "data_group" */
 
@@ -1517,7 +1518,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1521 "hare-idl.tab.c"
+#line 1522 "hare-idl.tab.c"
 	break;
       case 44: /* "data_type" */
 
@@ -1526,7 +1527,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1530 "hare-idl.tab.c"
+#line 1531 "hare-idl.tab.c"
 	break;
       case 45: /* "numeric_type" */
 
@@ -1535,7 +1536,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1539 "hare-idl.tab.c"
+#line 1540 "hare-idl.tab.c"
 	break;
       case 46: /* "int_type" */
 
@@ -1544,7 +1545,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1548 "hare-idl.tab.c"
+#line 1549 "hare-idl.tab.c"
 	break;
       case 47: /* "fixed_point_type" */
 
@@ -1553,7 +1554,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1557 "hare-idl.tab.c"
+#line 1558 "hare-idl.tab.c"
 	break;
       case 48: /* "bit_type" */
 
@@ -1562,7 +1563,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1566 "hare-idl.tab.c"
+#line 1567 "hare-idl.tab.c"
 	break;
       case 49: /* "sequence_type" */
 
@@ -1571,7 +1572,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1575 "hare-idl.tab.c"
+#line 1576 "hare-idl.tab.c"
 	break;
       case 50: /* "class_ref_type" */
 
@@ -1580,7 +1581,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1584 "hare-idl.tab.c"
+#line 1585 "hare-idl.tab.c"
 	break;
       case 51: /* "inline_enum_type" */
 
@@ -1589,7 +1590,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1593 "hare-idl.tab.c"
+#line 1594 "hare-idl.tab.c"
 	break;
       case 52: /* "enum_values" */
 
@@ -1598,7 +1599,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1602 "hare-idl.tab.c"
+#line 1603 "hare-idl.tab.c"
 	break;
       case 53: /* "str_list" */
 
@@ -1607,7 +1608,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1611 "hare-idl.tab.c"
+#line 1612 "hare-idl.tab.c"
 	break;
       case 54: /* "arg_list" */
 
@@ -1616,7 +1617,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1620 "hare-idl.tab.c"
+#line 1621 "hare-idl.tab.c"
 	break;
       case 55: /* "expr" */
 
@@ -1625,7 +1626,7 @@ yydestruct (yymsg, yytype, yyvaluep)
 	{ releaseYys((*yyvaluep)); };
 
 /* Line 1000 of yacc.c  */
-#line 1629 "hare-idl.tab.c"
+#line 1630 "hare-idl.tab.c"
 	break;
 
       default:
@@ -1930,385 +1931,385 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 40 "hare-idl.y"
+#line 41 "hare-idl.y"
     { (yyval) = 0; ;}
     break;
 
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 41 "hare-idl.y"
+#line 42 "hare-idl.y"
     { (yyval) = addToFile((yyvsp[(1) - (2)]), (yyvsp[(2) - (2)])); ;}
     break;
 
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 42 "hare-idl.y"
+#line 43 "hare-idl.y"
     { (yyval) = addToFile((yyvsp[(1) - (2)]), (yyvsp[(2) - (2)])); ;}
     break;
 
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 43 "hare-idl.y"
+#line 44 "hare-idl.y"
     { (yyval) = addToFile((yyvsp[(1) - (2)]), (yyvsp[(2) - (2)])); ;}
     break;
 
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 47 "hare-idl.y"
+#line 48 "hare-idl.y"
     { (yyval) = createPublishableStruct((yyvsp[(1) - (3)]), (yyvsp[(2) - (3)])); releaseYys((yyvsp[(3) - (3)])); ;}
     break;
 
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 48 "hare-idl.y"
+#line 49 "hare-idl.y"
     { (yyval) = addToPublishableStruct((yyvsp[(1) - (4)]), (yyvsp[(2) - (4)]), (yyvsp[(3) - (4)])); releaseYys((yyvsp[(4) - (4)]));;}
     break;
 
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 49 "hare-idl.y"
+#line 50 "hare-idl.y"
     { (yyval) = addToPublishableStruct((yyvsp[(1) - (4)]), createIdType((yyvsp[(2) - (4)])), (yyvsp[(3) - (4)])); releaseYys((yyvsp[(4) - (4)])); ;}
     break;
 
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 53 "hare-idl.y"
+#line 54 "hare-idl.y"
     { (yyval) = (yyvsp[(1) - (3)]); releaseYys2((yyvsp[(2) - (3)]), (yyvsp[(3) - (3)])); ;}
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 57 "hare-idl.y"
+#line 58 "hare-idl.y"
     { (yyval) = createMapping((yyvsp[(1) - (7)]), (yyvsp[(3) - (7)]), (yyvsp[(6) - (7)])); releaseYys4((yyvsp[(2) - (7)]), (yyvsp[(4) - (7)]), (yyvsp[(5) - (7)]), (yyvsp[(7) - (7)])); ;}
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 58 "hare-idl.y"
+#line 59 "hare-idl.y"
     { (yyval) = addToMapping((yyvsp[(1) - (4)]), (yyvsp[(2) - (4)]), (yyvsp[(3) - (4)]));  releaseYys((yyvsp[(4) - (4)])); ;}
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 59 "hare-idl.y"
+#line 60 "hare-idl.y"
     { (yyval) = addToMapping((yyvsp[(1) - (4)]), createIdType((yyvsp[(2) - (4)])), (yyvsp[(3) - (4)]));  releaseYys((yyvsp[(4) - (4)])); ;}
     break;
 
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 63 "hare-idl.y"
+#line 64 "hare-idl.y"
     { (yyval) = (yyvsp[(1) - (3)]); releaseYys2((yyvsp[(2) - (3)]), (yyvsp[(3) - (3)])); ;}
     break;
 
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 67 "hare-idl.y"
+#line 68 "hare-idl.y"
     { (yyval) = createEncoding((yyvsp[(1) - (7)]), (yyvsp[(3) - (7)]), (yyvsp[(6) - (7)])); releaseYys4((yyvsp[(2) - (7)]), (yyvsp[(4) - (7)]), (yyvsp[(5) - (7)]), (yyvsp[(7) - (7)])); ;}
     break;
 
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 68 "hare-idl.y"
+#line 69 "hare-idl.y"
     { (yyval) = addToEncoding((yyvsp[(1) - (2)]), (yyvsp[(2) - (2)])); ;}
     break;
 
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 69 "hare-idl.y"
+#line 70 "hare-idl.y"
     { (yyval) = addToEncoding((yyvsp[(1) - (2)]), (yyvsp[(2) - (2)])); ;}
     break;
 
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 70 "hare-idl.y"
+#line 71 "hare-idl.y"
     { (yyval) = addFenceToEncoding((yyvsp[(1) - (2)]), (yyvsp[(2) - (2)])); ;}
     break;
 
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 74 "hare-idl.y"
+#line 75 "hare-idl.y"
     { (yyval) = (yyvsp[(1) - (3)]); releaseYys2((yyvsp[(2) - (3)]), (yyvsp[(3) - (3)])); ;}
     break;
 
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 78 "hare-idl.y"
+#line 79 "hare-idl.y"
     { (yyval) = createEncodingAttribute((yyvsp[(1) - (3)]), (yyvsp[(2) - (3)]), 0); releaseYys((yyvsp[(3) - (3)]));;}
     break;
 
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 79 "hare-idl.y"
+#line 80 "hare-idl.y"
     { (yyval) = createEncodingAttribute((yyvsp[(1) - (6)]), (yyvsp[(2) - (6)]), (yyvsp[(5) - (6)])); releaseYys3((yyvsp[(3) - (6)]), (yyvsp[(4) - (6)]), (yyvsp[(6) - (6)]));;}
     break;
 
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 80 "hare-idl.y"
+#line 81 "hare-idl.y"
     { (yyval) = createEncodingAttribute(createIdType((yyvsp[(1) - (3)])), (yyvsp[(2) - (3)]), 0); releaseYys((yyvsp[(3) - (3)])); ;}
     break;
 
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 81 "hare-idl.y"
+#line 82 "hare-idl.y"
     { (yyval) = createEncodingAttribute(createIdType((yyvsp[(1) - (6)])), (yyvsp[(2) - (6)]), (yyvsp[(5) - (6)])); releaseYys3((yyvsp[(3) - (6)]), (yyvsp[(4) - (6)]), (yyvsp[(6) - (6)]));;}
     break;
 
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 82 "hare-idl.y"
+#line 83 "hare-idl.y"
     { (yyval) = createExtendAttribute((yyvsp[(2) - (5)]), (yyvsp[(4) - (5)])); releaseYys3((yyvsp[(1) - (5)]), (yyvsp[(3) - (5)]), (yyvsp[(5) - (5)]));;}
     break;
 
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 83 "hare-idl.y"
+#line 84 "hare-idl.y"
     { (yyval) = createExtendAttribute((yyvsp[(2) - (5)]), createIdType((yyvsp[(4) - (5)]))); releaseYys3((yyvsp[(1) - (5)]), (yyvsp[(3) - (5)]), (yyvsp[(5) - (5)]));;}
     break;
 
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 87 "hare-idl.y"
+#line 88 "hare-idl.y"
     { (yyval) = createEncodingGroup((yyvsp[(1) - (2)]), 0, 0); releaseYys((yyvsp[(2) - (2)])); ;}
     break;
 
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 88 "hare-idl.y"
+#line 89 "hare-idl.y"
     { (yyval) = createEncodingGroup((yyvsp[(1) - (5)]), (yyvsp[(3) - (5)]), 0); releaseYys3((yyvsp[(2) - (5)]), (yyvsp[(4) - (5)]), (yyvsp[(5) - (5)])); ;}
     break;
 
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 89 "hare-idl.y"
+#line 90 "hare-idl.y"
     { (yyval) = addToEncodingGroup((yyvsp[(1) - (2)]), (yyvsp[(2) - (2)])); ;}
     break;
 
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 90 "hare-idl.y"
+#line 91 "hare-idl.y"
     { (yyval) = addToEncodingGroup((yyvsp[(1) - (2)]), (yyvsp[(2) - (2)])); ;}
     break;
 
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 94 "hare-idl.y"
+#line 95 "hare-idl.y"
     { (yyval) = (yyvsp[(1) - (2)]); releaseYys((yyvsp[(2) - (2)])); ;}
     break;
 
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 95 "hare-idl.y"
+#line 96 "hare-idl.y"
     { (yyval) = createEncodingGroup((yyvsp[(1) - (2)]), 0, (yyvsp[(2) - (2)])); ;}
     break;
 
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 96 "hare-idl.y"
+#line 97 "hare-idl.y"
     { (yyval) = createEncodingGroup((yyvsp[(1) - (5)]), (yyvsp[(3) - (5)]), (yyvsp[(5) - (5)])); releaseYys2((yyvsp[(2) - (5)]), (yyvsp[(4) - (5)]));;}
     break;
 
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 97 "hare-idl.y"
+#line 98 "hare-idl.y"
     { (yyval) = addEncodingOption((yyvsp[(1) - (2)]), 0, (yyvsp[(2) - (2)])); ;}
     break;
 
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 98 "hare-idl.y"
+#line 99 "hare-idl.y"
     { (yyval) = addEncodingOption((yyvsp[(1) - (5)]), (yyvsp[(3) - (5)]), (yyvsp[(5) - (5)])); releaseYys2((yyvsp[(2) - (5)]), (yyvsp[(4) - (5)]));;}
     break;
 
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 112 "hare-idl.y"
+#line 113 "hare-idl.y"
     { (yyval) = createNumeric((yyvsp[(1) - (6)]), false, (yyvsp[(3) - (6)]), (yyvsp[(5) - (6)]), false); releaseYys3((yyvsp[(2) - (6)]), (yyvsp[(4) - (6)]), (yyvsp[(6) - (6)])); ;}
     break;
 
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 113 "hare-idl.y"
+#line 114 "hare-idl.y"
     { (yyval) = createNumeric((yyvsp[(1) - (6)]), true, (yyvsp[(3) - (6)]), (yyvsp[(5) - (6)]), false); releaseYys3((yyvsp[(2) - (6)]), (yyvsp[(4) - (6)]), (yyvsp[(6) - (6)])); ;}
     break;
 
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 114 "hare-idl.y"
+#line 115 "hare-idl.y"
     { (yyval) = createNumeric((yyvsp[(1) - (6)]), false, (yyvsp[(3) - (6)]), (yyvsp[(5) - (6)]), true); releaseYys3((yyvsp[(2) - (6)]), (yyvsp[(4) - (6)]), (yyvsp[(6) - (6)])); ;}
     break;
 
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 115 "hare-idl.y"
+#line 116 "hare-idl.y"
     { (yyval) = createNumeric((yyvsp[(1) - (6)]), true, (yyvsp[(3) - (6)]), (yyvsp[(5) - (6)]), true); releaseYys3((yyvsp[(2) - (6)]), (yyvsp[(4) - (6)]), (yyvsp[(6) - (6)])); ;}
     break;
 
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 119 "hare-idl.y"
+#line 120 "hare-idl.y"
     { (yyval) = createInt((yyvsp[(1) - (6)]), false, (yyvsp[(3) - (6)]), (yyvsp[(5) - (6)]), false); releaseYys3((yyvsp[(2) - (6)]), (yyvsp[(4) - (6)]), (yyvsp[(6) - (6)])); ;}
     break;
 
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 120 "hare-idl.y"
+#line 121 "hare-idl.y"
     { (yyval) = createInt((yyvsp[(1) - (6)]), true, (yyvsp[(3) - (6)]), (yyvsp[(5) - (6)]), false); releaseYys3((yyvsp[(2) - (6)]), (yyvsp[(4) - (6)]), (yyvsp[(6) - (6)])); ;}
     break;
 
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 121 "hare-idl.y"
+#line 122 "hare-idl.y"
     { (yyval) = createInt((yyvsp[(1) - (6)]), false, (yyvsp[(3) - (6)]), (yyvsp[(5) - (6)]), true); releaseYys3((yyvsp[(2) - (6)]), (yyvsp[(4) - (6)]), (yyvsp[(6) - (6)])); ;}
     break;
 
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 122 "hare-idl.y"
+#line 123 "hare-idl.y"
     { (yyval) = createInt((yyvsp[(1) - (6)]), true, (yyvsp[(3) - (6)]), (yyvsp[(5) - (6)]), true); releaseYys3((yyvsp[(2) - (6)]), (yyvsp[(4) - (6)]), (yyvsp[(6) - (6)])); ;}
     break;
 
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 126 "hare-idl.y"
+#line 127 "hare-idl.y"
     { (yyval) = createFixedPoint((yyvsp[(1) - (4)]), (yyvsp[(3) - (4)])); releaseYys2((yyvsp[(2) - (4)]), (yyvsp[(4) - (4)])); ;}
     break;
 
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 130 "hare-idl.y"
+#line 131 "hare-idl.y"
     { (yyval) = createBit((yyvsp[(1) - (4)]), (yyvsp[(3) - (4)])); releaseYys2((yyvsp[(2) - (4)]), (yyvsp[(4) - (4)])); ;}
     break;
 
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 134 "hare-idl.y"
+#line 135 "hare-idl.y"
     { (yyval) = createSequence((yyvsp[(1) - (4)]), (yyvsp[(3) - (4)])); releaseYys2((yyvsp[(2) - (4)]), (yyvsp[(4) - (4)])); ;}
     break;
 
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 138 "hare-idl.y"
+#line 139 "hare-idl.y"
     { (yyval) = createClassReference((yyvsp[(1) - (2)]), (yyvsp[(2) - (2)])); ;}
     break;
 
   case 53:
 
 /* Line 1455 of yacc.c  */
-#line 142 "hare-idl.y"
+#line 143 "hare-idl.y"
     { (yyval) = createInlineEnum((yyvsp[(1) - (5)]), (yyvsp[(2) - (5)]), (yyvsp[(4) - (5)])); releaseYys2((yyvsp[(3) - (5)]), (yyvsp[(5) - (5)])); ;}
     break;
 
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 146 "hare-idl.y"
+#line 147 "hare-idl.y"
     { (yyval) = addEnumValue(0, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)])); releaseYys((yyvsp[(2) - (3)])); ;}
     break;
 
   case 55:
 
 /* Line 1455 of yacc.c  */
-#line 147 "hare-idl.y"
+#line 148 "hare-idl.y"
     { (yyval) = addEnumValue((yyvsp[(1) - (5)]), (yyvsp[(3) - (5)]), (yyvsp[(5) - (5)])); releaseYys2((yyvsp[(2) - (5)]), (yyvsp[(4) - (5)])); ;}
     break;
 
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 151 "hare-idl.y"
+#line 152 "hare-idl.y"
     { (yyval) = addString(0, (yyvsp[(1) - (1)])); ;}
     break;
 
   case 57:
 
 /* Line 1455 of yacc.c  */
-#line 152 "hare-idl.y"
+#line 153 "hare-idl.y"
     { (yyval) = addString((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)])); releaseYys((yyvsp[(2) - (3)])); ;}
     break;
 
   case 58:
 
 /* Line 1455 of yacc.c  */
-#line 156 "hare-idl.y"
+#line 157 "hare-idl.y"
     { (yyval) = addExpression(0, (yyvsp[(1) - (1)])); ;}
     break;
 
   case 59:
 
 /* Line 1455 of yacc.c  */
-#line 157 "hare-idl.y"
+#line 158 "hare-idl.y"
     { (yyval) = addExpression((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)])); releaseYys((yyvsp[(2) - (3)]));;}
     break;
 
   case 60:
 
 /* Line 1455 of yacc.c  */
-#line 161 "hare-idl.y"
+#line 162 "hare-idl.y"
     { (yyval) = (yyvsp[(1) - (1)]); ;}
     break;
 
   case 61:
 
 /* Line 1455 of yacc.c  */
-#line 162 "hare-idl.y"
+#line 163 "hare-idl.y"
     { (yyval) = (yyvsp[(1) - (1)]); ;}
     break;
 
   case 62:
 
 /* Line 1455 of yacc.c  */
-#line 163 "hare-idl.y"
+#line 164 "hare-idl.y"
     { (yyval) = createIdentifierExpression((yyvsp[(1) - (1)])); ;}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 2312 "hare-idl.tab.c"
+#line 2313 "hare-idl.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
