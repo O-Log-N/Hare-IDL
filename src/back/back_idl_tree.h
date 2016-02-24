@@ -15,17 +15,21 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#if !defined __BACK_IDL_TREE_H__
-#define __BACK_IDL_TREE_H__
+#if !defined BACK_IDL_TREE_H
+#define BACK_IDL_TREE_H
 
 #include <idl_tree.h>
 
+class BackEncodedMembers;
+
 class BackEncodedOrMember
 {
-	BackEncodedOrMember* parent;
+protected:
+	BackEncodedMembers* parent;
 public:
-	~BackEncodedOrMember(){} 
-	virtual bool isMember();
+	BackEncodedOrMember() {parent = NULL;}
+	virtual ~BackEncodedOrMember(){} 
+	BackEncodedMembers* getParent() {return parent;}
 };
 
 
@@ -41,18 +45,27 @@ class BackEncodedMembers : public BackEncodedOrMember
 public:
 	EncodingAttributes encodingAttr; 
 	vector<unique_ptr<BackEncodedOrMember>> members; 
+	void addChild( BackEncodedOrMember* child )
+	{
+		parent = this;
+		members.push_back( unique_ptr<BackEncodedOrMember>(child) );
+	}
 };
 
 class BackStructure : public BackEncodedMembers 
 {
 public:
-//	enum { declIDL, declMapping, declEncoding } declType; 
-//	enum { typeStruct, typeRPC } type; 
-	STRUCTURE_DECLARATION_TYPE declType; 
-	STRUCTURE_TYPE structureType; 
+	Structure::DECLTYPE declType; 
+	Structure::TYPE type; 
 	string name; 
 };
 
-typedef vector<unique_ptr<BackStructure>> VectorOfBackStructures;
+class BackRoot
+{
+public:
+	vector<unique_ptr<BackStructure>> structures;
+};
 
-#endif // __BACK_IDL_TREE_H__
+//typedef vector<unique_ptr<BackStructure>> VectorOfBackStructures;
+
+#endif // BACK_IDL_TREE_H

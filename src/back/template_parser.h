@@ -15,8 +15,8 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#if !defined __TEMPLATE_PARSER_H__
-#define __TEMPLATE_PARSER_H__
+#if !defined TEMPLATE_PARSER_H
+#define TEMPLATE_PARSER_H
 
 #include <stdio.h>
 #include <vector>
@@ -58,21 +58,21 @@ enum OPERATOR {
 	NEQ,
 };
 
-typedef struct _LINE_PART
+struct LINE_PART
 {
 	int type;
-	std:: string verbatim;
-} LINE_PART;
+	string verbatim;
+};
 
 typedef vector<LINE_PART> LINE_PARTS;
 
-typedef struct _TEMPLATE_NODE
+struct TEMPLATE_NODE
 {
 	int type;
 	int src_line_num;
 	LINE_PARTS line_parts;
 	vector<_TEMPLATE_NODE> child_nodes;
-} TEMPLATE_NODE;
+};
 
 typedef vector<TEMPLATE_NODE> TEMPLATE_NODES;
 typedef vector<TEMPLATE_NODE>::iterator TEMPLATE_NODES_ITERATOR;
@@ -89,8 +89,8 @@ typedef vector<ANY_TEMPLATE_ROOT> ANY_TEMPLATE_ROOTS;
 typedef vector<ANY_TEMPLATE_ROOT>::iterator ANY_TEMPLATE_ROOTS_ITERATOR;
 
 
-bool load_template( FILE* ft, ANY_TEMPLATE_ROOT& _root_node, int* current_line_num );
-void print_tree( ANY_TEMPLATE_ROOT& _root_node );
+bool load_template( FILE* ft, ANY_TEMPLATE_ROOT& root_node, int* current_line_num );
+void print_tree( ANY_TEMPLATE_ROOT& root_node );
 
 
-#endif // __TEMPLATE_PARSER_H__
+#endif // TEMPLATE_PARSER_H

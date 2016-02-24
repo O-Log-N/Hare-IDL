@@ -15,8 +15,8 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#if !defined __TEMPLATE_INSTANTIATOR_H__
-#define __TEMPLATE_INSTANTIATOR_H__
+#if !defined TEMPLATE_INSTANTIATOR_H
+#define TEMPLATE_INSTANTIATOR_H
 
 #include "template_parser.h"
 #include <stdio.h>
@@ -80,4 +80,4 @@ public:
 void apply( MappingDeclNode& idlmap, ANY_TEMPLATE_ROOT& root_node );
 
 
-#endif // __TEMPLATE_INSTANTIATOR_H__
+#endif // TEMPLATE_INSTANTIATOR_H

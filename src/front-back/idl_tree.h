@@ -15,8 +15,8 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#if !defined __IDL_TREE_H__
-#define __IDL_TREE_H__
+#if !defined IDL_TREE_H
+#define IDL_TREE_H
 
 #include <memory>
 #include <vector>
@@ -25,53 +25,31 @@ using namespace std;
 class DataType
 {
 public:
-	std::string name; 
+	string name; 
 	// ... (details to be developed)
 
 	DataType() {}
-	DataType( const DataType& other )
-	{
-		name = other.name;
-		// ...
-	}
-	DataType& operator = ( const DataType& other )
-	{
-		name = other.name;
-		// ... (details to be developed)
-	}
 };
 
 class EncodingAttributes
 {
 public:
 	string name; 
-	// ...
+	// ... (details to be developed)
 
 	EncodingAttributes() {}
-	EncodingAttributes( const EncodingAttributes& other )
-	{
-		name = other.name;
-		// ... (details to be developed)
-	}
-	EncodingAttributes& operator = ( const EncodingAttributes& other )
-	{
-		name = other.name;
-		// ...
-	}
 };
 
 
 class EncodedOrMember
 {
 public:
-	~EncodedOrMember(){} 
-	virtual bool isMember() const;
+	virtual ~EncodedOrMember(){} 
 };
 
 class DataMember : public EncodedOrMember
 {
 public:
-	virtual bool isMember() const {return true;}
 	DataType type; 
 	string name; 
 };
@@ -81,20 +59,23 @@ class EncodedMembers : public EncodedOrMember
 public:
 	EncodingAttributes encodingAttr; 
 	vector<unique_ptr<EncodedOrMember>> members; 
-	virtual bool isMember() const {return false;}
 };
 
 
-enum STRUCTURE_DECLARATION_TYPE{ declIDL, declMapping, declEncoding }; 
-enum STRUCTURE_TYPE{ typeStruct, typeRPC }; 
 class Structure : public EncodedMembers 
 {
 public:
-	STRUCTURE_DECLARATION_TYPE declType; 
-	STRUCTURE_TYPE structureType; 
+	enum DECLTYPE{ IDL, MAPPING, ENCODING }; 
+	enum TYPE{ STRUCT, RPC }; 
+	DECLTYPE declType; 
+	TYPE type; 
 	string name; 
 };
 
-typedef vector<unique_ptr<Structure>> VectorOfStructures;
+class Root
+{
+public:
+	vector<unique_ptr<Structure>> structures;
+};
 
-#endif // __IDL_TREE_H__
+#endif // IDL_TREE_H
