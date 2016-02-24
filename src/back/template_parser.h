@@ -18,8 +18,8 @@ Copyright (C) 2016 OLogN Technologies AG
 #ifndef TEMPLATE_PARSER_H
 #define TEMPLATE_PARSER_H
 
-#include <stdio.h>
-#include <vector>
+#include "../idlc_include.h"
+
 using namespace std;
 
 enum NODE_TYPE {

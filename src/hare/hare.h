@@ -15,67 +15,9 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#ifndef IDL_TREE_H
-#define IDL_TREE_H
+#ifndef HARE_H
+#define HARE_H
 
-#include "../idlc_include.h"
+#include "../../3rdparty/cppformat/cppformat/format.h"
 
-using namespace std;
-
-class DataType
-{
-public:
-	string name; 
-	// ... (details to be developed)
-
-	DataType() {}
-};
-
-class EncodingAttributes
-{
-public:
-	string name; 
-	// ... (details to be developed)
-
-	EncodingAttributes() {}
-};
-
-
-class EncodedOrMember
-{
-public:
-	virtual ~EncodedOrMember(){} 
-};
-
-class DataMember : public EncodedOrMember
-{
-public:
-	DataType type; 
-	string name; 
-};
-
-class EncodedMembers : public EncodedOrMember 
-{
-public:
-	EncodingAttributes encodingAttr; 
-	vector<unique_ptr<EncodedOrMember>> members; 
-};
-
-
-class Structure : public EncodedMembers 
-{
-public:
-	enum DECLTYPE{ IDL, MAPPING, ENCODING }; 
-	enum TYPE{ STRUCT, RPC }; 
-	DECLTYPE declType; 
-	TYPE type; 
-	string name; 
-};
-
-class Root
-{
-public:
-	vector<unique_ptr<Structure>> structures;
-};
-
-#endif // IDL_TREE_H
+#endif // HARE_H

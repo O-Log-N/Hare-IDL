@@ -18,7 +18,8 @@ Copyright (C) 2016 OLogN Technologies AG
 #ifndef BACK_IDL_TREE_H
 #define BACK_IDL_TREE_H
 
-#include <idl_tree.h>
+#include "../idlc_include.h"
+#include "../front-back/idl_tree.h"
 
 class BackEncodedMembers;
 

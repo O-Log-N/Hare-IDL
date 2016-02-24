@@ -18,7 +18,7 @@ Copyright (C) 2016 OLogN Technologies AG
 #ifndef TEMPLATE_INSTANTIATOR_H
 #define TEMPLATE_INSTANTIATOR_H
 
-#include <stdio.h>
+#include "../idlc_include.h"
 #include "template_parser.h"
 #include "back_idl_tree.h"
 
