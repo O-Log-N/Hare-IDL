@@ -23,6 +23,7 @@ Naming conventions examples:
 5. #ifndef INCLUDE_FILE_NAME_INCLUDED //"include guard"
 6. **MUST NOT** use identifiers starting with an underscore OR containing adjacent double underscore (technically reserved for C++)
 7. Classes and functions which are used ONLY for debugging purposes (such as "dumpSomething()") SHOULD start with Dbg*/dbg*() respectively
+8. file names: file_name.h
 
 ### I.2 On includes
 
