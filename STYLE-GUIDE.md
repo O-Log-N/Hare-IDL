@@ -14,7 +14,7 @@ We're using very standard C++11.
 
 ### I.1 Naming conventions
 
-Naming conventions examples:
+Naming conventions examplegls:
 
 1. class TheVeryBestClass //also applies to structs, unions, and typedefs
 2. function prettyMuchUnnecessaryFunction(); //also apples to members
@@ -60,3 +60,5 @@ Naming conventions examples:
 2. prefixed increment SHOULD be used in standalone statements: for(auto it=v.begin();;++it) is preferred over for(auto it=v.begin();;it++)
 3. All text-formatted file/console output SHOULD be done via C++ Format library: https://github.com/cppformat/cppformat . This library is available as 'git submodule' within /3rdparty/cppformat/ .
 4. All file/console I/O (except for-text-formatted output, see item I.5.3 right above) SHOULD be done via std::iostream
+5. non-constant global data SHOULD NOT be used unless absolutely necessary
+6. non-constant static data **MUST NOT** be used
