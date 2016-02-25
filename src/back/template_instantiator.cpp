@@ -31,18 +31,19 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	vector<int> commands;
 	for (i = 0; i < ifNode.lineParts.size(); i++)
 	{
-		switch (ifNode.lineParts[i].type)
+		auto type = ifNode.lineParts[i].type;
+		switch ( type )
 		{
 			case PLACEHOLDER::VERBATIM: argstack.push_back(ifNode.lineParts[i].verbatim); break;
 			case OPERATOR::EQ:
 			case OPERATOR::NEQ:
 			{
-				commands.push_back(ifNode.lineParts[i].type);
+				commands.push_back( type );
 				break;
 			}
 			default:
 			{
-				argstack.push_back( placeholder( ifNode.lineParts[i].type ) );
+				argstack.push_back( placeholder( type ) );
 				break;
 			}
 		}
@@ -88,7 +89,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 {
 	switch ( node.type )
 	{
-		case NODE_TYPE::TEMPLATE_ROOT:
+		case NODE_TYPE::FULL_TEMPLATE:
 		{
 			for ( unsigned int k=0; k<node.childNodes.size(); k++ )
 				applyNode( node.childNodes[k] );
@@ -102,11 +103,6 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 				else
 					printf( "%s", placeholder( node.lineParts[i].type ).c_str() ); 
 			printf( "\n" ); 
-			break;
-		}
-		case NODE_TYPE::FOR_EACH_OF_MEMBERS:
-		{
-			applyToEach( node );
 			break;
 		}
 		case NODE_TYPE::IF_TRUE_BRANCHE:
@@ -162,8 +158,3 @@ string TemplateInstantiator::placeholder( int placeholderId )
 	return "";
 }
 
-void TemplateInstantiator::applyToEach( TemplateNode& node )
-{
-	printf( "error_applyToEach\n" );
-	assert( 0 );
-}

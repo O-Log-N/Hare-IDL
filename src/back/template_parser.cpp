@@ -778,7 +778,7 @@ public:
 		}
 
 		rootNode.type = NODE_TYPE::BEGIN_TEMPLATE;
-		rootNode.root.type = NODE_TYPE::TEMPLATE_ROOT;
+		rootNode.root.type = NODE_TYPE::FULL_TEMPLATE;
 		bool treeOK = makeNodeTree( rootNode.root, nodes.begin(), nodes.end() );
 		if ( !treeOK )
 		{

@@ -18,6 +18,40 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_instantiator_derived.h"
 
 
+void StructTemplateInstantiator::applyNode( TemplateNode& node )
+{
+	switch ( node.type )
+	{
+		case NODE_TYPE::FOR_EACH_OF_MEMBERS:
+		{
+//			applyToEach( node );
+			unsigned int memberCnt = structure->getChildCount();
+			for ( unsigned int j=0; j<memberCnt; j++ )
+			{
+				for ( unsigned int k=0; k<node.childNodes.size(); k++ )
+				{
+					BackDataMember* member = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
+					if ( member != NULL )
+					{
+						StructMemberTemplateInstantiator smti( *member );
+						smti.apply( node.childNodes[k] );
+					}
+					else
+					{
+						// TODO: this case requires additional analysis
+						assert( 0 );
+					}
+				}
+			}
+			break;
+		}
+		default:
+		{
+			TemplateInstantiator::applyNode( node );
+		}
+	}
+}
+
 string StructTemplateInstantiator::placeholder( int placeholderId )
 {
 	switch( placeholderId )
@@ -33,31 +67,19 @@ string StructTemplateInstantiator::placeholder( int placeholderId )
 	}
 }
 
-void StructTemplateInstantiator::applyToEach( TemplateNode& node )
+/////////////////////////////////////////////////////////////////////////
+
+
+void StructMemberTemplateInstantiator::applyNode( TemplateNode& node )
 {
-	unsigned int memberCnt = structure->getChildCount();
-	for ( unsigned int j=0; j<memberCnt; j++ )
+	switch ( node.type )
 	{
-		for ( unsigned int k=0; k<node.childNodes.size(); k++ )
+		default:
 		{
-			BackDataMember* member = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
-			if ( member != NULL )
-			{
-				StructMemberTemplateInstantiator smti( *member );
-				smti.apply( node.childNodes[k] );
-			}
-			else
-			{
-				// TODO: this case requires additional analysis
-				assert( 0 );
-			}
+			TemplateInstantiator::applyNode( node );
 		}
 	}
 }
-
-
-/////////////////////////////////////////////////////////////////////////
-
 
 string StructMemberTemplateInstantiator::placeholder( int placeholderId )
 {

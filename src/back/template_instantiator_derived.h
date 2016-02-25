@@ -26,9 +26,8 @@ class StructTemplateInstantiator : public TemplateInstantiator
 protected:
 	BackStructure* structure;
 
+	virtual void applyNode( TemplateNode& node );
 	virtual string placeholder( int placeholderId );
-	virtual void applyToEach( TemplateNode& node );
-
 
 public:
 	StructTemplateInstantiator( BackStructure& currentStruct ) { structure = &currentStruct; }
@@ -45,8 +44,8 @@ class StructMemberTemplateInstantiator : public TemplateInstantiator
 protected:
 	BackDataMember* member;
 
+	virtual void applyNode( TemplateNode& node );
 	virtual string placeholder( int placeholderId );
-//	virtual void applyToEach( TemplateNode& node );
 
 public:
 	StructMemberTemplateInstantiator( BackDataMember& currentMember ) { member = &currentMember; }

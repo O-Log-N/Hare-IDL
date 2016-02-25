@@ -29,13 +29,12 @@ class TemplateInstantiator
 {
 protected:
 	bool calcConditionOfIfNode( TemplateNode& ifNode );
-	void applyNode( TemplateNode& node );
+	virtual void applyNode( TemplateNode& node );
 
 public:
 	TemplateInstantiator() {}
 
 	virtual string placeholder( int placeholderId );
-	virtual void applyToEach( TemplateNode& node );
 };
 
 
