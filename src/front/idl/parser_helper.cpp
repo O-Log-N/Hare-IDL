@@ -15,20 +15,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#include "parser_helper.h"
+#include "../../idlc_include.h"
 
-#include <vector>
-#include <string>
-#include <cassert>
-#include <sstream>
-#include <iomanip>
 #include <set>
-#include <cstdio>
-#include <iostream>
 
-#include "../../hare/hare.h"
+#include "parser_helper.h"
 #include "parser.h"
-//#include "error.h"
 
 using namespace std;
 
@@ -46,7 +38,7 @@ set<YyBase*> dbgLeakDetector;
 bool errorFlag = false;
 
 
-std::string locationToString(const Location& loc)
+string locationToString(const Location& loc)
 {
 	if (!loc.fileName.empty()) {
 		if (loc.lineNumber != 0)
@@ -173,7 +165,13 @@ void setLocation(Location& loc, int line)
 	loc.lineNumber = line;
 }
 
-std::string getNameFromYyIdentifier(YyBase* id)
+Location getLocationFromYyIdentifier(YyBase* id)
+{
+	YyIdentifier* t = yystype_cast<YyIdentifier*>(id);
+	return t->location;
+}
+
+string getNameFromYyIdentifier(YyBase* id)
 {
 	YyIdentifier* i = yystype_cast<YyIdentifier*>(id);
 	std::string temp = i->text;
@@ -373,6 +371,7 @@ YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id)
 	Structure* yy = new Structure();
 
 	delete token;
+	yy->location = getLocationFromYyIdentifier(id);
 	yy->name = getNameFromYyIdentifier(id);
 	yy->declType = Structure::IDL;
 	yy->type = Structure::STRUCT;
@@ -383,9 +382,10 @@ YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id)
 DataMember* makeDataMember(YYSTYPE type, YYSTYPE id)
 {
 	DataMember* yy = new DataMember();
+	yy->location = getLocationFromYyIdentifier(id);
 	yy->name = getNameFromYyIdentifier(id);
-	yy->type.name = "TODO";
-	delete type;
+	yy->type.name = getNameFromYyIdentifier(type);
+//	delete type;
 
 	return yy;
 }
@@ -405,6 +405,7 @@ YYSTYPE createMapping(YYSTYPE token, YYSTYPE str_list, YYSTYPE id)
 	Structure* yy = new Structure();
 
 	delete token;
+	yy->location = getLocationFromYyIdentifier(id);
 	yy->name = getNameFromYyIdentifier(id);
 	yy->declType = Structure::MAPPING;
 	yy->type = Structure::STRUCT;
@@ -435,6 +436,7 @@ YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_lit, YYSTYPE id)
 	Structure* yy = new Structure();
 
 	delete token;
+	yy->location = getLocationFromYyIdentifier(id);
 	yy->name = getNameFromYyIdentifier(id);
 	yy->declType = Structure::ENCODING;
 	yy->type = Structure::STRUCT;
@@ -443,6 +445,7 @@ YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_lit, YYSTYPE id)
 	delete str_lit;
 
 	EncodedMembers* g = new EncodedMembers();
+	g->location = yy->location;
 	yy->members.push_back(unique_ptr<EncodedOrMember>(g));
 
 	return new YyPtr<Structure>(yy);
@@ -463,7 +466,9 @@ YYSTYPE addFenceToEncoding(YYSTYPE decl, YYSTYPE token)
 {
 	Structure* yy = yystype_ptr_cast<Structure>(decl);
 
+	delete token;
 	EncodedMembers* g = new EncodedMembers();
+	g->location = yy->location;
 	yy->members.push_back(unique_ptr<EncodedOrMember>(g));
 
 	return decl;
@@ -505,6 +510,7 @@ YYSTYPE createEncodingGroup(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE opt_att)
 {
 	EncodedMembers* yy = new EncodedMembers();
 
+	yy->location = getLocationFromYyIdentifier(id);
 	yy->encodingAttr = createEncodingAttributes(id, opt_arg_list);
 
 	if (opt_att) {
@@ -538,8 +544,7 @@ YYSTYPE createIdType(YYSTYPE id)
 	//NameTypeNode* yy = new NameTypeNode();
 	//setNameFromYyIdentifier(yy, id);
 
-	delete id;
-	return 0;
+	return id;
 }
 
 
@@ -561,7 +566,7 @@ YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE
 	delete low_literal;
 	delete high_literal;
 
-	return 0;
+	return createIdentifier("NUMERIC", yylineno);
 }
 
 YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE high_literal, bool high_flag)
@@ -583,7 +588,7 @@ YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE hig
 	delete low_literal;
 	delete high_literal;
 
-	return 0;
+	return createIdentifier("INT", yylineno);
 }
 
 YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE float_lit)
@@ -598,7 +603,7 @@ YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE float_lit)
 	delete token;
 	delete float_lit;
 
-	return 0;
+	return createIdentifier("FIXED_PONIT", yylineno);
 }
 
 YYSTYPE createBit(YYSTYPE token, YYSTYPE int_lit)
@@ -612,7 +617,7 @@ YYSTYPE createBit(YYSTYPE token, YYSTYPE int_lit)
 	delete token;
 	delete int_lit;
 
-	return 0;
+	return createIdentifier("BIT", yylineno);
 }
 
 YYSTYPE createSequence(YYSTYPE token, YYSTYPE id_type)
@@ -625,9 +630,10 @@ YYSTYPE createSequence(YYSTYPE token, YYSTYPE id_type)
 	//setNameFromYyIdentifier(t, id_type);
 	//yy->type.set(t);
 	delete token;
-	delete id_type;
+//	delete id_type;
 
-	return 0;
+	string name = string("SEQUENCE<") + getNameFromYyIdentifier(id_type) + ">";
+	return createIdentifier(name.c_str(), yylineno);
 }
 
 YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type)
@@ -638,9 +644,10 @@ YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type)
 	//yy->name = getNameFromYyIdentifier(id_type);
 
 	delete token;
-	delete id_type;
+//	delete id_type;
 
-	return 0;
+	string name = string("class ") + getNameFromYyIdentifier(id_type);
+	return createIdentifier(name.c_str(), yylineno);
 }
 
 YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE id, YYSTYPE values)
@@ -655,10 +662,11 @@ YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE id, YYSTYPE values)
 	//	yy->values.push_back(each.release());
 
 	delete token;
-	delete id;
+//	delete id;
 	delete values;
 
-	return 0;
+	string name = string("enum ") + getNameFromYyIdentifier(id);
+	return createIdentifier(name.c_str(), yylineno);
 }
 
 YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit)
@@ -716,11 +724,7 @@ YYSTYPE addExpression(YYSTYPE list, YYSTYPE expr)
 
 YYSTYPE createIdentifierExpression(YYSTYPE id)
 {
-	YyIdentifier* yy = new YyIdentifier();
-
-	yy->text = getNameFromYyIdentifier(id);
-
-	return yy;
+	return id;
 }
 
 

@@ -15,35 +15,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#ifndef PARSER_H_INCLUDED
-#define PARSER_H_INCLUDED "include guard"
+#ifndef DEBUG_H_INCLUDED
+#define DEBUG_H_INCLUDED "include guard"
 
-#include "../../idlc_include.h"
-#include "../../front-back/idl_tree.h"
+class Root;
 
-#define HAREASSERT(condition) assert(condition)
+void dbgDumpTree(FILE* file, const Root* root);
 
-class Node;
-
-const bool NotImplementedYet = false;
-
-std::string locationToString(const Location& loc);
-
-struct YyBase {
-	Location location;
-	YyBase();
-	virtual ~YyBase() = 0;
-	YyBase(const YyBase&) = delete;
-	YyBase& operator=(const YyBase&) = delete;
-};
-
-void dbgDumpLeaks();
-
-void reportError(const Location& loc, const std::string& msg);
-void plainError(const std::string& msg);
-
-
-void parseCode(const char* code, const std::string& pseudoFileName, bool debugDump, Root* result);
-void parseSourceFile(const std::string& fileName, bool debugDump, Root* result);
-
-#endif // PARSER_H_INCLUDED
+#endif // DEBUG_H_INCLUDED

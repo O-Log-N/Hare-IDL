@@ -144,12 +144,14 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\3rdparty\cppformat\cppformat\format.cc" />
     <ClCompile Include="..\..\..\3rdparty\cppformat\cppformat\posix.cc" />
+    <ClCompile Include="debug.cpp" />
     <ClCompile Include="hare-idl.tab.c" />
     <ClCompile Include="idl.cpp" />
     <ClCompile Include="lex.yy.c" />
     <ClCompile Include="parser_helper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="debug.h" />
     <ClInclude Include="hare-idl.tab.h" />
     <ClInclude Include="parser.h" />
     <ClInclude Include="parser_helper.h" />

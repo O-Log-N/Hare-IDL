@@ -25,7 +25,7 @@ using namespace std;
 class DataType
 {
 public:
-	string name; 
+	string name;
 	// ... (details to be developed)
 
 	DataType() {}
@@ -34,42 +34,48 @@ public:
 class EncodingAttributes
 {
 public:
-	string name; 
+	string name;
 	// ... (details to be developed)
 
 	EncodingAttributes() {}
 };
 
+struct Location {
+	string fileName;
+	int lineNumber;
+	Location() : fileName(), lineNumber(0) {}
+};
 
 class EncodedOrMember
 {
 public:
-	virtual ~EncodedOrMember(){} 
+	Location location;
+	virtual ~EncodedOrMember(){}
 };
 
 class DataMember : public EncodedOrMember
 {
 public:
-	DataType type; 
-	string name; 
+	DataType type;
+	string name;
 };
 
-class EncodedMembers : public EncodedOrMember 
+class EncodedMembers : public EncodedOrMember
 {
 public:
-	EncodingAttributes encodingAttr; 
-	vector<unique_ptr<EncodedOrMember>> members; 
+	EncodingAttributes encodingAttr;
+	vector<unique_ptr<EncodedOrMember>> members;
 };
 
 
-class Structure : public EncodedMembers 
+class Structure : public EncodedMembers
 {
 public:
-	enum DECLTYPE{ IDL, MAPPING, ENCODING }; 
-	enum TYPE{ STRUCT, RPC }; 
-	DECLTYPE declType; 
-	TYPE type; 
-	string name; 
+	enum DECLTYPE{ IDL, MAPPING, ENCODING };
+	enum TYPE{ STRUCT, RPC };
+	DECLTYPE declType;
+	TYPE type;
+	string name;
 };
 
 class Root
