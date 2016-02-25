@@ -30,16 +30,12 @@ class Node;
 const bool NotImplementedYet = false;
 
 struct Location {
-	const char* fileName;
+	std::string fileName;
 	int lineNumber;
-	Location() : fileName(0), lineNumber(0) {}
-
-	bool isValid() const {
-		return fileName != 0;
-	}
-	std::string toString() const;
-	std::ostream& write(std::ostream& os) const;
+	Location() : fileName(), lineNumber(0) {}
 };
+
+std::string locationToString(const Location& loc);
 
 struct YyBase {
 	Location location;
@@ -49,12 +45,10 @@ struct YyBase {
 	YyBase& operator=(const YyBase&) = delete;
 };
 
-void dbgDumpLeaks(std::ostream& os);
+void dbgDumpLeaks();
 
-/* TODO */
 void reportError(const Location& loc, const std::string& msg);
-void reportError(const Location& loc, const std::string& msg, const std::string& arg);
-void plainError(const std::string& msg, const std::string& arg);
+void plainError(const std::string& msg);
 
 
 void parseCode(const char* code, const std::string& pseudoFileName, bool debugDump, Root* result);

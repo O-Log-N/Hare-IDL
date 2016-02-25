@@ -26,7 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <cstdio>
 #include <iostream>
 
-
+#include "../../hare/hare.h"
 #include "parser.h"
 //#include "error.h"
 
@@ -43,24 +43,19 @@ vector<int> stateStack;
 const bool dbgEnableLeakDetector = true;
 set<YyBase*> dbgLeakDetector;
 
+bool errorFlag = false;
 
-ostream& Location::write(ostream& os) const
+
+std::string locationToString(const Location& loc)
 {
-	if (fileName != 0) {
-		os << "@" << fileName;
-		if (lineNumber != 0)
-			os << ":" << lineNumber;
+	if (!loc.fileName.empty()) {
+		if (loc.lineNumber != 0)
+			return fmt::format("@{}:{}", loc.fileName, loc.lineNumber);
+		else
+			return string("@") + loc.fileName;
 	}
-
-	return os;
-}
-
-std::string Location::toString() const
-{
-	stringstream ss;
-	write(ss);
-
-	return ss.str();
+	else
+		return "";
 }
 
 
@@ -76,34 +71,23 @@ YyBase::~YyBase()
 		dbgLeakDetector.erase(this);
 }
 
-void dbgDumpLeaks(std::ostream& os)
+void dbgDumpLeaks()
 {
 	for (set<YyBase*>::const_iterator it = dbgLeakDetector.begin(); it != dbgLeakDetector.end(); ++it) {
-		//if (Node* n = dynamic_cast<Node*>(*it))
-		//	dbgDumpNode(os, n);
-		//else {
-			(*it)->location.write(os);
-			os << endl;
-		//}
+		reportError((*it)->location, typeid(**it).name());
 	}
 }
 
 void reportError(const Location& loc, const std::string& msg)
 {
-	/* TODO */
-	cerr << loc.toString() << " - " << msg << endl;
+	errorFlag = true;
+	fmt::print(stderr, "{} - {}\n", locationToString(loc), msg);
 }
 
-void reportError(const Location& loc, const std::string& msg, const std::string& arg)
+void plainError(const std::string& msg)
 {
-	/* TODO */
-	cerr << loc.toString() << " - " << msg << " - " << arg << endl;
-}
-
-void plainError(const std::string& msg, const std::string& arg)
-{
-	/* TODO */
-	cerr << msg << " - " << arg << endl;
+	errorFlag = true;
+	fmt::print(stderr, "{}\n", msg);
 }
 
 
@@ -235,7 +219,7 @@ void parserError(const char* msg, const char* text, int line)
 	Location l;
 	setLocation(l, line);
 
-	reportError(l, msg, text);
+	reportError(l, fmt::format(msg, text));
 }
 
 
@@ -244,20 +228,7 @@ void parserErrorUnknownChar(char text, int line)
 	Location l;
 	setLocation(l, line);
 
-	stringstream ss;
-	ss << "Unknown char ";
-	unsigned int ui = static_cast<unsigned int>(text);
-	if (ui >= 32) {
-		ss.put('\'');
-		ss.put(text);
-		ss.put('\'');
-		ss.put(' ');
-	}
-
-	ss << "0x" << hex << setfill('0') << setw(2) << ui;
-	ss << " found.";
-
-	reportError(l, ss.str());
+	reportError(l, fmt::format("Unknown char '0x{:x}'", static_cast<unsigned char>(text)));
 }
 
 
@@ -736,8 +707,9 @@ YYSTYPE addExpression(YYSTYPE list, YYSTYPE expr)
 	else
 		yy = new YyIdentifierList();
 
-	YyIdentifier* e = yystype_cast<YyIdentifier*>(expr);
-	yy->addItem(e);
+	//YyIdentifier* e = yystype_cast<YyIdentifier*>(expr);
+	//yy->addItem(e);
+	delete expr;
 
 	return yy;
 }
@@ -784,18 +756,17 @@ void parseInternal(const std::string& fileName, bool debugDump, Root* result)
 
 		int err = yyparse();
 
+		if (err != 0)
+			plainError(fmt::format("Errors found while parsing file '%s'.", fileName));
+
 		rootPtr = 0;
 		currentFileName = 0;
 		yydebug = 0;
 
-		if (err != 0) {
-			plainError("Errors found while parsing file '%s'.", fileName);
-		}
-
 		return;
 	}
 	catch (...) {
-		plainError("Exception thrown while parsing file '%s'.", fileName);
+		plainError(fmt::format("Exception thrown while parsing file '%s'.", fileName));
 
 		rootPtr = 0;
 		currentFileName = 0;
@@ -825,14 +796,14 @@ void parseSourceFile(const string& fileName, bool debugDump, Root* result)
 	unique_ptr<FILE, int(*)(FILE*)> file(fopen(fileName.c_str(), "r"), &fclose);
 #pragma warning( pop )
 	if (!file) {
-		plainError("Failed to open file '%s'.", fileName);
+		plainError(fmt::format("Failed to open file '%s'.", fileName));
 		return;
 	}
 
 	unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> buff(yy_create_buffer(file.get(), 16000), &yy_delete_buffer);
 
 	if (!buff) {
-		plainError("Failed to allocate read buffer for file '%s'.", fileName);
+		plainError(fmt::format("Failed to allocate read buffer for file '%s'.", fileName));
 		return;
 	}
 

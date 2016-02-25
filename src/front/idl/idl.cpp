@@ -7,7 +7,9 @@
 int main()
 {
 	Root result;
-	parseSourceFile("sample.idl", true, &result);
+	parseSourceFile("sample.idl", false, &result);
+
+	dbgDumpLeaks();
 
     return 0;
 }

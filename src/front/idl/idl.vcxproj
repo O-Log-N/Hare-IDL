@@ -142,6 +142,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\3rdparty\cppformat\cppformat\format.cc" />
+    <ClCompile Include="..\..\..\3rdparty\cppformat\cppformat\posix.cc" />
     <ClCompile Include="hare-idl.tab.c" />
     <ClCompile Include="idl.cpp" />
     <ClCompile Include="lex.yy.c" />
