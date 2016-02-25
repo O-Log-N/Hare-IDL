@@ -91,13 +91,13 @@ ParameterWord params[] =
 
 class TemplateParser
 {
-	void printIndent( int depth )
+	void dbgPrintIndent( int depth )
 	{
 		for ( int i=0; i<depth; i++ )
 			printf( " . " );
 	}
 
-	void printLineParts( vector<LinePart>& parts )
+	void dbgPrintLineParts( vector<LinePart>& parts )
 	{
 		unsigned int i;
 		for ( i=0; i<parts.size(); i++ )
@@ -120,9 +120,9 @@ class TemplateParser
 			}
 	}
 
-	void printNode( TemplateNode& node, int depth )
+	void dbgPrintNode( TemplateNode& node, int depth )
 	{
-		printIndent( depth );
+		dbgPrintIndent( depth );
 		printf( "[%d] ", node.srcLineNum );
 		switch ( node.type )
 		{
@@ -138,13 +138,13 @@ class TemplateParser
 		}
 
 		if ( node.lineParts.size() )
-			printLineParts( node.lineParts );
+			dbgPrintLineParts( node.lineParts );
 		printf( "\n" );
 		for ( unsigned int i=0; i<node.childNodes.size(); i++ )
-			printNode( node.childNodes[i], depth + 1 );
+			dbgPrintNode( node.childNodes[i], depth + 1 );
 	}
 
-	void validateNode( TemplateNode& node )
+	void dbgValidateNode( TemplateNode& node )
 	{
 		switch ( node.type )
 		{
@@ -156,7 +156,7 @@ class TemplateParser
 			case NODE_TYPE::BEGIN_TEMPLATE:
 			{
 				for ( unsigned int i=0; i<node.childNodes.size(); i++ )
-					validateNode( node.childNodes[i] );
+					dbgValidateNode( node.childNodes[i] );
 				break;
 			}
 			case NODE_TYPE::IF:
@@ -173,7 +173,7 @@ class TemplateParser
 					assert( node.childNodes[1].type == NODE_TYPE::IF_FALSE_BRANCHE );
 				}
 				for ( unsigned int i=0; i<node.childNodes.size(); i++ )
-					validateNode( node.childNodes[i] );
+					dbgValidateNode( node.childNodes[i] );
 				break;
 			}
 			case NODE_TYPE::ASSERT:
@@ -187,7 +187,7 @@ class TemplateParser
 			case NODE_TYPE::IF_FALSE_BRANCHE:
 			{
 				for ( unsigned int i=0; i<node.childNodes.size(); i++ )
-					validateNode( node.childNodes[i] );
+					dbgValidateNode( node.childNodes[i] );
 				break;
 			}
 			case NODE_TYPE::INCLUDE:
@@ -786,14 +786,14 @@ public:
 			return FAILED_BUID_TREE_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 		}
 
-		validateNode( rootNode.root );
+		dbgValidateNode( rootNode.root );
 
 		return OK;
 	}
 
 	void dbgPrintTree( AnyTemplateRoot& rootNode )
 	{
-		printNode( rootNode.root, 0 );
+		dbgPrintNode( rootNode.root, 0 );
 	}
 };
 

@@ -48,9 +48,9 @@ enum PARAMETER {
 
 enum PLACEHOLDER {
 	VERBATIM = 200,
-	STRUCT_NAME,
-	MEMBER_TYPE,
-	MEMBER_NAME,
+	STRUCT_NAME, // used ONLY within STRUCT or down the tree
+	MEMBER_TYPE, // used ONLY within STRUCT-MEMBER
+	MEMBER_NAME, // used ONLY within STRUCT-MEMBER
 };
 
 enum OPERATOR {

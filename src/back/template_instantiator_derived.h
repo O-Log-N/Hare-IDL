@@ -15,28 +15,52 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#ifndef TEMPLATE_INSTANTIATOR_H
-#define TEMPLATE_INSTANTIATOR_H
+#ifndef TEMPLATE_INSTANTIATOR_DERIVED_H
+#define TEMPLATE_INSTANTIATOR_DERIVED_H
 
-#include "../idlc_include.h"
-#include "template_parser.h"
-#include "back_idl_tree.h"
+#include "template_instantiator.h"
 
-#define CONTEXT_STRUCT 1
-#define CONTEXT_STRUCT_MEMBER 2
 
-class TemplateInstantiator
+class StructTemplateInstantiator : public TemplateInstantiator
 {
 protected:
-	bool calcConditionOfIfNode( TemplateNode& ifNode );
-	void applyNode( TemplateNode& node );
-
-public:
-	TemplateInstantiator() {}
+	BackStructure* structure;
 
 	virtual string placeholder( int placeholderId );
 	virtual void applyToEach( TemplateNode& node );
+	void applyNode( TemplateNode& node );
+
+
+public:
+	StructTemplateInstantiator( BackStructure& currentStruct ) { structure = &currentStruct; }
+
+	void apply( AnyTemplateRoot& node )
+	{
+		applyNode( node.root );
+	}
 };
 
 
-#endif // TEMPLATE_INSTANTIATOR_H
+class StructMemberTemplateInstantiator : public TemplateInstantiator
+{
+protected:
+	BackDataMember* member;
+
+	virtual string placeholder( int placeholderId );
+//	virtual void applyToEach( TemplateNode& node );
+	void applyNode( TemplateNode& node );
+
+public:
+	StructMemberTemplateInstantiator( BackDataMember& currentMember ) { member = &currentMember; }
+
+	void apply( TemplateNode& node )
+	{
+		applyNode( node );
+	}
+};
+
+
+void apply( BackStructure& structure, AnyTemplateRoot& rootNode );
+
+
+#endif // TEMPLATE_INSTANTIATOR_DERIVED_H

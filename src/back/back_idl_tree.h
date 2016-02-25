@@ -56,29 +56,15 @@ public:
 	{
 		return members.size();
 	}
-	bool isChildAMember( unsigned int childIndex ) const
+	const BackEncodedOrMember* getConstMember( unsigned int childIndex ) const
 	{
-		return childIndex < members.size() && dynamic_cast<const BackDataMember*>( &(*members[childIndex])) != NULL;
+		assert( childIndex < members.size() );
+		return &(*members[childIndex]);
 	}
-	const BackDataMember* getConstMember( unsigned int childIndex ) const
+	BackEncodedOrMember* getMember( unsigned int childIndex )
 	{
-		if ( childIndex >= members.size() ) return NULL;
-		return dynamic_cast<const BackDataMember*>( &(*members[childIndex]));
-	}
-	BackDataMember* getMember( unsigned int childIndex )
-	{
-		if ( childIndex >= members.size() ) return NULL;
-		return dynamic_cast<BackDataMember*>( &(*members[childIndex]));
-	}
-	const BackEncodedMembers* getConstEncodedMembers( unsigned int childIndex ) const
-	{
-		if ( childIndex >= members.size() ) return NULL;
-		return dynamic_cast<const BackEncodedMembers*>( &(*members[childIndex]));
-	}
-	BackEncodedMembers* getEncodedMembers( unsigned int childIndex )
-	{
-		if ( childIndex >= members.size() ) return NULL;
-		return dynamic_cast<BackEncodedMembers*>( &(*members[childIndex]));
+		assert( childIndex < members.size() );
+		return &(*members[childIndex]);
 	}
 };
 

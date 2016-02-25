@@ -27,14 +27,16 @@ BackDataMember* copyMember( const DataMember* src )
 
 BackEncodedOrMember* copyEncoded( const EncodedOrMember* src )
 {
-	if ( dynamic_cast<const DataMember*>(src) != NULL )
+	const DataMember* srcMember = dynamic_cast<const DataMember*>(src);
+	if ( srcMember != NULL )
 	{
-		BackDataMember* currentMember = copyMember( reinterpret_cast<const DataMember*>(src) );
+		BackDataMember* currentMember = copyMember( srcMember );
 		return currentMember;
 	}
 	else
 	{
-		const EncodedMembers* encsrc = reinterpret_cast<const EncodedMembers*>(src);
+		const EncodedMembers* encsrc = dynamic_cast<const EncodedMembers*>(src);
+		assert( encsrc != NULL ); // currently we do not expect any other type here
 		unsigned int i;
 		BackEncodedMembers* currentEncoded = new BackEncodedMembers;
 		currentEncoded->encodingAttr = encsrc->encodingAttr;
