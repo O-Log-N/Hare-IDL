@@ -30,8 +30,8 @@ Naming conventions examplegls:
 1. **MUST NOT** have any duplicate declarations for the same entity. In particular, function declarations in .cpp files are **PROHIBITED** for non-static functions
 2. Each include **MUST** have "include guard" consisting of #ifndef FILE_NAME_INCLUDED - #define FILE_NAME_INCLUDED
     - #pragma once SHOULD NOT be used as non-standard
-3. C++ standard includes SHOULD go before our own includes
-4. C++ standard includes **MUST** be included via `<include_file_name.h>`
+3. ALL C++ standard includes SHOULD be within /src/idlc_include.h, and **MUST** included as `<include_file_name.h>`
+4. The very first #include file for ALL the .cpp files SHOULD be #include "../idlc_include.h" (with different number of '../' as necessary) 
 5. Our own includes **MUST** be included via "include_file_name.h" (with a relative path if necessary(!))
 
 ### I.3 On Constants and #defines
