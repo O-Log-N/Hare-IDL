@@ -28,7 +28,6 @@ protected:
 
 	virtual string placeholder( int placeholderId );
 	virtual void applyToEach( TemplateNode& node );
-	void applyNode( TemplateNode& node );
 
 
 public:
@@ -48,7 +47,6 @@ protected:
 
 	virtual string placeholder( int placeholderId );
 //	virtual void applyToEach( TemplateNode& node );
-	void applyNode( TemplateNode& node );
 
 public:
 	StructMemberTemplateInstantiator( BackDataMember& currentMember ) { member = &currentMember; }

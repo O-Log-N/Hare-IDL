@@ -33,18 +33,18 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	{
 		switch (ifNode.lineParts[i].type)
 		{
-		case PLACEHOLDER::VERBATIM: argstack.push_back(ifNode.lineParts[i].verbatim); break;
-		case OPERATOR::EQ:
-		case OPERATOR::NEQ:
-		{
-							  commands.push_back(ifNode.lineParts[i].type);
-							  break;
-		}
-		default:
-		{
-				   argstack.push_back(placeholder(PLACEHOLDER::MEMBER_TYPE));
-				   break;
-		}
+			case PLACEHOLDER::VERBATIM: argstack.push_back(ifNode.lineParts[i].verbatim); break;
+			case OPERATOR::EQ:
+			case OPERATOR::NEQ:
+			{
+				commands.push_back(ifNode.lineParts[i].type);
+				break;
+			}
+			default:
+			{
+				argstack.push_back( placeholder( ifNode.lineParts[i].type ) );
+				break;
+			}
 		}
 	}
 
@@ -88,6 +88,12 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 {
 	switch ( node.type )
 	{
+		case NODE_TYPE::TEMPLATE_ROOT:
+		{
+			for ( unsigned int k=0; k<node.childNodes.size(); k++ )
+				applyNode( node.childNodes[k] );
+			break;
+		}
 		case NODE_TYPE::CONTENT:
 		{
 			for ( unsigned int i=0; i<node.lineParts.size(); i++ )
@@ -96,6 +102,11 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 				else
 					printf( "%s", placeholder( node.lineParts[i].type ).c_str() ); 
 			printf( "\n" ); 
+			break;
+		}
+		case NODE_TYPE::FOR_EACH_OF_MEMBERS:
+		{
+			applyToEach( node );
 			break;
 		}
 		case NODE_TYPE::IF_TRUE_BRANCHE:

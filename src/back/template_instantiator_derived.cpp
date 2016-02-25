@@ -18,34 +18,6 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_instantiator_derived.h"
 
 
-void StructTemplateInstantiator::applyNode( TemplateNode& node )
-{
-	switch ( node.type )
-	{
-		case NODE_TYPE::TEMPLATE_ROOT:
-		{
-			for ( unsigned int k=0; k<node.childNodes.size(); k++ )
-				applyNode( node.childNodes[k] );
-			break;
-		}
-//		case NODE_TYPE::BEGIN_TEMPLATE:
-		case NODE_TYPE::FOR_EACH_OF_MEMBERS:
-		{
-			applyToEach( node );
-			break;
-		}
-/*		case NODE_TYPE::INCLUDE:
-		{
-			assert( 0 == "ERROR: NOT IMPLEMENTED" );
-			break;
-		}*/
-		default:
-		{
-			TemplateInstantiator::applyNode( node );
-		}
-	}
-}
-
 string StructTemplateInstantiator::placeholder( int placeholderId )
 {
 	switch( placeholderId )
@@ -86,17 +58,6 @@ void StructTemplateInstantiator::applyToEach( TemplateNode& node )
 
 /////////////////////////////////////////////////////////////////////////
 
-
-void StructMemberTemplateInstantiator::applyNode( TemplateNode& node )
-{
-	switch ( node.type )
-	{
-		default:
-		{
-			TemplateInstantiator::applyNode( node );
-		}
-	}
-}
 
 string StructMemberTemplateInstantiator::placeholder( int placeholderId )
 {
