@@ -15,12 +15,12 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#define _CRT_SECURE_NO_WARNINGS
-
 #include "idlc_back.h"
 #include "back_idl_tree.h"
 #include "template_parser.h"
 #include "template_instantiator_derived.h"
+
+using namespace std;
 
 void idlcBackEnd( Root& root )
 {
@@ -30,12 +30,14 @@ void idlcBackEnd( Root& root )
 	ANY_TEMPLATE_ROOTS template_roots;
 	AnyTemplateRoot template_root;
 
-	FILE* ft = fopen( "template.txt", "rb" );
+	ifstream tf;
+	tf.open ( "template.txt", ios::in | ios::binary );
+
 	int line = 0;
-	if ( loadTemplate( ft, template_root, &line ) != 0 )
+	if ( loadTemplate( tf, template_root, &line ) != 0 )
 		return;
-	printf( "\n\n" );
+	fmt::print( "\n\n" );
 	dbgPrintTree( template_root );
-	printf( "\n\n" );
+	fmt::print( "\n\n" );
 	apply( *(backRoot.structures[0]), template_root );
 }

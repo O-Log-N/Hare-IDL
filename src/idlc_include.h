@@ -19,8 +19,8 @@ Copyright (C) 2016 OLogN Technologies AG
 #define IDLC_INCLUDE_H
 
 #include <assert.h> // for assert(); TODO: replace by our own HAREASSERT
-//TODO: add <iostream>
-#include <stdio.h> //TODO: remove as soon as migration to <iostream> is completed
+#include <iostream>
+#include <fstream>
 #include <memory>
 #include <vector>
 #include "hare/hare.h"

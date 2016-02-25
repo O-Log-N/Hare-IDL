@@ -30,7 +30,6 @@ enum NODE_TYPE {
 	ELSE,
 	ELIF,
 	ENDIF,
-	FOR_EACH_OF_MEMBERS,
 	INCLUDE,
 	ASSERT,
 	// derived types
@@ -38,6 +37,7 @@ enum NODE_TYPE {
 	IF_FALSE_BRANCHE,
 	FULL_TEMPLATE,
 //	TEMPLATE_ROOT,
+	FOR_EACH_OF_MEMBERS, // used ONLY within STRUCT
 };
 
 enum PARAMETER {
@@ -87,7 +87,7 @@ struct AnyTemplateRoot
 typedef vector<AnyTemplateRoot> ANY_TEMPLATE_ROOTS;
 
 
-bool loadTemplate( FILE* ft, AnyTemplateRoot& rootNode, int* currentLineNum );
+bool loadTemplate( ifstream& tf, AnyTemplateRoot& rootNode, int* currentLineNum );
 void dbgPrintTree( AnyTemplateRoot& rootNode );
 
 

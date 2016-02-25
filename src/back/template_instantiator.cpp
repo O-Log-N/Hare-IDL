@@ -60,21 +60,21 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 		{
 			switch (commands[j - 1])
 			{
-			case OPERATOR::EQ:
-			{
-								 ret = argstack[0] == argstack[1];
-								 break;
-			}
-			case OPERATOR::NEQ:
-			{
-								  ret = !(argstack[0] == argstack[1]);
-								  break;
-			}
-			default:
-			{
-					   printf("Type %d is unexpected or unsupported\n", commands[j - 1]);
-					   assert(0 == "Error: not supported");
-			}
+				case OPERATOR::EQ:
+				{
+					ret = argstack[0] == argstack[1];
+					break;
+				}
+				case OPERATOR::NEQ:
+				{
+					ret = !(argstack[0] == argstack[1]);
+					break;
+				}
+				default:
+				{
+					fmt::print("Type {} is unexpected or unsupported\n", commands[j - 1] );
+					assert(0 == "Error: not supported");
+				}
 			}
 		}
 	}
@@ -99,10 +99,10 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 		{
 			for ( unsigned int i=0; i<node.lineParts.size(); i++ )
 				if ( node.lineParts[i].type == PLACEHOLDER::VERBATIM )
-					printf( "%s", node.lineParts[i].verbatim.c_str() ); 
+					fmt::print("{}", node.lineParts[i].verbatim.c_str() );
 				else
-					printf( "%s", placeholder( node.lineParts[i].type ).c_str() ); 
-			printf( "\n" ); 
+					fmt::print("{}", placeholder( node.lineParts[i].type ).c_str() );
+			fmt::print("\n" );
 			break;
 		}
 		case NODE_TYPE::IF_TRUE_BRANCHE:
@@ -134,7 +134,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			bool cond = calcConditionOfIfNode( node );
 			if ( !cond )					
 			{
-				printf( "Instantiation Error: Assertion failed: Line %d\n", node.srcLineNum );
+				fmt::print("Instantiation Error: Assertion failed: Line {}\n", node.srcLineNum );
 			}
 			break;
 		}
@@ -145,7 +145,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 		}
 		default:
 		{
-			printf( "Unexpected node type %d found\n", node.type );
+			fmt::print("Unexpected node type {} found\n", node.type );
 			assert( 0 == "ERROR: UNEXPECTED" );
 		}
 	}
@@ -153,7 +153,8 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 
 string TemplateInstantiator::placeholder( int placeholderId )
 {
-	printf( "error_placeholder\n" );
+	fmt::print( "\n" );
+	fmt::print("error_placeholder {}\n", placeholderId );
 	assert( 0 );
 	return "";
 }

@@ -24,7 +24,6 @@ void StructTemplateInstantiator::applyNode( TemplateNode& node )
 	{
 		case NODE_TYPE::FOR_EACH_OF_MEMBERS:
 		{
-//			applyToEach( node );
 			unsigned int memberCnt = structure->getChildCount();
 			for ( unsigned int j=0; j<memberCnt; j++ )
 			{
