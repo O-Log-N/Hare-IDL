@@ -70,7 +70,7 @@ YYSTYPE addToPublishableStruct(YYSTYPE decl, YYSTYPE type, YYSTYPE id);
 YYSTYPE createMapping(YYSTYPE token, YYSTYPE str_list, YYSTYPE id);
 YYSTYPE addToMapping(YYSTYPE decl, YYSTYPE type, YYSTYPE id);
 
-YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_lit, YYSTYPE id);
+YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_list, YYSTYPE id);
 YYSTYPE addToEncoding(YYSTYPE decl, YYSTYPE elem);
 YYSTYPE addFenceToEncoding(YYSTYPE decl, YYSTYPE token);
 
@@ -82,10 +82,10 @@ YYSTYPE addToEncodingGroup(YYSTYPE group, YYSTYPE element);
 YYSTYPE addEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE group);
 
 YYSTYPE createIdType(YYSTYPE id);
-YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE high_literal, bool high_flag);
-YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE high_literal, bool high_flag);
-YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE float_lit);
-YYSTYPE createBit(YYSTYPE token, YYSTYPE int_lit);
+YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
+YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
+YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE expr);
+YYSTYPE createBit(YYSTYPE token, YYSTYPE expr);
 YYSTYPE createSequence(YYSTYPE token, YYSTYPE id_type);
 YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type);
 YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE id, YYSTYPE values);

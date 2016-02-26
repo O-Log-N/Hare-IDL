@@ -24,7 +24,7 @@ Gramática
 
    12 mapping: mapping_begin '}' ';'
 
-   13 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+   13 encoding_begin: KW_ENCODING '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
    14               | encoding_begin data_element
    15               | encoding_begin data_group
    16               | encoding_begin KW_FENCE
@@ -122,7 +122,7 @@ KW_DEFAULT (270) 19 21
 KW_FENCE (271) 16
 IDENTIFIER (272) 5 6 7 9 10 11 13 18 19 20 21 22 23 24 25 29 30 31
     32 50 51 52 53 54 61
-STRING_LITERAL (273) 13 55 56
+STRING_LITERAL (273) 55 56
 INTEGER_LITERAL (274) 53 54 59
 CHAR_LITERAL (275)
 FLOAT_LITERAL (276) 60
@@ -172,7 +172,7 @@ inline_enum_type (51)
 enum_values (52)
     en la izquierda: 53 54, en la derecha: 52 54
 str_list (53)
-    en la izquierda: 55 56, en la derecha: 9 56
+    en la izquierda: 55 56, en la derecha: 9 13 56
 arg_list (54)
     en la izquierda: 57 58, en la derecha: 25 30 32 58
 expr (55)
@@ -232,7 +232,7 @@ estado 4
 
 estado 5
 
-   13 encoding_begin: KW_ENCODING . '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+   13 encoding_begin: KW_ENCODING . '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
 
     '('  desplazar e ir al estado 14
 
@@ -360,9 +360,11 @@ estado 13
 
 estado 14
 
-   13 encoding_begin: KW_ENCODING '(' . STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+   13 encoding_begin: KW_ENCODING '(' . str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
 
-    STRING_LITERAL  desplazar e ir al estado 46
+    STRING_LITERAL  desplazar e ir al estado 44
+
+    str_list  ir al estado 46
 
 
 estado 15
@@ -648,9 +650,11 @@ estado 45
 
 estado 46
 
-   13 encoding_begin: KW_ENCODING '(' STRING_LITERAL . ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+   13 encoding_begin: KW_ENCODING '(' str_list . ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+   56 str_list: str_list . ',' STRING_LITERAL
 
     ')'  desplazar e ir al estado 75
+    ','  desplazar e ir al estado 74
 
 
 estado 47
@@ -922,7 +926,7 @@ estado 74
 
 estado 75
 
-   13 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' . KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
+   13 encoding_begin: KW_ENCODING '(' str_list ')' . KW_PUBLISHABLE_STRUCT IDENTIFIER '{'
 
     KW_PUBLISHABLE_STRUCT  desplazar e ir al estado 100
 
@@ -1124,7 +1128,7 @@ estado 99
 
 estado 100
 
-   13 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT . IDENTIFIER '{'
+   13 encoding_begin: KW_ENCODING '(' str_list ')' KW_PUBLISHABLE_STRUCT . IDENTIFIER '{'
 
     IDENTIFIER  desplazar e ir al estado 117
 
@@ -1300,7 +1304,7 @@ estado 116
 
 estado 117
 
-   13 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER . '{'
+   13 encoding_begin: KW_ENCODING '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER . '{'
 
     '{'  desplazar e ir al estado 134
 
@@ -1427,7 +1431,7 @@ estado 133
 
 estado 134
 
-   13 encoding_begin: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' .
+   13 encoding_begin: KW_ENCODING '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' .
 
     $default  reduce usando la regla 13 (encoding_begin)
 

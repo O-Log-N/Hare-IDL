@@ -104,6 +104,18 @@ struct YyPtr : public YyBase {
     }
 };
 
+struct YyDataType : public YyBase {
+    DataType dataType;
+};
+
+struct YyEnumValues : public YyBase {
+    vector<pair<string, int> > enumValues;
+};
+
+struct YyStringLiteralList : public YyBase {
+    vector<string> textValues;
+};
+
 struct YyToken : public YyBase {
     int token;
     std::string text;
@@ -122,10 +134,13 @@ struct YyFloatLiteral : public YyBase {
     double value;
 };
 
+struct YyFloatList : public YyBase {
+    vector<float> floatValues;
+};
+
 typedef YyIdentifier YyStringLiteral;
 
 typedef YyList<YyIdentifier> YyIdentifierList;
-typedef YyList<YyStringLiteral> YyStringLiteralList;
 
 /*
 	yystype_cast is used to cast YYSTYPE elements from the parser.
@@ -185,6 +200,28 @@ string getNameFromYyIdentifier(YyBase* id)
     return temp;
 }
 
+float getExpressionValue(YYSTYPE expr)
+{
+    YyIntegerLiteral* intLit = dynamic_cast<YyIntegerLiteral*>(expr);
+    if (intLit) {
+        float value = static_cast<float>(intLit->value);
+        delete expr;
+        return value;
+    }
+    else {
+        YyFloatLiteral* floatLit = dynamic_cast<YyFloatLiteral*>(expr);
+        if (floatLit) {
+            float value = static_cast<float>(floatLit->value);
+            delete expr;
+            return value;
+        }
+        else {
+            reportError(expr->location, "Unsuported value");
+            return 0.0;
+        }
+    }
+
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //					Lexer functions											//
@@ -388,8 +425,11 @@ DataMember* makeDataMember(YYSTYPE type, YYSTYPE id)
     DataMember* yy = new DataMember();
     yy->location = getLocationFromYyIdentifier(id);
     yy->name = getNameFromYyIdentifier(id);
-    yy->type.name = getNameFromYyIdentifier(type);
-//	delete type;
+    yy->extendTo = false;
+
+    YyDataType* dt = yystype_cast<YyDataType*>(type);
+    yy->type = dt->dataType;
+    delete type;
 
     return yy;
 }
@@ -415,10 +455,7 @@ YYSTYPE createMapping(YYSTYPE token, YYSTYPE str_list, YYSTYPE id)
     yy->type = Structure::STRUCT;
 
     YyStringLiteralList* l = yystype_cast<YyStringLiteralList*>(str_list);
-    for (const std::unique_ptr<YyStringLiteral>& each : l->items)
-//		yy->tags.push_back(each->text);
-        ;
-
+    yy->tags = l->textValues;
     delete str_list;
 
     return new YyPtr<Structure>(yy);
@@ -435,7 +472,7 @@ YYSTYPE addToMapping(YYSTYPE decl, YYSTYPE type, YYSTYPE id)
 }
 
 
-YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_lit, YYSTYPE id)
+YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_list, YYSTYPE id)
 {
     Structure* yy = new Structure();
 
@@ -445,8 +482,9 @@ YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_lit, YYSTYPE id)
     yy->declType = Structure::ENCODING;
     yy->type = Structure::STRUCT;
 
-//	(*yy)->tags.push_back(getNameFromYyIdentifier(str_lit));
-    delete str_lit;
+    YyStringLiteralList* l = yystype_cast<YyStringLiteralList*>(str_list);
+    yy->tags = l->textValues;
+    delete str_list;
 
     EncodedMembers* g = new EncodedMembers();
     g->location = yy->location;
@@ -470,9 +508,9 @@ YYSTYPE addFenceToEncoding(YYSTYPE decl, YYSTYPE token)
 {
     Structure* yy = yystype_ptr_cast<Structure>(decl);
 
-    delete token;
     EncodedMembers* g = new EncodedMembers();
-    g->location = yy->location;
+    g->location = token->location;
+    delete token;
     yy->members.push_back(unique_ptr<EncodedOrMember>(g));
 
     return decl;
@@ -482,7 +520,10 @@ YYSTYPE createEncodingAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE opt_expr)
 {
     DataMember* att = makeDataMember(type, id);
 
-    delete opt_expr;
+    if (opt_expr) {
+        float v = getExpressionValue(opt_expr);
+        att->defaulValue = v;
+    }
 
     return new YyPtr<EncodedOrMember>(att);
 }
@@ -490,6 +531,7 @@ YYSTYPE createEncodingAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE opt_expr)
 YYSTYPE createExtendAttribute(YYSTYPE id, YYSTYPE type)
 {
     DataMember* att = makeDataMember(type, id);
+    att->extendTo = true;
 
     return new YyPtr<EncodedOrMember>(att);
 }
@@ -500,12 +542,11 @@ EncodingAttributes createEncodingAttributes(YYSTYPE id, YYSTYPE opt_arg_list)
     EncodingAttributes att;
     att.name = getNameFromYyIdentifier(id);
 
-    //if (opt_arg_list) {
-    //	YyExpressionList* al = yystype_cast<YyExpressionList*>(opt_arg_list);
-    //	for (auto& each : al->items)
-    //		yy->arguments.push_back(each.release());
-    //}
-    delete opt_arg_list;
+    if (opt_arg_list) {
+        YyFloatList* fl = yystype_cast<YyFloatList*>(opt_arg_list);
+        att.arguments = fl->floatValues;
+        delete opt_arg_list;
+    }
 
     return att;
 }
@@ -545,155 +586,145 @@ YYSTYPE addEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE group)
 
 YYSTYPE createIdType(YYSTYPE id)
 {
-    //NameTypeNode* yy = new NameTypeNode();
-    //setNameFromYyIdentifier(yy, id);
+    YyDataType* yy = new YyDataType();
 
-    return id;
+    yy->dataType.typeKind = DataType::PLAIN;
+    yy->dataType.name = getNameFromYyIdentifier(id);
+
+    return yy;
 }
 
 
-YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE high_literal, bool high_flag)
+YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag)
 {
-    //NumericTypeNode* yy = new NumericTypeNode();
+    YyDataType* yy = new YyDataType();
 
-    //setLocationFromToken(yy, token);
+    yy->dataType.typeKind = DataType::PLAIN;
+    yy->dataType.name = "NUMERIC";
 
-    //yy->low_open = low_flag;
-    //yy->high_open = high_flag;
+    yy->dataType.arguments.push_back(static_cast<float>(low_flag));
 
-    //ExpressionNode* l = yystype_cast<ExpressionNode*>(low_literal);
-    //yy->arguments.push_back(l);
+    float l = getExpressionValue(low_expr);
+    yy->dataType.arguments.push_back(l);
 
-    //ExpressionNode* h = yystype_cast<ExpressionNode*>(high_literal);
-    //yy->arguments.push_back(h);
+    yy->dataType.arguments.push_back(static_cast<float>(high_flag));
+
+    float h = getExpressionValue(high_expr);
+    yy->dataType.arguments.push_back(h);
+
     delete token;
-    delete low_literal;
-    delete high_literal;
 
-    return createIdentifier("NUMERIC", yylineno);
+    return yy;
 }
 
-YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE high_literal, bool high_flag)
+YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag)
 {
-    //IntTypeNode* yy = new IntTypeNode();
+    YyDataType* yy = new YyDataType();
 
-    //setLocationFromToken(yy, token);
+    yy->dataType.typeKind = DataType::PLAIN;
+    yy->dataType.name = "INT";
 
-    //yy->low_open = low_flag;
-    //yy->high_open = high_flag;
+    yy->dataType.arguments.push_back(static_cast<float>(low_flag));
 
-    //ExpressionNode* l = yystype_cast<ExpressionNode*>(low_literal);
-    //yy->arguments.push_back(l);
+    float l = getExpressionValue(low_expr);
+    yy->dataType.arguments.push_back(l);
 
-    //ExpressionNode* h = yystype_cast<ExpressionNode*>(high_literal);
-    //yy->arguments.push_back(h);
+    yy->dataType.arguments.push_back(static_cast<float>(high_flag));
+
+    float h = getExpressionValue(high_expr);
+    yy->dataType.arguments.push_back(h);
 
     delete token;
-    delete low_literal;
-    delete high_literal;
 
-    return createIdentifier("INT", yylineno);
+    return yy;
 }
 
-YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE float_lit)
+YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE expr)
 {
-    //FixedPointTypeNode* yy = new FixedPointTypeNode();
+    YyDataType* yy = new YyDataType();
 
-    //setLocationFromToken(yy, token);
+    yy->dataType.typeKind = DataType::PLAIN;
+    yy->dataType.name = "FIXED_PONIT";
 
-    //ExpressionNode* e = yystype_cast<ExpressionNode*>(float_lit);
-    //yy->arguments.push_back(e);
+    float v = getExpressionValue(expr);
+    yy->dataType.arguments.push_back(v);
 
     delete token;
-    delete float_lit;
 
-    return createIdentifier("FIXED_PONIT", yylineno);
+    return yy;
 }
 
-YYSTYPE createBit(YYSTYPE token, YYSTYPE int_lit)
+YYSTYPE createBit(YYSTYPE token, YYSTYPE expr)
 {
-    //FixedPointTypeNode* yy = new FixedPointTypeNode();
+    YyDataType* yy = new YyDataType();
 
-    //setLocationFromToken(yy, token);
+    yy->dataType.typeKind = DataType::PLAIN;
+    yy->dataType.name = "BIT";
 
-    //ExpressionNode* e = yystype_cast<ExpressionNode*>(int_lit);
-    //yy->arguments.push_back(e);
+    float v = getExpressionValue(expr);
+    yy->dataType.arguments.push_back(v);
+
     delete token;
-    delete int_lit;
 
-    return createIdentifier("BIT", yylineno);
+    return yy;
 }
 
 YYSTYPE createSequence(YYSTYPE token, YYSTYPE id_type)
 {
-    //SequenceOfTypeNode* yy = new SequenceOfTypeNode();
+    YyDataType* yy = new YyDataType();
 
-    //setLocationFromToken(yy, token);
+    yy->dataType.typeKind = DataType::SEQUENCE;
+    yy->dataType.name = getNameFromYyIdentifier(id_type);
 
-    //NameTypeNode* t = new NameTypeNode();
-    //setNameFromYyIdentifier(t, id_type);
-    //yy->type.set(t);
     delete token;
-//	delete id_type;
 
-    string name = string("SEQUENCE<") + getNameFromYyIdentifier(id_type) + ">";
-    return createIdentifier(name.c_str(), yylineno);
+    return yy;
 }
 
 YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type)
 {
-    //ClassRefTypeNode* yy = new ClassRefTypeNode();
+    YyDataType* yy = new YyDataType();
 
-    //setLocationFromToken(yy, token);
-    //yy->name = getNameFromYyIdentifier(id_type);
+    yy->dataType.typeKind = DataType::CLASS;
+    yy->dataType.name = getNameFromYyIdentifier(id_type);
 
     delete token;
-//	delete id_type;
 
-    string name = string("class ") + getNameFromYyIdentifier(id_type);
-    return createIdentifier(name.c_str(), yylineno);
+    return yy;
 }
 
 YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE id, YYSTYPE values)
 {
-    //InlineEnumTypeNode* yy = new InlineEnumTypeNode();
+    YyDataType* yy = new YyDataType();
 
-    //setLocationFromToken(yy, token);
-    //yy->name = getNameFromYyIdentifier(id);
+    yy->dataType.typeKind = DataType::ENUM;
+    yy->dataType.name = getNameFromYyIdentifier(id);
 
-    //YyEnumValueList* l = yystype_cast<YyEnumValueList*>(values);
-    //for (std::unique_ptr<EnumValueDeclNode>& each : l->items)
-    //	yy->values.push_back(each.release());
-
+    YyEnumValues* v = yystype_cast<YyEnumValues*>(values);
+    yy->dataType.enumValues = v->enumValues;
     delete token;
-//	delete id;
     delete values;
 
-    string name = string("enum ") + getNameFromYyIdentifier(id);
-    return createIdentifier(name.c_str(), yylineno);
+    return yy;
 }
 
 YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit)
 {
-    //YyEnumValueList* yy = 0;
-    //if (list)
-    //	yy = yystype_cast<YyEnumValueList*>(list);
-    //else
-    //	yy = new YyEnumValueList();
 
-    //EnumValueDeclNode* ev = new EnumValueDeclNode();
+    YyEnumValues* yy = 0;
+    if (list)
+        yy = yystype_cast<YyEnumValues*>(list);
+    else
+        yy = new YyEnumValues();
 
-    //setNameFromYyIdentifier(ev, id);
 
-    //ExpressionNode* e = yystype_cast<ExpressionNode*>(int_lit);
-    //ev->value.set(e);
+    string name = getNameFromYyIdentifier(id);
+    YyIntegerLiteral* l = yystype_cast<YyIntegerLiteral*>(int_lit);
 
-    //yy->addItem(ev);
-    delete list;
-    delete id;
+    yy->enumValues.push_back(make_pair(name, static_cast<int>(l->value)));
     delete int_lit;
 
-    return 0;
+    return yy;
 }
 
 
@@ -705,23 +736,22 @@ YYSTYPE addString(YYSTYPE list, YYSTYPE str)
     else
         yy = new YyStringLiteralList();
 
-    YyStringLiteral* s = yystype_cast<YyStringLiteral*>(str);
-    yy->addItem(s);
+    string value = getNameFromYyIdentifier(str);
+    yy->textValues.push_back(value);
 
     return yy;
 }
 
 YYSTYPE addExpression(YYSTYPE list, YYSTYPE expr)
 {
-    YyIdentifierList* yy = 0;
+    YyFloatList* yy = 0;
     if (list)
-        yy = yystype_cast<YyIdentifierList*>(list);
+        yy = yystype_cast<YyFloatList*>(list);
     else
-        yy = new YyIdentifierList();
+        yy = new YyFloatList();
 
-    //YyIdentifier* e = yystype_cast<YyIdentifier*>(expr);
-    //yy->addItem(e);
-    delete expr;
+    float value = getExpressionValue(expr);
+    yy->floatValues.push_back(value);
 
     return yy;
 }

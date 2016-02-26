@@ -22,6 +22,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 class Root;
 
-void dbgDumpTree(FILE* file, const Root* root);
+void dbgDumpTree(FILE* file, const Root* root, bool printLocation);
 
 #endif // DEBUG_H_INCLUDED

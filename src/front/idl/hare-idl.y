@@ -64,7 +64,7 @@ mapping
 ;
 
 encoding_begin
-	: KW_ENCODING '(' STRING_LITERAL ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createEncoding($1, $3, $6); releaseYys4($2, $4, $5, $7); }
+	: KW_ENCODING '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createEncoding($1, $3, $6); releaseYys4($2, $4, $5, $7); }
 	| encoding_begin data_element { $$ = addToEncoding($1, $2); }
 	| encoding_begin data_group { $$ = addToEncoding($1, $2); }
     | encoding_begin KW_FENCE { $$ = addFenceToEncoding($1, $2); }

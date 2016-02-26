@@ -25,17 +25,19 @@ using namespace std;
 class DataType
 {
 public:
+    enum KIND { PLAIN, ENUM, CLASS, SEQUENCE, VECTOR } typeKind;
 	string name;
-	// ... (details to be developed)
+	vector<float> arguments;
+	vector<pair<string, int> > enumValues;
 
-	DataType() {}
+	DataType() : typeKind(PLAIN) {}
 };
 
 class EncodingAttributes
 {
 public:
 	string name;
-	// ... (details to be developed)
+	vector<float> arguments;
 
 	EncodingAttributes() {}
 };
@@ -43,7 +45,8 @@ public:
 struct Location {
 	string fileName;
 	int lineNumber;
-	Location() : fileName(), lineNumber(0) {}
+
+	Location() : lineNumber(0) {}
 };
 
 class EncodedOrMember
@@ -58,6 +61,10 @@ class DataMember : public EncodedOrMember
 public:
 	DataType type;
 	string name;
+	bool extendTo;
+	float defaulValue;
+
+	DataMember() : extendTo(false), defaulValue(0) {}
 };
 
 class EncodedMembers : public EncodedOrMember
@@ -76,6 +83,9 @@ public:
 	DECLTYPE declType;
 	TYPE type;
 	string name;
+	vector<string> tags;
+
+	Structure(): declType(IDL), type(STRUCT) {}
 };
 
 class Root

@@ -14,7 +14,7 @@ int main()
 
         dbgDumpLeaks();
         if (root)
-            dbgDumpTree(stdout, root);
+            dbgDumpTree(stdout, root, false);
 
         return 0;
     }
