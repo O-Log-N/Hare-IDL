@@ -24,18 +24,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 using namespace std;
 
-Root* rootPtr = 0;
+static const bool dbgEnableLeakDetector = true;
+static const bool NotImplementedYet = false;
 
-vector<string> fileNames;
-const char* currentFileName = 0;
-int returnState = 0;
+static Root* rootPtr = 0;
+static string currentFileName;
 
-vector<int> stateStack;
+static vector<int> stateStack;
 
-const bool dbgEnableLeakDetector = true;
-set<YyBase*> dbgLeakDetector;
+static set<YyBase*> dbgLeakDetector;
 
-bool errorFlag = false;
+static bool errorFlag = false;
+
 
 
 string locationToString(const Location& loc)
@@ -65,8 +65,11 @@ YyBase::~YyBase()
 
 void dbgDumpLeaks()
 {
-	for (set<YyBase*>::const_iterator it = dbgLeakDetector.begin(); it != dbgLeakDetector.end(); ++it) {
-		reportError((*it)->location, typeid(**it).name());
+	if (!dbgLeakDetector.empty()) {
+		plainError("Parser nodes leaked:");
+		for (set<YyBase*>::const_iterator it = dbgLeakDetector.begin(); it != dbgLeakDetector.end(); ++it) {
+			reportError((*it)->location, typeid(**it).name());
+		}
 	}
 }
 
@@ -309,10 +312,9 @@ YYSTYPE createZeroLiteral(const char* text, int line)
 
 YYSTYPE createStringLiteral(const char* text, int line)
 {
-	HAREASSERT(text);
 	string t = text;
-	HAREASSERT(t.size() >= 2);
-	t = t.substr(1, t.size() - 2);
+	if(t.size() >= 2)
+		t = t.substr(1, t.size() - 2);
 
 	YyStringLiteral* yy = new YyStringLiteral();
 	setLocation(yy->location, line);
@@ -746,52 +748,50 @@ extern "C" void yy_delete_buffer(yy_buffer_state*);
 
 
 static
-void parseInternal(const std::string& fileName, bool debugDump, Root* result)
+Root* parseInternal(const std::string& fileName, bool debugDump)
 {
 	HAREASSERT(!rootPtr);
 	try {
-		rootPtr = result;
-//		unique_ptr<FileNode> file(new FileNode(fileName));
-//		file->isInternalFile = internalFile;
-//		acceptFile = file.get();
-		currentFileName = fileName.c_str();
-//		allowAtIdentifier = internalFile;
+		unique_ptr<Root> root(new Root());
+
+		rootPtr = root.get();
+		currentFileName = fileName;
 		yydebug = static_cast<int>(debugDump);
 
 		int err = yyparse();
 
+		rootPtr = 0;
+		currentFileName.erase();
+		yydebug = 0;
+
 		if (err != 0)
 			plainError(fmt::format("Errors found while parsing file '%s'.", fileName));
 
-		rootPtr = 0;
-		currentFileName = 0;
-		yydebug = 0;
-
-		return;
+		return root.release();
 	}
 	catch (...) {
 		plainError(fmt::format("Exception thrown while parsing file '%s'.", fileName));
 
 		rootPtr = 0;
-		currentFileName = 0;
+		currentFileName.erase();
 		yydebug = 0;
 		throw;
 	}
 }
 
 
-void parseCode(const char* code, const std::string& pseudoFileName, bool debugDump, Root* result)
+Root* parseCode(const char* code, const std::string& pseudoFileName, bool debugDump)
 {
 	HAREASSERT(code);
 
 	unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> buff(yy_scan_string(code), &yy_delete_buffer);
 
 	yylineno = 0;
-	parseInternal(pseudoFileName, debugDump, result);
+	return parseInternal(pseudoFileName, debugDump);
 }
 
 
-void parseSourceFile(const string& fileName, bool debugDump, Root* result)
+Root* parseSourceFile(const string& fileName, bool debugDump)
 {
 	HAREASSERT(!fileName.empty());
 
@@ -801,19 +801,19 @@ void parseSourceFile(const string& fileName, bool debugDump, Root* result)
 #pragma warning( pop )
 	if (!file) {
 		plainError(fmt::format("Failed to open file '%s'.", fileName));
-		return;
+		return 0;
 	}
 
 	unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> buff(yy_create_buffer(file.get(), 16000), &yy_delete_buffer);
 
 	if (!buff) {
 		plainError(fmt::format("Failed to allocate read buffer for file '%s'.", fileName));
-		return;
+		return 0;
 	}
 
 	yy_switch_to_buffer(buff.get());
 	yylineno = 1;
-	parseInternal(fileName, debugDump, result);
+	return parseInternal(fileName, debugDump);
 }
 
 //////////////////////////////////////////////////////////////////////////////

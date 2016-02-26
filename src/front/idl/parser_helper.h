@@ -36,8 +36,6 @@ extern "C" {
 #include <stdbool.h>
 #endif
 
-	extern int returnState;
-	
 	void pushState(int state);
 	int popState();
 
@@ -97,9 +95,6 @@ extern "C" {
 	YYSTYPE addString(YYSTYPE list, YYSTYPE str);
 	YYSTYPE addExpression(YYSTYPE list, YYSTYPE expr);
 	YYSTYPE createIdentifierExpression(YYSTYPE id);
-	
-
-
 	
 #ifdef __cplusplus
 }

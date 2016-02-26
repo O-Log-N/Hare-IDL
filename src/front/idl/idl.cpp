@@ -9,12 +9,17 @@
 
 int main()
 {
-	Root root;
-	parseSourceFile("sample.idl", false, &root);
+	try {
+		Root* root = parseSourceFile("sample.idl", false);
 
-	dbgDumpLeaks();
-	dbgDumpTree(stdout, &root);
+		dbgDumpLeaks();
+		if (root)
+			dbgDumpTree(stdout, root);
 
-    return 0;
+		return 0;
+	}
+	catch (...) {
+		return 1;
+	}
 }
 

@@ -90,7 +90,7 @@ public:
 			kind = "ENCODING";
 			break;
 		default:
-			assert(false);
+			HAREASSERT(false);
 		}
 		dbgWriteWithLocation(node->location, fmt::format("{} Structure '{}'", kind, node->name));
 
@@ -106,7 +106,7 @@ public:
 					dbgDumpEncodedMember(group);
 				}
 				else
-					assert(false);
+					HAREASSERT(false);
 			}
 		}
 		--offset;
@@ -130,7 +130,7 @@ public:
 					dbgDumpEncodedMember(group);
 				}
 				else
-					assert(false);
+					HAREASSERT(false);
 			}
 		}
 		--offset;
@@ -140,8 +140,8 @@ public:
 
 void dbgDumpTree(FILE* file, const Root* root)
 {
-	assert(file);
-	assert(root);
+	HAREASSERT(file);
+	HAREASSERT(root);
 
 	DbgDumpWalker walker(file);
 	walker.dbgDumpRoot(root);

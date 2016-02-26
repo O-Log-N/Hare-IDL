@@ -21,11 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "../../idlc_include.h"
 #include "../../front-back/idl_tree.h"
 
-#define HAREASSERT(condition) assert(condition)
-
-class Node;
-
-const bool NotImplementedYet = false;
 
 std::string locationToString(const Location& loc);
 
@@ -43,7 +38,7 @@ void reportError(const Location& loc, const std::string& msg);
 void plainError(const std::string& msg);
 
 
-void parseCode(const char* code, const std::string& pseudoFileName, bool debugDump, Root* result);
-void parseSourceFile(const std::string& fileName, bool debugDump, Root* result);
+Root* parseCode(const char* code, const std::string& pseudoFileName, bool debugDump);
+Root* parseSourceFile(const std::string& fileName, bool debugDump);
 
 #endif // PARSER_H_INCLUDED
