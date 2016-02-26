@@ -377,7 +377,7 @@ class TemplateParser
 		return true;
 	}
 
-	bool readLine( ifstream& tf, string& line, unsigned int& contentStart, int& currentLineNum )
+	bool readLine( istream& tf, string& line, unsigned int& contentStart, int& currentLineNum )
 	{
 		contentStart = 0;
 		bool somethingFound = false;
@@ -603,7 +603,7 @@ class TemplateParser
 
 public:
 	enum {OK = 0, NO_MORE_TEMPLATES = 1, FAILED_ERROR = 2, FAILED_BUID_TREE_ERROR = 3,	FAILED_INTERNAL = 4};
-	int loadTemplate( ifstream& tf, AnyTemplateRoot& rootNode, int& currentLineNum )
+	int loadTemplate( istream& tf, AnyTemplateRoot& rootNode, int& currentLineNum )
 	{
 		TEMPLATE_NODES nodes;
 
@@ -795,7 +795,7 @@ public:
 
 TemplateParser tp;
 
-bool loadTemplate( ifstream& tf, AnyTemplateRoot& rootNode, int& currentLineNum )
+bool loadTemplate( istream& tf, AnyTemplateRoot& rootNode, int& currentLineNum )
 {
 	return tp.loadTemplate( tf, rootNode, currentLineNum );
 }

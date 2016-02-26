@@ -87,7 +87,7 @@ struct AnyTemplateRoot
 typedef vector<AnyTemplateRoot> ANY_TEMPLATE_ROOTS;
 
 
-bool loadTemplate( ifstream& tf, AnyTemplateRoot& rootNode, int& currentLineNum );
+bool loadTemplate( istream& tf, AnyTemplateRoot& rootNode, int& currentLineNum );
 void dbgPrintTree( AnyTemplateRoot& rootNode );
 
 
