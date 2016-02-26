@@ -32,9 +32,13 @@ void idlcBackEnd( Root& root )
 
 	ifstream tf;
 	tf.open ( "template.txt", ios::in | ios::binary );
-
+	if ( !tf )
+	{
+		fmt::print( "failed to open template file\n" );
+		return;
+	}
 	int line = 0;
-	if ( loadTemplate( tf, template_root, &line ) != 0 )
+	if ( loadTemplate( tf, template_root, line ) != 0 )
 		return;
 	fmt::print( "\n\n" );
 	dbgPrintTree( template_root );

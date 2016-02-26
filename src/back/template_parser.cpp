@@ -60,7 +60,7 @@ struct PlaceholderWord
 	PLACEHOLDER id;
 };
 
-KeyWord keywords[] = 
+const KeyWord keywords[] = 
 {
 	{PARAM_STRING_BEGIN_TEMPLATE, sizeof(PARAM_STRING_BEGIN_TEMPLATE)-1, NODE_TYPE::BEGIN_TEMPLATE},
 	{PARAM_STRING_END_TEMPLATE, sizeof(PARAM_STRING_END_TEMPLATE)-1, NODE_TYPE::END_TEMPLATE},
@@ -73,7 +73,7 @@ KeyWord keywords[] =
 	{NULL, 0, NODE_TYPE::CONTENT}
 };
 
-PlaceholderWord placeholders[] = 
+const PlaceholderWord placeholders[] = 
 {
 	{PLACEHOLDER_STRING_STRUCTNAME, sizeof(PLACEHOLDER_STRING_STRUCTNAME)-1, PLACEHOLDER::STRUCT_NAME},
 	{PLACEHOLDER_STRING_MEMBER_TYPE, sizeof(PLACEHOLDER_STRING_MEMBER_TYPE)-1, PLACEHOLDER::MEMBER_TYPE},
@@ -81,7 +81,7 @@ PlaceholderWord placeholders[] =
 	{NULL, 0, PLACEHOLDER::VERBATIM},
 };
 
-ParameterWord params[] = 
+const ParameterWord params[] = 
 {
 	{PARAM_STRING_BEGIN, sizeof(PARAM_STRING_BEGIN)-1, PARAMETER::BEGIN},
 	{PARAM_STRING_END, sizeof(PARAM_STRING_END)-1, PARAMETER::END},
@@ -99,7 +99,7 @@ class TemplateParser
 
 	void dbgPrintLineParts( vector<LinePart>& parts )
 	{
-		unsigned int i;
+		size_t i;
 		for ( i=0; i<parts.size(); i++ )
 			switch ( parts[i].type )
 			{
@@ -133,14 +133,14 @@ class TemplateParser
 			case NODE_TYPE::ASSERT: fmt::print( "ASSERT " ); break;
 			case NODE_TYPE::FOR_EACH_OF_MEMBERS: fmt::print( "FOR_EACH_OF_MEMBERS " ); break;
 			case NODE_TYPE::INCLUDE: fmt::print( "INCLUDE " ); break;
-			case NODE_TYPE::IF_TRUE_BRANCHE: fmt::print( "IF_TRUE" ); break;
-			case NODE_TYPE::IF_FALSE_BRANCHE: fmt::print( "IF_FALSE" ); break;
+			case NODE_TYPE::IF_TRUE_BRANCH: fmt::print( "IF_TRUE" ); break;
+			case NODE_TYPE::IF_FALSE_BRANCH: fmt::print( "IF_FALSE" ); break;
 		}
 
 		if ( node.lineParts.size() )
 			dbgPrintLineParts( node.lineParts );
 		fmt::print( "\n" );
-		for ( unsigned int i=0; i<node.childNodes.size(); i++ )
+		for ( size_t i=0; i<node.childNodes.size(); i++ )
 			dbgPrintNode( node.childNodes[i], depth + 1 );
 	}
 
@@ -155,7 +155,7 @@ class TemplateParser
 			}
 			case NODE_TYPE::BEGIN_TEMPLATE:
 			{
-				for ( unsigned int i=0; i<node.childNodes.size(); i++ )
+				for ( size_t i=0; i<node.childNodes.size(); i++ )
 					dbgValidateNode( node.childNodes[i] );
 				break;
 			}
@@ -165,14 +165,14 @@ class TemplateParser
 				assert( childCnt == 1 || node.childNodes.size() == 2 );
 				if ( childCnt == 1 )
 				{
-					assert( node.childNodes[0].type == NODE_TYPE::IF_TRUE_BRANCHE || node.childNodes[0].type == NODE_TYPE::IF_FALSE_BRANCHE );
+					assert( node.childNodes[0].type == NODE_TYPE::IF_TRUE_BRANCH || node.childNodes[0].type == NODE_TYPE::IF_FALSE_BRANCH );
 				}
 				else
 				{
-					assert( node.childNodes[0].type == NODE_TYPE::IF_TRUE_BRANCHE );
-					assert( node.childNodes[1].type == NODE_TYPE::IF_FALSE_BRANCHE );
+					assert( node.childNodes[0].type == NODE_TYPE::IF_TRUE_BRANCH );
+					assert( node.childNodes[1].type == NODE_TYPE::IF_FALSE_BRANCH );
 				}
-				for ( unsigned int i=0; i<node.childNodes.size(); i++ )
+				for ( size_t i=0; i<node.childNodes.size(); i++ )
 					dbgValidateNode( node.childNodes[i] );
 				break;
 			}
@@ -183,10 +183,10 @@ class TemplateParser
 				break;
 			}
 			case NODE_TYPE::FOR_EACH_OF_MEMBERS:
-			case NODE_TYPE::IF_TRUE_BRANCHE:
-			case NODE_TYPE::IF_FALSE_BRANCHE:
+			case NODE_TYPE::IF_TRUE_BRANCH:
+			case NODE_TYPE::IF_FALSE_BRANCH:
 			{
-				for ( unsigned int i=0; i<node.childNodes.size(); i++ )
+				for ( size_t i=0; i<node.childNodes.size(); i++ )
 					dbgValidateNode( node.childNodes[i] );
 				break;
 			}
@@ -312,20 +312,20 @@ class TemplateParser
 					while ( trueBranchEnd != nodeBlockEnd );
 
 					TemplateNode ifTrue, ifFalse;
-					ifTrue.type = NODE_TYPE::IF_TRUE_BRANCHE;
+					ifTrue.type = NODE_TYPE::IF_TRUE_BRANCH;
 					ifTrue.srcLineNum = trueBranchEnd == it + 1 ? -1 : it->srcLineNum + 1;
 					makeNodeTree( ifTrue, it + 1, trueBranchEnd );
 
 					if ( trueBranchEnd->type == NODE_TYPE::ELSE )
 					{
-						ifFalse.type = NODE_TYPE::IF_FALSE_BRANCHE;
+						ifFalse.type = NODE_TYPE::IF_FALSE_BRANCH;
 						ifFalse.srcLineNum = trueBranchEnd != nodeBlockEnd ? trueBranchEnd->srcLineNum + 1 : -1;
 						makeNodeTree( ifFalse, trueBranchEnd + 1, nodeBlockEnd );
 					}
 					else
 					{
 						assert( trueBranchEnd->type == NODE_TYPE::ELIF );
-						ifFalse.type = NODE_TYPE::IF_FALSE_BRANCHE;
+						ifFalse.type = NODE_TYPE::IF_FALSE_BRANCH;
 						ifFalse.srcLineNum = trueBranchEnd != nodeBlockEnd ? trueBranchEnd->srcLineNum : -1;
 						makeNodeTree( ifFalse, trueBranchEnd, nodeBlockEnd );
 					}
@@ -351,7 +351,7 @@ class TemplateParser
 				}
 				case NODE_TYPE::ELIF:
 				{
-					if ( rootNode.type != NODE_TYPE::IF_FALSE_BRANCHE )
+					if ( rootNode.type != NODE_TYPE::IF_FALSE_BRANCH )
 					{
 						fmt::print( "line {}: error: \"{}\" without matching \"{}\"\n", it->srcLineNum, KEYWORD_STRING_ELIF, KEYWORD_STRING_IF );
 						return false;
@@ -377,7 +377,7 @@ class TemplateParser
 		return true;
 	}
 
-	bool readLine( ifstream& tf, string& line, unsigned int& contentStart, int* currentLineNum )
+	bool readLine( ifstream& tf, string& line, unsigned int& contentStart, int& currentLineNum )
 	{
 		contentStart = 0;
 		bool somethingFound = false;
@@ -393,7 +393,7 @@ class TemplateParser
 			somethingFound = true;
 			if ( ch == '\n' )
 			{
-				(*currentLineNum) ++;
+				++currentLineNum;
 				break;
 			}
 			line.push_back( ch );
@@ -457,7 +457,7 @@ class TemplateParser
 	{
 		// we have to go char by char; if '@' is found, make sure it's not a placeholder, or replace it accordingly
 		unsigned int pos = 0;
-		unsigned int sz = lc.size();
+		size_t sz = lc.size();
 		LinePart part;
 		part.type = PLACEHOLDER::VERBATIM;
 		do
@@ -510,7 +510,7 @@ class TemplateParser
 	{
 				// we have to go char by char; if '@' is found, make sure it's not a placeholder, or replace it accordingly
 				unsigned int pos = 0;
-				unsigned int sz = lc.size();
+				size_t sz = lc.size();
 				LinePart part;
 				part.type = PLACEHOLDER::VERBATIM;
 				do
@@ -603,7 +603,7 @@ class TemplateParser
 
 public:
 	enum {OK = 0, NO_MORE_TEMPLATES = 1, FAILED_ERROR = 2, FAILED_BUID_TREE_ERROR = 3,	FAILED_INTERNAL = 4};
-	int loadTemplate( ifstream& tf, AnyTemplateRoot& rootNode, int* currentLineNum )
+	int loadTemplate( ifstream& tf, AnyTemplateRoot& rootNode, int& currentLineNum )
 	{
 		TEMPLATE_NODES nodes;
 
@@ -632,14 +632,14 @@ public:
 					while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 					if ( line.compare( contentStart, sizeof(PARAM_STRING_TYPE)-1, PARAM_STRING_TYPE ) != 0 )
 					{
-						fmt::print( "line {}: error: no \"{}\" after \"{}\"\n", *currentLineNum, PARAM_STRING_TYPE, PARAM_STRING_BEGIN_TEMPLATE );
+						fmt::print( "line {}: error: no \"{}\" after \"{}\"\n", currentLineNum, PARAM_STRING_TYPE, PARAM_STRING_BEGIN_TEMPLATE );
 						return FAILED_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 					}
 					contentStart += sizeof(PARAM_STRING_TYPE)-1;
 					while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 					if ( contentStart < line.size() && line[contentStart] != '=' )
 					{
-						fmt::print( "line {}: error: no \"{}\" after \"{}\"\n", *currentLineNum, "=", PARAM_STRING_TYPE );
+						fmt::print( "line {}: error: no \"{}\" after \"{}\"\n", currentLineNum, "=", PARAM_STRING_TYPE );
 						return FAILED_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 					}
 					contentStart++;
@@ -649,7 +649,7 @@ public:
 					while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 					if ( !( contentStart == line.size() ) )
 					{
-						fmt::print( "line {}: error: unexpected tokens\n", *currentLineNum );
+						fmt::print( "line {}: error: unexpected tokens\n", currentLineNum );
 						return FAILED_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 					}
 
@@ -664,7 +664,7 @@ public:
 		{
 			if ( nodes.size() )
 			{
-				fmt::print( "line {}: error: no no template has been found\n", *currentLineNum );
+				fmt::print( "line {}: error: no no template has been found\n", currentLineNum );
 				return FAILED_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 			}
 			else
@@ -683,7 +683,7 @@ public:
 			bool isContent = line.compare( contentStart, 2, "@@" ) != 0;
 			if ( isContent ) // an empty line => not ctr line => content line => keep "as is"
 			{
-				tl.srcLineNum = *currentLineNum;
+				tl.srcLineNum = currentLineNum;
 				tl.type = NODE_TYPE::CONTENT;
 				parseLineContent( line, tl.lineParts, NODE_TYPE::CONTENT, 0 );
 //				tl.content = line;
@@ -696,7 +696,7 @@ public:
 			// unexpected template start
 			if ( kwd == NODE_TYPE::BEGIN_TEMPLATE )
 			{
-				fmt::print( "line {}: error: \"{}\" is unexpected\n", *currentLineNum, PARAM_STRING_BEGIN_TEMPLATE );
+				fmt::print( "line {}: error: \"{}\" is unexpected\n", currentLineNum, PARAM_STRING_BEGIN_TEMPLATE );
 				return FAILED_ERROR;
 			}
 
@@ -708,13 +708,13 @@ public:
 				while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t'))) endName.push_back( line[contentStart++] );
 				if ( endName != rootNode.name )
 				{
-					fmt::print( "line {}: error: name does not match that at template beginning\n", *currentLineNum );
+					fmt::print( "line {}: error: name does not match that at template beginning\n", currentLineNum );
 					return FAILED_ERROR;
 				}
 				while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 				if ( !( contentStart == line.size() || ( contentStart + 1 == line.size() || line[contentStart] == '\r' ) ) )
 				{
-					fmt::print( "line {}: error: unexpected tokens\n", *currentLineNum );
+					fmt::print( "line {}: error: unexpected tokens\n", currentLineNum );
 					return FAILED_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 				}
 
@@ -723,7 +723,7 @@ public:
 			}
 
 			// other control nodes
-			tl.srcLineNum = *currentLineNum;
+			tl.srcLineNum = currentLineNum;
 			tl.type = kwd;
 			switch ( kwd )
 			{
@@ -742,7 +742,7 @@ public:
 					bool goodParam = param == PARAMETER::BEGIN || param == PARAMETER::END;
 					if ( !goodParam )
 					{
-						fmt::print( "line {}: error: \"{}\" or \"{}\" is expected after \"{}\"\n", *currentLineNum, PARAM_STRING_BEGIN, PARAM_STRING_END, KEYWORD_STRING_FOR_EACH_OF_MEMBERS );
+						fmt::print( "line {}: error: \"{}\" or \"{}\" is expected after \"{}\"\n", currentLineNum, PARAM_STRING_BEGIN, PARAM_STRING_END, KEYWORD_STRING_FOR_EACH_OF_MEMBERS );
 						return FAILED_ERROR;
 					}
 					LinePart part;
@@ -751,7 +751,7 @@ public:
 					skipSpaces( remaining, contentStart );
 					if ( contentStart < remaining.size() )
 					{
-						fmt::print( "line {}: error: unexpected token(s) \"{}\"\n", *currentLineNum, string( remaining.begin() + contentStart, remaining.end() ) );
+						fmt::print( "line {}: error: unexpected token(s) \"{}\"\n", currentLineNum, string( remaining.begin() + contentStart, remaining.end() ) );
 						return FAILED_ERROR;
 					}
 					break;
@@ -769,7 +769,7 @@ public:
 
 		if ( !endFound )
 		{
-			fmt::print( "line {}: error: \"{}\" not found\n", *currentLineNum, PARAM_STRING_END_TEMPLATE );
+			fmt::print( "line {}: error: \"{}\" not found\n", currentLineNum, PARAM_STRING_END_TEMPLATE );
 			return FAILED_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 		}
 
@@ -795,7 +795,7 @@ public:
 
 TemplateParser tp;
 
-bool loadTemplate( ifstream& tf, AnyTemplateRoot& rootNode, int* currentLineNum )
+bool loadTemplate( ifstream& tf, AnyTemplateRoot& rootNode, int& currentLineNum )
 {
 	return tp.loadTemplate( tf, rootNode, currentLineNum );
 }

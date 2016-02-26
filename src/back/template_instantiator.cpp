@@ -26,7 +26,7 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	assert(ifNode.type == NODE_TYPE::IF || ifNode.type == NODE_TYPE::ASSERT);
 	bool ret;
 
-	unsigned int i, j;
+	size_t i, j;
 	vector<string> argstack;
 	vector<int> commands;
 	for (i = 0; i < ifNode.lineParts.size(); i++)
@@ -49,8 +49,8 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 		}
 	}
 
-	unsigned int commandCnt = commands.size();
-	unsigned int stacksz = argstack.size();
+	size_t commandCnt = commands.size();
+	size_t stacksz = argstack.size();
 
 	assert((commandCnt == 1 && stacksz == 2) || commandCnt == 0 && stacksz == 1); // limitation of a current version; TODO: further development
 
@@ -91,13 +91,13 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 	{
 		case NODE_TYPE::FULL_TEMPLATE:
 		{
-			for ( unsigned int k=0; k<node.childNodes.size(); k++ )
+			for ( size_t k=0; k<node.childNodes.size(); k++ )
 				applyNode( node.childNodes[k] );
 			break;
 		}
 		case NODE_TYPE::CONTENT:
 		{
-			for ( unsigned int i=0; i<node.lineParts.size(); i++ )
+			for ( size_t i=0; i<node.lineParts.size(); i++ )
 				if ( node.lineParts[i].type == PLACEHOLDER::VERBATIM )
 					fmt::print("{}", node.lineParts[i].verbatim.c_str() );
 				else
@@ -105,10 +105,10 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			fmt::print("\n" );
 			break;
 		}
-		case NODE_TYPE::IF_TRUE_BRANCHE:
-		case NODE_TYPE::IF_FALSE_BRANCHE:
+		case NODE_TYPE::IF_TRUE_BRANCH:
+		case NODE_TYPE::IF_FALSE_BRANCH:
 		{
-			for ( unsigned int k=0; k<node.childNodes.size(); k++ )
+			for ( size_t k=0; k<node.childNodes.size(); k++ )
 				applyNode( node.childNodes[k] );
 			break;
 		}
@@ -117,14 +117,14 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			bool cond = calcConditionOfIfNode( node );
 			if ( cond )					
 			{
-				if ( node.childNodes[0].type == NODE_TYPE::IF_TRUE_BRANCHE )
+				if ( node.childNodes[0].type == NODE_TYPE::IF_TRUE_BRANCH )
 					applyNode( node.childNodes[0] );
 			}
 			else
 			{
-				if ( node.childNodes[0].type == NODE_TYPE::IF_FALSE_BRANCHE )
+				if ( node.childNodes[0].type == NODE_TYPE::IF_FALSE_BRANCH )
 					applyNode( node.childNodes[0] );
-				else if ( node.childNodes[1].type == NODE_TYPE::IF_FALSE_BRANCHE )
+				else if ( node.childNodes[1].type == NODE_TYPE::IF_FALSE_BRANCH )
 					applyNode( node.childNodes[1] );
 			}
 			break;

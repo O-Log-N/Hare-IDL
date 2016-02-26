@@ -37,7 +37,7 @@ BackEncodedOrMember* copyEncoded( const EncodedOrMember* src )
 	{
 		const EncodedMembers* encsrc = dynamic_cast<const EncodedMembers*>(src);
 		assert( encsrc != NULL ); // currently we do not expect any other type here
-		unsigned int i;
+		size_t i;
 		BackEncodedMembers* currentEncoded = new BackEncodedMembers;
 		currentEncoded->encodingAttr = encsrc->encodingAttr;
 		for ( i=0; i<encsrc->members.size(); i++ )
@@ -56,7 +56,7 @@ BackStructure* copyStructure( const Structure* src )
 	ret->type = src->type;
 	ret->name = src->name;
 	ret->encodingAttr = src->encodingAttr;
-	unsigned int i;
+	size_t i;
 	for ( i=0; i<src->members.size(); i++ )
 	{
 		BackEncodedOrMember* retChild = copyEncoded( &(*(src->members[i])) );
@@ -67,7 +67,7 @@ BackStructure* copyStructure( const Structure* src )
 
 void convertToBackTree( const Root& root, BackRoot& backRoot )
 {
-	unsigned int i;
+	size_t i;
 	for ( i=0; i<root.structures.size(); i++ )
 	{
 		BackStructure* ret = copyStructure( &(*(root.structures[i])) );

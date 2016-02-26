@@ -52,7 +52,7 @@ public:
 		parent = this;
 		members.push_back( unique_ptr<BackEncodedOrMember>(child) );
 	}
-	unsigned int getChildCount()
+	size_t getChildCount()
 	{
 		return members.size();
 	}

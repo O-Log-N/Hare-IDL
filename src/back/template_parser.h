@@ -33,8 +33,8 @@ enum NODE_TYPE {
 	INCLUDE,
 	ASSERT,
 	// derived types
-	IF_TRUE_BRANCHE,
-	IF_FALSE_BRANCHE,
+	IF_TRUE_BRANCH,
+	IF_FALSE_BRANCH,
 	FULL_TEMPLATE,
 //	TEMPLATE_ROOT,
 	FOR_EACH_OF_MEMBERS, // used ONLY within STRUCT
@@ -87,7 +87,7 @@ struct AnyTemplateRoot
 typedef vector<AnyTemplateRoot> ANY_TEMPLATE_ROOTS;
 
 
-bool loadTemplate( ifstream& tf, AnyTemplateRoot& rootNode, int* currentLineNum );
+bool loadTemplate( ifstream& tf, AnyTemplateRoot& rootNode, int& currentLineNum );
 void dbgPrintTree( AnyTemplateRoot& rootNode );
 
 
