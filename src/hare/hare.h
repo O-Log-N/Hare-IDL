@@ -31,10 +31,10 @@ namespace hare {
         
         public:
         AssertException(const char* cond_, const char* file_, int line_)
-        : cond(cond_), msg(nullptr), file(file_), line(line_), longMessage(fmt::format( "Condition \"{}\" failed. File: \"{}\", line: {}\n", cond, file, line )) {			
+        : cond(cond_), msg(nullptr), file(file_), line(line_), longMessage(fmt::format( "Assertion \"{}\" failed. File: \"{}\", line: {}\n", cond, file, line )) {			
         }
         AssertException(const char* cond_, const char* msg_, const char* file_, int line_)
-        : cond(cond_), msg(msg_), file(file_), line(line_), longMessage(fmt::format( "Condition \"{}\" failed. Reason: {} File: \"{}\", line: {}\n", cond, msg, file, line )) {
+        : cond(cond_), msg(msg_), file(file_), line(line_), longMessage(fmt::format( "Assertion \"{}\" failed. Reason: {} File: \"{}\", line: {}\n", cond, msg, file, line )) {
        }
 
 		virtual const char* what() const override

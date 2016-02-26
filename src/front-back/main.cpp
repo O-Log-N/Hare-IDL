@@ -67,7 +67,7 @@ int main()
 	}
 	catch ( std::exception& x )
 	{
-		fmt::print( "Assertion failed: {}\n", x.what() );
+		fmt::print( "Exception happened: {}\n", x.what() );
 	}
  
 
