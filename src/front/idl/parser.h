@@ -25,11 +25,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 std::string locationToString(const Location& loc);
 
 struct YyBase {
-	Location location;
-	YyBase();
-	virtual ~YyBase() = 0;
-	YyBase(const YyBase&) = delete;
-	YyBase& operator=(const YyBase&) = delete;
+    Location location;
+    YyBase();
+    virtual ~YyBase() = 0;
+    YyBase(const YyBase&) = delete;
+    YyBase& operator=(const YyBase&) = delete;
 };
 
 void dbgDumpLeaks();

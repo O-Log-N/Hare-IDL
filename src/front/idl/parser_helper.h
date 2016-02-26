@@ -36,66 +36,66 @@ extern "C" {
 #include <stdbool.h>
 #endif
 
-	void pushState(int state);
-	int popState();
+void pushState(int state);
+int popState();
 
-	int yywrap();
-	void yyerror(const char* msg);
-	
-	void parserError(const char* msg, const char* text, int line);
-	void parserErrorUnknownChar(char text, int line);
+int yywrap();
+void yyerror(const char* msg);
 
-	void releaseYys(YYSTYPE yys);
-	void releaseYys2(YYSTYPE yys0, YYSTYPE yys1);
-	void releaseYys3(YYSTYPE yys0, YYSTYPE yys1, YYSTYPE yys2);
-	void releaseYys4(YYSTYPE yys0, YYSTYPE yys1, YYSTYPE yys2, YYSTYPE yys3);
-	void releaseYys5(YYSTYPE yys0, YYSTYPE yys1, YYSTYPE yys2, YYSTYPE yys3, YYSTYPE yys4);
-	
-	YYSTYPE createYyToken(const char* text, int line, int token);
-	
-	YYSTYPE createIdentifier(const char* text, int line);
-	YYSTYPE createIntegerLiteral(const char* text, int line);
-	YYSTYPE createHexIntegerLiteral(const char* text, int line);
-	YYSTYPE createStringLiteral(const char* text, int line);
-	YYSTYPE createCharLiteral(const char* text, int line);
-	YYSTYPE createZeroLiteral(const char* text, int line);
-	YYSTYPE createBooleanLiteral(const char* text, int line);
-	YYSTYPE createFloatLiteral(const char* text, int line);
-	
-	YYSTYPE addToFile(YYSTYPE file, YYSTYPE item);
+void parserError(const char* msg, const char* text, int line);
+void parserErrorUnknownChar(char text, int line);
 
-	YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id);
-	YYSTYPE addToPublishableStruct(YYSTYPE decl, YYSTYPE type, YYSTYPE id);
+void releaseYys(YYSTYPE yys);
+void releaseYys2(YYSTYPE yys0, YYSTYPE yys1);
+void releaseYys3(YYSTYPE yys0, YYSTYPE yys1, YYSTYPE yys2);
+void releaseYys4(YYSTYPE yys0, YYSTYPE yys1, YYSTYPE yys2, YYSTYPE yys3);
+void releaseYys5(YYSTYPE yys0, YYSTYPE yys1, YYSTYPE yys2, YYSTYPE yys3, YYSTYPE yys4);
 
-	YYSTYPE createMapping(YYSTYPE token, YYSTYPE str_list, YYSTYPE id);
-	YYSTYPE addToMapping(YYSTYPE decl, YYSTYPE type, YYSTYPE id);
+YYSTYPE createYyToken(const char* text, int line, int token);
 
-	YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_lit, YYSTYPE id);
-	YYSTYPE addToEncoding(YYSTYPE decl, YYSTYPE elem);
-	YYSTYPE addFenceToEncoding(YYSTYPE decl, YYSTYPE token);
+YYSTYPE createIdentifier(const char* text, int line);
+YYSTYPE createIntegerLiteral(const char* text, int line);
+YYSTYPE createHexIntegerLiteral(const char* text, int line);
+YYSTYPE createStringLiteral(const char* text, int line);
+YYSTYPE createCharLiteral(const char* text, int line);
+YYSTYPE createZeroLiteral(const char* text, int line);
+YYSTYPE createBooleanLiteral(const char* text, int line);
+YYSTYPE createFloatLiteral(const char* text, int line);
 
-	YYSTYPE createEncodingAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE expr);
-	YYSTYPE createExtendAttribute(YYSTYPE id, YYSTYPE type);
+YYSTYPE addToFile(YYSTYPE file, YYSTYPE item);
 
-	YYSTYPE createEncodingGroup(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE opt_att);
-	YYSTYPE addToEncodingGroup(YYSTYPE group, YYSTYPE element);
-	YYSTYPE addEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE group);
+YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id);
+YYSTYPE addToPublishableStruct(YYSTYPE decl, YYSTYPE type, YYSTYPE id);
 
-	YYSTYPE createIdType(YYSTYPE id);
-	YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE high_literal, bool high_flag);
-	YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE high_literal, bool high_flag);
-	YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE float_lit);
-	YYSTYPE createBit(YYSTYPE token, YYSTYPE int_lit);
-	YYSTYPE createSequence(YYSTYPE token, YYSTYPE id_type);
-	YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type);
-	YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE id, YYSTYPE values);
+YYSTYPE createMapping(YYSTYPE token, YYSTYPE str_list, YYSTYPE id);
+YYSTYPE addToMapping(YYSTYPE decl, YYSTYPE type, YYSTYPE id);
 
-	YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit);
+YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_lit, YYSTYPE id);
+YYSTYPE addToEncoding(YYSTYPE decl, YYSTYPE elem);
+YYSTYPE addFenceToEncoding(YYSTYPE decl, YYSTYPE token);
 
-	YYSTYPE addString(YYSTYPE list, YYSTYPE str);
-	YYSTYPE addExpression(YYSTYPE list, YYSTYPE expr);
-	YYSTYPE createIdentifierExpression(YYSTYPE id);
-	
+YYSTYPE createEncodingAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE expr);
+YYSTYPE createExtendAttribute(YYSTYPE id, YYSTYPE type);
+
+YYSTYPE createEncodingGroup(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE opt_att);
+YYSTYPE addToEncodingGroup(YYSTYPE group, YYSTYPE element);
+YYSTYPE addEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE group);
+
+YYSTYPE createIdType(YYSTYPE id);
+YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE high_literal, bool high_flag);
+YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_literal, YYSTYPE high_literal, bool high_flag);
+YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE float_lit);
+YYSTYPE createBit(YYSTYPE token, YYSTYPE int_lit);
+YYSTYPE createSequence(YYSTYPE token, YYSTYPE id_type);
+YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type);
+YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE id, YYSTYPE values);
+
+YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit);
+
+YYSTYPE addString(YYSTYPE list, YYSTYPE str);
+YYSTYPE addExpression(YYSTYPE list, YYSTYPE expr);
+YYSTYPE createIdentifierExpression(YYSTYPE id);
+
 #ifdef __cplusplus
 }
 #endif
