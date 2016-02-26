@@ -55,13 +55,21 @@ void loadFakeSample( Root& root )
 
 int main()
 {
-	Root root;
+	try
+	{
+		Root root;
 
-	// Roughly: front end
-	loadFakeSample( root );
+		// Roughly: front end
+		loadFakeSample( root );
 
-	// Roughly: back end
-	idlcBackEnd( root );
+		// Roughly: back end
+		idlcBackEnd( root );
+	}
+	catch ( std::exception& x )
+	{
+		fmt::print( "Assertion failed: {}\n", x.what() );
+	}
+ 
 
     return 0;
 }

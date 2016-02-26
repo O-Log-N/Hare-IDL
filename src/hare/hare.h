@@ -27,16 +27,22 @@ namespace hare {
         const char* msg;
         const char* file;
         int line;
+		std::string longMessage;
         
         public:
         AssertException(const char* cond_, const char* file_, int line_)
-        : cond(cond_), msg(nullptr), file(file_), line(line_) {
+        : cond(cond_), msg(nullptr), file(file_), line(line_), longMessage(fmt::format( "Condition \"{}\" failed. File: \"{}\", line: {}\n", cond, file, line )) {			
         }
         AssertException(const char* cond_, const char* msg_, const char* file_, int line_)
-        : cond(cond_), msg(msg_), file(file_), line(line_) {
-        }
-    }
-}
+        : cond(cond_), msg(msg_), file(file_), line(line_), longMessage(fmt::format( "Condition \"{}\" failed. Reason: {} File: \"{}\", line: {}\n", cond, msg, file, line )) {
+       }
+
+		virtual const char* what() const override
+		{
+			return longMessage.c_str();
+		}
+    };
+};
 
 //#defining things within namespace is misleading,
 //  so they go outside
