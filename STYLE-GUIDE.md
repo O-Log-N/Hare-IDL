@@ -64,3 +64,5 @@ Naming conventions examplegls:
 5. non-constant global data SHOULD NOT be used unless absolutely necessary
 6. non-constant static data **MUST NOT** be used
 7. const modifier SHOULD be used wherever applicable
+8. On asserting: **MUST NOT** use assert(), **MUST** use HAREASSERT()/HAREASSERTM() instead
+   - asserts are STRONGLY encouraged
