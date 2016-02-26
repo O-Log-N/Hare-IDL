@@ -20,14 +20,19 @@ Copyright (C) 2016 OLogN Technologies AG
 
 
 // main keywords
-#define PARAM_STRING_BEGIN_TEMPLATE "BEGIN-TEMPLATE"
-#define PARAM_STRING_END_TEMPLATE "END-TEMPLATE"
+#define KEYWORD_STRING_BEGIN_TEMPLATE "BEGIN-TEMPLATE"
+#define KEYWORD_STRING_END_TEMPLATE "END-TEMPLATE"
 #define KEYWORD_STRING_FOR_EACH_OF_MEMBERS "FOR-EACH-OF-MEMBERS"
 #define KEYWORD_STRING_IF "IF"
 #define KEYWORD_STRING_ELSE "ELSE"
 #define KEYWORD_STRING_ELIF "ELIF"
-#define PARAM_STRING_ENDIF "ENDIF"
-#define PARAM_STRING_ASSERT "ASSERT"
+#define KEYWORD_STRING_ENDIF "ENDIF"
+#define KEYWORD_STRING_ASSERT "ASSERT"
+
+#define KEYWORD_STRING_OPEN_OUTPUT_FILE "OPEN-OUTPUT-FILE"
+#define KEYWORD_STRING_FOR_EACH_PUBLISHABLE_STRUCT "FOR-EACH-PUBLISHABLE-STRUCT"
+#define KEYWORD_STRING_CLOSE_OUTPUT_FILE "CLOSE-OUTPUT-FILE"
+#define KEYWORD_STRING_INCLUDE "INCLUDE"
 
 // parameters
 #define PARAM_STRING_TYPE "TYPE"
@@ -62,14 +67,14 @@ struct PlaceholderWord
 
 const KeyWord keywords[] = 
 {
-	{PARAM_STRING_BEGIN_TEMPLATE, sizeof(PARAM_STRING_BEGIN_TEMPLATE)-1, NODE_TYPE::BEGIN_TEMPLATE},
-	{PARAM_STRING_END_TEMPLATE, sizeof(PARAM_STRING_END_TEMPLATE)-1, NODE_TYPE::END_TEMPLATE},
+	{KEYWORD_STRING_BEGIN_TEMPLATE, sizeof(KEYWORD_STRING_BEGIN_TEMPLATE)-1, NODE_TYPE::BEGIN_TEMPLATE},
+	{KEYWORD_STRING_END_TEMPLATE, sizeof(KEYWORD_STRING_END_TEMPLATE)-1, NODE_TYPE::END_TEMPLATE},
 	{KEYWORD_STRING_FOR_EACH_OF_MEMBERS, sizeof(KEYWORD_STRING_FOR_EACH_OF_MEMBERS)-1, NODE_TYPE::FOR_EACH_OF_MEMBERS},
 	{KEYWORD_STRING_IF, sizeof(KEYWORD_STRING_IF)-1, NODE_TYPE::IF},
-	{PARAM_STRING_ENDIF, sizeof(PARAM_STRING_ENDIF)-1, NODE_TYPE::ENDIF},
+	{KEYWORD_STRING_ENDIF, sizeof(KEYWORD_STRING_ENDIF)-1, NODE_TYPE::ENDIF},
 	{KEYWORD_STRING_ELIF, sizeof(KEYWORD_STRING_ELIF)-1, NODE_TYPE::ELIF},
 	{KEYWORD_STRING_ELSE, sizeof(KEYWORD_STRING_ELSE)-1, NODE_TYPE::ELSE},
-	{PARAM_STRING_ASSERT, sizeof(PARAM_STRING_ASSERT)-1, NODE_TYPE::ASSERT},
+	{KEYWORD_STRING_ASSERT, sizeof(KEYWORD_STRING_ASSERT)-1, NODE_TYPE::ASSERT},
 	{NULL, 0, NODE_TYPE::CONTENT}
 };
 
@@ -286,7 +291,7 @@ class TemplateParser
 
 					if ( !endifFound )
 					{
-						fmt::print( "line {}: error: \"{}\" without matching \"{}\"\n", it->srcLineNum, KEYWORD_STRING_IF, PARAM_STRING_ENDIF );
+						fmt::print( "line {}: error: \"{}\" without matching \"{}\"\n", it->srcLineNum, KEYWORD_STRING_IF, KEYWORD_STRING_ENDIF );
 						return false;
 					}
 					assert( nodeBlockEnd->type == NODE_TYPE::ENDIF );
@@ -346,7 +351,7 @@ class TemplateParser
 				}
 				case NODE_TYPE::ENDIF: // processed out while processing a respective NODE_TYPE::IF
 				{
-					fmt::print( "line {}: error: \"{}\" without matching \"{}\"\n", it->srcLineNum, PARAM_STRING_ENDIF, KEYWORD_STRING_IF );
+					fmt::print( "line {}: error: \"{}\" without matching \"{}\"\n", it->srcLineNum, KEYWORD_STRING_ENDIF, KEYWORD_STRING_IF );
 					return false;
 				}
 				case NODE_TYPE::ELIF:
@@ -603,7 +608,7 @@ class TemplateParser
 
 public:
 	enum {OK = 0, NO_MORE_TEMPLATES = 1, FAILED_ERROR = 2, FAILED_BUID_TREE_ERROR = 3,	FAILED_INTERNAL = 4};
-	int loadTemplate( istream& tf, AnyTemplateRoot& rootNode, int& currentLineNum )
+	int loadTemplate( istream& tf, TemplateNode& rootNode, int& currentLineNum )
 	{
 		TEMPLATE_NODES nodes;
 
@@ -611,6 +616,8 @@ public:
 		bool startFound = false;
 		unsigned int contentStart = 0;
 		bool endFound = false;
+
+		LinePart templateName;
 
 		for( ;;) // through all nodes, find template beginning
 		{
@@ -623,16 +630,21 @@ public:
 			{
 				contentStart += 2;
 				while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
-				if ( line.compare( contentStart, sizeof(PARAM_STRING_BEGIN_TEMPLATE)-1, PARAM_STRING_BEGIN_TEMPLATE ) == 0 )
+				if ( line.compare( contentStart, sizeof(KEYWORD_STRING_BEGIN_TEMPLATE)-1, KEYWORD_STRING_BEGIN_TEMPLATE ) == 0 )
 				{
-					contentStart += sizeof(PARAM_STRING_BEGIN_TEMPLATE)-1;
+					contentStart += sizeof(KEYWORD_STRING_BEGIN_TEMPLATE)-1;
 					while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
+
 					// read name
-					while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t'))) rootNode.name.push_back( line[contentStart++] );
+					templateName.verbatim.clear(); // just in case... TODO: think about error reporting in case non-empty (should not happen in a sane template)
+					templateName.type = TEMPLATE_NAME;
+					while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t'))) templateName.verbatim.push_back( line[contentStart++] );
+					rootNode.lineParts.push_back( templateName );
+
 					while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 					if ( line.compare( contentStart, sizeof(PARAM_STRING_TYPE)-1, PARAM_STRING_TYPE ) != 0 )
 					{
-						fmt::print( "line {}: error: no \"{}\" after \"{}\"\n", currentLineNum, PARAM_STRING_TYPE, PARAM_STRING_BEGIN_TEMPLATE );
+						fmt::print( "line {}: error: no \"{}\" after \"{}\"\n", currentLineNum, PARAM_STRING_TYPE, KEYWORD_STRING_BEGIN_TEMPLATE );
 						return FAILED_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 					}
 					contentStart += sizeof(PARAM_STRING_TYPE)-1;
@@ -644,8 +656,13 @@ public:
 					}
 					contentStart++;
 					while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
+
 					// read type
-					while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t'))) rootNode.type.push_back( line[contentStart++] );
+					LinePart templateType;
+					templateType.type = TEMPLATE_TYPE;
+					while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t'))) templateType.verbatim.push_back( line[contentStart++] );
+					rootNode.lineParts.push_back( templateType );
+
 					while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 					if ( !( contentStart == line.size() ) )
 					{
@@ -696,7 +713,7 @@ public:
 			// unexpected template start
 			if ( kwd == NODE_TYPE::BEGIN_TEMPLATE )
 			{
-				fmt::print( "line {}: error: \"{}\" is unexpected\n", currentLineNum, PARAM_STRING_BEGIN_TEMPLATE );
+				fmt::print( "line {}: error: \"{}\" is unexpected\n", currentLineNum, KEYWORD_STRING_BEGIN_TEMPLATE );
 				return FAILED_ERROR;
 			}
 
@@ -706,7 +723,7 @@ public:
 				// read name
 				string endName;
 				while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t'))) endName.push_back( line[contentStart++] );
-				if ( endName != rootNode.name )
+				if ( endName != templateName.verbatim )
 				{
 					fmt::print( "line {}: error: name does not match that at template beginning\n", currentLineNum );
 					return FAILED_ERROR;
@@ -769,38 +786,41 @@ public:
 
 		if ( !endFound )
 		{
-			fmt::print( "line {}: error: \"{}\" not found\n", currentLineNum, PARAM_STRING_END_TEMPLATE );
+			fmt::print( "line {}: error: \"{}\" not found\n", currentLineNum, KEYWORD_STRING_END_TEMPLATE );
 			return FAILED_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 		}
 
-		rootNode.type = NODE_TYPE::BEGIN_TEMPLATE;
-		rootNode.root.type = NODE_TYPE::FULL_TEMPLATE;
-		bool treeOK = makeNodeTree( rootNode.root, nodes.begin(), nodes.end() );
+		TemplateNode singleChild;
+		singleChild.type = NODE_TYPE::FULL_TEMPLATE;
+		bool treeOK = makeNodeTree( singleChild, nodes.begin(), nodes.end() );
 		if ( !treeOK )
 		{
 			fmt::print( "line {}: error: building tree failed\n", rootNode.srcLineNum );
 			return FAILED_BUID_TREE_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 		}
+		dbgValidateNode( singleChild );
+		rootNode.type = NODE_TYPE::BEGIN_TEMPLATE;
+		rootNode.childNodes.push_back( singleChild );
 
-		dbgValidateNode( rootNode.root );
 
 		return OK;
 	}
 
-	void dbgPrintTree( AnyTemplateRoot& rootNode )
+	void dbgPrintTree( TemplateNode& rootNode )
 	{
-		dbgPrintNode( rootNode.root, 0 );
+		assert( rootNode.childNodes.size() == 1 );
+		dbgPrintNode( rootNode.childNodes[0], 0 );
 	}
 };
 
 TemplateParser tp;
 
-bool loadTemplate( istream& tf, AnyTemplateRoot& rootNode, int& currentLineNum )
+bool loadTemplate( istream& tf, TemplateNode& rootNode, int& currentLineNum )
 {
 	return tp.loadTemplate( tf, rootNode, currentLineNum );
 }
 
-void dbgPrintTree( AnyTemplateRoot& rootNode )
+void dbgPrintTree( TemplateNode& rootNode )
 {
 	tp.dbgPrintTree( rootNode );
 }

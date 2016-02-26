@@ -27,8 +27,8 @@ void idlcBackEnd( Root& root )
 	BackRoot backRoot;
 	convertToBackTree( root, backRoot );
 
-	ANY_TEMPLATE_ROOTS template_roots;
-	AnyTemplateRoot template_root;
+//	ANY_TEMPLATE_ROOTS template_roots;
+	TemplateNode template_root;
 
 	ifstream tf;
 	tf.open ( "template.txt", ios::in | ios::binary );

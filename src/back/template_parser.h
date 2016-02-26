@@ -38,10 +38,16 @@ enum NODE_TYPE {
 	FULL_TEMPLATE,
 //	TEMPLATE_ROOT,
 	FOR_EACH_OF_MEMBERS, // used ONLY within STRUCT
+
+	OPEN_OUTPUT_FILE,
+	FOR_EACH_PUBLISHABLE_STRUCT,
+	CLOSE_OUTPUT_FILE,
 };
 
 enum PARAMETER {
 	NONE = 100,
+	TEMPLATE_NAME, // implicit
+	TEMPLATE_TYPE,
 	TYPE,
 	BEGIN,
 	END,
@@ -76,19 +82,8 @@ struct TemplateNode
 typedef vector<TemplateNode> TEMPLATE_NODES;
 typedef vector<TemplateNode>::iterator TEMPLATE_NODES_ITERATOR;
 
-struct AnyTemplateRoot
-{
-	string name;
-	string type;
-	int srcLineNum;
-	TemplateNode root;
-};
-
-typedef vector<AnyTemplateRoot> ANY_TEMPLATE_ROOTS;
-
-
-bool loadTemplate( istream& tf, AnyTemplateRoot& rootNode, int& currentLineNum );
-void dbgPrintTree( AnyTemplateRoot& rootNode );
+bool loadTemplate( istream& tf, TemplateNode& rootNode, int& currentLineNum );
+void dbgPrintTree( TemplateNode& rootNode );
 
 
 #endif // TEMPLATE_PARSER_H

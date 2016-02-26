@@ -18,6 +18,52 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_instantiator_derived.h"
 
 
+void RootTemplateInstantiator::applyNode( TemplateNode& node )
+{
+	switch ( node.type )
+	{
+		case NODE_TYPE::FOR_EACH_PUBLISHABLE_STRUCT:
+		{
+/*			size_t structCnt = root->structures.size();
+			for ( size_t j=0; j<structCnt; j++ )
+			{
+				for ( size_t k=0; k<node.childNodes.size(); k++ )
+				{
+						StructTemplateInstantiator structti( *(root->structures[j]) );
+						structti.apply( node.childNodes[k] );
+				}
+			}*/
+			break;
+		}
+		default:
+		{
+			TemplateInstantiator::applyNode( node );
+		}
+	}
+}
+
+string RootTemplateInstantiator::placeholder( int placeholderId )
+{
+	switch( placeholderId )
+	{
+/*		case PLACEHOLDER::MEMBER_NAME:
+		{
+			return member->name;
+		}
+		case PLACEHOLDER::MEMBER_TYPE:
+		{
+			return member->type.name;
+		}*/
+		default:
+		{
+			return TemplateInstantiator::placeholder( placeholderId );
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+
 void StructTemplateInstantiator::applyNode( TemplateNode& node )
 {
 	switch ( node.type )
@@ -102,7 +148,7 @@ string StructMemberTemplateInstantiator::placeholder( int placeholderId )
 /////////////////////////////////////////////////////////////////////////
 
 
-void apply( BackStructure& structure, AnyTemplateRoot& rootNode )
+void apply( BackStructure& structure, TemplateNode& rootNode )
 {
 	StructTemplateInstantiator ti( structure );
 	ti.apply( rootNode );

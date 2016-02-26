@@ -21,6 +21,25 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_instantiator.h"
 
 
+class RootTemplateInstantiator : public TemplateInstantiator
+{
+protected:
+	BackRoot* root;
+
+	virtual void applyNode( TemplateNode& node );
+	virtual string placeholder( int placeholderId );
+
+public:
+	RootTemplateInstantiator( BackRoot& structRoot ) { root = &structRoot; }
+
+	void apply( TemplateNode& node )
+	{
+		assert( node.childNodes.size() == 1 );
+		applyNode( node.childNodes[0] );
+	}
+};
+
+
 class StructTemplateInstantiator : public TemplateInstantiator
 {
 protected:
@@ -32,9 +51,10 @@ protected:
 public:
 	StructTemplateInstantiator( BackStructure& currentStruct ) { structure = &currentStruct; }
 
-	void apply( AnyTemplateRoot& node )
+	void apply( TemplateNode& node )
 	{
-		applyNode( node.root );
+		assert( node.childNodes.size() == 1 );
+		applyNode( node.childNodes[0] );
 	}
 };
 
@@ -57,7 +77,7 @@ public:
 };
 
 
-void apply( BackStructure& structure, AnyTemplateRoot& rootNode );
+void apply( BackStructure& structure, TemplateNode& rootNode );
 
 
 #endif // TEMPLATE_INSTANTIATOR_DERIVED_H
