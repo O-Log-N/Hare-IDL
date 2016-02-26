@@ -53,6 +53,7 @@ Naming conventions examplegls:
     - project-specific stuff belongs to global namespace
     - libraries which are shared among projects, belong to separate folder /src/hare/<library-name>, AND to hare::<library-name> namespace
     - if by any chance, libraries do need macros, they SHOULD be prefixed with HARE, for example: HAREASSERT()
+10. **MUST** use `override` for all overridden functions
 
 ### I.5 Misc
 
