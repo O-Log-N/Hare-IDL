@@ -62,3 +62,4 @@ Naming conventions examplegls:
 4. All file/console I/O (except for-text-formatted output, see item I.5.3 right above) SHOULD be done via std::iostream
 5. non-constant global data SHOULD NOT be used unless absolutely necessary
 6. non-constant static data **MUST NOT** be used
+7. const modifier SHOULD be used wherever applicable
