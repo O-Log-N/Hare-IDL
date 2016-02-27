@@ -14,7 +14,7 @@ We're using very standard C++11.
 
 ### I.1 Naming conventions
 
-Naming conventions examplegls:
+Naming conventions examples:
 
 1. class TheVeryBestClass //also applies to structs, unions, and typedefs
 2. function prettyMuchUnnecessaryFunction(); //also apples to members
@@ -78,3 +78,8 @@ Naming conventions examplegls:
 
     `int val;//used ONLY for SOMETYPE::X and SOMETYPE::Z`
     
+
+### I.6 astyle
+1. All the C++ files SHOULD be run through astyle
+2. Preferred astyle version: 2.05
+3. astyle Options: none at the moment (everything goes by default)
