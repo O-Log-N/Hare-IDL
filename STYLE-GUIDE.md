@@ -54,6 +54,7 @@ Naming conventions examplegls:
     - libraries which are shared among projects, belong to separate folder /src/hare/<library-name>, AND to hare::<library-name> namespace
     - if by any chance, libraries do need macros, they SHOULD be prefixed with HARE, for example: HAREASSERT()
 10. **MUST** use `override` for all overridden functions
+11. SHOULD use C++11 member initializers over constructors for 'member default' values 
 
 ### I.5 Misc
 
@@ -66,3 +67,4 @@ Naming conventions examplegls:
 7. const modifier SHOULD be used wherever applicable
 8. On asserting: **MUST NOT** use assert(), **MUST** use HAREASSERT()/HAREASSERTM() instead
    - asserts are STRONGLY encouraged
+9. There **MUST NOT** be garbage in the program. All variables of primitive types **MUST** be initialized, including member variables. See I.4.11 about the proper way of initializing member variables.
