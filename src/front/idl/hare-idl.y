@@ -109,17 +109,17 @@ data_type
 ;
 
 numeric_type
-	: KW_NUMERIC '[' expr ',' expr ']' { $$ = createNumeric($1, false, $3, $5, false); releaseYys3($2, $4, $6); }
-	| KW_NUMERIC '(' expr ',' expr ']' { $$ = createNumeric($1, true, $3, $5, false); releaseYys3($2, $4, $6); }
-	| KW_NUMERIC '[' expr ',' expr ')' { $$ = createNumeric($1, false, $3, $5, true); releaseYys3($2, $4, $6); }
-	| KW_NUMERIC '(' expr ',' expr ')' { $$ = createNumeric($1, true, $3, $5, true); releaseYys3($2, $4, $6); }
+	: KW_NUMERIC '[' expr ',' expr ']' { $$ = createNumeric($1, true, $3, $5, true); releaseYys3($2, $4, $6); }
+	| KW_NUMERIC '(' expr ',' expr ']' { $$ = createNumeric($1, false, $3, $5, true); releaseYys3($2, $4, $6); }
+	| KW_NUMERIC '[' expr ',' expr ')' { $$ = createNumeric($1, true, $3, $5, false); releaseYys3($2, $4, $6); }
+	| KW_NUMERIC '(' expr ',' expr ')' { $$ = createNumeric($1, false, $3, $5, false); releaseYys3($2, $4, $6); }
 ;
 
 int_type
-	: KW_INT '[' expr ',' expr ']' { $$ = createInt($1, false, $3, $5, false); releaseYys3($2, $4, $6); }
-	| KW_INT '(' expr ',' expr ']' { $$ = createInt($1, true, $3, $5, false); releaseYys3($2, $4, $6); }
-	| KW_INT '[' expr ',' expr ')' { $$ = createInt($1, false, $3, $5, true); releaseYys3($2, $4, $6); }
-	| KW_INT '(' expr ',' expr ')' { $$ = createInt($1, true, $3, $5, true); releaseYys3($2, $4, $6); }
+	: KW_INT '[' expr ',' expr ']' { $$ = createInt($1, true, $3, $5, true); releaseYys3($2, $4, $6); }
+	| KW_INT '(' expr ',' expr ']' { $$ = createInt($1, false, $3, $5, true); releaseYys3($2, $4, $6); }
+	| KW_INT '[' expr ',' expr ')' { $$ = createInt($1, true, $3, $5, false); releaseYys3($2, $4, $6); }
+	| KW_INT '(' expr ',' expr ')' { $$ = createInt($1, false, $3, $5, false); releaseYys3($2, $4, $6); }
 ;
 
 fixed_point_type

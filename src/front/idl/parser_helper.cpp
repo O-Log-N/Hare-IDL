@@ -134,8 +134,8 @@ struct YyFloatLiteral : public YyBase {
     double value;
 };
 
-struct YyFloatList : public YyBase {
-    vector<float> floatValues;
+struct YyArgumentList : public YyBase {
+    vector<pair<string, Variant> > arguments;
 };
 
 typedef YyIdentifier YyStringLiteral;
@@ -200,28 +200,78 @@ string getNameFromYyIdentifier(YyBase* id)
     return temp;
 }
 
-float getExpressionValue(YYSTYPE expr)
+Variant getExpressionVariant(YYSTYPE expr)
 {
-    YyIntegerLiteral* intLit = dynamic_cast<YyIntegerLiteral*>(expr);
-    if (intLit) {
-        float value = static_cast<float>(intLit->value);
+    if (YyIntegerLiteral* intLit = dynamic_cast<YyIntegerLiteral*>(expr)) {
+        double value = static_cast<double>(intLit->value);
         delete expr;
+
+        Variant v;
+        v.kind = Variant::NUMBER;
+        v.numberValue = value;
+        return v;
+    }
+    else if(YyFloatLiteral* floatLit = dynamic_cast<YyFloatLiteral*>(expr)) {
+        double value = floatLit->value;
+        delete expr;
+
+        Variant v;
+        v.kind = Variant::NUMBER;
+        v.numberValue = value;
+        return v;
+    }
+    else if (YyStringLiteral* strLit = dynamic_cast<YyStringLiteral*>(expr)) {
+        string text = strLit->text;
+        delete expr;
+
+        Variant v;
+        v.kind = Variant::STRING;
+        v.stringValue = text;
+        return v;
+    }
+    else {
+        reportError(expr->location, "Unsuported value");
+
+        return Variant();
+    }
+}
+
+double getFloatLiteral(YYSTYPE expr)
+{
+    if (YyIntegerLiteral* intLit = dynamic_cast<YyIntegerLiteral*>(expr)) {
+        double value = static_cast<double>(intLit->value);
+        delete expr;
+
+        return value;
+    }
+    else if (YyFloatLiteral* floatLit = dynamic_cast<YyFloatLiteral*>(expr)) {
+        double value = floatLit->value;
+        delete expr;
+
         return value;
     }
     else {
-        YyFloatLiteral* floatLit = dynamic_cast<YyFloatLiteral*>(expr);
-        if (floatLit) {
-            float value = static_cast<float>(floatLit->value);
-            delete expr;
-            return value;
-        }
-        else {
-            reportError(expr->location, "Unsuported value");
-            return 0.0;
-        }
-    }
+        reportError(expr->location, "Unsuported value");
 
+        return 0;
+    }
 }
+
+long long getIntegerLiteral(YYSTYPE expr)
+{
+    if (YyIntegerLiteral* intLit = dynamic_cast<YyIntegerLiteral*>(expr)) {
+        long long value = intLit->value;
+        delete expr;
+
+        return value;
+    }
+    else {
+        reportError(expr->location, "Unsuported value");
+
+        return 0;
+    }
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //					Lexer functions											//
@@ -428,7 +478,7 @@ DataMember* makeDataMember(YYSTYPE type, YYSTYPE id)
     yy->extendTo = false;
 
     YyDataType* dt = yystype_cast<YyDataType*>(type);
-    yy->type = dt->dataType;
+    yy->type = std::move(dt->dataType);
     delete type;
 
     return yy;
@@ -521,8 +571,8 @@ YYSTYPE createEncodingAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE opt_expr)
     DataMember* att = makeDataMember(type, id);
 
     if (opt_expr) {
-        float v = getExpressionValue(opt_expr);
-        att->defaulValue = v;
+        Variant v = getExpressionVariant(opt_expr);
+        att->defaultValue = v;
     }
 
     return new YyPtr<EncodedOrMember>(att);
@@ -543,8 +593,8 @@ EncodingAttributes createEncodingAttributes(YYSTYPE id, YYSTYPE opt_arg_list)
     att.name = getNameFromYyIdentifier(id);
 
     if (opt_arg_list) {
-        YyFloatList* fl = yystype_cast<YyFloatList*>(opt_arg_list);
-        att.arguments = fl->floatValues;
+        YyArgumentList* al = yystype_cast<YyArgumentList*>(opt_arg_list);
+        att.arguments = al->arguments;
         delete opt_arg_list;
     }
 
@@ -588,7 +638,7 @@ YYSTYPE createIdType(YYSTYPE id)
 {
     YyDataType* yy = new YyDataType();
 
-    yy->dataType.typeKind = DataType::PLAIN;
+    yy->dataType.kind = DataType::PRIMITIVE;
     yy->dataType.name = getNameFromYyIdentifier(id);
 
     return yy;
@@ -599,18 +649,16 @@ YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE hi
 {
     YyDataType* yy = new YyDataType();
 
-    yy->dataType.typeKind = DataType::PLAIN;
+    yy->dataType.kind = DataType::LIMITED_PRIMITIVE;
     yy->dataType.name = "NUMERIC";
 
-    yy->dataType.arguments.push_back(static_cast<float>(low_flag));
+    double l = getFloatLiteral(low_expr);
+    yy->dataType.lowLimit.inclusive = low_flag;
+    yy->dataType.lowLimit.value = l;
 
-    float l = getExpressionValue(low_expr);
-    yy->dataType.arguments.push_back(l);
-
-    yy->dataType.arguments.push_back(static_cast<float>(high_flag));
-
-    float h = getExpressionValue(high_expr);
-    yy->dataType.arguments.push_back(h);
+    double h = getFloatLiteral(high_expr);
+    yy->dataType.highLimit.inclusive = high_flag;
+    yy->dataType.highLimit.value = h;
 
     delete token;
 
@@ -621,18 +669,16 @@ YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_e
 {
     YyDataType* yy = new YyDataType();
 
-    yy->dataType.typeKind = DataType::PLAIN;
+    yy->dataType.kind = DataType::LIMITED_PRIMITIVE;
     yy->dataType.name = "INT";
 
-    yy->dataType.arguments.push_back(static_cast<float>(low_flag));
+    double l = getFloatLiteral(low_expr);
+    yy->dataType.lowLimit.inclusive = low_flag;
+    yy->dataType.lowLimit.value = l;
 
-    float l = getExpressionValue(low_expr);
-    yy->dataType.arguments.push_back(l);
-
-    yy->dataType.arguments.push_back(static_cast<float>(high_flag));
-
-    float h = getExpressionValue(high_expr);
-    yy->dataType.arguments.push_back(h);
+    double h = getFloatLiteral(high_expr);
+    yy->dataType.highLimit.inclusive = high_flag;
+    yy->dataType.highLimit.value = h;
 
     delete token;
 
@@ -643,11 +689,11 @@ YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE expr)
 {
     YyDataType* yy = new YyDataType();
 
-    yy->dataType.typeKind = DataType::PLAIN;
-    yy->dataType.name = "FIXED_PONIT";
+    yy->dataType.kind = DataType::FIXED_POINT;
+    yy->dataType.name = "FIXED_POINT";
 
-    float v = getExpressionValue(expr);
-    yy->dataType.arguments.push_back(v);
+    double v = getFloatLiteral(expr);
+    yy->dataType.fixedPointPrecision = v;
 
     delete token;
 
@@ -658,11 +704,12 @@ YYSTYPE createBit(YYSTYPE token, YYSTYPE expr)
 {
     YyDataType* yy = new YyDataType();
 
-    yy->dataType.typeKind = DataType::PLAIN;
+    yy->dataType.kind = DataType::BIT;
     yy->dataType.name = "BIT";
 
-    float v = getExpressionValue(expr);
-    yy->dataType.arguments.push_back(v);
+    long long v = getIntegerLiteral(expr);
+    //TODO check limits?
+    yy->dataType.bitSize = static_cast<int>(v);
 
     delete token;
 
@@ -673,8 +720,13 @@ YYSTYPE createSequence(YYSTYPE token, YYSTYPE id_type)
 {
     YyDataType* yy = new YyDataType();
 
-    yy->dataType.typeKind = DataType::SEQUENCE;
-    yy->dataType.name = getNameFromYyIdentifier(id_type);
+    yy->dataType.kind = DataType::SEQUENCE;
+    yy->dataType.name = "SEQUENCE";
+
+    //TODO support more generic types
+    yy->dataType.paramType.reset(new DataType());
+    yy->dataType.paramType->kind = DataType::PRIMITIVE;
+    yy->dataType.paramType->name = getNameFromYyIdentifier(id_type);
 
     delete token;
 
@@ -685,7 +737,7 @@ YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type)
 {
     YyDataType* yy = new YyDataType();
 
-    yy->dataType.typeKind = DataType::CLASS;
+    yy->dataType.kind = DataType::CLASS;
     yy->dataType.name = getNameFromYyIdentifier(id_type);
 
     delete token;
@@ -697,7 +749,7 @@ YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE id, YYSTYPE values)
 {
     YyDataType* yy = new YyDataType();
 
-    yy->dataType.typeKind = DataType::ENUM;
+    yy->dataType.kind = DataType::ENUM;
     yy->dataType.name = getNameFromYyIdentifier(id);
 
     YyEnumValues* v = yystype_cast<YyEnumValues*>(values);
@@ -744,14 +796,16 @@ YYSTYPE addString(YYSTYPE list, YYSTYPE str)
 
 YYSTYPE addExpression(YYSTYPE list, YYSTYPE expr)
 {
-    YyFloatList* yy = 0;
+    YyArgumentList* yy = 0;
     if (list)
-        yy = yystype_cast<YyFloatList*>(list);
+        yy = yystype_cast<YyArgumentList*>(list);
     else
-        yy = new YyFloatList();
+        yy = new YyArgumentList();
 
-    float value = getExpressionValue(expr);
-    yy->floatValues.push_back(value);
+
+    string name = "!TODO!";
+    Variant value = getExpressionVariant(expr);
+    yy->arguments.push_back(make_pair(name, value));
 
     return yy;
 }

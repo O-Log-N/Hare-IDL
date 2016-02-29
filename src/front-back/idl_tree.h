@@ -22,32 +22,45 @@ Copyright (C) 2016 OLogN Technologies AG
 
 using namespace std;
 
+struct Limit {
+    bool inclusive = false;
+    double value = 0;
+};
+
+struct Location {
+	string fileName;
+	int lineNumber = 0;
+};
+
+class Variant {
+public:
+    enum KIND {NONE, NUMBER, STRING};
+    KIND kind = NONE;
+    double numberValue = 0;
+    string stringValue;
+};
+
 class DataType
 {
 public:
-    enum KIND { PLAIN, ENUM, CLASS, SEQUENCE, VECTOR } typeKind;
+    enum KIND { PRIMITIVE, LIMITED_PRIMITIVE, FIXED_POINT, BIT, ENUM, CLASS, SEQUENCE };
+    KIND kind = PRIMITIVE;
 	string name;
-	vector<float> arguments;
+    unique_ptr<DataType> paramType;
+    Limit lowLimit;
+    Limit highLimit;
+    double fixedPointPrecision = 0;
+    int bitSize = 0;
 	vector<pair<string, int> > enumValues;
-
-	DataType() : typeKind(PLAIN) {}
 };
 
 class EncodingAttributes
 {
 public:
 	string name;
-	vector<float> arguments;
-
-	EncodingAttributes() {}
+	vector<pair<string, Variant> > arguments;
 };
 
-struct Location {
-	string fileName;
-	int lineNumber;
-
-	Location() : lineNumber(0) {}
-};
 
 class EncodedOrMember
 {
@@ -61,10 +74,8 @@ class DataMember : public EncodedOrMember
 public:
 	DataType type;
 	string name;
-	bool extendTo;
-	float defaulValue;
-
-	DataMember() : extendTo(false), defaulValue(0) {}
+	bool extendTo = false;
+	Variant defaultValue;
 };
 
 class EncodedMembers : public EncodedOrMember
@@ -80,12 +91,10 @@ class Structure : public EncodedMembers
 public:
 	enum DECLTYPE{ IDL, MAPPING, ENCODING };
 	enum TYPE{ STRUCT, RPC };
-	DECLTYPE declType;
-	TYPE type;
+	DECLTYPE declType = IDL;
+	TYPE type = STRUCT;
 	string name;
 	vector<string> tags;
-
-	Structure(): declType(IDL), type(STRUCT) {}
 };
 
 class Root

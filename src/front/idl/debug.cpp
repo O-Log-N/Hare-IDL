@@ -91,52 +91,64 @@ private:
         --offset;
     }
 
-    static string dbgTypeToString(const DataType& dataType) {
+    static string dbgVariantToString(const Variant& v) {
 
-        string result = "kind='";
-        switch (dataType.typeKind) {
-        case DataType::PLAIN:
-            result += "PLAIN";
+        switch (v.kind) {
+        case Variant::NUMBER:
+            return fmt::format("( kind=NUMBER numberValue={} )", v.numberValue);
             break;
-        case DataType::ENUM:
-            result += "ENUM";
-            break;
-        case DataType::CLASS:
-            result += "CLASS";
-            break;
-        case DataType::SEQUENCE:
-            result += "SEQUENCE";
-            break;
-        case DataType::VECTOR:
-            result += "VECTOR";
+        case Variant::STRING:
+            return fmt::format("( kind=STRING stringValue={} )", v.stringValue);
             break;
         default:
             HAREASSERT(false);
         }
 
-        result += "' name='";
-        result += dataType.name;
-        result += "'";
-        if (!dataType.arguments.empty()) {
-            result += " arguments='";
-            for (auto it = dataType.arguments.begin(); it != dataType.arguments.end(); ++it) {
-                if (it != dataType.arguments.begin())
-                    result += ",";
-                result += fmt::format("{}", *it);
-            }
-            result += "'";
-        }
-        if (!dataType.enumValues.empty()) {
-            result += " enumValues='";
+    }
+    static string dbgTypeToString(const DataType& dataType) {
+
+        switch (dataType.kind) {
+        case DataType::PRIMITIVE:
+            return fmt::format("{{ kind=PRIMITIVE name={} }}", dataType.name);
+            break;
+        case DataType::LIMITED_PRIMITIVE:
+
+            return fmt::format("{{ kind=LIMITED_PRIMITIVE name={} lowLimit={}:{} highLimit={}:{} }}",
+                               dataType.name, dataType.lowLimit.inclusive, dataType.lowLimit.value,
+                               dataType.highLimit.inclusive, dataType.highLimit.value);
+            break;
+        case DataType::FIXED_POINT:
+            return fmt::format("{{ kind=FIXED_POINT name={} presicion={} }}",
+                               dataType.name, dataType.fixedPointPrecision);
+            break;
+        case DataType::BIT:
+            return fmt::format("{{ kind=BIT name={} size={} }}",
+                               dataType.name, dataType.bitSize);
+            break;
+        case DataType::ENUM:
+        {
+            string enumValues;
             for (auto it = dataType.enumValues.begin(); it != dataType.enumValues.end(); ++it) {
                 if (it != dataType.enumValues.begin())
-                    result += ",";
-                result += fmt::format("{}={}", it->first, it->second);
+                    enumValues += ",";
+                enumValues += fmt::format("{}={}", it->first, it->second);
             }
-            result += "'";
-        }
 
-        return result;
+            return fmt::format("{{ kind=ENUM name={} enumValues={} }}", dataType.name, enumValues);
+        }
+        break;
+        case DataType::CLASS:
+            return fmt::format("{{ kind=CLASS name={} }}", dataType.name);
+            break;
+        case DataType::SEQUENCE:
+        {
+            string arg = dbgTypeToString(*dataType.paramType);
+            return fmt::format("{{ kind=CLASS name={} paramType={} }}", dataType.name, arg);
+        }
+        break;
+        default:
+            HAREASSERT(false);
+        }
     }
 
 
@@ -145,8 +157,8 @@ private:
         string attr;
         if (node->extendTo)
             attr += "extendTo=true";
-        if (node->defaulValue != 0)
-            attr += fmt::format("defaultValue='{}'", node->defaulValue);
+        if (node->defaultValue.kind != Variant::NONE)
+            attr += fmt::format("defaultValue='{}'", dbgVariantToString(node->defaultValue));
 
         string typeStr = dbgTypeToString(node->type);
         dbgWriteWithLocation(node->location, fmt::format("DataMember name='{}' {} {}", node->name, attr, typeStr));
@@ -162,7 +174,7 @@ private:
             for (auto it = encoding.arguments.begin(); it != encoding.arguments.end(); ++it) {
                 if (it != encoding.arguments.begin())
                     result += ",";
-                result += fmt::format("{}", *it);
+                result += fmt::format("{}={}", it->first, dbgVariantToString(it->second));
             }
             result += "'";
         }
