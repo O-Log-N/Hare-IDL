@@ -94,7 +94,7 @@ public:
 	DECLTYPE declType = IDL;
 	TYPE type = STRUCT;
 	string name;
-	vector<string> tags;
+	vector<pair<string, Variant> > tags;
 };
 
 class Root

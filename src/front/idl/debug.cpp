@@ -47,49 +47,17 @@ public:
     }
 
 private:
-    void dbgDumpStructure(const Structure* node) {
-
-        string kind = "";
-        switch (node->declType) {
-        case Structure::IDL:
-            kind = "IDL";
-            break;
-        case Structure::MAPPING:
-            kind = "MAPPING";
-            break;
-        case Structure::ENCODING:
-            kind = "ENCODING";
-            break;
-        default:
-            HAREASSERT(false);
-        }
-
-        string tags;
-        for (auto it = node->tags.begin(); it != node->tags.end(); ++it) {
-            if (it != node->tags.begin())
+    static string dbgAttributesToString(const vector<pair<string, Variant> >& v) {
+        string tags = "( ";
+        for (auto& it = v.begin(); it != v.end(); ++it) {
+            if (it != v.begin())
                 tags += ",";
-            tags += *it;
+            tags += fmt::format("{}={}", it->first, dbgVariantToString(it->second));
         }
-
-        dbgWriteWithLocation(node->location, fmt::format("{} Structure name='{}' tags='{}'", kind, node->name, tags));
-
-        ++offset;
-        for (auto& it : node->members) {
-            const DataMember* data = dynamic_cast<const DataMember*>(it.get());
-            if (data) {
-                dbgDumpDataMember(data);
-            }
-            else {
-                const EncodedMembers* group = dynamic_cast<const EncodedMembers*>(it.get());
-                if (group) {
-                    dbgDumpEncodedMember(group);
-                }
-                else
-                    HAREASSERT(false);
-            }
-        }
-        --offset;
+        tags += " )";
+        return tags;
     }
+
 
     static string dbgVariantToString(const Variant& v) {
 
@@ -152,6 +120,45 @@ private:
     }
 
 
+    void dbgDumpStructure(const Structure* node) {
+
+        string kind = "";
+        switch (node->declType) {
+        case Structure::IDL:
+            kind = "IDL";
+            break;
+        case Structure::MAPPING:
+            kind = "MAPPING";
+            break;
+        case Structure::ENCODING:
+            kind = "ENCODING";
+            break;
+        default:
+            HAREASSERT(false);
+        }
+
+        string tags = dbgAttributesToString(node->tags);
+        dbgWriteWithLocation(node->location, fmt::format("Structure kind={} name={} tags={}", kind, node->name, tags));
+
+        ++offset;
+        for (auto& it : node->members) {
+            const DataMember* data = dynamic_cast<const DataMember*>(it.get());
+            if (data) {
+                dbgDumpDataMember(data);
+            }
+            else {
+                const EncodedMembers* group = dynamic_cast<const EncodedMembers*>(it.get());
+                if (group) {
+                    dbgDumpEncodedMember(group);
+                }
+                else
+                    HAREASSERT(false);
+            }
+        }
+        --offset;
+    }
+
+
     void dbgDumpDataMember(const DataMember* node) {
 
         string attr;
@@ -166,20 +173,7 @@ private:
 
     static string dbgEncodingToString(const EncodingAttributes& encoding) {
 
-        string result = "encodingAttr='";
-        result += encoding.name;
-        result += "'";
-        if (!encoding.arguments.empty()) {
-            result += " arguments='";
-            for (auto it = encoding.arguments.begin(); it != encoding.arguments.end(); ++it) {
-                if (it != encoding.arguments.begin())
-                    result += ",";
-                result += fmt::format("{}={}", it->first, dbgVariantToString(it->second));
-            }
-            result += "'";
-        }
-
-        return result;
+        return fmt::format("encAttrName={}, encAttrArgs={}", encoding.name, dbgAttributesToString(encoding.arguments));
     }
 
 

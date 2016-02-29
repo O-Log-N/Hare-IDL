@@ -67,10 +67,10 @@ YYSTYPE addToFile(YYSTYPE file, YYSTYPE item);
 YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id);
 YYSTYPE addToPublishableStruct(YYSTYPE decl, YYSTYPE type, YYSTYPE id);
 
-YYSTYPE createMapping(YYSTYPE token, YYSTYPE str_list, YYSTYPE id);
+YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id);
 YYSTYPE addToMapping(YYSTYPE decl, YYSTYPE type, YYSTYPE id);
 
-YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_list, YYSTYPE id);
+YYSTYPE createEncoding(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id);
 YYSTYPE addToEncoding(YYSTYPE decl, YYSTYPE elem);
 YYSTYPE addFenceToEncoding(YYSTYPE decl, YYSTYPE token);
 
@@ -93,7 +93,7 @@ YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE id, YYSTYPE values);
 YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit);
 
 YYSTYPE addString(YYSTYPE list, YYSTYPE str);
-YYSTYPE addExpression(YYSTYPE list, YYSTYPE expr);
+YYSTYPE addExpression(YYSTYPE list, YYSTYPE id, YYSTYPE expr);
 YYSTYPE createIdentifierExpression(YYSTYPE id);
 
 #ifdef __cplusplus

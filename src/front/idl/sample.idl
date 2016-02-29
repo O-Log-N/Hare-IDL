@@ -19,7 +19,7 @@ PUBLISHABLE_STRUCT Character {
                            // defined elsewhere
 };
 
-MAPPING("CPP","Client") PUBLISHABLE_STRUCT Character {
+MAPPING(Lang="CPP",Role="Client") PUBLISHABLE_STRUCT Character {
   UINT16 character_id;//can be omitted, as default mapping
                       //  for UINT16 is UINT16
   double x;//all 'double' declarations can be omitted too
@@ -42,7 +42,7 @@ MAPPING("CPP","Client") PUBLISHABLE_STRUCT Character {
 };
 
 
-MAPPING("CPP","Server") PUBLISHABLE_STRUCT Character {
+MAPPING(Lang="CPP",Role="Server") PUBLISHABLE_STRUCT Character {
   // here we're omitting all the default mappings
   float angle;
   class MyInventory inventory;
@@ -57,7 +57,7 @@ MAPPING("CPP","Server") PUBLISHABLE_STRUCT Character {
 };
 
 
-ENCODING("MYENCODING1") PUBLISHABLE_STRUCT Character {
+ENCODING(Name="MYENCODING1") PUBLISHABLE_STRUCT Character {
   VLQ character_id;
   DELTA {
     FIXED_POINT(0.01) x;//for rendering purposes, we need our coordinates
@@ -82,15 +82,15 @@ ENCODING("MYENCODING1") PUBLISHABLE_STRUCT Character {
 };
 
 
-ENCODING("MYENCODING2") PUBLISHABLE_STRUCT Character {
+ENCODING(Name="MYENCODING2") PUBLISHABLE_STRUCT Character {
   VLQ character_id;
   DELTA {
-    DEAD_RECKONING(0.02) {//0.02 is maximum acceptable coordinate
+    DEAD_RECKONING(Tolerance=0.02) {//0.02 is maximum acceptable coordinate
                           // deviation due to dead reckoning
       FIXED_POINT(0.01) x;
       FIXED_POINT(0.01) vx;
     }
-    DEAD_RECKONING(0.02) {
+    DEAD_RECKONING(Tolerance=0.02) {
       FIXED_POINT(0.01) y;
       FIXED_POINT(0.01) vy;
     }

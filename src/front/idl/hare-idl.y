@@ -54,7 +54,7 @@ publishable_struct
 ;
 
 mapping_begin
-	: KW_MAPPING '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createMapping($1, $3, $6); releaseYys4($2, $4, $5, $7); }
+	: KW_MAPPING '(' arg_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createMapping($1, $3, $6); releaseYys4($2, $4, $5, $7); }
 	| mapping_begin data_type IDENTIFIER ';' { $$ = addToMapping($1, $2, $3);  releaseYys($4); }
     | mapping_begin IDENTIFIER IDENTIFIER ';' { $$ = addToMapping($1, createIdType($2), $3);  releaseYys($4); }
 ;
@@ -64,7 +64,7 @@ mapping
 ;
 
 encoding_begin
-	: KW_ENCODING '(' str_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createEncoding($1, $3, $6); releaseYys4($2, $4, $5, $7); }
+	: KW_ENCODING '(' arg_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createEncoding($1, $3, $6); releaseYys4($2, $4, $5, $7); }
 	| encoding_begin data_element { $$ = addToEncoding($1, $2); }
 	| encoding_begin data_group { $$ = addToEncoding($1, $2); }
     | encoding_begin KW_FENCE { $$ = addFenceToEncoding($1, $2); }
@@ -147,18 +147,13 @@ enum_values
 	| enum_values ',' IDENTIFIER '=' INTEGER_LITERAL { $$ = addEnumValue($1, $3, $5); releaseYys2($2, $4); }
 ;
 
-str_list
-	: STRING_LITERAL { $$ = addString(0, $1); }
-    | str_list ',' STRING_LITERAL { $$ = addString($1, $3); releaseYys($2); }
-;
-
 arg_list
-	: expr { $$ = addExpression(0, $1); }
-    | arg_list ',' expr { $$ = addExpression($1, $3); releaseYys($2);}
+	: IDENTIFIER '='expr { $$ = addExpression(0, $1, $3); releaseYys($2); }
+    | arg_list ',' IDENTIFIER '=' expr { $$ = addExpression($1, $3, $5); releaseYys2($2, $4); }
 ;
 
 expr
 	: INTEGER_LITERAL { $$ = $1; }
 	| FLOAT_LITERAL { $$ = $1; }
-	| IDENTIFIER { $$ = createIdentifierExpression($1); }
+	| STRING_LITERAL { $$ = $1; }
 ;

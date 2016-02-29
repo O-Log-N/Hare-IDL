@@ -272,6 +272,14 @@ long long getIntegerLiteral(YYSTYPE expr)
     }
 }
 
+vector<pair<string, Variant> > getArgumentList(YYSTYPE arg_list)
+{
+    YyArgumentList* al = yystype_cast<YyArgumentList*>(arg_list);
+    vector<pair<string, Variant> > result = std::move(al->arguments);
+    delete arg_list;
+
+    return result;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //					Lexer functions											//
@@ -494,7 +502,7 @@ YYSTYPE addToPublishableStruct(YYSTYPE decl, YYSTYPE type, YYSTYPE id)
     return decl;
 }
 
-YYSTYPE createMapping(YYSTYPE token, YYSTYPE str_list, YYSTYPE id)
+YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
 {
     Structure* yy = new Structure();
 
@@ -504,9 +512,7 @@ YYSTYPE createMapping(YYSTYPE token, YYSTYPE str_list, YYSTYPE id)
     yy->declType = Structure::MAPPING;
     yy->type = Structure::STRUCT;
 
-    YyStringLiteralList* l = yystype_cast<YyStringLiteralList*>(str_list);
-    yy->tags = l->textValues;
-    delete str_list;
+    yy->tags = getArgumentList(arg_list);
 
     return new YyPtr<Structure>(yy);
 }
@@ -522,7 +528,7 @@ YYSTYPE addToMapping(YYSTYPE decl, YYSTYPE type, YYSTYPE id)
 }
 
 
-YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_list, YYSTYPE id)
+YYSTYPE createEncoding(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
 {
     Structure* yy = new Structure();
 
@@ -532,9 +538,7 @@ YYSTYPE createEncoding(YYSTYPE token, YYSTYPE str_list, YYSTYPE id)
     yy->declType = Structure::ENCODING;
     yy->type = Structure::STRUCT;
 
-    YyStringLiteralList* l = yystype_cast<YyStringLiteralList*>(str_list);
-    yy->tags = l->textValues;
-    delete str_list;
+    yy->tags = getArgumentList(arg_list);
 
     EncodedMembers* g = new EncodedMembers();
     g->location = yy->location;
@@ -592,11 +596,8 @@ EncodingAttributes createEncodingAttributes(YYSTYPE id, YYSTYPE opt_arg_list)
     EncodingAttributes att;
     att.name = getNameFromYyIdentifier(id);
 
-    if (opt_arg_list) {
-        YyArgumentList* al = yystype_cast<YyArgumentList*>(opt_arg_list);
-        att.arguments = al->arguments;
-        delete opt_arg_list;
-    }
+    if (opt_arg_list)
+        att.arguments = getArgumentList(opt_arg_list);
 
     return att;
 }
@@ -794,7 +795,7 @@ YYSTYPE addString(YYSTYPE list, YYSTYPE str)
     return yy;
 }
 
-YYSTYPE addExpression(YYSTYPE list, YYSTYPE expr)
+YYSTYPE addExpression(YYSTYPE list, YYSTYPE id, YYSTYPE expr)
 {
     YyArgumentList* yy = 0;
     if (list)
@@ -803,7 +804,7 @@ YYSTYPE addExpression(YYSTYPE list, YYSTYPE expr)
         yy = new YyArgumentList();
 
 
-    string name = "!TODO!";
+    string name = getNameFromYyIdentifier(id);
     Variant value = getExpressionVariant(expr);
     yy->arguments.push_back(make_pair(name, value));
 
