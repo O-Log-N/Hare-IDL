@@ -86,7 +86,7 @@ YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE hi
 YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
 YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE arg_list);
 YYSTYPE createBit(YYSTYPE token, YYSTYPE opt_arg_list);
-YYSTYPE createSequence(YYSTYPE token, YYSTYPE id_type);
+YYSTYPE createSequence(YYSTYPE opt_id, YYSTYPE type);
 YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type);
 YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE id, YYSTYPE values);
 

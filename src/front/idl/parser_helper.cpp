@@ -721,19 +721,21 @@ YYSTYPE createBit(YYSTYPE token, YYSTYPE arg_list)
     return yy;
 }
 
-YYSTYPE createSequence(YYSTYPE token, YYSTYPE id_type)
+
+YYSTYPE createSequence(YYSTYPE opt_id, YYSTYPE type)
 {
     YyDataType* yy = new YyDataType();
 
     yy->dataType.kind = DataType::SEQUENCE;
-    yy->dataType.name = "SEQUENCE";
+    if (opt_id)
+        yy->dataType.name = getNameFromYyIdentifier(opt_id);
+    else
+        yy->dataType.name = "SEQUENCE";
 
-    //TODO support more generic types
+    YyDataType* t = yystype_cast<YyDataType*>(type);
     yy->dataType.paramType.reset(new DataType());
-    yy->dataType.paramType->kind = DataType::PRIMITIVE;
-    yy->dataType.paramType->name = getNameFromYyIdentifier(id_type);
-
-    delete token;
+    *(yy->dataType.paramType) = std::move(t->dataType);
+    delete type;
 
     return yy;
 }

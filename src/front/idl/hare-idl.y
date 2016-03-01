@@ -45,7 +45,7 @@ file : { $$ = 0; }
 
 publishable_struct_begin
 	: KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createPublishableStruct($1, $2); releaseYys($3); }
-	| publishable_struct_begin data_type IDENTIFIER ';' { $$ = addToPublishableStruct($1, $2, $3); releaseYys($4);}
+	| publishable_struct_begin data_type IDENTIFIER ';' { $$ = addToPublishableStruct($1, $2, $3); releaseYys($4); }
 	| publishable_struct_begin IDENTIFIER IDENTIFIER ';' { $$ = addToPublishableStruct($1, createIdType($2, 0), $3); releaseYys($4); }
 ;
 
@@ -75,15 +75,15 @@ encoding
 ;
 
 data_element
-	: data_type IDENTIFIER ';' { $$ = createEncodingAttribute($1, $2, 0); releaseYys($3);}
-    | data_type IDENTIFIER KW_DEFAULT '=' expr ';' { $$ = createEncodingAttribute($1, $2, $5); releaseYys3($3, $4, $6);}
-    | KW_EXTEND IDENTIFIER KW_TO data_type ';' { $$ = createExtendAttribute($2, $4); releaseYys3($1, $3, $5);}
+	: data_type IDENTIFIER ';' { $$ = createEncodingAttribute($1, $2, 0); releaseYys($3); }
+    | data_type IDENTIFIER KW_DEFAULT '=' expr ';' { $$ = createEncodingAttribute($1, $2, $5); releaseYys3($3, $4, $6); }
+    | KW_EXTEND IDENTIFIER KW_TO data_type ';' { $$ = createExtendAttribute($2, $4); releaseYys3($1, $3, $5); }
 	| IDENTIFIER IDENTIFIER ';' { $$ = createEncodingAttribute(createIdType($1, 0), $2, 0); releaseYys($3); }
     | IDENTIFIER IDENTIFIER KW_DEFAULT '=' expr ';' { $$ = createEncodingAttribute(createIdType($1, 0), $2, $5); releaseYys3($3, $4, $6);}
     | KW_EXTEND IDENTIFIER KW_TO IDENTIFIER ';' { $$ = createExtendAttribute($2, createIdType($4, 0)); releaseYys3($1, $3, $5);}
     | IDENTIFIER '(' arg_list ')' IDENTIFIER ';' { $$ = createEncodingAttribute(createIdType($1, $3), $5, 0); releaseYys3($2, $4, $6); }
-    | IDENTIFIER '(' arg_list ')' IDENTIFIER KW_DEFAULT '=' expr ';' { $$ = createEncodingAttribute(createIdType($1, $3), $5, $8); releaseYys5($2, $4, $6, $7, $9);}
-    | KW_EXTEND IDENTIFIER KW_TO IDENTIFIER '(' arg_list ')' ';' { $$ = createExtendAttribute($2, createIdType($4, $6)); releaseYys5($1, $3, $5, $7, $8);}
+    | IDENTIFIER '(' arg_list ')' IDENTIFIER KW_DEFAULT '=' expr ';' { $$ = createEncodingAttribute(createIdType($1, $3), $5, $8); releaseYys5($2, $4, $6, $7, $9); }
+    | KW_EXTEND IDENTIFIER KW_TO IDENTIFIER '(' arg_list ')' ';' { $$ = createExtendAttribute($2, createIdType($4, $6)); releaseYys5($1, $3, $5, $7, $8); }
 ;
 
 data_group_begin
@@ -96,9 +96,9 @@ data_group_begin
 data_group
 	: data_group_begin '}' { $$ = $1; releaseYys($2); }
     | IDENTIFIER data_element { $$ = createEncodingGroup($1, 0, $2); }
-	| IDENTIFIER '(' arg_list ')' data_element { $$ = createEncodingGroup($1, $3, $5); releaseYys2($2, $4);}
+	| IDENTIFIER '(' arg_list ')' data_element { $$ = createEncodingGroup($1, $3, $5); releaseYys2($2, $4); }
     | IDENTIFIER data_group { $$ = addEncodingOption($1, 0, $2); }
-	| IDENTIFIER '(' arg_list ')'  data_group { $$ = addEncodingOption($1, $3, $5); releaseYys2($2, $4);}
+	| IDENTIFIER '(' arg_list ')'  data_group { $$ = addEncodingOption($1, $3, $5); releaseYys2($2, $4); }
 ;
 
 data_type
@@ -134,7 +134,10 @@ bit_type
 ;
 
 sequence_type
-	: KW_SEQUENCE '<' IDENTIFIER '>' { $$ = createSequence($1, $3); releaseYys2($2, $4); }
+    : KW_SEQUENCE '<' data_type '>' { $$ = createSequence(0, $3); releaseYys3($1, $2, $4); }
+    | KW_SEQUENCE '<' IDENTIFIER '>' { $$ = createSequence(0, createIdType($3, 0)); releaseYys3($1, $2, $4); }
+	| IDENTIFIER '<' data_type '>' { $$ = createSequence($1, $3); releaseYys2($2, $4); }
+    | IDENTIFIER '<' IDENTIFIER '>' { $$ = createSequence($1, createIdType($3, 0)); releaseYys2($2, $4); }
 ;
 
 class_ref_type
