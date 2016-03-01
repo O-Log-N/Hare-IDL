@@ -982,14 +982,15 @@ public:
 	}
 };
 
-TemplateParser tp;
 
 bool loadTemplate( istream& tf, TemplateNode& rootNode, int& currentLineNum )
 {
+	TemplateParser tp;
 	return tp.loadTemplate( tf, rootNode, currentLineNum );
 }
 
 void dbgPrintTree( TemplateNode& rootNode )
 {
+	TemplateParser tp;
 	tp.dbgPrintTree( rootNode );
 }
