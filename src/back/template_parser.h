@@ -23,34 +23,18 @@ Copyright (C) 2016 OLogN Technologies AG
 using namespace std;
 
 enum NODE_TYPE {
-	CONTENT = 0,
-	BEGIN_TEMPLATE,
-	END_TEMPLATE,
+	FULL_TEMPLATE = 0,
+	CONTENT,
 	IF,
-	ELSE,
-	ELIF,
-	ENDIF,
 	INCLUDE,
 	ASSERT,
-	// derived types
 	IF_TRUE_BRANCH,
 	IF_FALSE_BRANCH,
-	FULL_TEMPLATE,
-//	TEMPLATE_ROOT,
-	FOR_EACH_OF_MEMBERS, // used ONLY within STRUCT
 
+	FOR_EACH_OF_MEMBERS, // used ONLY within STRUCT
 	OPEN_OUTPUT_FILE,
 	FOR_EACH_PUBLISHABLE_STRUCT,
 	CLOSE_OUTPUT_FILE,
-};
-
-enum PARAMETER {
-	NONE = 100,
-	TEMPLATE_NAME, // implicit
-	TEMPLATE_TYPE,
-	TYPE,
-	BEGIN,
-	END,
 };
 
 enum PLACEHOLDER {
@@ -60,27 +44,39 @@ enum PLACEHOLDER {
 	MEMBER_NAME, // used ONLY within STRUCT-MEMBER
 };
 
-enum OPERATOR {
-	EQ,
-	NEQ,
-};
-
 struct LinePart
 {
 	int type;
 	string verbatim;
 };
 
+struct ExpressionElement
+{
+	enum OPERATION { PUSH, EQ, NEQ };
+    enum ARGTYPE {NONE, PLACEHOLDER, NUMBER, STRING};
+	OPERATION oper;
+    ARGTYPE argtype = NONE; // for operation PUSH: any but NONE
+	// values below are used in case of PUSH operation
+    double numberValue = 0; // argtype: NUMBER
+    string stringValue; // argtype: STRING
+	::PLACEHOLDER placeholder; // argtype: PLACEHOLDER
+};
+
 struct TemplateNode
 {
 	int type;
 	int srcLineNum;
-	vector<LinePart> lineParts;
 	vector<TemplateNode> childNodes;
+
+	// node-type-specific values
+	vector<LinePart> lineParts; // used only for NODE_TYPE::CONTENT
+	vector<ExpressionElement> expression; // used only for NODE_TYPE::IF and NODE_TYPE::ASSERT
+	string templateName; // used only for NODE_TYPE::BEGIN_TEMPLATE
+	string templateType; // used only for NODE_TYPE::BEGIN_TEMPLATE
+	string outputFileName; // used only for NODE_TYPE::OPEN_OUTPUT_FILE
 };
 
 typedef vector<TemplateNode> TEMPLATE_NODES;
-typedef vector<TemplateNode>::iterator TEMPLATE_NODES_ITERATOR;
 
 bool loadTemplate( istream& tf, TemplateNode& rootNode, int& currentLineNum );
 void dbgPrintTree( TemplateNode& rootNode );

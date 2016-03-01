@@ -27,16 +27,16 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	bool ret;
 
 	size_t i, j;
-	vector<string> argstack;
-	vector<int> commands;
-	for (i = 0; i < ifNode.lineParts.size(); i++)
+//	vector<string> argstack;
+//	vector<int> commands;
+/*	for (i = 0; i < ifNode.expression.size(); i++)
 	{
-		auto type = ifNode.lineParts[i].type;
+		auto oper = ifNode.expression[i].oper;
 		switch ( type )
 		{
 			case PLACEHOLDER::VERBATIM: argstack.push_back(ifNode.lineParts[i].verbatim); break;
-			case OPERATOR::EQ:
-			case OPERATOR::NEQ:
+			case ExpressionElement::OPERATION::EQ:
+			case ExpressionElement::OPERATION::NEQ:
 			{
 				commands.push_back( type );
 				break;
@@ -52,11 +52,40 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	size_t commandCnt = commands.size();
 	size_t stacksz = argstack.size();
 
-	assert((commandCnt == 1 && stacksz == 2) || commandCnt == 0 && stacksz == 1); // limitation of a current version; TODO: further development
+	assert((commandCnt == 1 && stacksz == 2) || commandCnt == 0 && stacksz == 1); // limitation of a current version; TODO: further development*/
 
-	if (commandCnt == 1)
+	size_t expressionSz = ifNode.expression.size();
+	assert( ( expressionSz == 1 && ifNode.expression[0].oper == ExpressionElement::OPERATION::PUSH ) || 
+		    ( expressionSz == 3 && ifNode.expression[0].oper == ExpressionElement::OPERATION::PUSH && ( ifNode.expression[1].oper == ExpressionElement::OPERATION::EQ || ifNode.expression[1].oper == ExpressionElement::OPERATION::NEQ ) &&ifNode.expression[2].oper == ExpressionElement::OPERATION::PUSH ) ); // limitation of a current version; TODO: further development
+
+	if (expressionSz == 3)
 	{
-		for (j = commandCnt; j; j--)
+		assert( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING || ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::PLACEHOLDER ); // limitation of a current version; TODO: further development
+		assert( ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::STRING || ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::PLACEHOLDER ); // limitation of a current version; TODO: further development
+		switch ( ifNode.expression[1].oper )
+		{
+			case ExpressionElement::OPERATION::EQ:
+			{
+				string& lstr = ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ? ifNode.expression[0].stringValue : placeholder( ifNode.expression[0].placeholder );
+				string& rstr = ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::STRING ? ifNode.expression[2].stringValue : placeholder( ifNode.expression[2].placeholder );
+				ret = lstr == rstr;
+				break;
+			}
+			case ExpressionElement::OPERATION::NEQ:
+			{
+				string& lstr = ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ? ifNode.expression[0].stringValue : placeholder( ifNode.expression[0].placeholder );
+				string& rstr = ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::STRING ? ifNode.expression[2].stringValue : placeholder( ifNode.expression[2].placeholder );
+				ret = !(lstr == rstr);
+				break;
+			}
+			default:
+			{
+				fmt::print("Type {} is unexpected or unsupported\n", ifNode.expression[1].oper );
+				assert(0 == "Error: not supported");
+			}
+		}
+
+/*		for (j = commandCnt; j; j--)
 		{
 			switch (commands[j - 1])
 			{
@@ -76,11 +105,13 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 					assert(0 == "Error: not supported");
 				}
 			}
-		}
+		}*/
 	}
 	else
 	{
-		ret = !(argstack[0] == "0" || argstack[0] == "FALSE");
+		assert( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING || ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::PLACEHOLDER ); // limitation of a current version; TODO: further development
+		string& lstr = ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ? ifNode.expression[0].stringValue : placeholder( ifNode.expression[0].placeholder );
+		ret = !(lstr == "0" || lstr == "FALSE");
 	}
 	return ret;
 }

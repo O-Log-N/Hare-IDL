@@ -44,11 +44,49 @@ Copyright (C) 2016 OLogN Technologies AG
 #define PLACEHOLDER_STRING_MEMBER_TYPE "@MEMBER-TYPE@"
 #define PLACEHOLDER_STRING_MEMBER_NAME "@MEMBER-NAME@"
 
+struct TemplateLine
+{
+	enum LINE_TYPE {
+		CONTENT = 0,
+		BEGIN_TEMPLATE,
+		END_TEMPLATE,
+		IF,
+		ELSE,
+		ELIF,
+		ENDIF,
+		INCLUDE,
+		ASSERT,
+		FOR_EACH_OF_MEMBERS, // used ONLY within STRUCT
+		OPEN_OUTPUT_FILE,
+		FOR_EACH_PUBLISHABLE_STRUCT,
+		CLOSE_OUTPUT_FILE,
+	};
+
+	int type;
+	int srcLineNum;
+	vector<LinePart> lineParts;
+
+	bool foreachofmembersbegin; // TEMPORARY!!! TODO: get rid of!
+	bool openoutputfilebegin; // TEMPORARY!!! TODO: get rid of!
+
+	vector<ExpressionElement> expression; // used only for NODE_TYPE::IF and NODE_TYPE::ASSERT
+	string templateName; // used only for NODE_TYPE::BEGIN_TEMPLATE
+	string templateType; // used only for NODE_TYPE::BEGIN_TEMPLATE
+	string outputFileName; // used only for NODE_TYPE::OPEN_OUTPUT_FILE
+};
+typedef vector<TemplateLine>::iterator TEMPLATE_LINES_ITERATOR;
+
 struct KeyWord
 {
 	const char* kw;
 	int size;
-	NODE_TYPE id;
+	TemplateLine::LINE_TYPE id;
+};
+
+enum PARAMETER {
+	NONE = 100,
+	BEGIN,
+	END,
 };
 
 struct ParameterWord
@@ -67,15 +105,15 @@ struct PlaceholderWord
 
 const KeyWord keywords[] = 
 {
-	{KEYWORD_STRING_BEGIN_TEMPLATE, sizeof(KEYWORD_STRING_BEGIN_TEMPLATE)-1, NODE_TYPE::BEGIN_TEMPLATE},
-	{KEYWORD_STRING_END_TEMPLATE, sizeof(KEYWORD_STRING_END_TEMPLATE)-1, NODE_TYPE::END_TEMPLATE},
-	{KEYWORD_STRING_FOR_EACH_OF_MEMBERS, sizeof(KEYWORD_STRING_FOR_EACH_OF_MEMBERS)-1, NODE_TYPE::FOR_EACH_OF_MEMBERS},
-	{KEYWORD_STRING_IF, sizeof(KEYWORD_STRING_IF)-1, NODE_TYPE::IF},
-	{KEYWORD_STRING_ENDIF, sizeof(KEYWORD_STRING_ENDIF)-1, NODE_TYPE::ENDIF},
-	{KEYWORD_STRING_ELIF, sizeof(KEYWORD_STRING_ELIF)-1, NODE_TYPE::ELIF},
-	{KEYWORD_STRING_ELSE, sizeof(KEYWORD_STRING_ELSE)-1, NODE_TYPE::ELSE},
-	{KEYWORD_STRING_ASSERT, sizeof(KEYWORD_STRING_ASSERT)-1, NODE_TYPE::ASSERT},
-	{NULL, 0, NODE_TYPE::CONTENT}
+	{KEYWORD_STRING_BEGIN_TEMPLATE, sizeof(KEYWORD_STRING_BEGIN_TEMPLATE)-1, TemplateLine::LINE_TYPE::BEGIN_TEMPLATE},
+	{KEYWORD_STRING_END_TEMPLATE, sizeof(KEYWORD_STRING_END_TEMPLATE)-1, TemplateLine::LINE_TYPE::END_TEMPLATE},
+	{KEYWORD_STRING_FOR_EACH_OF_MEMBERS, sizeof(KEYWORD_STRING_FOR_EACH_OF_MEMBERS)-1, TemplateLine::LINE_TYPE::FOR_EACH_OF_MEMBERS},
+	{KEYWORD_STRING_IF, sizeof(KEYWORD_STRING_IF)-1, TemplateLine::LINE_TYPE::IF},
+	{KEYWORD_STRING_ENDIF, sizeof(KEYWORD_STRING_ENDIF)-1, TemplateLine::LINE_TYPE::ENDIF},
+	{KEYWORD_STRING_ELIF, sizeof(KEYWORD_STRING_ELIF)-1, TemplateLine::LINE_TYPE::ELIF},
+	{KEYWORD_STRING_ELSE, sizeof(KEYWORD_STRING_ELSE)-1, TemplateLine::LINE_TYPE::ELSE},
+	{KEYWORD_STRING_ASSERT, sizeof(KEYWORD_STRING_ASSERT)-1, TemplateLine::LINE_TYPE::ASSERT},
+	{NULL, 0, TemplateLine::LINE_TYPE::CONTENT}
 };
 
 const PlaceholderWord placeholders[] = 
@@ -90,7 +128,6 @@ const ParameterWord params[] =
 {
 	{PARAM_STRING_BEGIN, sizeof(PARAM_STRING_BEGIN)-1, PARAMETER::BEGIN},
 	{PARAM_STRING_END, sizeof(PARAM_STRING_END)-1, PARAMETER::END},
-	{PARAM_STRING_TYPE, sizeof(PARAM_STRING_TYPE)-1, PARAMETER::TYPE},
 	{NULL, 0, PARAMETER::NONE},
 };
 
@@ -112,14 +149,42 @@ class TemplateParser
 				case PLACEHOLDER::STRUCT_NAME: fmt::print( PLACEHOLDER_STRING_STRUCTNAME ); break;
 				case PLACEHOLDER::MEMBER_TYPE: fmt::print( PLACEHOLDER_STRING_MEMBER_TYPE ); break;
 				case PLACEHOLDER::MEMBER_NAME: fmt::print( PLACEHOLDER_STRING_MEMBER_NAME ); break;
-				case PARAMETER::TYPE: fmt::print( " {}", PARAM_STRING_TYPE ); break;
-				case PARAMETER::BEGIN: fmt::print( " {}", PARAM_STRING_BEGIN ); break;
-				case PARAMETER::END: fmt::print( " {}", PARAM_STRING_END ); break;
-				case OPERATOR::EQ: fmt::print( " == " ); break;
-				case OPERATOR::NEQ: fmt::print( " != " ); break;
 				default:
 				{
 					fmt::print( "Unknown line_part.type = {} found\n", parts[i].type );
+					assert( 0 == "Error: Not Implemented" );
+				}
+			}
+	}
+
+	string dbgPlaceholderIdToString( PLACEHOLDER placeholder )
+	{
+		return placeholders[ placeholder - PLACEHOLDER::VERBATIM ].kw; // TODO: revise implementation!!!
+	}
+
+	void dbgPrintExpression( vector<ExpressionElement>& expression )
+	{
+		size_t i;
+		for ( i=0; i<expression.size(); i++ )
+			switch ( expression[i].oper )
+			{
+				case ExpressionElement::OPERATION::PUSH:
+				{
+					switch ( expression[i].argtype )
+					{
+						case ExpressionElement::ARGTYPE::STRING: fmt::print( "{}", expression[i].stringValue.c_str() ); break;
+						case ExpressionElement::ARGTYPE::NUMBER: fmt::print( "{}", expression[i].numberValue ); break;
+						case ExpressionElement::ARGTYPE::PLACEHOLDER: fmt::print( "{}", dbgPlaceholderIdToString( expression[i].placeholder ).c_str() ); break;
+						case ExpressionElement::ARGTYPE::NONE: fmt::print( "\"\"" ); break;
+						default: fmt::print( "?????????" ); break;
+					}
+					break;
+				}
+				case ExpressionElement::OPERATION::EQ: fmt::print( " == " ); break;
+				case ExpressionElement::OPERATION::NEQ: fmt::print( " != " ); break;
+				default:
+				{
+					fmt::print( "Unknown expression.oper = {} found\n", expression[i].oper );
 					assert( 0 == "Error: Not Implemented" );
 				}
 			}
@@ -131,11 +196,10 @@ class TemplateParser
 		fmt::print( "[{}] ", node.srcLineNum );
 		switch ( node.type )
 		{
-			case NODE_TYPE::CONTENT: break;
-			case NODE_TYPE::BEGIN_TEMPLATE: fmt::print( "BEGIN_TEMPLATE " ); break;
-			case NODE_TYPE::END_TEMPLATE: fmt::print( "END_TEMPLATE " ); break;
-			case NODE_TYPE::IF: fmt::print( "IF " ); break;
-			case NODE_TYPE::ASSERT: fmt::print( "ASSERT " ); break;
+			case NODE_TYPE::CONTENT: dbgPrintLineParts( node.lineParts ); break;
+			case NODE_TYPE::FULL_TEMPLATE: fmt::print( "FULL_TEMPLATE " ); break;
+			case NODE_TYPE::IF: fmt::print( "IF " ); dbgPrintExpression( node.expression ); break;
+			case NODE_TYPE::ASSERT: fmt::print( "ASSERT " ); dbgPrintExpression( node.expression ); break;
 			case NODE_TYPE::FOR_EACH_OF_MEMBERS: fmt::print( "FOR_EACH_OF_MEMBERS " ); break;
 			case NODE_TYPE::INCLUDE: fmt::print( "INCLUDE " ); break;
 			case NODE_TYPE::IF_TRUE_BRANCH: fmt::print( "IF_TRUE" ); break;
@@ -143,7 +207,10 @@ class TemplateParser
 		}
 
 		if ( node.lineParts.size() )
-			dbgPrintLineParts( node.lineParts );
+		{
+			assert( !(node.type == NODE_TYPE::IF || node.type == NODE_TYPE::ASSERT) );
+			assert( node.type == NODE_TYPE::CONTENT );
+		}
 		fmt::print( "\n" );
 		for ( size_t i=0; i<node.childNodes.size(); i++ )
 			dbgPrintNode( node.childNodes[i], depth + 1 );
@@ -158,7 +225,7 @@ class TemplateParser
 				assert( node.childNodes.size() == 0 );
 				break;
 			}
-			case NODE_TYPE::BEGIN_TEMPLATE:
+			case NODE_TYPE::FULL_TEMPLATE:
 			{
 				for ( size_t i=0; i<node.childNodes.size(); i++ )
 					dbgValidateNode( node.childNodes[i] );
@@ -203,83 +270,108 @@ class TemplateParser
 		}
 	}
 
-	bool makeNodeTree( TemplateNode& rootNode, TEMPLATE_NODES_ITERATOR nodeBegin, TEMPLATE_NODES_ITERATOR nodeEnd )
+	bool makeNodeTree( TemplateNode& rootNode, TEMPLATE_LINES_ITERATOR& lnBegin, TEMPLATE_LINES_ITERATOR& lnEnd )
 	{
-		TEMPLATE_NODES_ITERATOR it = nodeBegin;
-		while ( it != nodeEnd )
+#if 0
+static int k=0;
+k++;
+fmt::print( "=== k = {} ===\n", k );
+if ( k == 16 )
+{
+	k = k;
+}
+#endif
+		auto it = lnBegin;
+		while ( it != lnEnd )
 		{
 			switch ( it->type )
 			{
-				case NODE_TYPE::CONTENT:
+				case TemplateLine::LINE_TYPE::BEGIN_TEMPLATE:
 				{
-					 rootNode.childNodes.push_back( *it );
-					 ++it;
-					 break;
+					rootNode.type = NODE_TYPE::FULL_TEMPLATE;
+					rootNode.templateName = it->templateName;
+					rootNode.templateType = it->templateType;
+					rootNode.srcLineNum = it->srcLineNum;
+					++it;
+					break;
 				}
-				case NODE_TYPE::FOR_EACH_OF_MEMBERS:
+				case TemplateLine::LINE_TYPE::END_TEMPLATE:
 				{
-					assert( it->lineParts.size() == 1 && ( it->lineParts[0].type == PARAMETER::BEGIN || it->lineParts[0].type == PARAMETER::END ) );
-					unsigned int param = it->lineParts[0].type;
+					++it;
+					break;
+				}
+				case TemplateLine::LINE_TYPE::CONTENT:
+				{
+					TemplateNode node;
+					node.type = NODE_TYPE::CONTENT;
+					node.srcLineNum = it->srcLineNum;
+					node.lineParts = it->lineParts;
+					rootNode.childNodes.push_back( node );
+					++it;
+					break;
+				}
+				case TemplateLine::LINE_TYPE::FOR_EACH_OF_MEMBERS:
+				{
+					assert( it->lineParts.size() == 0 );
+					TemplateNode node;
+					node.srcLineNum = it->srcLineNum;
+					node.type = NODE_TYPE::FOR_EACH_OF_MEMBERS;
+//					unsigned int param = it->lineParts[0].type;
 					unsigned int contentStart = 0;
-					if ( param == PARAMETER::END )
+//					if ( param == PARAMETER::END )
+					if ( !it->foreachofmembersbegin )
 					{
 						fmt::print( "line {}: error: \"{} {}\" without matching \"{} {}\"\n", it->srcLineNum, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_END, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_BEGIN );
 						return false;
 					}
-					else if ( param == PARAMETER::BEGIN )
+					else
 					{
 						// next NODE_TYPE::FOR_EACH_OF_MEMBERS must be somewhere down, and it must be terminating (so far inner blocks of this type are not expected)
-						TEMPLATE_NODES_ITERATOR nodeBlockEnd = it;
-						do { ++nodeBlockEnd; } while ( nodeBlockEnd != nodeEnd && nodeBlockEnd->type != NODE_TYPE::FOR_EACH_OF_MEMBERS );
-						if ( nodeBlockEnd == nodeEnd )
+						auto blockEnd = it;
+						do { ++blockEnd; } while ( blockEnd != lnEnd && blockEnd->type != TemplateLine::LINE_TYPE::FOR_EACH_OF_MEMBERS );
+						if ( blockEnd == lnEnd )
 						{
 							fmt::print( "line {}: error: \"{} {}\" without matching \"{} {}\"\n", it->srcLineNum, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_BEGIN, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_END );
 							return false;
 						}
 						// at least, now we are at NODE_TYPE::FOR_EACH_OF_MEMBERS node...
 						contentStart = 0;
-						assert( nodeBlockEnd->lineParts.size() == 1 && ( nodeBlockEnd->lineParts[0].type == PARAMETER::BEGIN || nodeBlockEnd->lineParts[0].type == PARAMETER::END ) );
-						param = nodeBlockEnd->lineParts[0].type;
-						if ( param == PARAMETER::END )
+						if ( !blockEnd->foreachofmembersbegin )
 						{
 							// VALID CASE
-							makeNodeTree( *it, it + 1, nodeBlockEnd );
-							rootNode.childNodes.push_back( *it );
-							it = nodeBlockEnd;
+							makeNodeTree( node, it + 1, blockEnd );
+//							makeNodeTree( node, it + 1, blockEnd + 1 );
+							assert( node.lineParts.size() == 0 );
+							rootNode.childNodes.push_back( node );
+							it = blockEnd;
 							it++;
 							break;
 						}
-						else if ( param == PARAMETER::BEGIN )
-						{
-							fmt::print( "line {}: error: \"{} {}\" without matching \"{} {}\" (see also line {})\n", it->srcLineNum, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_BEGIN, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_END, nodeBlockEnd->srcLineNum );
-							return false;
-						}
 						else
 						{
-							assert( 0 );
+							fmt::print( "line {}: error: \"{} {}\" without matching \"{} {}\" (see also line {})\n", it->srcLineNum, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_BEGIN, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_END, blockEnd->srcLineNum );
 							return false;
 						}
-					}
-					else
-					{
-						assert( 0 );
-						return false;
 					}
 
 					assert( 0 ); // we should not be here!
 				}
-				case NODE_TYPE::IF:
+				case TemplateLine::LINE_TYPE::IF:
 				{
 					// each NODE_TYPE::IF eventually ends up with a matching NODE_TYPE::ENDIF; inner IF/ENDIF pairs are allowed, too
+					TemplateNode node;
+					node.type = NODE_TYPE::IF;
+					node.srcLineNum = it->srcLineNum;
+					node.expression = it->expression;
 					int ifendifBalance = 1;
-					TEMPLATE_NODES_ITERATOR nodeBlockEnd = it;
+					auto blockEnd = it;
 					bool endifFound = false;
 					do 
 					{ 
-						++nodeBlockEnd; 
-						if ( nodeBlockEnd->type == NODE_TYPE::IF )
+						++blockEnd; 
+						if ( blockEnd->type == TemplateLine::LINE_TYPE::IF )
 							ifendifBalance ++;
-						if ( nodeBlockEnd->type == NODE_TYPE::ENDIF )
+						if ( blockEnd->type == TemplateLine::LINE_TYPE::ENDIF )
 							ifendifBalance --;
 						if ( ifendifBalance == 0 )
 						{
@@ -287,98 +379,125 @@ class TemplateParser
 							break;
 						}
 					}
-					while ( nodeBlockEnd != nodeEnd );
+					while ( blockEnd != lnEnd );
 
 					if ( !endifFound )
 					{
 						fmt::print( "line {}: error: \"{}\" without matching \"{}\"\n", it->srcLineNum, KEYWORD_STRING_IF, KEYWORD_STRING_ENDIF );
 						return false;
 					}
-					assert( nodeBlockEnd->type == NODE_TYPE::ENDIF );
+					assert( blockEnd->type == TemplateLine::LINE_TYPE::ENDIF );
 
 					// VALID CASE
 					// we need to separate its TRUE branche from the rest if IF/ENDIF body which is it FALSE branch
-					// posive branch ends up (up to inner IF/ENDIF blocks) with one of NODE_TYPE::ELSE, NODE_TYPE::ELIF, or NODE_TYPE::ENDIF (the latter is already processed out)
-					// if none of NODE_TYPE::ELSE or NODE_TYPE::ELIF found, IF block has only its TRUE branch
+					// posive branch ends up (up to inner IF/ENDIF blocks) with one of TemplateLine::LINE_TYPE::ELSE, TemplateLine::LINE_TYPE::ELIF, or TemplateLine::LINE_TYPE::ENDIF (the latter is already processed out)
+					// if none of TemplateLine::LINE_TYPE::ELSE or TemplateLine::LINE_TYPE::ELIF found, IF block has only its TRUE branch
 					ifendifBalance = 0;
-					TEMPLATE_NODES_ITERATOR trueBranchEnd = it;
+					auto trueBranchEnd = it;
 					do 
 					{ 
 						++trueBranchEnd; 
-						if ( trueBranchEnd->type == NODE_TYPE::IF )
+						if ( trueBranchEnd->type == TemplateLine::LINE_TYPE::IF )
 							ifendifBalance ++;
-						if ( trueBranchEnd->type == NODE_TYPE::ENDIF )
+						if ( trueBranchEnd->type == TemplateLine::LINE_TYPE::ENDIF )
 							ifendifBalance --;
-						if ( ifendifBalance == 0 && (trueBranchEnd->type == NODE_TYPE::ELSE || trueBranchEnd->type == NODE_TYPE::ELIF ) )
+						if ( ifendifBalance == 0 && (trueBranchEnd->type == TemplateLine::LINE_TYPE::ELSE || trueBranchEnd->type == TemplateLine::LINE_TYPE::ELIF ) )
 						{
 							break;
 						}
 					}
-					while ( trueBranchEnd != nodeBlockEnd );
+					while ( trueBranchEnd != blockEnd );
 
 					TemplateNode ifTrue, ifFalse;
 					ifTrue.type = NODE_TYPE::IF_TRUE_BRANCH;
+					ifFalse.type = NODE_TYPE::IF_FALSE_BRANCH;
 					ifTrue.srcLineNum = trueBranchEnd == it + 1 ? -1 : it->srcLineNum + 1;
 					makeNodeTree( ifTrue, it + 1, trueBranchEnd );
 
-					if ( trueBranchEnd->type == NODE_TYPE::ELSE )
+					if ( trueBranchEnd->type == TemplateLine::LINE_TYPE::ELSE )
 					{
-						ifFalse.type = NODE_TYPE::IF_FALSE_BRANCH;
-						ifFalse.srcLineNum = trueBranchEnd != nodeBlockEnd ? trueBranchEnd->srcLineNum + 1 : -1;
-						makeNodeTree( ifFalse, trueBranchEnd + 1, nodeBlockEnd );
+						ifFalse.srcLineNum = trueBranchEnd != blockEnd ? trueBranchEnd->srcLineNum + 1 : -1;
+						makeNodeTree( ifFalse, trueBranchEnd + 1, blockEnd );
 					}
 					else
 					{
-						assert( trueBranchEnd->type == NODE_TYPE::ELIF );
-						ifFalse.type = NODE_TYPE::IF_FALSE_BRANCH;
-						ifFalse.srcLineNum = trueBranchEnd != nodeBlockEnd ? trueBranchEnd->srcLineNum : -1;
-						makeNodeTree( ifFalse, trueBranchEnd, nodeBlockEnd );
+						assert( trueBranchEnd->type == TemplateLine::LINE_TYPE::ELIF );
+						trueBranchEnd->type = TemplateLine::LINE_TYPE::IF;
+						ifFalse.srcLineNum = trueBranchEnd != blockEnd ? trueBranchEnd->srcLineNum : -1;
+//						makeNodeTree( ifFalse, trueBranchEnd, blockEnd );
+						makeNodeTree( ifFalse, trueBranchEnd, blockEnd+1 );
 					}
 
-					it->childNodes.push_back( ifTrue );
-					it->childNodes.push_back( ifFalse );
+					node.childNodes.push_back( ifTrue );
+					node.childNodes.push_back( ifFalse );
 
-					rootNode.childNodes.push_back( *it );
-					it = nodeBlockEnd;
+					rootNode.childNodes.push_back( node );
+#if 0
+					if ( blockEnd != lnEnd )
+					{
+						it = blockEnd;
+						++it;
+					}
+#else
+					it = blockEnd;
 					++it;
+#endif
 					break;
 				}
-				case NODE_TYPE::ASSERT:
+				case TemplateLine::LINE_TYPE::ASSERT:
 				{
-					rootNode.childNodes.push_back( *it );
+					TemplateNode node;
+					node.type = NODE_TYPE::ASSERT;
+					node.srcLineNum = it->srcLineNum;
+					node.expression = it->expression;
+					rootNode.childNodes.push_back( node );
 					++it;
 					break;
 				}
-				case NODE_TYPE::ENDIF: // processed out while processing a respective NODE_TYPE::IF
+				case TemplateLine::LINE_TYPE::ENDIF: // processed out while processing a respective TemplateLine::LINE_TYPE::IF
 				{
 					fmt::print( "line {}: error: \"{}\" without matching \"{}\"\n", it->srcLineNum, KEYWORD_STRING_ENDIF, KEYWORD_STRING_IF );
 					return false;
 				}
-				case NODE_TYPE::ELIF:
+				case TemplateLine::LINE_TYPE::ELIF: // processed out while processing a respective TemplateLine::LINE_TYPE::IF
 				{
+#if 0
 					if ( rootNode.type != NODE_TYPE::IF_FALSE_BRANCH )
 					{
 						fmt::print( "line {}: error: \"{}\" without matching \"{}\"\n", it->srcLineNum, KEYWORD_STRING_ELIF, KEYWORD_STRING_IF );
 						return false;
 					}
-					assert( nodeEnd->type == NODE_TYPE::ENDIF );
-					++nodeEnd; // that is, we will re-use it
-					it->type = NODE_TYPE::IF;
-					break; // re-process it as NODE_TYPE::IF
+					assert( lnEnd->type == TemplateLine::LINE_TYPE::ENDIF );
+					++lnEnd; // that is, we will re-use it
+					it->type = TemplateLine::LINE_TYPE::IF;
+#endif
+					fmt::print( "line {}: error: \"{}\" without matching \"{}\"\n", it->srcLineNum, KEYWORD_STRING_ELIF, KEYWORD_STRING_IF );
+					return false;
+					break; // re-process it as TemplateLine::LINE_TYPE::IF
 				}
-				case NODE_TYPE::ELSE: // processed out while processing a respective NODE_TYPE::IF
+				case TemplateLine::LINE_TYPE::ELSE: // processed out while processing a respective TemplateLine::LINE_TYPE::IF
 				{
 					fmt::print( "line {}: error: \"{}\" without matching \"{}\"\n", it->srcLineNum, KEYWORD_STRING_ELSE, KEYWORD_STRING_IF );
 					return false;
 				}
 				default:
 				{
-					fmt::print( "line {}: error: unexpected token(s)\n", it->srcLineNum );
+					fmt::print( "line {}: error: unexpected line type {}\n", it->srcLineNum, it->type );
+					++it;
 					break;
 				}
 			} // end of switch
 		}
 
+#if 0
+static int KKK=0;
+KKK++;
+fmt::print( "=== KKK = {} ===\n", KKK );
+if ( KKK == 8 )
+{
+	k = k;
+}
+#endif
 		return true;
 	}
 
@@ -429,12 +548,12 @@ class TemplateParser
 		}
 	}
 
-	int parseMainKeyword( string& line, unsigned int& contentStart )
+	TemplateLine::LINE_TYPE parseMainKeyword( string& line, unsigned int& contentStart )
 	{
 		assert( line.compare( contentStart, 2, "@@" ) == 0 );
 		contentStart += 2;
 		while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
-		int ret = parseSpecialWord( line, contentStart, keywords );
+		TemplateLine::LINE_TYPE ret = parseSpecialWord( line, contentStart, keywords );
 		while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 		return ret;
 	}
@@ -446,10 +565,10 @@ class TemplateParser
 		return ret;
 	}
 
-	int parsePlaceholder( string& line, unsigned int& contentStart )
+	PLACEHOLDER parsePlaceholder( string& line, unsigned int& contentStart )
 	{
 		while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
-		int ret = parseSpecialWord( line, contentStart, placeholders );
+		PLACEHOLDER ret = parseSpecialWord( line, contentStart, placeholders );
 		return ret;
 	}
 
@@ -458,7 +577,7 @@ class TemplateParser
 		while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 	}
 
-	void parseLineContent( string& lc, vector<LinePart>& parts, int lineType, int context )
+	void parseLineContent( string& lc, vector<LinePart>& parts )
 	{
 		// we have to go char by char; if '@' is found, make sure it's not a placeholder, or replace it accordingly
 		unsigned int pos = 0;
@@ -511,36 +630,39 @@ class TemplateParser
 		}
 	}
 
-	void parseIfCondition( string& lc, vector<LinePart>& parts, int lineType, int context )
+	void parseIfCondition( string& lc, vector<ExpressionElement>& expression )
 	{
 				// we have to go char by char; if '@' is found, make sure it's not a placeholder, or replace it accordingly
 				unsigned int pos = 0;
 				size_t sz = lc.size();
-				LinePart part;
-				part.type = PLACEHOLDER::VERBATIM;
+				ExpressionElement element;
+				element.oper = ExpressionElement::OPERATION::PUSH;
+				element.argtype = ExpressionElement::ARGTYPE::STRING;
 				do
 				{
 					if ( lc[ pos ] == '@' )
 					{
-						int placehldr = parsePlaceholder( lc, pos );
+						PLACEHOLDER placehldr = parsePlaceholder( lc, pos );
 						switch ( placehldr )
 						{
 							case PLACEHOLDER::VERBATIM: 
 							{
-								part.verbatim.push_back( lc[ pos ] ); 
+								element.stringValue.push_back( lc[ pos ] ); 
 								pos ++; 
 								break;
 							}
 							case PLACEHOLDER::MEMBER_TYPE:
 							case PLACEHOLDER::MEMBER_NAME:
 							{
-								assert( part.type == PLACEHOLDER::VERBATIM );
-								if ( part.verbatim.size() )
-									parts.push_back( part ); 
-								part.verbatim.clear(); 
-								part.type = placehldr; 
-								parts.push_back( part ); 
-								part.type = PLACEHOLDER::VERBATIM; 
+								assert( element.oper == ExpressionElement::OPERATION::PUSH );
+								assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
+								if ( element.stringValue.size() )
+									expression.push_back( element ); 
+								element.stringValue.clear(); 
+								element.argtype = ExpressionElement::ARGTYPE::PLACEHOLDER; 
+								element.placeholder = placehldr;
+								expression.push_back( element ); 
+								element.argtype = ExpressionElement::ARGTYPE::STRING; 
 								break;
 							}
 							default:
@@ -554,70 +676,79 @@ class TemplateParser
 					{
 						if ( lc[ pos ] == ' ' || lc[ pos ] == '\t')
 						{
-							if ( part.verbatim.size() )
+							if ( element.stringValue.size() )
 							{
-								assert( part.type == PLACEHOLDER::VERBATIM );
-								parts.push_back( part );
-								part.verbatim.clear();
+								assert( element.oper == ExpressionElement::OPERATION::PUSH );
+								assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
+								expression.push_back( element );
+								element.stringValue.clear();
 							}
 							pos ++;
 						}
 						else if ( lc.compare( pos, 2, "==" ) == 0 )
 						{
-							if ( part.verbatim.size() )
+							if ( element.stringValue.size() )
 							{
-								assert( part.type == PLACEHOLDER::VERBATIM );
-								parts.push_back( part );
-								part.verbatim.clear();
+								assert( element.oper == ExpressionElement::OPERATION::PUSH );
+								assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
+								expression.push_back( element );
+								element.stringValue.clear();
 							}
-							part.verbatim.clear();
-							part.type = OPERATOR::EQ;
-							parts.push_back( part );
-							part.type = PLACEHOLDER::VERBATIM;
+							element.stringValue.clear();
+							element.oper = ExpressionElement::OPERATION::EQ;
+							element.argtype = ExpressionElement::ARGTYPE::NONE;
+							expression.push_back( element );
+							element.oper = ExpressionElement::OPERATION::PUSH;
+							element.argtype = ExpressionElement::ARGTYPE::STRING;
 							pos += 2;
 						}
 						else if ( lc.compare( pos, 2, "!=" ) == 0 )
 						{
-							if ( part.verbatim.size() )
+							if ( element.stringValue.size() )
 							{
-								assert( part.type == PLACEHOLDER::VERBATIM );
-								parts.push_back( part );
-								part.verbatim.clear();
+								assert( element.oper == ExpressionElement::OPERATION::PUSH );
+								assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
+								expression.push_back( element );
+								element.stringValue.clear();
 							}
-							part.verbatim.clear();
-							part.type = OPERATOR::NEQ;
-							parts.push_back( part );
-							part.type = PLACEHOLDER::VERBATIM;
+							element.stringValue.clear();
+							element.oper = ExpressionElement::OPERATION::NEQ;
+							element.argtype = ExpressionElement::ARGTYPE::NONE;
+							expression.push_back( element );
+							element.oper = ExpressionElement::OPERATION::PUSH;
+							element.argtype = ExpressionElement::ARGTYPE::STRING;
 							pos += 2;
 						}
 						else
 						{
-							part.verbatim.push_back( lc[ pos ] );
+							element.stringValue.push_back( lc[ pos ] );
 							pos ++;
 						}
 					}
 				}
 				while ( pos < sz );
 
-				if ( part.verbatim.size() )
+				if ( element.stringValue.size() )
 				{
-					assert( part.type == PLACEHOLDER::VERBATIM );
-					parts.push_back( part ); 
+					assert( element.oper == ExpressionElement::OPERATION::PUSH );
+					assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
+					expression.push_back( element ); 
 				}
 	}
 
 public:
-	enum {OK = 0, NO_MORE_TEMPLATES = 1, FAILED_ERROR = 2, FAILED_BUID_TREE_ERROR = 3,	FAILED_INTERNAL = 4};
-	int loadTemplate( istream& tf, TemplateNode& rootNode, int& currentLineNum )
+	enum PROCESSING_RESULT {OK = 0, NO_MORE_TEMPLATES = 1, FAILED_ERROR = 2, FAILED_BUID_TREE_ERROR = 3,	FAILED_INTERNAL = 4};
+
+	PROCESSING_RESULT tokenize( istream& tf, vector<TemplateLine>& templateLines, int& currentLineNum )
 	{
-		TEMPLATE_NODES nodes;
+//		TEMPLATE_NODES nodes;
 
 		// it is assumed here that starting from a current position in a file any content other than the beginning and the rest of template can be safely ignored
 		bool startFound = false;
 		unsigned int contentStart = 0;
 		bool endFound = false;
 
-		LinePart templateName;
+		string templateName;
 
 		for( ;;) // through all nodes, find template beginning
 		{
@@ -632,14 +763,17 @@ public:
 				while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 				if ( line.compare( contentStart, sizeof(KEYWORD_STRING_BEGIN_TEMPLATE)-1, KEYWORD_STRING_BEGIN_TEMPLATE ) == 0 )
 				{
+					TemplateLine thisLine;
+					thisLine.srcLineNum = currentLineNum;
+					thisLine.type = TemplateLine::LINE_TYPE::BEGIN_TEMPLATE;
+
 					contentStart += sizeof(KEYWORD_STRING_BEGIN_TEMPLATE)-1;
 					while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 
 					// read name
-					templateName.verbatim.clear(); // just in case... TODO: think about error reporting in case non-empty (should not happen in a sane template)
-					templateName.type = TEMPLATE_NAME;
-					while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t'))) templateName.verbatim.push_back( line[contentStart++] );
-					rootNode.lineParts.push_back( templateName );
+					while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t'))) templateName.push_back( line[contentStart++] );
+//					rootNode.templateName = templateName;
+					thisLine.templateName = templateName;
 
 					while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 					if ( line.compare( contentStart, sizeof(PARAM_STRING_TYPE)-1, PARAM_STRING_TYPE ) != 0 )
@@ -658,10 +792,7 @@ public:
 					while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 
 					// read type
-					LinePart templateType;
-					templateType.type = TEMPLATE_TYPE;
-					while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t'))) templateType.verbatim.push_back( line[contentStart++] );
-					rootNode.lineParts.push_back( templateType );
+					while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t'))) thisLine.templateType.push_back( line[contentStart++] );
 
 					while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 					if ( !( contentStart == line.size() ) )
@@ -669,6 +800,8 @@ public:
 						fmt::print( "line {}: error: unexpected tokens\n", currentLineNum );
 						return FAILED_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 					}
+
+					templateLines.push_back( thisLine );
 
 					startFound = true;
 					break;
@@ -679,7 +812,8 @@ public:
 
 		if ( !startFound )
 		{
-			if ( nodes.size() )
+//			if ( nodes.size() )
+			if ( templateLines.size() )
 			{
 				fmt::print( "line {}: error: no no template has been found\n", currentLineNum );
 				return FAILED_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
@@ -690,40 +824,46 @@ public:
 			}
 		}
 
-		// go through other nodes
+		// go through other lines
 		for( ;;) // through all nodes, find template beginning
 		{
-			TemplateNode tl;
+//			TemplateNode tl;
+			TemplateLine thisLine;
+			thisLine.srcLineNum = currentLineNum;
+
 			string line;
 			if ( !readLine( tf, line, contentStart, currentLineNum ) )
 				break;
 			bool isContent = line.compare( contentStart, 2, "@@" ) != 0;
 			if ( isContent ) // an empty line => not ctr line => content line => keep "as is"
 			{
-				tl.srcLineNum = currentLineNum;
-				tl.type = NODE_TYPE::CONTENT;
-				parseLineContent( line, tl.lineParts, NODE_TYPE::CONTENT, 0 );
+				thisLine.type = TemplateLine::LINE_TYPE::CONTENT;
+				parseLineContent( line, thisLine.lineParts );
 //				tl.content = line;
-				nodes.push_back( tl );
+				templateLines.push_back( thisLine );
 				continue;
 			}
 
-			int kwd = parseMainKeyword( line, contentStart );
+			TemplateLine::LINE_TYPE kwd = parseMainKeyword( line, contentStart );
 
 			// unexpected template start
-			if ( kwd == NODE_TYPE::BEGIN_TEMPLATE )
+			if ( kwd == TemplateLine::LINE_TYPE::BEGIN_TEMPLATE )
 			{
 				fmt::print( "line {}: error: \"{}\" is unexpected\n", currentLineNum, KEYWORD_STRING_BEGIN_TEMPLATE );
 				return FAILED_ERROR;
 			}
 
 			// is template end?
-			if ( kwd == NODE_TYPE::END_TEMPLATE )
+			if ( kwd == TemplateLine::LINE_TYPE::END_TEMPLATE )
 			{
+				TemplateLine thisLine;
+				thisLine.srcLineNum = currentLineNum;
+				thisLine.type = TemplateLine::LINE_TYPE::END_TEMPLATE;
+
 				// read name
 				string endName;
 				while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t'))) endName.push_back( line[contentStart++] );
-				if ( endName != templateName.verbatim )
+				if ( endName != templateName )
 				{
 					fmt::print( "line {}: error: name does not match that at template beginning\n", currentLineNum );
 					return FAILED_ERROR;
@@ -735,23 +875,24 @@ public:
 					return FAILED_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 				}
 
+				templateLines.push_back( thisLine );
+
 				endFound = true;
 				break;
 			}
 
 			// other control nodes
-			tl.srcLineNum = currentLineNum;
-			tl.type = kwd;
+			thisLine.type = kwd;
 			switch ( kwd )
 			{
-				case NODE_TYPE::IF:
-				case NODE_TYPE::ELIF:
-				case NODE_TYPE::ASSERT:
+				case TemplateLine::LINE_TYPE::IF:
+				case TemplateLine::LINE_TYPE::ELIF:
+				case TemplateLine::LINE_TYPE::ASSERT:
 				{
-					parseIfCondition( string( line.begin() + contentStart, line.end() ), tl.lineParts, NODE_TYPE::CONTENT, 0 );
+					parseIfCondition( string( line.begin() + contentStart, line.end() ), thisLine.expression );
 					break;
 				}
-				case NODE_TYPE::FOR_EACH_OF_MEMBERS:
+				case TemplateLine::LINE_TYPE::FOR_EACH_OF_MEMBERS:
 				{
 					unsigned int contentStart_1 = 0;
 					string remaining = string( line.begin() + contentStart, line.end() );
@@ -762,9 +903,30 @@ public:
 						fmt::print( "line {}: error: \"{}\" or \"{}\" is expected after \"{}\"\n", currentLineNum, PARAM_STRING_BEGIN, PARAM_STRING_END, KEYWORD_STRING_FOR_EACH_OF_MEMBERS );
 						return FAILED_ERROR;
 					}
-					LinePart part;
+/*					LinePart part;
 					part.type = param;
-					tl.lineParts.push_back( part );
+					tl.lineParts.push_back( part );*/
+					thisLine.foreachofmembersbegin = param == PARAMETER::BEGIN;
+					skipSpaces( remaining, contentStart );
+					if ( contentStart < remaining.size() )
+					{
+						fmt::print( "line {}: error: unexpected token(s) \"{}\"\n", currentLineNum, string( remaining.begin() + contentStart, remaining.end() ) );
+						return FAILED_ERROR;
+					}
+					break;
+				}
+				case TemplateLine::LINE_TYPE::OPEN_OUTPUT_FILE:
+				{
+					unsigned int contentStart_1 = 0;
+					string remaining = string( line.begin() + contentStart, line.end() );
+					int param = parseParam( remaining, contentStart_1 );
+					bool goodParam = param == PARAMETER::BEGIN || param == PARAMETER::END;
+					if ( !(param == PARAMETER::BEGIN) )
+					{
+						fmt::print( "line {}: error: \"{}\" or \"{}\" is expected after \"{}\"\n", currentLineNum, PARAM_STRING_BEGIN, PARAM_STRING_END, KEYWORD_STRING_FOR_EACH_OF_MEMBERS );
+						return FAILED_ERROR;
+					}
+					thisLine.openoutputfilebegin = true;
 					skipSpaces( remaining, contentStart );
 					if ( contentStart < remaining.size() )
 					{
@@ -778,10 +940,10 @@ public:
 					LinePart part;
 					part.type = PLACEHOLDER::VERBATIM;
 					part.verbatim = string( line.begin() + contentStart, line.end() );
-					tl.lineParts.push_back( part );
+					thisLine.lineParts.push_back( part );
 				}
 			}
-			nodes.push_back( tl );
+			templateLines.push_back( thisLine );
 		}
 
 		if ( !endFound )
@@ -790,18 +952,25 @@ public:
 			return FAILED_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 		}
 
+		return OK;
+	}
+
+	int loadTemplate( istream& tf, TemplateNode& rootNode, int& currentLineNum )
+	{
+		vector<TemplateLine> templateLines;
+		PROCESSING_RESULT ret = tokenize( tf, templateLines, currentLineNum );
+
 		TemplateNode singleChild;
 		singleChild.type = NODE_TYPE::FULL_TEMPLATE;
-		bool treeOK = makeNodeTree( singleChild, nodes.begin(), nodes.end() );
+		bool treeOK = makeNodeTree( singleChild, templateLines.begin(), templateLines.end() );
 		if ( !treeOK )
 		{
 			fmt::print( "line {}: error: building tree failed\n", rootNode.srcLineNum );
 			return FAILED_BUID_TREE_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
 		}
 		dbgValidateNode( singleChild );
-		rootNode.type = NODE_TYPE::BEGIN_TEMPLATE;
+		rootNode.type = NODE_TYPE::FULL_TEMPLATE;
 		rootNode.childNodes.push_back( singleChild );
-
 
 		return OK;
 	}

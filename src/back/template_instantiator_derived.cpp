@@ -24,15 +24,15 @@ void RootTemplateInstantiator::applyNode( TemplateNode& node )
 	{
 		case NODE_TYPE::FOR_EACH_PUBLISHABLE_STRUCT:
 		{
-/*			size_t structCnt = root->structures.size();
+			size_t structCnt = root->structures.size();
 			for ( size_t j=0; j<structCnt; j++ )
 			{
 				for ( size_t k=0; k<node.childNodes.size(); k++ )
 				{
-						StructTemplateInstantiator structti( *(root->structures[j]) );
-						structti.apply( node.childNodes[k] );
+					StructTemplateInstantiator structti( *(root->structures[j]) );
+					structti.apply( node.childNodes[k] );
 				}
-			}*/
+			}
 			break;
 		}
 		default:
@@ -46,7 +46,7 @@ string RootTemplateInstantiator::placeholder( int placeholderId )
 {
 	switch( placeholderId )
 	{
-/*		case PLACEHOLDER::MEMBER_NAME:
+/*		case PLACEHOLDER::STRUCT_NAME:
 		{
 			return member->name;
 		}
