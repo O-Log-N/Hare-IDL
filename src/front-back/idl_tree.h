@@ -58,9 +58,9 @@ public:
 	{
 		kind = other.kind;
 		name = other.name;
-		if ( paramType != nullptr )
+		if (other.paramType)
 		{
-			paramType = unique_ptr<DataType>( new DataType );
+			paramType = unique_ptr<DataType>( new DataType() );
 			(*paramType) = (*(other.paramType));
 		}
 		lowLimit = other.lowLimit;
@@ -112,7 +112,6 @@ public:
 	DECLTYPE declType = IDL;
 	TYPE type = STRUCT;
 	string name;
-	vector<pair<string, Variant> > encodingAttributes;
 };
 
 class Typedef {

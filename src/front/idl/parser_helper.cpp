@@ -512,7 +512,7 @@ YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
     yy->declType = Structure::MAPPING;
     yy->type = Structure::STRUCT;
 
-    yy->encodingAttributes = getArgumentList(arg_list);
+    yy->encodingAttr.encodingAttributes = getArgumentList(arg_list);
 
     return new YyPtr<Structure>(yy);
 }
@@ -538,7 +538,7 @@ YYSTYPE createEncoding(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
     yy->declType = Structure::ENCODING;
     yy->type = Structure::STRUCT;
 
-    yy->encodingAttributes = getArgumentList(arg_list);
+    yy->encodingAttr.encodingAttributes = getArgumentList(arg_list);
 
     EncodedMembers* g = new EncodedMembers();
     g->location = yy->location;

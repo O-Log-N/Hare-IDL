@@ -102,6 +102,7 @@ private:
             break;
         case DataType::SEQUENCE:
         {
+            HAREASSERT(dataType.paramType);
             string arg = dbgTypeToString(*dataType.paramType);
             return fmt::format("{{ kind=CLASS name={} paramType={} }}", dataType.name, arg);
         }
@@ -143,7 +144,7 @@ private:
             HAREASSERT(false);
         }
 
-        string tags = dbgAttributesToString(node->encodingAttributes);
+        string tags = dbgAttributesToString(node->encodingAttr.encodingAttributes);
         dbgWriteWithLocation(node->location, fmt::format("Structure kind={} name={} encAttrs={}", kind, node->name, tags));
 
         ++offset;
