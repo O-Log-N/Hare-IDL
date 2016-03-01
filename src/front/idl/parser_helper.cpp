@@ -512,7 +512,7 @@ YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
     yy->declType = Structure::MAPPING;
     yy->type = Structure::STRUCT;
 
-    yy->tags = getArgumentList(arg_list);
+    yy->encodingAttributes = getArgumentList(arg_list);
 
     return new YyPtr<Structure>(yy);
 }
@@ -538,7 +538,7 @@ YYSTYPE createEncoding(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
     yy->declType = Structure::ENCODING;
     yy->type = Structure::STRUCT;
 
-    yy->tags = getArgumentList(arg_list);
+    yy->encodingAttributes = getArgumentList(arg_list);
 
     EncodedMembers* g = new EncodedMembers();
     g->location = yy->location;
@@ -597,7 +597,7 @@ EncodingAttributes createEncodingAttributes(YYSTYPE id, YYSTYPE opt_arg_list)
     att.name = getNameFromYyIdentifier(id);
 
     if (opt_arg_list)
-        att.arguments = getArgumentList(opt_arg_list);
+        att.encodingAttributes = getArgumentList(opt_arg_list);
 
     return att;
 }
@@ -635,12 +635,19 @@ YYSTYPE addEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE group)
 }
 
 
-YYSTYPE createIdType(YYSTYPE id)
+YYSTYPE createIdType(YYSTYPE id, YYSTYPE opt_arg_list)
 {
     YyDataType* yy = new YyDataType();
 
-    yy->dataType.kind = DataType::PRIMITIVE;
-    yy->dataType.name = getNameFromYyIdentifier(id);
+    if (opt_arg_list) {
+        yy->dataType.kind = DataType::ENCODING_SPECIFIC;
+        yy->dataType.name = getNameFromYyIdentifier(id);
+        yy->dataType.encodingAttributes = getArgumentList(opt_arg_list);
+    }
+    else {
+        yy->dataType.kind = DataType::PRIMITIVE;
+        yy->dataType.name = getNameFromYyIdentifier(id);
+    }
 
     return yy;
 }
@@ -686,31 +693,28 @@ YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_e
     return yy;
 }
 
-YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE expr)
+YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE arg_list)
 {
     YyDataType* yy = new YyDataType();
 
-    yy->dataType.kind = DataType::FIXED_POINT;
+    yy->dataType.kind = DataType::ENCODING_SPECIFIC;
     yy->dataType.name = "FIXED_POINT";
 
-    double v = getFloatLiteral(expr);
-    yy->dataType.fixedPointPrecision = v;
+    yy->dataType.encodingAttributes = getArgumentList(arg_list);
 
     delete token;
 
     return yy;
 }
 
-YYSTYPE createBit(YYSTYPE token, YYSTYPE expr)
+YYSTYPE createBit(YYSTYPE token, YYSTYPE arg_list)
 {
     YyDataType* yy = new YyDataType();
 
-    yy->dataType.kind = DataType::BIT;
+    yy->dataType.kind = DataType::ENCODING_SPECIFIC;
     yy->dataType.name = "BIT";
 
-    long long v = getIntegerLiteral(expr);
-    //TODO check limits?
-    yy->dataType.bitSize = static_cast<int>(v);
+    yy->dataType.encodingAttributes = getArgumentList(arg_list);
 
     delete token;
 
@@ -738,8 +742,11 @@ YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type)
 {
     YyDataType* yy = new YyDataType();
 
-    yy->dataType.kind = DataType::CLASS;
-    yy->dataType.name = getNameFromYyIdentifier(id_type);
+    yy->dataType.kind = DataType::MAPPING_SPECIFIC;
+    yy->dataType.name = "class";
+
+    Variant value = getExpressionVariant(id_type);
+    yy->dataType.mappingAttributes.push_back(make_pair(string("className"), value));
 
     delete token;
 

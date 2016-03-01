@@ -60,22 +60,22 @@ MAPPING(Lang="CPP",Role="Server") PUBLISHABLE_STRUCT Character {
 ENCODING(Name="MYENCODING1") PUBLISHABLE_STRUCT Character {
   VLQ character_id;
   DELTA {
-    FIXED_POINT(0.01) x;//for rendering purposes, we need our coordinates
+    FIXED_POINT(precision=0.01) x;//for rendering purposes, we need our coordinates
                         //only with precision of 1cm
                         //validity range is already defined in IDL
                         //NB: given the range and precision,
                         // 'x' has 20'000'000 possible values,
                         // so it can be encoded with 21 bits
-    FIXED_POINT(0.01) y;
-    FIXED_POINT(0.01) z;
-    FIXED_POINT(0.01) vx;
-    FIXED_POINT(0.01) vy;
-    FIXED_POINT(0.01) vz;
+    FIXED_POINT(precision=0.01) y;
+    FIXED_POINT(precision=0.01) z;
+    FIXED_POINT(precision=0.01) vx;
+    FIXED_POINT(precision=0.01) vy;
+    FIXED_POINT(precision=0.01) vz;
   }
-  DELTA FIXED_POINT(0.01) angle;//given the range specified in IDL,
+  DELTA FIXED_POINT(precision=0.01) angle;//given the range specified in IDL,
                                 //  FIXED_POINT(0.01) can be encoded
                                 //  with 16 bits
-  DELTA BIT(2) Animation;//can be omitted, as 2-bit is default
+  DELTA BIT(length=2) Animation;//can be omitted, as 2-bit is default
                          //  for 3-value enum in MYENCODING1
   DELTA VLQ animation_frame;
   DELTA SEQUENCE<Item> inventory;
@@ -87,23 +87,23 @@ ENCODING(Name="MYENCODING2") PUBLISHABLE_STRUCT Character {
   DELTA {
     DEAD_RECKONING(Tolerance=0.02) {//0.02 is maximum acceptable coordinate
                           // deviation due to dead reckoning
-      FIXED_POINT(0.01) x;
-      FIXED_POINT(0.01) vx;
+      FIXED_POINT(precision=0.01) x;
+      FIXED_POINT(precision=0.01) vx;
     }
     DEAD_RECKONING(Tolerance=0.02) {
-      FIXED_POINT(0.01) y;
-      FIXED_POINT(0.01) vy;
+      FIXED_POINT(precision=0.01) y;
+      FIXED_POINT(precision=0.01) vy;
     }
     DEAD_RECKONING { //by default, maximum acceptable deviation
                      //  due to dead reckoning
                      // is the same as for coordinate
                      //  (0.01 in this case)
-      FIXED_POINT(0.01) z;
-      FIXED_POINT(0.01) vz;
+      FIXED_POINT(precision=0.01) z;
+      FIXED_POINT(precision=0.01) vz;
     }
   }//DELTA
-  DELTA FIXED_POINT(0.01) angle;
-  DELTA BIT(2) Animation;
+  DELTA FIXED_POINT(precision=0.01) angle;
+  DELTA BIT(length=2) Animation;
   DELTA VLQ animation_frame;
   DELTA SEQUENCE<Item> inventory;
 };

@@ -85,14 +85,6 @@ private:
                                dataType.name, dataType.lowLimit.inclusive, dataType.lowLimit.value,
                                dataType.highLimit.inclusive, dataType.highLimit.value);
             break;
-        case DataType::FIXED_POINT:
-            return fmt::format("{{ kind=FIXED_POINT name={} presicion={} }}",
-                               dataType.name, dataType.fixedPointPrecision);
-            break;
-        case DataType::BIT:
-            return fmt::format("{{ kind=BIT name={} size={} }}",
-                               dataType.name, dataType.bitSize);
-            break;
         case DataType::ENUM:
         {
             string enumValues;
@@ -105,13 +97,27 @@ private:
             return fmt::format("{{ kind=ENUM name={} enumValues={} }}", dataType.name, enumValues);
         }
         break;
-        case DataType::CLASS:
-            return fmt::format("{{ kind=CLASS name={} }}", dataType.name);
+        case DataType::NAMED_TYPE:
+            return fmt::format("{{ kind=NAMED_TYPE name={} }}", dataType.name);
             break;
         case DataType::SEQUENCE:
         {
             string arg = dbgTypeToString(*dataType.paramType);
             return fmt::format("{{ kind=CLASS name={} paramType={} }}", dataType.name, arg);
+        }
+        break;
+        case DataType::ENCODING_SPECIFIC:
+        {
+            string attrs = dbgAttributesToString(dataType.encodingAttributes);
+            return fmt::format("{{ kind=ENCODING_SPECIFIC name={} encAttrs={} }}",
+                               dataType.name, attrs);
+        }
+        break;
+        case DataType::MAPPING_SPECIFIC:
+        {
+            string attrs = dbgAttributesToString(dataType.mappingAttributes);
+            return fmt::format("{{ kind=MAPPING_SPECIFIC name={} encAttrs={} }}",
+                               dataType.name, attrs);
         }
         break;
         default:
@@ -137,8 +143,8 @@ private:
             HAREASSERT(false);
         }
 
-        string tags = dbgAttributesToString(node->tags);
-        dbgWriteWithLocation(node->location, fmt::format("Structure kind={} name={} tags={}", kind, node->name, tags));
+        string tags = dbgAttributesToString(node->encodingAttributes);
+        dbgWriteWithLocation(node->location, fmt::format("Structure kind={} name={} encAttrs={}", kind, node->name, tags));
 
         ++offset;
         for (auto& it : node->members) {
@@ -173,7 +179,7 @@ private:
 
     static string dbgEncodingToString(const EncodingAttributes& encoding) {
 
-        return fmt::format("encAttrName={}, encAttrArgs={}", encoding.name, dbgAttributesToString(encoding.arguments));
+        return fmt::format("encAttrName={}, encAttrArgs={}", encoding.name, dbgAttributesToString(encoding.encodingAttributes));
     }
 
 

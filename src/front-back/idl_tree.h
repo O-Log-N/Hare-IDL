@@ -36,6 +36,7 @@ class Variant {
 public:
     enum KIND {NONE, NUMBER, STRING};
     KIND kind = NONE;
+
     double numberValue = 0;
     string stringValue;
 };
@@ -43,14 +44,14 @@ public:
 class DataType
 {
 public:
-    enum KIND { PRIMITIVE, LIMITED_PRIMITIVE, FIXED_POINT, BIT, ENUM, CLASS, SEQUENCE };
+    enum KIND { PRIMITIVE, LIMITED_PRIMITIVE, ENUM, NAMED_TYPE, SEQUENCE, ENCODING_SPECIFIC, MAPPING_SPECIFIC };
     KIND kind = PRIMITIVE;
 	string name;
     unique_ptr<DataType> paramType;
     Limit lowLimit;
     Limit highLimit;
-    double fixedPointPrecision = 0;
-    int bitSize = 0;
+    vector<pair<string,Variant> > encodingAttributes;
+    vector<pair<string,Variant> > mappingAttributes;
 	vector<pair<string, int> > enumValues;
 };
 
@@ -58,7 +59,7 @@ class EncodingAttributes
 {
 public:
 	string name;
-	vector<pair<string, Variant> > arguments;
+	vector<pair<string, Variant> > encodingAttributes;
 };
 
 
@@ -94,12 +95,17 @@ public:
 	DECLTYPE declType = IDL;
 	TYPE type = STRUCT;
 	string name;
-	vector<pair<string, Variant> > tags;
+	vector<pair<string, Variant> > encodingAttributes;
+};
+
+class Typedef {
+// TBD
 };
 
 class Root
 {
 public:
+    vector<Typedef> typedefs;
 	vector<unique_ptr<Structure>> structures;
 };
 

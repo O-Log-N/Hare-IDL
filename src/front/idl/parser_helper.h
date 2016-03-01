@@ -81,11 +81,11 @@ YYSTYPE createEncodingGroup(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE opt_att);
 YYSTYPE addToEncodingGroup(YYSTYPE group, YYSTYPE element);
 YYSTYPE addEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE group);
 
-YYSTYPE createIdType(YYSTYPE id);
+YYSTYPE createIdType(YYSTYPE id, YYSTYPE opt_arg_list);
 YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
 YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
-YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE expr);
-YYSTYPE createBit(YYSTYPE token, YYSTYPE expr);
+YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE arg_list);
+YYSTYPE createBit(YYSTYPE token, YYSTYPE opt_arg_list);
 YYSTYPE createSequence(YYSTYPE token, YYSTYPE id_type);
 YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type);
 YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE id, YYSTYPE values);
