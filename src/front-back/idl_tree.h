@@ -53,6 +53,23 @@ public:
     vector<pair<string,Variant> > encodingAttributes;
     vector<pair<string,Variant> > mappingAttributes;
 	vector<pair<string, int> > enumValues;
+
+	DataType& operator = ( const DataType& other )
+	{
+		kind = other.kind;
+		name = other.name;
+		if ( paramType != nullptr )
+		{
+			paramType = unique_ptr<DataType>( new DataType );
+			(*paramType) = (*(other.paramType));
+		}
+		lowLimit = other.lowLimit;
+		highLimit = other.highLimit;
+		encodingAttributes = other.encodingAttributes;
+		mappingAttributes = other.mappingAttributes;
+		enumValues = other.enumValues;
+		return *this;
+	}
 };
 
 class EncodingAttributes
