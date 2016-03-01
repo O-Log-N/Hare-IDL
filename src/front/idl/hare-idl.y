@@ -20,7 +20,6 @@ Copyright (C) 2016 OLogN Technologies AG
 %token KW_ENUM KW_CLASS
 %token KW_MAPPING KW_ENCODING
 %token KW_NUMERIC KW_INT KW_SEQUENCE
-%token KW_FIXED_POINT KW_BIT
 %token KW_EXTEND KW_TO KW_DEFAULT KW_FENCE
 
 %token IDENTIFIER STRING_LITERAL INTEGER_LITERAL CHAR_LITERAL FLOAT_LITERAL
@@ -107,8 +106,6 @@ data_type
 	| sequence_type
 	| inline_enum_type
 	| class_ref_type
-    | bit_type
-    | fixed_point_type
 ;
 
 numeric_type
@@ -123,14 +120,6 @@ int_type
 	| KW_INT '(' expr ',' expr ']' { $$ = createInt($1, false, $3, $5, true); releaseYys3($2, $4, $6); }
 	| KW_INT '[' expr ',' expr ')' { $$ = createInt($1, true, $3, $5, false); releaseYys3($2, $4, $6); }
 	| KW_INT '(' expr ',' expr ')' { $$ = createInt($1, false, $3, $5, false); releaseYys3($2, $4, $6); }
-;
-
-fixed_point_type
-    : KW_FIXED_POINT '(' arg_list ')' { $$ = createFixedPoint($1, $3); releaseYys2($2, $4); }
-;
-
-bit_type
-    : KW_BIT '(' arg_list ')' { $$ = createBit($1, $3); releaseYys2($2, $4); }
 ;
 
 sequence_type

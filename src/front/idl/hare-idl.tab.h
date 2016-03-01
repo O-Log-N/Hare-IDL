@@ -47,17 +47,15 @@
      KW_NUMERIC = 263,
      KW_INT = 264,
      KW_SEQUENCE = 265,
-     KW_FIXED_POINT = 266,
-     KW_BIT = 267,
-     KW_EXTEND = 268,
-     KW_TO = 269,
-     KW_DEFAULT = 270,
-     KW_FENCE = 271,
-     IDENTIFIER = 272,
-     STRING_LITERAL = 273,
-     INTEGER_LITERAL = 274,
-     CHAR_LITERAL = 275,
-     FLOAT_LITERAL = 276
+     KW_EXTEND = 266,
+     KW_TO = 267,
+     KW_DEFAULT = 268,
+     KW_FENCE = 269,
+     IDENTIFIER = 270,
+     STRING_LITERAL = 271,
+     INTEGER_LITERAL = 272,
+     CHAR_LITERAL = 273,
+     FLOAT_LITERAL = 274
    };
 #endif
 

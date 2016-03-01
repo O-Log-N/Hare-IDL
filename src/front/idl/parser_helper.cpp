@@ -693,35 +693,6 @@ YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_e
     return yy;
 }
 
-YYSTYPE createFixedPoint(YYSTYPE token, YYSTYPE arg_list)
-{
-    YyDataType* yy = new YyDataType();
-
-    yy->dataType.kind = DataType::ENCODING_SPECIFIC;
-    yy->dataType.name = "FIXED_POINT";
-
-    yy->dataType.encodingAttributes = getArgumentList(arg_list);
-
-    delete token;
-
-    return yy;
-}
-
-YYSTYPE createBit(YYSTYPE token, YYSTYPE arg_list)
-{
-    YyDataType* yy = new YyDataType();
-
-    yy->dataType.kind = DataType::ENCODING_SPECIFIC;
-    yy->dataType.name = "BIT";
-
-    yy->dataType.encodingAttributes = getArgumentList(arg_list);
-
-    delete token;
-
-    return yy;
-}
-
-
 YYSTYPE createSequence(YYSTYPE opt_id, YYSTYPE type)
 {
     YyDataType* yy = new YyDataType();

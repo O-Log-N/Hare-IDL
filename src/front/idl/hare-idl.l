@@ -77,9 +77,6 @@ int createToken(int token)
     "INT" { return createToken( KW_INT ); }
 	"SEQUENCE" { return createToken( KW_SEQUENCE ); }
 
-	"FIXED_POINT" { return createToken( KW_FIXED_POINT ); }
-	"BIT" { return createToken( KW_BIT ); }
-
 	[;<>,:=&\[\]\(\)\{\}\?\.] { yylval = 0; return yytext[0];}
 	[&|!~/%\*\+\-] { return createToken( yytext[0] );}
 
