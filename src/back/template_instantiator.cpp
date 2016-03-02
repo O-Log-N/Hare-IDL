@@ -26,33 +26,7 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	assert(ifNode.type == NODE_TYPE::IF || ifNode.type == NODE_TYPE::ASSERT);
 	bool ret;
 
-	size_t i, j;
-//	vector<string> argstack;
-//	vector<int> commands;
-/*	for (i = 0; i < ifNode.expression.size(); i++)
-	{
-		auto oper = ifNode.expression[i].oper;
-		switch ( type )
-		{
-			case PLACEHOLDER::VERBATIM: argstack.push_back(ifNode.lineParts[i].verbatim); break;
-			case ExpressionElement::OPERATION::EQ:
-			case ExpressionElement::OPERATION::NEQ:
-			{
-				commands.push_back( type );
-				break;
-			}
-			default:
-			{
-				argstack.push_back( placeholder( type ) );
-				break;
-			}
-		}
-	}
-
-	size_t commandCnt = commands.size();
-	size_t stacksz = argstack.size();
-
-	assert((commandCnt == 1 && stacksz == 2) || commandCnt == 0 && stacksz == 1); // limitation of a current version; TODO: further development*/
+//	size_t i, j;
 
 	size_t expressionSz = ifNode.expression.size();
 	assert( ( expressionSz == 1 && ifNode.expression[0].oper == ExpressionElement::OPERATION::PUSH ) || 
@@ -84,28 +58,6 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 				assert(0 == "Error: not supported");
 			}
 		}
-
-/*		for (j = commandCnt; j; j--)
-		{
-			switch (commands[j - 1])
-			{
-				case OPERATOR::EQ:
-				{
-					ret = argstack[0] == argstack[1];
-					break;
-				}
-				case OPERATOR::NEQ:
-				{
-					ret = !(argstack[0] == argstack[1]);
-					break;
-				}
-				default:
-				{
-					fmt::print("Type {} is unexpected or unsupported\n", commands[j - 1] );
-					assert(0 == "Error: not supported");
-				}
-			}
-		}*/
 	}
 	else
 	{

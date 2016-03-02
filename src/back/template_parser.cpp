@@ -272,15 +272,6 @@ class TemplateParser
 
 	bool makeNodeTree( TemplateNode& rootNode, TEMPLATE_LINES_ITERATOR& lnBegin, TEMPLATE_LINES_ITERATOR& lnEnd )
 	{
-#if 0
-static int k=0;
-k++;
-fmt::print( "=== k = {} ===\n", k );
-if ( k == 16 )
-{
-	k = k;
-}
-#endif
 		auto it = lnBegin;
 		while ( it != lnEnd )
 		{
@@ -316,9 +307,7 @@ if ( k == 16 )
 					TemplateNode node;
 					node.srcLineNum = it->srcLineNum;
 					node.type = NODE_TYPE::FOR_EACH_OF_MEMBERS;
-//					unsigned int param = it->lineParts[0].type;
 					unsigned int contentStart = 0;
-//					if ( param == PARAMETER::END )
 					if ( !it->foreachofmembersbegin )
 					{
 						fmt::print( "line {}: error: \"{} {}\" without matching \"{} {}\"\n", it->srcLineNum, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_END, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_BEGIN );
@@ -340,7 +329,6 @@ if ( k == 16 )
 						{
 							// VALID CASE
 							makeNodeTree( node, it + 1, blockEnd );
-//							makeNodeTree( node, it + 1, blockEnd + 1 );
 							assert( node.lineParts.size() == 0 );
 							rootNode.childNodes.push_back( node );
 							it = blockEnd;
@@ -424,7 +412,6 @@ if ( k == 16 )
 						assert( trueBranchEnd->type == TemplateLine::LINE_TYPE::ELIF );
 						trueBranchEnd->type = TemplateLine::LINE_TYPE::IF;
 						ifFalse.srcLineNum = trueBranchEnd != blockEnd ? trueBranchEnd->srcLineNum : -1;
-//						makeNodeTree( ifFalse, trueBranchEnd, blockEnd );
 						makeNodeTree( ifFalse, trueBranchEnd, blockEnd+1 );
 					}
 
@@ -432,16 +419,8 @@ if ( k == 16 )
 					node.childNodes.push_back( ifFalse );
 
 					rootNode.childNodes.push_back( node );
-#if 0
-					if ( blockEnd != lnEnd )
-					{
-						it = blockEnd;
-						++it;
-					}
-#else
 					it = blockEnd;
 					++it;
-#endif
 					break;
 				}
 				case TemplateLine::LINE_TYPE::ASSERT:
@@ -461,16 +440,6 @@ if ( k == 16 )
 				}
 				case TemplateLine::LINE_TYPE::ELIF: // processed out while processing a respective TemplateLine::LINE_TYPE::IF
 				{
-#if 0
-					if ( rootNode.type != NODE_TYPE::IF_FALSE_BRANCH )
-					{
-						fmt::print( "line {}: error: \"{}\" without matching \"{}\"\n", it->srcLineNum, KEYWORD_STRING_ELIF, KEYWORD_STRING_IF );
-						return false;
-					}
-					assert( lnEnd->type == TemplateLine::LINE_TYPE::ENDIF );
-					++lnEnd; // that is, we will re-use it
-					it->type = TemplateLine::LINE_TYPE::IF;
-#endif
 					fmt::print( "line {}: error: \"{}\" without matching \"{}\"\n", it->srcLineNum, KEYWORD_STRING_ELIF, KEYWORD_STRING_IF );
 					return false;
 					break; // re-process it as TemplateLine::LINE_TYPE::IF
@@ -489,15 +458,6 @@ if ( k == 16 )
 			} // end of switch
 		}
 
-#if 0
-static int KKK=0;
-KKK++;
-fmt::print( "=== KKK = {} ===\n", KKK );
-if ( KKK == 8 )
-{
-	k = k;
-}
-#endif
 		return true;
 	}
 
@@ -509,9 +469,7 @@ if ( KKK == 8 )
 		for(;;) // through all chars - just read the line
 		{
 			char ch;
-//			int res = fread( &ch, 1, 1, ft );
 			tf.read( &ch, 1);
-//			if ( res != 1 )
 			if ( !tf )
 				break;
 			somethingFound = true;
@@ -632,108 +590,108 @@ if ( KKK == 8 )
 
 	void parseIfCondition( string& lc, vector<ExpressionElement>& expression )
 	{
-				// we have to go char by char; if '@' is found, make sure it's not a placeholder, or replace it accordingly
-				unsigned int pos = 0;
-				size_t sz = lc.size();
-				ExpressionElement element;
-				element.oper = ExpressionElement::OPERATION::PUSH;
-				element.argtype = ExpressionElement::ARGTYPE::STRING;
-				do
+		// we have to go char by char; if '@' is found, make sure it's not a placeholder, or replace it accordingly
+		unsigned int pos = 0;
+		size_t sz = lc.size();
+		ExpressionElement element;
+		element.oper = ExpressionElement::OPERATION::PUSH;
+		element.argtype = ExpressionElement::ARGTYPE::STRING;
+		do
+		{
+			if ( lc[ pos ] == '@' )
+			{
+				PLACEHOLDER placehldr = parsePlaceholder( lc, pos );
+				switch ( placehldr )
 				{
-					if ( lc[ pos ] == '@' )
+					case PLACEHOLDER::VERBATIM: 
 					{
-						PLACEHOLDER placehldr = parsePlaceholder( lc, pos );
-						switch ( placehldr )
-						{
-							case PLACEHOLDER::VERBATIM: 
-							{
-								element.stringValue.push_back( lc[ pos ] ); 
-								pos ++; 
-								break;
-							}
-							case PLACEHOLDER::MEMBER_TYPE:
-							case PLACEHOLDER::MEMBER_NAME:
-							{
-								assert( element.oper == ExpressionElement::OPERATION::PUSH );
-								assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
-								if ( element.stringValue.size() )
-									expression.push_back( element ); 
-								element.stringValue.clear(); 
-								element.argtype = ExpressionElement::ARGTYPE::PLACEHOLDER; 
-								element.placeholder = placehldr;
-								expression.push_back( element ); 
-								element.argtype = ExpressionElement::ARGTYPE::STRING; 
-								break;
-							}
-							default:
-							{
-								assert( 0 == "NOT IMPLEMENTED" );
-								break;
-							}
-						}
+						element.stringValue.push_back( lc[ pos ] ); 
+						pos ++; 
+						break;
 					}
-					else
+					case PLACEHOLDER::MEMBER_TYPE:
+					case PLACEHOLDER::MEMBER_NAME:
 					{
-						if ( lc[ pos ] == ' ' || lc[ pos ] == '\t')
-						{
-							if ( element.stringValue.size() )
-							{
-								assert( element.oper == ExpressionElement::OPERATION::PUSH );
-								assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
-								expression.push_back( element );
-								element.stringValue.clear();
-							}
-							pos ++;
-						}
-						else if ( lc.compare( pos, 2, "==" ) == 0 )
-						{
-							if ( element.stringValue.size() )
-							{
-								assert( element.oper == ExpressionElement::OPERATION::PUSH );
-								assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
-								expression.push_back( element );
-								element.stringValue.clear();
-							}
-							element.stringValue.clear();
-							element.oper = ExpressionElement::OPERATION::EQ;
-							element.argtype = ExpressionElement::ARGTYPE::NONE;
-							expression.push_back( element );
-							element.oper = ExpressionElement::OPERATION::PUSH;
-							element.argtype = ExpressionElement::ARGTYPE::STRING;
-							pos += 2;
-						}
-						else if ( lc.compare( pos, 2, "!=" ) == 0 )
-						{
-							if ( element.stringValue.size() )
-							{
-								assert( element.oper == ExpressionElement::OPERATION::PUSH );
-								assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
-								expression.push_back( element );
-								element.stringValue.clear();
-							}
-							element.stringValue.clear();
-							element.oper = ExpressionElement::OPERATION::NEQ;
-							element.argtype = ExpressionElement::ARGTYPE::NONE;
-							expression.push_back( element );
-							element.oper = ExpressionElement::OPERATION::PUSH;
-							element.argtype = ExpressionElement::ARGTYPE::STRING;
-							pos += 2;
-						}
-						else
-						{
-							element.stringValue.push_back( lc[ pos ] );
-							pos ++;
-						}
+						assert( element.oper == ExpressionElement::OPERATION::PUSH );
+						assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
+						if ( element.stringValue.size() )
+							expression.push_back( element ); 
+						element.stringValue.clear(); 
+						element.argtype = ExpressionElement::ARGTYPE::PLACEHOLDER; 
+						element.placeholder = placehldr;
+						expression.push_back( element ); 
+						element.argtype = ExpressionElement::ARGTYPE::STRING; 
+						break;
+					}
+					default:
+					{
+						assert( 0 == "NOT IMPLEMENTED" );
+						break;
 					}
 				}
-				while ( pos < sz );
+			}
+			else
+			{
+				if ( lc[ pos ] == ' ' || lc[ pos ] == '\t')
+				{
+					if ( element.stringValue.size() )
+					{
+						assert( element.oper == ExpressionElement::OPERATION::PUSH );
+						assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
+						expression.push_back( element );
+						element.stringValue.clear();
+					}
+					pos ++;
+				}
+				else if ( lc.compare( pos, 2, "==" ) == 0 )
+				{
+					if ( element.stringValue.size() )
+					{
+						assert( element.oper == ExpressionElement::OPERATION::PUSH );
+						assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
+						expression.push_back( element );
+						element.stringValue.clear();
+					}
+					element.stringValue.clear();
+					element.oper = ExpressionElement::OPERATION::EQ;
+					element.argtype = ExpressionElement::ARGTYPE::NONE;
+					expression.push_back( element );
+					element.oper = ExpressionElement::OPERATION::PUSH;
+					element.argtype = ExpressionElement::ARGTYPE::STRING;
+					pos += 2;
+				}
+				else if ( lc.compare( pos, 2, "!=" ) == 0 )
+				{
+					if ( element.stringValue.size() )
+					{
+						assert( element.oper == ExpressionElement::OPERATION::PUSH );
+						assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
+						expression.push_back( element );
+						element.stringValue.clear();
+					}
+					element.stringValue.clear();
+					element.oper = ExpressionElement::OPERATION::NEQ;
+					element.argtype = ExpressionElement::ARGTYPE::NONE;
+					expression.push_back( element );
+					element.oper = ExpressionElement::OPERATION::PUSH;
+					element.argtype = ExpressionElement::ARGTYPE::STRING;
+					pos += 2;
+				}
+				else
+				{
+					element.stringValue.push_back( lc[ pos ] );
+					pos ++;
+				}
+			}
+		}
+		while ( pos < sz );
 
-				if ( element.stringValue.size() )
-				{
-					assert( element.oper == ExpressionElement::OPERATION::PUSH );
-					assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
-					expression.push_back( element ); 
-				}
+		if ( element.stringValue.size() )
+		{
+			assert( element.oper == ExpressionElement::OPERATION::PUSH );
+			assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
+			expression.push_back( element ); 
+		}
 	}
 
 public:
@@ -741,8 +699,6 @@ public:
 
 	PROCESSING_RESULT tokenize( istream& tf, vector<TemplateLine>& templateLines, int& currentLineNum )
 	{
-//		TEMPLATE_NODES nodes;
-
 		// it is assumed here that starting from a current position in a file any content other than the beginning and the rest of template can be safely ignored
 		bool startFound = false;
 		unsigned int contentStart = 0;
@@ -772,7 +728,6 @@ public:
 
 					// read name
 					while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t'))) templateName.push_back( line[contentStart++] );
-//					rootNode.templateName = templateName;
 					thisLine.templateName = templateName;
 
 					while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
@@ -812,7 +767,6 @@ public:
 
 		if ( !startFound )
 		{
-//			if ( nodes.size() )
 			if ( templateLines.size() )
 			{
 				fmt::print( "line {}: error: no no template has been found\n", currentLineNum );
@@ -827,7 +781,6 @@ public:
 		// go through other lines
 		for( ;;) // through all nodes, find template beginning
 		{
-//			TemplateNode tl;
 			TemplateLine thisLine;
 			thisLine.srcLineNum = currentLineNum;
 
@@ -839,7 +792,6 @@ public:
 			{
 				thisLine.type = TemplateLine::LINE_TYPE::CONTENT;
 				parseLineContent( line, thisLine.lineParts );
-//				tl.content = line;
 				templateLines.push_back( thisLine );
 				continue;
 			}
@@ -903,9 +855,6 @@ public:
 						fmt::print( "line {}: error: \"{}\" or \"{}\" is expected after \"{}\"\n", currentLineNum, PARAM_STRING_BEGIN, PARAM_STRING_END, KEYWORD_STRING_FOR_EACH_OF_MEMBERS );
 						return FAILED_ERROR;
 					}
-/*					LinePart part;
-					part.type = param;
-					tl.lineParts.push_back( part );*/
 					thisLine.foreachofmembersbegin = param == PARAMETER::BEGIN;
 					skipSpaces( remaining, contentStart );
 					if ( contentStart < remaining.size() )
