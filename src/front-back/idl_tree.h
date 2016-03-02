@@ -50,14 +50,14 @@ public:
     unique_ptr<DataType> paramType;
     Limit lowLimit;
     Limit highLimit;
-    vector<pair<string,Variant> > encodingAttributes;
-    vector<pair<string,Variant> > mappingAttributes;
-	vector<pair<string, int> > enumValues;
+    map<string,Variant> encodingAttrs;
+    map<string,Variant> mappingAttrs;
+	map<string, int> enumValues;
 
 	DataType() {}
 	DataType( const DataType& other ) 
 		: kind( other.kind ), name( other.name ), paramType( other.paramType != nullptr ? new DataType( *(other.paramType) ) : nullptr ), lowLimit( other.lowLimit ), highLimit( other.highLimit ), 
-		  encodingAttributes( other.encodingAttributes ), mappingAttributes( other.mappingAttributes ), enumValues( other.enumValues ) {
+		  encodingAttrs( other.encodingAttrs ), mappingAttrs( other.mappingAttrs ), enumValues( other.enumValues ) {
 	}
 
 	DataType& operator = ( const DataType& other )
@@ -67,18 +67,19 @@ public:
 		paramType = other.paramType != nullptr ? unique_ptr<DataType>( new DataType( *(other.paramType) ) ) : unique_ptr<DataType>( nullptr );
 		lowLimit = other.lowLimit;
 		highLimit = other.highLimit;
-		encodingAttributes = other.encodingAttributes;
-		mappingAttributes = other.mappingAttributes;
+		encodingAttrs = other.encodingAttrs;
+		mappingAttrs = other.mappingAttrs;
 		enumValues = other.enumValues;
 		return *this;
 	}
+
 };
 
-class EncodingAttributes
+class EncodingSpecifics
 {
 public:
 	string name;
-	vector<pair<string, Variant> > encodingAttributes;
+	map<string, Variant> attrs;
 };
 
 
@@ -101,7 +102,7 @@ public:
 class EncodedMembers : public EncodedOrMember
 {
 public:
-	EncodingAttributes encodingAttr;
+    EncodingSpecifics encodingSpecifics;
 	vector<unique_ptr<EncodedOrMember>> members;
 };
 

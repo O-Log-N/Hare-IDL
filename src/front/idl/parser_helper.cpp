@@ -109,7 +109,7 @@ struct YyDataType : public YyBase {
 };
 
 struct YyEnumValues : public YyBase {
-    vector<pair<string, int> > enumValues;
+    map<string, int> enumValues;
 };
 
 struct YyStringLiteralList : public YyBase {
@@ -135,7 +135,7 @@ struct YyFloatLiteral : public YyBase {
 };
 
 struct YyArgumentList : public YyBase {
-    vector<pair<string, Variant> > arguments;
+    map<string, Variant> arguments;
 };
 
 typedef YyIdentifier YyStringLiteral;
@@ -272,10 +272,10 @@ long long getIntegerLiteral(YYSTYPE expr)
     }
 }
 
-vector<pair<string, Variant> > getArgumentList(YYSTYPE arg_list)
+map<string, Variant> getArgumentList(YYSTYPE arg_list)
 {
     YyArgumentList* al = yystype_cast<YyArgumentList*>(arg_list);
-    vector<pair<string, Variant> > result = std::move(al->arguments);
+    map<string, Variant> result = std::move(al->arguments);
     delete arg_list;
 
     return result;
@@ -512,7 +512,7 @@ YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
     yy->declType = Structure::MAPPING;
     yy->type = Structure::STRUCT;
 
-    yy->encodingAttr.encodingAttributes = getArgumentList(arg_list);
+    yy->encodingSpecifics.attrs = getArgumentList(arg_list);
 
     return new YyPtr<Structure>(yy);
 }
@@ -538,7 +538,7 @@ YYSTYPE createEncoding(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
     yy->declType = Structure::ENCODING;
     yy->type = Structure::STRUCT;
 
-    yy->encodingAttr.encodingAttributes = getArgumentList(arg_list);
+    yy->encodingSpecifics.attrs = getArgumentList(arg_list);
 
     EncodedMembers* g = new EncodedMembers();
     g->location = yy->location;
@@ -591,13 +591,13 @@ YYSTYPE createExtendAttribute(YYSTYPE id, YYSTYPE type)
 }
 
 static
-EncodingAttributes createEncodingAttributes(YYSTYPE id, YYSTYPE opt_arg_list)
+EncodingSpecifics createEncodingAttributes(YYSTYPE id, YYSTYPE opt_arg_list)
 {
-    EncodingAttributes att;
+    EncodingSpecifics att;
     att.name = getNameFromYyIdentifier(id);
 
     if (opt_arg_list)
-        att.encodingAttributes = getArgumentList(opt_arg_list);
+        att.attrs = getArgumentList(opt_arg_list);
 
     return att;
 }
@@ -607,7 +607,7 @@ YYSTYPE createEncodingGroup(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE opt_att)
     EncodedMembers* yy = new EncodedMembers();
 
     yy->location = getLocationFromYyIdentifier(id);
-    yy->encodingAttr = createEncodingAttributes(id, opt_arg_list);
+    yy->encodingSpecifics = createEncodingAttributes(id, opt_arg_list);
 
     if (opt_att) {
         EncodedOrMember* g = yystype_ptr_release<EncodedOrMember>(opt_att);
@@ -642,7 +642,7 @@ YYSTYPE createIdType(YYSTYPE id, YYSTYPE opt_arg_list)
     if (opt_arg_list) {
         yy->dataType.kind = DataType::ENCODING_SPECIFIC;
         yy->dataType.name = getNameFromYyIdentifier(id);
-        yy->dataType.encodingAttributes = getArgumentList(opt_arg_list);
+        yy->dataType.encodingAttrs = getArgumentList(opt_arg_list);
     }
     else {
         yy->dataType.kind = DataType::PRIMITIVE;
@@ -719,7 +719,7 @@ YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type)
     yy->dataType.name = "class";
 
     Variant value = getExpressionVariant(id_type);
-    yy->dataType.mappingAttributes.push_back(make_pair(string("className"), value));
+    yy->dataType.mappingAttrs.insert(make_pair(string("className"), value));
 
     delete token;
 
@@ -754,7 +754,7 @@ YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit)
     string name = getNameFromYyIdentifier(id);
     YyIntegerLiteral* l = yystype_cast<YyIntegerLiteral*>(int_lit);
 
-    yy->enumValues.push_back(make_pair(name, static_cast<int>(l->value)));
+    yy->enumValues.insert(make_pair(name, static_cast<int>(l->value)));
     delete int_lit;
 
     return yy;
@@ -786,7 +786,7 @@ YYSTYPE addExpression(YYSTYPE list, YYSTYPE id, YYSTYPE expr)
 
     string name = getNameFromYyIdentifier(id);
     Variant value = getExpressionVariant(expr);
-    yy->arguments.push_back(make_pair(name, value));
+    yy->arguments.insert(make_pair(name, value));
 
     return yy;
 }

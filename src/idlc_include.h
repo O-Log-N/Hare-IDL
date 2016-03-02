@@ -23,6 +23,7 @@ Copyright (C) 2016 OLogN Technologies AG
 #include <fstream>
 #include <memory>
 #include <vector>
+#include <map>
 #include "hare/hare.h"
 
 #endif // IDLC_INCLUDE_H

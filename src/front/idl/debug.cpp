@@ -47,7 +47,7 @@ public:
     }
 
 private:
-    static string dbgAttributesToString(const vector<pair<string, Variant> >& v) {
+    static string dbgAttributesToString(const map<string, Variant>& v) {
         string tags = "( ";
         for (auto& it = v.begin(); it != v.end(); ++it) {
             if (it != v.begin())
@@ -109,14 +109,14 @@ private:
         break;
         case DataType::ENCODING_SPECIFIC:
         {
-            string attrs = dbgAttributesToString(dataType.encodingAttributes);
+            string attrs = dbgAttributesToString(dataType.encodingAttrs);
             return fmt::format("{{ kind=ENCODING_SPECIFIC name={} encAttrs={} }}",
                                dataType.name, attrs);
         }
         break;
         case DataType::MAPPING_SPECIFIC:
         {
-            string attrs = dbgAttributesToString(dataType.mappingAttributes);
+            string attrs = dbgAttributesToString(dataType.mappingAttrs);
             return fmt::format("{{ kind=MAPPING_SPECIFIC name={} encAttrs={} }}",
                                dataType.name, attrs);
         }
@@ -144,7 +144,7 @@ private:
             HAREASSERT(false);
         }
 
-        string tags = dbgAttributesToString(node->encodingAttr.encodingAttributes);
+        string tags = dbgAttributesToString(node->encodingSpecifics.attrs);
         dbgWriteWithLocation(node->location, fmt::format("Structure kind={} name={} encAttrs={}", kind, node->name, tags));
 
         ++offset;
@@ -178,14 +178,14 @@ private:
         dbgWriteWithLocation(node->location, fmt::format("DataMember name='{}' {} {}", node->name, attr, typeStr));
     }
 
-    static string dbgEncodingToString(const EncodingAttributes& encoding) {
+    static string dbgEncodingToString(const EncodingSpecifics& encoding) {
 
-        return fmt::format("encAttrName={}, encAttrArgs={}", encoding.name, dbgAttributesToString(encoding.encodingAttributes));
+        return fmt::format("encName={}, encAttrs={}", encoding.name, dbgAttributesToString(encoding.attrs));
     }
 
 
     void dbgDumpEncodedMember(const EncodedMembers* node) {
-        string attr = dbgEncodingToString(node->encodingAttr);
+        string attr = dbgEncodingToString(node->encodingSpecifics);
         dbgWriteWithLocation(node->location, fmt::format("EncodedMembers {}", attr));
         ++offset;
         for (auto& it : node->members) {
