@@ -65,8 +65,9 @@ Naming conventions examples:
 5. non-constant global data SHOULD NOT be used unless absolutely necessary
 6. non-constant static data **MUST NOT** be used
 7. const modifier SHOULD be used wherever applicable
+    - const primitive types and const iterators SHOULD be passed by value, not by reference
 8. On asserting: **MUST NOT** use assert(), **MUST** use HAREASSERT()/HAREASSERTM() instead
-   - asserts are STRONGLY encouraged
+    - asserts are STRONGLY encouraged
 9. There **MUST NOT** be garbage in the program. All variables of primitive types **MUST** be initialized, including member variables. See I.4.11 about the proper way of initializing member variables.
 10. We ARE using a concept of "discriminated unions". However, at the moment we DON'T care much about memory usage (nor about potential for field misuses), so we're using the following simple form (NB: we MAY change this form in the future if it becomes necessary):
 
@@ -77,7 +78,7 @@ Naming conventions examples:
     `string name;//used ONLY for SOMETYPE::X and SOMETYPE::Y`
 
     `int val;//used ONLY for SOMETYPE::X and SOMETYPE::Z`
-    
+11. exceptions a STRONGLY encouraged over error codes. All exceptions **MUST** be derived from std::exception and **MUST** provide meaningful what() explanation (this explanation MAY be a constant string specific to this exception)
 
 ### I.6 astyle
 1. All the C++ files SHOULD be run through astyle before committing to develop branch
