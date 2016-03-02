@@ -17,8 +17,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "../../idlc_include.h"
 
-#include <set>
-
 #include "parser_helper.h"
 #include "parser.h"
 #include "lex.h"
