@@ -27,8 +27,8 @@ void idlcBackEnd( Root& root )
 	BackRoot backRoot;
 	convertToBackTree( root, backRoot );
 
-//	ANY_TEMPLATE_ROOTS template_roots;
-	TemplateNode template_root;
+//	TemplateNode template_root;
+	TemplateNodeSpace nodeSpace;
 
 	ifstream tf;
 	tf.open ( "template.txt", ios::in | ios::binary );
@@ -37,11 +37,15 @@ void idlcBackEnd( Root& root )
 		fmt::print( "failed to open template file\n" );
 		return;
 	}
+
 	int line = 0;
-	if ( !loadTemplate( tf, template_root, line ) )
+//	if ( !loadTemplate( tf, template_root, line ) )
+	if ( !loadTemplates( tf, nodeSpace, line ) )
 		return;
 	fmt::print( "\n\n" );
-	dbgPrintTree( template_root );
+//	dbgPrintTree( template_root );
+	dbgPrintTemplateTrees( nodeSpace );
 	fmt::print( "\n\n" );
-	apply( *(backRoot.structures[0]), template_root );
+
+	apply( *(backRoot.structures[0]), nodeSpace.templates[0] );
 }

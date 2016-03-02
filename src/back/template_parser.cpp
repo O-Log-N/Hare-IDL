@@ -1138,10 +1138,12 @@ public:
 		return OK;
 	}
 
-	int loadTemplate( istream& tf, TemplateNode& rootNode, int& currentLineNum )
+	PROCESSING_RESULT loadTemplate( istream& tf, TemplateNode& rootNode, int& currentLineNum )
 	{
 		vector<TemplateLine> templateLines;
 		PROCESSING_RESULT ret = tokenize( tf, templateLines, currentLineNum );
+		if ( ret != PROCESSING_RESULT::OK )
+			return ret;
 
 		TemplateNode singleChild;
 		singleChild.type = NODE_TYPE::FULL_TEMPLATE;
@@ -1176,4 +1178,29 @@ void dbgPrintTree( TemplateNode& rootNode )
 {
 	TemplateParser tp;
 	tp.dbgPrintTree( rootNode );
+}
+
+bool loadTemplates( istream& tf, TemplateNodeSpace& nodeSpace, int& currentLineNum )
+{
+	TemplateParser::PROCESSING_RESULT ret;
+	for (;;)
+	{
+		TemplateParser tp;
+		TemplateNode rootNode;
+		ret = tp.loadTemplate( tf, rootNode, currentLineNum );
+		if ( ret == TemplateParser::PROCESSING_RESULT::OK )
+			nodeSpace.templates.push_back( rootNode );
+		else
+			break;
+	}
+	return ret == TemplateParser::PROCESSING_RESULT::NO_MORE_TEMPLATES;
+}
+
+void dbgPrintTemplateTrees( TemplateNodeSpace& nodeSpace )
+{
+	for ( auto tt:nodeSpace.templates)
+	{
+		dbgPrintTree( tt );
+		fmt::print( "\n" );
+	}
 }

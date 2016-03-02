@@ -76,10 +76,19 @@ struct TemplateNode
 	string outputFileName; // used only for NODE_TYPE::OPEN_OUTPUT_FILE
 };
 
-typedef vector<TemplateNode> TEMPLATE_NODES;
+class TemplateNodeSpace
+{
+public:
+	vector<TemplateNode> templates;
+};
+
+//typedef vector<TemplateNode> TEMPLATE_NODES;
 
 bool loadTemplate( istream& tf, TemplateNode& rootNode, int& currentLineNum );
 void dbgPrintTree( TemplateNode& rootNode );
+
+bool loadTemplates( istream& tf, TemplateNodeSpace& nodeSpace, int& currentLineNum );
+void dbgPrintTemplateTrees( TemplateNodeSpace& nodeSpace );
 
 
 #endif // TEMPLATE_PARSER_H
