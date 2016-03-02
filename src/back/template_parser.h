@@ -23,7 +23,7 @@ Copyright (C) 2016 OLogN Technologies AG
 using namespace std;
 
 enum NODE_TYPE {
-	FULL_TEMPLATE = 0,
+	FULL_TEMPLATE,
 	CONTENT,
 	IF,
 	INCLUDE,
@@ -38,7 +38,7 @@ enum NODE_TYPE {
 };
 
 enum PLACEHOLDER {
-	VERBATIM = 200,
+	VERBATIM,
 	STRUCT_NAME, // used ONLY within STRUCT or down the tree
 	MEMBER_TYPE, // used ONLY within STRUCT-MEMBER
 	MEMBER_NAME, // used ONLY within STRUCT-MEMBER

@@ -84,7 +84,7 @@ struct KeyWord
 };
 
 enum PARAMETER {
-	NONE = 100,
+	NONE,
 	BEGIN,
 	END,
 };
@@ -196,14 +196,16 @@ class TemplateParser
 		fmt::print( "[{}] ", node.srcLineNum );
 		switch ( node.type )
 		{
+			case NODE_TYPE::FULL_TEMPLATE: fmt::print( "FULL_TEMPLATE {} TYPE = {}", node.templateName, node.templateType ); break;
 			case NODE_TYPE::CONTENT: dbgPrintLineParts( node.lineParts ); break;
-			case NODE_TYPE::FULL_TEMPLATE: fmt::print( "FULL_TEMPLATE " ); break;
 			case NODE_TYPE::IF: fmt::print( "IF " ); dbgPrintExpression( node.expression ); break;
 			case NODE_TYPE::ASSERT: fmt::print( "ASSERT " ); dbgPrintExpression( node.expression ); break;
 			case NODE_TYPE::FOR_EACH_OF_MEMBERS: fmt::print( "FOR_EACH_OF_MEMBERS " ); break;
 			case NODE_TYPE::INCLUDE: fmt::print( "INCLUDE " ); break;
 			case NODE_TYPE::IF_TRUE_BRANCH: fmt::print( "IF_TRUE" ); break;
 			case NODE_TYPE::IF_FALSE_BRANCH: fmt::print( "IF_FALSE" ); break;
+			case NODE_TYPE::FOR_EACH_PUBLISHABLE_STRUCT: fmt::print( "FOR-EACH-PUBLISHABLE-STRUCT" ); break;
+			default: fmt::print( "?????????" ); break;
 		}
 
 		if ( node.lineParts.size() )
@@ -516,10 +518,10 @@ class TemplateParser
 		return ret;
 	}
 
-	int parseParam( string& line, unsigned int& contentStart )
+	PARAMETER parseParam( string& line, unsigned int& contentStart )
 	{
 		while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
-		int ret = parseSpecialWord( line, contentStart, params );
+		PARAMETER ret = parseSpecialWord( line, contentStart, params );
 		return ret;
 	}
 
@@ -848,7 +850,7 @@ public:
 				{
 					unsigned int contentStart_1 = 0;
 					string remaining = string( line.begin() + contentStart, line.end() );
-					int param = parseParam( remaining, contentStart_1 );
+					PARAMETER param = parseParam( remaining, contentStart_1 );
 					bool goodParam = param == PARAMETER::BEGIN || param == PARAMETER::END;
 					if ( !goodParam )
 					{
@@ -868,7 +870,7 @@ public:
 				{
 					unsigned int contentStart_1 = 0;
 					string remaining = string( line.begin() + contentStart, line.end() );
-					int param = parseParam( remaining, contentStart_1 );
+					PARAMETER param = parseParam( remaining, contentStart_1 );
 					bool goodParam = param == PARAMETER::BEGIN || param == PARAMETER::END;
 					if ( !(param == PARAMETER::BEGIN) )
 					{
@@ -935,7 +937,7 @@ public:
 bool loadTemplate( istream& tf, TemplateNode& rootNode, int& currentLineNum )
 {
 	TemplateParser tp;
-	return tp.loadTemplate( tf, rootNode, currentLineNum );
+	return tp.loadTemplate( tf, rootNode, currentLineNum ) == TemplateParser::PROCESSING_RESULT::OK;
 }
 
 void dbgPrintTree( TemplateNode& rootNode )

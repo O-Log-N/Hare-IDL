@@ -38,7 +38,7 @@ void idlcBackEnd( Root& root )
 		return;
 	}
 	int line = 0;
-	if ( loadTemplate( tf, template_root, line ) != 0 )
+	if ( !loadTemplate( tf, template_root, line ) )
 		return;
 	fmt::print( "\n\n" );
 	dbgPrintTree( template_root );
