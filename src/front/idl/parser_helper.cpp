@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "parser_helper.h"
 #include "parser.h"
+#include "lex.h"
 
 using namespace std;
 
@@ -284,7 +285,7 @@ map<string, Variant> getArgumentList(YYSTYPE arg_list)
 //////////////////////////////////////////////////////////////////////////////
 //					Lexer functions											//
 //////////////////////////////////////////////////////////////////////////////
-extern "C" int yylineno;
+
 
 void pushState(int state)
 {
@@ -803,17 +804,6 @@ YYSTYPE createIdentifierExpression(YYSTYPE id)
 
 //////////////////////////////////////////////////////////////////////////////
 
-extern "C" int yyparse();
-extern "C" int yydebug;
-struct yy_buffer_state; //forward
-extern "C" yy_buffer_state* yy_create_buffer(FILE* file, int size);
-extern "C" void yy_switch_to_buffer(yy_buffer_state* new_buffer);
-extern "C" yy_buffer_state* yy_scan_buffer(char* buffer, unsigned int size);
-extern "C" yy_buffer_state* yy_scan_string(const char* yy_str);
-extern "C" yy_buffer_state* yy_scan_bytes(const char* bytes, int len);
-extern "C" void yy_delete_buffer(yy_buffer_state*);
-
-
 static
 Root* parseInternal(const std::string& fileName, bool debugDump)
 {
@@ -832,12 +822,12 @@ Root* parseInternal(const std::string& fileName, bool debugDump)
         yydebug = 0;
 
         if (err != 0)
-            plainError(fmt::format("Errors found while parsing file '%s'.", fileName));
+            plainError(fmt::format("Errors found while parsing file '{}'.", fileName));
 
         return root.release();
     }
     catch (...) {
-        plainError(fmt::format("Exception thrown while parsing file '%s'.", fileName));
+        plainError(fmt::format("Exception thrown while parsing file '{}'.", fileName));
 
         rootPtr = 0;
         currentFileName.erase();
@@ -867,14 +857,14 @@ Root* parseSourceFile(const string& fileName, bool debugDump)
     unique_ptr<FILE, int(*)(FILE*)> file(fopen(fileName.c_str(), "r"), &fclose);
 #pragma warning( pop )
     if (!file) {
-        plainError(fmt::format("Failed to open file '%s'.", fileName));
+        plainError(fmt::format("Failed to open file '{}'.", fileName));
         return 0;
     }
 
     unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> buff(yy_create_buffer(file.get(), 16000), &yy_delete_buffer);
 
     if (!buff) {
-        plainError(fmt::format("Failed to allocate read buffer for file '%s'.", fileName));
+        plainError(fmt::format("Failed to allocate read buffer for file '{}'.", fileName));
         return 0;
     }
 

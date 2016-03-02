@@ -30,16 +30,16 @@ struct YyBase;
 typedef struct YyBase* YYSTYPE;
 #define YYSTYPE_IS_DECLARED 1
 
-#ifdef __cplusplus
-extern "C" {
-#else
-#include <stdbool.h>
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#else
+//#include <stdbool.h>
+//#endif
 
 void pushState(int state);
 int popState();
 
-int yywrap();
+extern "C" int yywrap();
 void yyerror(const char* msg);
 
 void parserError(const char* msg, const char* text, int line);
@@ -94,8 +94,8 @@ YYSTYPE addString(YYSTYPE list, YYSTYPE str);
 YYSTYPE addExpression(YYSTYPE list, YYSTYPE id, YYSTYPE expr);
 YYSTYPE createIdentifierExpression(YYSTYPE id);
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif // PARSER_HELPER_H_INCLUDED

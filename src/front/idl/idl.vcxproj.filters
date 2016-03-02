@@ -21,12 +21,6 @@
     <ClCompile Include="idl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hare-idl.tab.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="lex.yy.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="parser_helper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -37,6 +31,12 @@
       <Filter>cppformat</Filter>
     </ClCompile>
     <ClCompile Include="debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hare-idl.tab.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lex.yy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -54,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\hare\hare.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
