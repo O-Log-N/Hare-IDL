@@ -54,15 +54,17 @@ public:
     vector<pair<string,Variant> > mappingAttributes;
 	vector<pair<string, int> > enumValues;
 
+	DataType() {}
+	DataType( const DataType& other ) 
+		: kind( other.kind ), name( other.name ), paramType( other.paramType != nullptr ? new DataType( *(other.paramType) ) : nullptr ), lowLimit( other.lowLimit ), highLimit( other.highLimit ), 
+		  encodingAttributes( other.encodingAttributes ), mappingAttributes( other.mappingAttributes ), enumValues( other.enumValues ) {
+	}
+
 	DataType& operator = ( const DataType& other )
 	{
 		kind = other.kind;
 		name = other.name;
-		if (other.paramType)
-		{
-			paramType = unique_ptr<DataType>( new DataType() );
-			(*paramType) = (*(other.paramType));
-		}
+		paramType = other.paramType != nullptr ? unique_ptr<DataType>( new DataType( *(other.paramType) ) ) : unique_ptr<DataType>( nullptr );
 		lowLimit = other.lowLimit;
 		highLimit = other.highLimit;
 		encodingAttributes = other.encodingAttributes;

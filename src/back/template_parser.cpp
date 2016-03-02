@@ -272,7 +272,7 @@ class TemplateParser
 		}
 	}
 
-	bool makeNodeTree( TemplateNode& rootNode, TEMPLATE_LINES_ITERATOR& lnBegin, TEMPLATE_LINES_ITERATOR& lnEnd )
+	bool makeNodeTree( TemplateNode& rootNode, TEMPLATE_LINES_ITERATOR lnBegin, TEMPLATE_LINES_ITERATOR lnEnd )
 	{
 		auto it = lnBegin;
 		while ( it != lnEnd )
