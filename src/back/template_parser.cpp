@@ -67,10 +67,6 @@ struct TemplateLine
 	int srcLineNum;
 	vector<LinePart> lineParts;
 
-//	bool foreachofmembersbegin; // TEMPORARY!!! TODO: get rid of!
-//	bool foreachofpublishablestruct; // TEMPORARY!!! TODO: get rid of!
-//	bool openoutputfilebegin; // TEMPORARY!!! TODO: get rid of!
-
 	vector<ExpressionElement> expression; // used only for NODE_TYPE::IF and NODE_TYPE::ASSERT
 	string templateName; // used only for NODE_TYPE::BEGIN_TEMPLATE
 	string templateType; // used only for NODE_TYPE::BEGIN_TEMPLATE
@@ -279,7 +275,7 @@ class TemplateParser
 			}
 			case NODE_TYPE::INCLUDE:
 			{
-				assert( 0 == "ERROR: NOT IMPLEMENTED" );
+//				assert( 0 == "ERROR: NOT IMPLEMENTED" );
 				break;
 			}
 		}
@@ -330,30 +326,6 @@ class TemplateParser
 					else
 					{
 						// next TemplateLine::LINE_TYPE::FOR_EACH_OF_MEMBERS must be somewhere down, and it must be terminating (so far inner blocks of this type are not expected)
-/*						auto blockEnd = it;
-						do { ++blockEnd; } while ( blockEnd != lnEnd && blockEnd->type != TemplateLine::LINE_TYPE::FOR_EACH_OF_MEMBERS );
-						if ( blockEnd == lnEnd )
-						{
-							fmt::print( "line {}: error: \"{} {}\" without matching \"{} {}\"\n", it->srcLineNum, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_BEGIN, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_END );
-							return false;
-						}
-						// at least, now we are at TemplateLine::LINE_TYPE::FOR_EACH_OF_MEMBERS node...
-//						contentStart = 0;
-						if ( !blockEnd->foreachofmembersbegin )
-						{
-							// VALID CASE
-							makeNodeTree( node, it + 1, blockEnd );
-							assert( node.lineParts.size() == 0 );
-							rootNode.childNodes.push_back( node );
-							it = blockEnd;
-							it++;
-							break;
-						}
-						else
-						{
-							fmt::print( "line {}: error: \"{} {}\" without matching \"{} {}\" (see also line {})\n", it->srcLineNum, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_BEGIN, KEYWORD_STRING_FOR_EACH_OF_MEMBERS, PARAM_STRING_END, blockEnd->srcLineNum );
-							return false;
-						}*/
 						if ( it->foreachParam == TemplateLine::FOREACH_PARAM_TYPE::TEMPLATE )
 						{
 							TemplateNode inclNode;
@@ -375,7 +347,6 @@ class TemplateParser
 							return false;
 						}
 						// at least, now we are at TemplateLine::LINE_TYPE::FOR_EACH_OF_MEMBERS node...
-//						contentStart = 0;
 						if ( blockEnd->foreachParam == TemplateLine::FOREACH_PARAM_TYPE::END )
 						{
 							// VALID CASE
@@ -429,7 +400,6 @@ class TemplateParser
 							return false;
 						}
 						// at least, now we are at TemplateLine::LINE_TYPE::FOR_EACH_OF_MEMBERS node...
-//						contentStart = 0;
 						if ( blockEnd->foreachParam == TemplateLine::FOREACH_PARAM_TYPE::END )
 						{
 							// VALID CASE
@@ -506,10 +476,10 @@ class TemplateParser
 					node.expression = it->expression;
 					int ifendifBalance = 1;
 					auto blockEnd = it;
+					++blockEnd; 
 					bool endifFound = false;
 					do 
 					{ 
-						++blockEnd; 
 						if ( blockEnd->type == TemplateLine::LINE_TYPE::IF )
 							ifendifBalance ++;
 						if ( blockEnd->type == TemplateLine::LINE_TYPE::ENDIF )
@@ -519,6 +489,7 @@ class TemplateParser
 							endifFound = true;
 							break;
 						}
+						++blockEnd; 
 					}
 					while ( blockEnd != lnEnd );
 
@@ -999,22 +970,6 @@ public:
 				}
 				case TemplateLine::LINE_TYPE::FOR_EACH_OF_MEMBERS:
 				{
-/*					unsigned int contentStart_1 = 0;
-					string remaining = string( line.begin() + contentStart, line.end() );
-					PARAMETER param = parseParam( remaining, contentStart_1 );
-					bool goodParam = param == PARAMETER::BEGIN || param == PARAMETER::END;
-					if ( !goodParam )
-					{
-						fmt::print( "line {}: error: \"{}\" or \"{}\" is expected after \"{}\"\n", currentLineNum, PARAM_STRING_BEGIN, PARAM_STRING_END, KEYWORD_STRING_FOR_EACH_OF_MEMBERS );
-						return FAILED_ERROR;
-					}
-					thisLine.foreachofmembersbegin = param == PARAMETER::BEGIN;
-					skipSpaces( remaining, contentStart );
-					if ( contentStart < remaining.size() )
-					{
-						fmt::print( "line {}: error: unexpected token(s) \"{}\"\n", currentLineNum, string( remaining.begin() + contentStart, remaining.end() ) );
-						return FAILED_ERROR;
-					}*/
 					unsigned int contentStart_1 = 0;
 					string remaining = string( line.begin() + contentStart, line.end() );
 					PARAMETER param = parseParam( remaining, contentStart_1 );
@@ -1052,7 +1007,7 @@ public:
 						fmt::print( "line {}: error: \"{}\", \"{}\" or \"{}\" is expected after \"{}\"\n", currentLineNum, PARAM_STRING_BEGIN, PARAM_STRING_END, PARAM_STRING_TEMPLATE, KEYWORD_STRING_FOR_EACH_PUBLISHABLE_STRUCT );
 						return FAILED_ERROR;
 					}
-					skipSpaces( remaining, contentStart );
+					skipSpaces( remaining, contentStart_1 );
 					if ( param == PARAMETER::TEMPLATE )
 					{
 						thisLine.foreachParam = TemplateLine::FOREACH_PARAM_TYPE::TEMPLATE;
@@ -1086,23 +1041,6 @@ public:
 				}
 				case TemplateLine::LINE_TYPE::OPEN_OUTPUT_FILE:
 				{
-/*					unsigned int contentStart_1 = 0;
-					string remaining = string( line.begin() + contentStart, line.end() );
-					PARAMETER param = parseParam( remaining, contentStart_1 );
-					bool goodParam = param == PARAMETER::BEGIN || param == PARAMETER::END;
-					if ( !(param == PARAMETER::BEGIN) )
-					{
-						fmt::print( "line {}: error: \"{}\" or \"{}\" is expected after \"{}\"\n", currentLineNum, PARAM_STRING_BEGIN, PARAM_STRING_END, KEYWORD_STRING_FOR_EACH_OF_MEMBERS );
-						return FAILED_ERROR;
-					}
-					thisLine.openoutputfilebegin = true;
-					skipSpaces( remaining, contentStart_1 );
-					if ( contentStart_1 < remaining.size() )
-					{
-						fmt::print( "line {}: error: unexpected token(s) \"{}\"\n", currentLineNum, string( remaining.begin() + contentStart, remaining.end() ) );
-						return FAILED_ERROR;
-					}*/
-//					thisLine.openoutputfilebegin = true;
 					skipSpaces( line, contentStart );
 					thisLine.outputFileName = string( line.begin() + contentStart, line.end() );
 					if ( thisLine.outputFileName.size() && thisLine.outputFileName[0] == '\"' )
@@ -1119,7 +1057,6 @@ public:
 				}
 				case TemplateLine::LINE_TYPE::CLOSE_OUTPUT_FILE:
 				{
-//					thisLine.openoutputfilebegin = false;
 					skipSpaces( line, contentStart );
 					if ( contentStart < line.size() )
 					{
@@ -1154,18 +1091,6 @@ public:
 		PROCESSING_RESULT ret = tokenize( tf, templateLines, currentLineNum );
 		if ( ret != PROCESSING_RESULT::OK )
 			return ret;
-
-/*		TemplateNode singleChild;
-		singleChild.type = NODE_TYPE::FULL_TEMPLATE;
-		bool treeOK = makeNodeTree( singleChild, templateLines.begin(), templateLines.end() );
-		if ( !treeOK )
-		{
-			fmt::print( "line {}: error: building tree failed\n", rootNode.srcLineNum );
-			return FAILED_BUID_TREE_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
-		}
-		dbgValidateNode( singleChild );
-		rootNode.type = NODE_TYPE::FULL_TEMPLATE;
-		rootNode.childNodes.push_back( singleChild );*/
 		rootNode.type = NODE_TYPE::FULL_TEMPLATE;
 		bool treeOK = makeNodeTree( rootNode, templateLines.begin(), templateLines.end() );
 		if ( !treeOK )
@@ -1180,8 +1105,6 @@ public:
 
 	void dbgPrintTree( TemplateNode& rootNode )
 	{
-/*		assert( rootNode.childNodes.size() == 1 );
-		dbgPrintNode( rootNode.childNodes[0], 0 );*/
 		dbgPrintNode( rootNode, 0 );
 	}
 };

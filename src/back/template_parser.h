@@ -34,7 +34,6 @@ enum NODE_TYPE {
 	FOR_EACH_OF_MEMBERS, // used ONLY within STRUCT
 	OPEN_OUTPUT_FILE,
 	FOR_EACH_PUBLISHABLE_STRUCT,
-//	CLOSE_OUTPUT_FILE,
 };
 
 enum PLACEHOLDER {
@@ -98,8 +97,6 @@ public:
 		return nullptr;
 	}
 };
-
-//typedef vector<TemplateNode> TEMPLATE_NODES;
 
 bool loadTemplate( istream& tf, TemplateNode& rootNode, int& currentLineNum );
 void dbgPrintTree( TemplateNode& rootNode );

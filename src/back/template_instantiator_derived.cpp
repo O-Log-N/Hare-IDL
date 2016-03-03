@@ -46,14 +46,6 @@ string RootTemplateInstantiator::placeholder( int placeholderId )
 {
 	switch( placeholderId )
 	{
-/*		case PLACEHOLDER::STRUCT_NAME:
-		{
-			return member->name;
-		}
-		case PLACEHOLDER::MEMBER_TYPE:
-		{
-			return member->type.name;
-		}*/
 		default:
 		{
 			return TemplateInstantiator::placeholder( placeholderId );

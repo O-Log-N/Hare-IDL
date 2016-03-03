@@ -39,13 +39,9 @@ public:
 		{
 			if ( t.templateType == "ROOT" )
 			{
-				assert( t.childNodes.size() == 1 );
-				applyNode( t.childNodes[0] );
+				applyNode( t );
 			}
 		}
-		/*TemplateNode& node
-		assert( node.childNodes.size() == 1 );
-		applyNode( node.childNodes[0] );*/
 	}
 };
 
@@ -64,8 +60,6 @@ public:
 
 	void apply( TemplateNode& node )
 	{
-		assert( node.childNodes.size() == 1 );
-//		applyNode( node.childNodes[0] );
 		applyNode( node );
 	}
 };
