@@ -146,7 +146,7 @@
     <ClCompile Include="..\..\..\3rdparty\cppformat\cppformat\posix.cc" />
     <ClCompile Include="debug.cpp" />
     <ClCompile Include="hare-idl.tab.cpp" />
-    <ClCompile Include="idl.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="lex.yy.cpp" />
     <ClCompile Include="parser_helper.cpp" />
   </ItemGroup>
