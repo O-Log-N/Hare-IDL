@@ -1080,7 +1080,7 @@ public:
 						fmt::print( "line {}: error: \"{}\" is expected after \"{}\"\n", currentLineNum, PARAM_STRING_TEMPLATE, KEYWORD_STRING_INCLUDE );
 						return FAILED_ERROR;
 					}
-					skipSpaces( remaining, contentStart );
+					skipSpaces( remaining, contentStart_1 );
 					thisLine.templateName = string( remaining.begin() + contentStart_1, remaining.end() );
 					break;
 				}
@@ -1105,6 +1105,16 @@ public:
 //					thisLine.openoutputfilebegin = true;
 					skipSpaces( line, contentStart );
 					thisLine.outputFileName = string( line.begin() + contentStart, line.end() );
+					if ( thisLine.outputFileName.size() && thisLine.outputFileName[0] == '\"' )
+					{
+						size_t pos = 1; while ( pos < thisLine.outputFileName.size() && thisLine.outputFileName[pos] != '\"' ) pos++;
+						if ( pos == thisLine.outputFileName.size() )
+						{
+							fmt::print( "line {}: error: file name string runs away\n", currentLineNum );
+							return FAILED_ERROR;
+						}
+						thisLine.outputFileName = string( thisLine.outputFileName.begin() + 1, thisLine.outputFileName.begin() + pos );
+					}
 					break;
 				}
 				case TemplateLine::LINE_TYPE::CLOSE_OUTPUT_FILE:
@@ -1145,7 +1155,7 @@ public:
 		if ( ret != PROCESSING_RESULT::OK )
 			return ret;
 
-		TemplateNode singleChild;
+/*		TemplateNode singleChild;
 		singleChild.type = NODE_TYPE::FULL_TEMPLATE;
 		bool treeOK = makeNodeTree( singleChild, templateLines.begin(), templateLines.end() );
 		if ( !treeOK )
@@ -1155,15 +1165,24 @@ public:
 		}
 		dbgValidateNode( singleChild );
 		rootNode.type = NODE_TYPE::FULL_TEMPLATE;
-		rootNode.childNodes.push_back( singleChild );
+		rootNode.childNodes.push_back( singleChild );*/
+		rootNode.type = NODE_TYPE::FULL_TEMPLATE;
+		bool treeOK = makeNodeTree( rootNode, templateLines.begin(), templateLines.end() );
+		if ( !treeOK )
+		{
+			fmt::print( "line {}: error: building tree failed\n", rootNode.srcLineNum );
+			return FAILED_BUID_TREE_ERROR; // TODO: make sure the decision is correct in all cases + error analysis and reporting
+		}
+		dbgValidateNode( rootNode );
 
 		return OK;
 	}
 
 	void dbgPrintTree( TemplateNode& rootNode )
 	{
-		assert( rootNode.childNodes.size() == 1 );
-		dbgPrintNode( rootNode.childNodes[0], 0 );
+/*		assert( rootNode.childNodes.size() == 1 );
+		dbgPrintNode( rootNode.childNodes[0], 0 );*/
+		dbgPrintNode( rootNode, 0 );
 	}
 };
 

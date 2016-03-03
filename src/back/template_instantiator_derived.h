@@ -28,14 +28,24 @@ protected:
 
 	virtual void applyNode( TemplateNode& node );
 	virtual string placeholder( int placeholderId );
+	virtual string context() override {return "ROOT"; }
 
 public:
-	RootTemplateInstantiator( BackRoot& structRoot ) { root = &structRoot; }
+	RootTemplateInstantiator( BackRoot& structRoot, TemplateNodeSpace& templateSpace_, ostream* outStr ) : TemplateInstantiator( templateSpace_, outStr ), root( &structRoot ) {}
 
-	void apply( TemplateNode& node )
+	void apply()
 	{
+		for ( auto t:templateSpace.templates )
+		{
+			if ( t.templateType == "ROOT" )
+			{
+				assert( t.childNodes.size() == 1 );
+				applyNode( t.childNodes[0] );
+			}
+		}
+		/*TemplateNode& node
 		assert( node.childNodes.size() == 1 );
-		applyNode( node.childNodes[0] );
+		applyNode( node.childNodes[0] );*/
 	}
 };
 
@@ -47,14 +57,16 @@ protected:
 
 	virtual void applyNode( TemplateNode& node );
 	virtual string placeholder( int placeholderId );
+	virtual string context() override {return "STRUCT"; }
 
 public:
-	StructTemplateInstantiator( BackStructure& currentStruct ) { structure = &currentStruct; }
+	StructTemplateInstantiator( BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, ostream* outStr ) : TemplateInstantiator( templateSpace_, outStr ), structure( &currentStruct ) {}
 
 	void apply( TemplateNode& node )
 	{
 		assert( node.childNodes.size() == 1 );
-		applyNode( node.childNodes[0] );
+//		applyNode( node.childNodes[0] );
+		applyNode( node );
 	}
 };
 
@@ -66,9 +78,10 @@ protected:
 
 	virtual void applyNode( TemplateNode& node );
 	virtual string placeholder( int placeholderId );
+	virtual string context() override {return "STRUCT-MEMBER"; }
 
 public:
-	StructMemberTemplateInstantiator( BackDataMember& currentMember ) { member = &currentMember; }
+	StructMemberTemplateInstantiator( BackDataMember& currentMember, TemplateNodeSpace& templateSpace_, ostream* outStr ) : TemplateInstantiator( templateSpace_, outStr ), member( &currentMember ) {}
 
 	void apply( TemplateNode& node )
 	{
@@ -77,7 +90,7 @@ public:
 };
 
 
-void apply( BackStructure& structure, TemplateNode& rootNode );
+void apply( BackRoot& structure, TemplateNodeSpace& templateSpace );
 
 
 #endif // TEMPLATE_INSTANTIATOR_DERIVED_H

@@ -29,7 +29,7 @@ void RootTemplateInstantiator::applyNode( TemplateNode& node )
 			{
 				for ( size_t k=0; k<node.childNodes.size(); k++ )
 				{
-					StructTemplateInstantiator structti( *(root->structures[j]) );
+					StructTemplateInstantiator structti( *(root->structures[j]), templateSpace, outstr );
 					structti.apply( node.childNodes[k] );
 				}
 			}
@@ -78,7 +78,7 @@ void StructTemplateInstantiator::applyNode( TemplateNode& node )
 					BackDataMember* member = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
 					if ( member != NULL )
 					{
-						StructMemberTemplateInstantiator smti( *member );
+						StructMemberTemplateInstantiator smti( *member, templateSpace, outstr );
 						smti.apply( node.childNodes[k] );
 					}
 					else
@@ -148,8 +148,8 @@ string StructMemberTemplateInstantiator::placeholder( int placeholderId )
 /////////////////////////////////////////////////////////////////////////
 
 
-void apply( BackStructure& structure, TemplateNode& rootNode )
+void apply( BackRoot& structure, TemplateNodeSpace& templateSpace )
 {
-	StructTemplateInstantiator ti( structure );
-	ti.apply( rootNode );
+	RootTemplateInstantiator rti( structure, templateSpace, nullptr );
+	rti.apply();
 }

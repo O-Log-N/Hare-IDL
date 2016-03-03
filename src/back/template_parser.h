@@ -72,14 +72,31 @@ struct TemplateNode
 	vector<LinePart> lineParts; // used only for NODE_TYPE::CONTENT
 	vector<ExpressionElement> expression; // used only for NODE_TYPE::IF and NODE_TYPE::ASSERT
 	string templateName; // used only for NODE_TYPE::BEGIN_TEMPLATE
-	string templateType; // used only for NODE_TYPE::BEGIN_TEMPLATE
+	string templateType; // used only for NODE_TYPE::BEGIN_TEMPLATE  TODO: consider IDs for known types, or predefined type strings (such as ROOT) whereever necessary!!!!
 	string outputFileName; // used only for NODE_TYPE::OPEN_OUTPUT_FILE
 };
 
 class TemplateNodeSpace
 {
 public:
+	// TODO: internals of this class might be havily revised; its interface should hopefully survive
 	vector<TemplateNode> templates;
+	void dbgValidateTemplateSpace()
+	{
+		// TODO (at least):
+		// 1. make sure all names distinct (unless map is used for storing, then it's already done)
+		// 2. for each @@include there must be a template with a respective name
+		// 3. there is at least one template of type ROOT
+	}
+	TemplateNode* getTemplate( string name, string expectedType )
+	{
+		for ( auto& node:templates )
+		{
+			if ( node.templateName == name && node.templateType == expectedType )
+				return &node;
+		}
+		return nullptr;
+	}
 };
 
 //typedef vector<TemplateNode> TEMPLATE_NODES;

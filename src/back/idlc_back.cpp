@@ -47,5 +47,5 @@ void idlcBackEnd( Root& root )
 	dbgPrintTemplateTrees( nodeSpace );
 	fmt::print( "\n\n" );
 
-	apply( *(backRoot.structures[0]), nodeSpace.templates[0] );
+	apply( backRoot, nodeSpace );
 }

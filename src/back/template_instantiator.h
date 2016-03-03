@@ -30,9 +30,13 @@ class TemplateInstantiator
 protected:
 	bool calcConditionOfIfNode( TemplateNode& ifNode );
 	virtual void applyNode( TemplateNode& node );
+	virtual string context();
+
+	ostream* outstr;
+	TemplateNodeSpace& templateSpace;
 
 public:
-	TemplateInstantiator() {}
+	TemplateInstantiator( TemplateNodeSpace& templateSpace_, ostream* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}
 
 	virtual string placeholder( int placeholderId );
 };

@@ -80,12 +80,17 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 		}
 		case NODE_TYPE::CONTENT:
 		{
+			if ( outstr == nullptr )
+			{
+				fmt::print("Instantiation error at template line{}: no output file", node.srcLineNum );
+				assert(0); // TODO: replace by throwing an exception or alike
+			}
 			for ( size_t i=0; i<node.lineParts.size(); i++ )
 				if ( node.lineParts[i].type == PLACEHOLDER::VERBATIM )
-					fmt::print("{}", node.lineParts[i].verbatim.c_str() );
+					fmt::print( *outstr, "{}", node.lineParts[i].verbatim.c_str() );
 				else
-					fmt::print("{}", placeholder( node.lineParts[i].type ).c_str() );
-			fmt::print("\n" );
+					fmt::print(*outstr, "{}", placeholder( node.lineParts[i].type ).c_str() );
+			fmt::print(*outstr, "\n" );
 			break;
 		}
 		case NODE_TYPE::IF_TRUE_BRANCH:
@@ -93,6 +98,21 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 		{
 			for ( size_t k=0; k<node.childNodes.size(); k++ )
 				applyNode( node.childNodes[k] );
+			break;
+		}
+		case NODE_TYPE::OPEN_OUTPUT_FILE:
+		{
+			if ( outstr != nullptr )
+			{
+				fmt::print("Instantiation error at template line{}: output file is already open", node.srcLineNum );
+				assert(0); // TODO: replace by throwing an exception or alike
+			}
+			ofstream tf;
+			tf.open ( node.outputFileName, ios::out | ios::binary );
+			outstr = &tf;
+			for ( size_t k=0; k<node.childNodes.size(); k++ )
+				applyNode( node.childNodes[k] );
+			outstr = nullptr;
 			break;
 		}
 		case NODE_TYPE::IF:
@@ -123,7 +143,12 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 		}
 		case NODE_TYPE::INCLUDE:
 		{
-			assert( 0 == "ERROR: \"NODE_TYPE::INCLUDE\" NOT IMPLEMENTED" );
+			TemplateNode* tn = templateSpace.getTemplate( node.templateName, context() );
+			if ( tn == nullptr )
+			{
+				assert( 0 ); // TODO: throw
+			}
+			TemplateInstantiator::applyNode( *tn );
 			break;
 		}
 		default:
@@ -138,6 +163,14 @@ string TemplateInstantiator::placeholder( int placeholderId )
 {
 	fmt::print( "\n" );
 	fmt::print("error_placeholder {}\n", placeholderId );
+	assert( 0 );
+	return "";
+}
+
+string TemplateInstantiator::context()
+{
+	fmt::print( "\n" );
+	fmt::print("error: context() available\n" );
 	assert( 0 );
 	return "";
 }
