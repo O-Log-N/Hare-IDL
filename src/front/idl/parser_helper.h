@@ -64,11 +64,13 @@ YYSTYPE createFloatLiteral(const char* text, int line);
 
 YYSTYPE addToFile(YYSTYPE file, YYSTYPE item);
 
+YYSTYPE addToStruct(YYSTYPE decl, YYSTYPE attr);
+
+YYSTYPE createAttribute(YYSTYPE type, YYSTYPE id);
+
 YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id);
-YYSTYPE addToPublishableStruct(YYSTYPE decl, YYSTYPE type, YYSTYPE id);
 
 YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id);
-YYSTYPE addToMapping(YYSTYPE decl, YYSTYPE type, YYSTYPE id);
 
 YYSTYPE createEncoding(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id);
 YYSTYPE addToEncoding(YYSTYPE decl, YYSTYPE elem);
@@ -81,16 +83,21 @@ YYSTYPE createEncodingGroup(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE opt_att);
 YYSTYPE addToEncodingGroup(YYSTYPE group, YYSTYPE element);
 YYSTYPE addEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE group);
 
+YYSTYPE createUnion(YYSTYPE token, YYSTYPE discr_id, YYSTYPE id);
+YYSTYPE createUnionAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE discr_id, YYSTYPE id_list);
+
+
 YYSTYPE createIdType(YYSTYPE id, YYSTYPE opt_arg_list);
 YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
 YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
 YYSTYPE createSequence(YYSTYPE opt_id, YYSTYPE type);
 YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type);
-YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE id, YYSTYPE values);
+YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE opt_id, YYSTYPE values);
 
 YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit);
 
 YYSTYPE addString(YYSTYPE list, YYSTYPE str);
+YYSTYPE addIdentifier(YYSTYPE list, YYSTYPE id);
 YYSTYPE addExpression(YYSTYPE list, YYSTYPE id, YYSTYPE expr);
 YYSTYPE createIdentifierExpression(YYSTYPE id);
 

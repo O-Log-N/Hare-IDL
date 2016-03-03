@@ -144,8 +144,25 @@ private:
             HAREASSERT(false);
         }
 
+        string type = "";
+        switch (node->type) {
+        case Structure::STRUCT:
+            type = "STRUCT";
+            break;
+        case Structure::RPC:
+            type = "RPC";
+            break;
+        case Structure::DISCRIMINATED_UNION:
+            type = "DISCRIMINATED_UNION";
+            break;
+        default:
+            HAREASSERT(false);
+        }
+
         string tags = dbgAttributesToString(node->encodingSpecifics.attrs);
-        dbgWriteWithLocation(node->location, fmt::format("Structure kind={} name={} encAttrs={}", kind, node->name, tags));
+        dbgWriteWithLocation(node->location,
+                             fmt::format("Structure kind={} type={} name={} encAttrs={} discr={}",
+                                         kind, type, node->name, tags, node->discriminant));
 
         ++offset;
         for (auto& it : node->members) {
@@ -173,6 +190,15 @@ private:
             attr += "extendTo=true";
         if (node->defaultValue.kind != Variant::NONE)
             attr += fmt::format("defaultValue='{}'", dbgVariantToString(node->defaultValue));
+        if (!node->whenDiscriminant.empty()) {
+            attr += "whenDiscriminant='";
+            for (auto it = node->whenDiscriminant.begin(); it != node->whenDiscriminant.end(); ++it) {
+                if (it != node->whenDiscriminant.begin())
+                    attr += ",";
+                attr += *it;
+            }
+            attr += "'";
+        }
 
         string typeStr = dbgTypeToString(node->type);
         dbgWriteWithLocation(node->location, fmt::format("DataMember name='{}' {} {}", node->name, attr, typeStr));

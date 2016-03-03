@@ -1,6 +1,6 @@
 
 
-PUBLISHABLE_STRUCT Character {
+PUBLISHABLE-STRUCT Character {
   UINT16 character_id;
   NUMERIC[-10000.,10000.] x;//for our example IDL compiler, notation [a,b] means
                           //  “from a to b inclusive”
@@ -19,7 +19,7 @@ PUBLISHABLE_STRUCT Character {
                            // defined elsewhere
 };
 
-MAPPING(Lang="CPP",Role="Client") PUBLISHABLE_STRUCT Character {
+MAPPING(Lang="CPP",Role="Client") PUBLISHABLE-STRUCT Character {
   UINT16 character_id;//can be omitted, as default mapping
                       //  for UINT16 is UINT16
   double x;//all 'double' declarations can be omitted too
@@ -42,7 +42,7 @@ MAPPING(Lang="CPP",Role="Client") PUBLISHABLE_STRUCT Character {
 };
 
 
-MAPPING(Lang="CPP",Role="Server") PUBLISHABLE_STRUCT Character {
+MAPPING(Lang="CPP",Role="Server") PUBLISHABLE-STRUCT Character {
   // here we're omitting all the default mappings
   float angle;
   class MyInventory inventory;
@@ -57,7 +57,7 @@ MAPPING(Lang="CPP",Role="Server") PUBLISHABLE_STRUCT Character {
 };
 
 
-ENCODING(Name="MYENCODING1") PUBLISHABLE_STRUCT Character {
+ENCODING(Name="MYENCODING1") PUBLISHABLE-STRUCT Character {
   VLQ character_id;
   DELTA {
     FIXED_POINT(precision=0.01) x;//for rendering purposes, we need our coordinates
@@ -82,7 +82,7 @@ ENCODING(Name="MYENCODING1") PUBLISHABLE_STRUCT Character {
 };
 
 
-ENCODING(Name="MYENCODING2") PUBLISHABLE_STRUCT Character {
+ENCODING(Name="MYENCODING2") PUBLISHABLE-STRUCT Character {
   VLQ character_id;
   DELTA {
     DEAD_RECKONING(Tolerance=0.02) {//0.02 is maximum acceptable coordinate
@@ -106,4 +106,12 @@ ENCODING(Name="MYENCODING2") PUBLISHABLE_STRUCT Character {
   DELTA BIT(length=2) Animation;
   DELTA VLQ animation_frame;
   DELTA SEQUENCE<Item> inventory;
+};
+
+DISCRIMINATED-UNION(DISCRIMINANT=x) MyType {
+    enum { Abc = 1, Def = 2, Ghi = 3, Klm = 4 } x;//DISCRIMINANT MUST be an enum
+    string s WHEN-DISCRIMINANT x IN { Abc, Def };
+    int i WHEN-DISCRIMINANT x == Abc; //mere synonym for 'x IN { Abc };'
+   // expressions such as x == Abc || x == Def are NOT allowed
+   int ii;//as there is no WHEN-DISCRIMINANT clause, it is "always present"
 };

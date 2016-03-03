@@ -55,8 +55,8 @@ public:
 	map<string, int> enumValues;
 
 	DataType() {}
-	DataType( const DataType& other ) 
-		: kind( other.kind ), name( other.name ), paramType( other.paramType != nullptr ? new DataType( *(other.paramType) ) : nullptr ), lowLimit( other.lowLimit ), highLimit( other.highLimit ), 
+	DataType( const DataType& other )
+		: kind( other.kind ), name( other.name ), paramType( other.paramType != nullptr ? new DataType( *(other.paramType) ) : nullptr ), lowLimit( other.lowLimit ), highLimit( other.highLimit ),
 		  encodingAttrs( other.encodingAttrs ), mappingAttrs( other.mappingAttrs ), enumValues( other.enumValues ) {
 	}
 
@@ -97,6 +97,7 @@ public:
 	string name;
 	bool extendTo = false;
 	Variant defaultValue;
+    vector<string> whenDiscriminant;
 };
 
 class EncodedMembers : public EncodedOrMember
@@ -111,10 +112,11 @@ class Structure : public EncodedMembers
 {
 public:
 	enum DECLTYPE{ IDL, MAPPING, ENCODING };
-	enum TYPE{ STRUCT, RPC };
+	enum TYPE{ STRUCT, RPC, DISCRIMINATED_UNION };
 	DECLTYPE declType = IDL;
 	TYPE type = STRUCT;
 	string name;
+    string discriminant;    
 };
 
 class Typedef {

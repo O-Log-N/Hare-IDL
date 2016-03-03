@@ -111,8 +111,8 @@ struct YyEnumValues : public YyBase {
     map<string, int> enumValues;
 };
 
-struct YyStringLiteralList : public YyBase {
-    vector<string> textValues;
+struct YyIdentifierList : public YyBase {
+    vector<string> ids;
 };
 
 struct YyToken : public YyBase {
@@ -138,8 +138,6 @@ struct YyArgumentList : public YyBase {
 };
 
 typedef YyIdentifier YyStringLiteral;
-
-typedef YyList<YyIdentifier> YyIdentifierList;
 
 /*
 	yystype_cast is used to cast YYSTYPE elements from the parser.
@@ -464,17 +462,15 @@ YYSTYPE addToFile(YYSTYPE file, YYSTYPE item)
     return 0;
 }
 
-YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id)
+YYSTYPE addToStruct(YYSTYPE decl, YYSTYPE attr)
 {
-    Structure* yy = new Structure();
+    Structure* yy = yystype_ptr_cast<Structure>(decl);
 
-    delete token;
-    yy->location = getLocationFromYyIdentifier(id);
-    yy->name = getNameFromYyIdentifier(id);
-    yy->declType = Structure::IDL;
-    yy->type = Structure::STRUCT;
+    EncodedOrMember* a = yystype_ptr_release<EncodedOrMember>(attr);
 
-    return new YyPtr<Structure>(yy);
+    yy->members.push_back(unique_ptr<EncodedOrMember>(a));
+
+    return decl;
 }
 
 DataMember* makeDataMember(YYSTYPE type, YYSTYPE id)
@@ -491,14 +487,24 @@ DataMember* makeDataMember(YYSTYPE type, YYSTYPE id)
     return yy;
 }
 
-YYSTYPE addToPublishableStruct(YYSTYPE decl, YYSTYPE type, YYSTYPE id)
+YYSTYPE createAttribute(YYSTYPE type, YYSTYPE id)
 {
-    Structure* yy = yystype_ptr_cast<Structure>(decl);
-
     DataMember* att = makeDataMember(type, id);
-    yy->members.push_back(unique_ptr<EncodedOrMember>(att));
 
-    return decl;
+    return new YyPtr<EncodedOrMember>(att);
+}
+
+YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id)
+{
+    Structure* yy = new Structure();
+
+    delete token;
+    yy->location = getLocationFromYyIdentifier(id);
+    yy->name = getNameFromYyIdentifier(id);
+    yy->declType = Structure::IDL;
+    yy->type = Structure::STRUCT;
+
+    return new YyPtr<Structure>(yy);
 }
 
 YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
@@ -515,17 +521,6 @@ YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
 
     return new YyPtr<Structure>(yy);
 }
-
-YYSTYPE addToMapping(YYSTYPE decl, YYSTYPE type, YYSTYPE id)
-{
-    Structure* yy = yystype_ptr_cast<Structure>(decl);
-
-    DataMember* att = makeDataMember(type, id);
-    yy->members.push_back(unique_ptr<EncodedOrMember>(att));
-
-    return decl;
-}
-
 
 YYSTYPE createEncoding(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
 {
@@ -633,6 +628,31 @@ YYSTYPE addEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE group)
     return createEncodingGroup(id, opt_arg_list, group);
 }
 
+YYSTYPE createUnion(YYSTYPE token, YYSTYPE discr_id, YYSTYPE id)
+{
+    Structure* yy = new Structure();
+
+    delete token;
+    yy->location = getLocationFromYyIdentifier(id);
+    yy->name = getNameFromYyIdentifier(id);
+    yy->declType = Structure::IDL;
+    yy->type = Structure::DISCRIMINATED_UNION;
+    yy->discriminant = getNameFromYyIdentifier(discr_id);
+
+    return new YyPtr<Structure>(yy);
+}
+
+YYSTYPE createUnionAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE discr_id, YYSTYPE id_list)
+{
+    DataMember* att = makeDataMember(type, id);
+
+    YyIdentifierList* al = yystype_cast<YyIdentifierList*>(id_list);
+    att->whenDiscriminant = al->ids;
+    delete id_list;
+    delete discr_id;
+
+    return new YyPtr<EncodedOrMember>(att);
+}
 
 YYSTYPE createIdType(YYSTYPE id, YYSTYPE opt_arg_list)
 {
@@ -725,12 +745,13 @@ YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type)
     return yy;
 }
 
-YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE id, YYSTYPE values)
+YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE opt_id, YYSTYPE values)
 {
     YyDataType* yy = new YyDataType();
 
     yy->dataType.kind = DataType::ENUM;
-    yy->dataType.name = getNameFromYyIdentifier(id);
+    if(opt_id)
+        yy->dataType.name = getNameFromYyIdentifier(opt_id);
 
     YyEnumValues* v = yystype_cast<YyEnumValues*>(values);
     yy->dataType.enumValues = v->enumValues;
@@ -760,19 +781,20 @@ YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit)
 }
 
 
-YYSTYPE addString(YYSTYPE list, YYSTYPE str)
+YYSTYPE addIdentifier(YYSTYPE list, YYSTYPE id)
 {
-    YyStringLiteralList* yy = 0;
+    YyIdentifierList* yy = 0;
     if (list)
-        yy = yystype_cast<YyStringLiteralList*>(list);
+        yy = yystype_cast<YyIdentifierList*>(list);
     else
-        yy = new YyStringLiteralList();
+        yy = new YyIdentifierList();
 
-    string value = getNameFromYyIdentifier(str);
-    yy->textValues.push_back(value);
+    string value = getNameFromYyIdentifier(id);
+    yy->ids.push_back(value);
 
     return yy;
 }
+
 
 YYSTYPE addExpression(YYSTYPE list, YYSTYPE id, YYSTYPE expr)
 {
