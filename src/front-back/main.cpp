@@ -19,6 +19,7 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "idl_tree.h"
 #include "../back/idlc_back.h"
 
+#include "../front/idl/parser.h"
 
 DataMember* makeMember(const string& type_name, const string& name)
 {
@@ -57,13 +58,14 @@ int main()
 {
 	try
 	{
-		Root root;
+        // mb: fix path
+        Root* root = parseSourceFile("src/front/idl/sample.idl", false);
 
 		// Roughly: front end
-		loadFakeSample( root );
+//		loadFakeSample( root );
 
 		// Roughly: back end
-		idlcBackEnd( root );
+		idlcBackEnd( *root );
 	}
 	catch ( std::exception& x )
 	{
