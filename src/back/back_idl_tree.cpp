@@ -39,7 +39,6 @@ BackEncodedOrMember* copyEncoded( const EncodedOrMember* src )
 		assert( encsrc != NULL ); // currently we do not expect any other type here
 		size_t i;
 		BackEncodedMembers* currentEncoded = new BackEncodedMembers;
-		currentEncoded->encodingAttr = encsrc->encodingAttr;
 		for ( i=0; i<encsrc->members.size(); i++ )
 		{ 
 			BackEncodedOrMember* ret = copyEncoded( &(*(encsrc->members[i])) );
@@ -55,7 +54,6 @@ BackStructure* copyStructure( const Structure* src )
 	ret->declType = src->declType;
 	ret->type = src->type;
 	ret->name = src->name;
-	ret->encodingAttr = src->encodingAttr;
 	size_t i;
 	for ( i=0; i<src->members.size(); i++ )
 	{

@@ -46,7 +46,6 @@ class BackEncodedMembers : public BackEncodedOrMember
 protected:
 	vector<unique_ptr<BackEncodedOrMember>> members; 
 public:
-	EncodingAttributes encodingAttr; 
 	void addChild( BackEncodedOrMember* child )
 	{
 		parent = this;
