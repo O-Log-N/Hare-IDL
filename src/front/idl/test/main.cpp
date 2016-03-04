@@ -11,14 +11,21 @@ int main()
 {
     try {
         Root* root = parseSourceFile("test/sample.idl", true);
+        HAREASSERT(root);
 
         dbgDumpLeaks();
-        if (root)
-            dbgDumpTree(stdout, root, false);
+        dbgDumpTree(stdout, root, false);
 
         return 0;
     }
+    catch (const std::exception& e) {
+
+        fmt::print(stderr, "Exception!");
+        fmt::print(stderr, e.what());
+        return 1;
+    }
     catch (...) {
+        fmt::print(stderr, "Unknown exception!");
         return 1;
     }
 }

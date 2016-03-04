@@ -36,7 +36,6 @@ static set<YyBase*> dbgLeakDetector;
 static bool errorFlag = false;
 
 
-
 string locationToString(const Location& loc)
 {
     if (!loc.fileName.empty()) {
@@ -49,41 +48,37 @@ string locationToString(const Location& loc)
         return "";
 }
 
-
-YyBase::YyBase()
-{
-    if (dbgEnableLeakDetector)
-        dbgLeakDetector.insert(this);
-}
-
-YyBase::~YyBase()
-{
-    if (dbgEnableLeakDetector)
-        dbgLeakDetector.erase(this);
-}
-
-void dbgDumpLeaks()
-{
-    if (!dbgLeakDetector.empty()) {
-        plainError("Parser nodes leaked:");
-        for (set<YyBase*>::const_iterator it = dbgLeakDetector.begin(); it != dbgLeakDetector.end(); ++it) {
-            reportError((*it)->location, typeid(**it).name());
-        }
+struct YyBase {
+    Location location;
+    YyBase() {
+        if (dbgEnableLeakDetector)
+            dbgLeakDetector.insert(this);
     }
-}
+    virtual ~YyBase() {
+        if (dbgEnableLeakDetector)
+            dbgLeakDetector.erase(this);
+    }
+    YyBase(const YyBase&) = delete;
+    YyBase& operator=(const YyBase&) = delete;
+};
 
+
+static
 void reportError(const Location& loc, const std::string& msg)
 {
     errorFlag = true;
     fmt::print(stderr, "{} - {}\n", locationToString(loc), msg);
 }
 
-void plainError(const std::string& msg)
+void dbgDumpLeaks()
 {
-    errorFlag = true;
-    fmt::print(stderr, "{}\n", msg);
+    if (!dbgLeakDetector.empty()) {
+        fmt::print(stderr, "Parser nodes leaked\n");
+        for (set<YyBase*>::const_iterator it = dbgLeakDetector.begin(); it != dbgLeakDetector.end(); ++it) {
+            reportError((*it)->location, typeid(**it).name());
+        }
+    }
 }
-
 
 template<class T>
 struct YyPtr : public YyBase {
@@ -113,6 +108,7 @@ struct YyToken : public YyBase {
 };
 
 struct YyIdentifier : public YyBase {
+    Location location;
     std::string text;
 };
 
@@ -166,19 +162,21 @@ T* releasePointedFromYyPtrAndDelete(YYSTYPE yys)
     return ptr;
 }
 
-
+static
 void setLocation(Location& loc, int line)
 {
     loc.fileName = currentFileName;
     loc.lineNumber = line;
 }
 
+static
 Location getLocationFromYyIdentifier(YyBase* id)
 {
     YyIdentifier* t = yystype_cast<YyIdentifier*>(id);
     return t->location;
 }
 
+static
 string nameFromYyIdentifierAndDelete(YyBase* id)
 {
     YyIdentifier* i = yystype_cast<YyIdentifier*>(id);
@@ -188,6 +186,7 @@ string nameFromYyIdentifierAndDelete(YyBase* id)
     return temp;
 }
 
+static
 Variant variantFromExpressionAndDelete(YYSTYPE expr)
 {
     if (YyIntegerLiteral* intLit = dynamic_cast<YyIntegerLiteral*>(expr)) {
@@ -224,6 +223,7 @@ Variant variantFromExpressionAndDelete(YYSTYPE expr)
     }
 }
 
+static
 double floatLiteralFromExpressionAndDelete(YYSTYPE expr)
 {
     if (YyIntegerLiteral* intLit = dynamic_cast<YyIntegerLiteral*>(expr)) {
@@ -245,6 +245,7 @@ double floatLiteralFromExpressionAndDelete(YYSTYPE expr)
     }
 }
 
+static
 map<string, Variant> argumentListFromYyAndDelete(YYSTYPE arg_list)
 {
     YyArgumentList* al = yystype_cast<YyArgumentList*>(arg_list);
@@ -449,6 +450,7 @@ YYSTYPE addToStruct(YYSTYPE decl, YYSTYPE attr)
     return decl;
 }
 
+static
 DataMember* makeDataMemberAndDelete(YYSTYPE type, YYSTYPE id)
 {
     DataMember* yy = new DataMember();
@@ -799,73 +801,34 @@ YYSTYPE createIdentifierExpression(YYSTYPE id)
 
 //////////////////////////////////////////////////////////////////////////////
 
-static
-Root* parseInternal(const std::string& fileName, bool debugDump)
-{
-    HAREASSERT(!rootPtr);
-    try {
-        unique_ptr<Root> root(new Root());
-
-        rootPtr = root.get();
-        currentFileName = fileName;
-        yydebug = static_cast<int>(debugDump);
-
-        int err = yyparse();
-
-        rootPtr = 0;
-        currentFileName.erase();
-        yydebug = 0;
-
-        if (err != 0)
-            plainError(fmt::format("Errors found while parsing file '{}'.", fileName));
-
-        return root.release();
-    }
-    catch (...) {
-        plainError(fmt::format("Exception thrown while parsing file '{}'.", fileName));
-
-        rootPtr = 0;
-        currentFileName.erase();
-        yydebug = 0;
-        throw;
-    }
-}
-
-
-Root* parseCode(const char* code, const std::string& pseudoFileName, bool debugDump)
-{
-    HAREASSERT(code);
-
-    unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> buff(yy_scan_string(code), &yy_delete_buffer);
-
-    yylineno = 0;
-    return parseInternal(pseudoFileName, debugDump);
-}
-
-
 Root* parseSourceFile(const string& fileName, bool debugDump)
 {
-    HAREASSERT(!fileName.empty());
-
+    if (fileName.empty())
+        throw ParserException("Missing input file name");
+ 
 #pragma warning( push )
 #pragma warning( disable : 4996 )
     unique_ptr<FILE, int(*)(FILE*)> file(fopen(fileName.c_str(), "r"), &fclose);
 #pragma warning( pop )
-    if (!file) {
-        plainError(fmt::format("Failed to open file '{}'.", fileName));
-        return 0;
-    }
 
-    unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> buff(yy_create_buffer(file.get(), 16000), &yy_delete_buffer);
+    if (!file)
+        throw ParserException(fmt::format("Failed to open file '{}'.", fileName));
 
-    if (!buff) {
-        plainError(fmt::format("Failed to allocate read buffer for file '{}'.", fileName));
-        return 0;
-    }
+    unique_ptr<Root> root(new Root());
 
-    yy_switch_to_buffer(buff.get());
+    yyin = file.get();
+    yyout = stderr;
     yylineno = 1;
-    return parseInternal(fileName, debugDump);
+    rootPtr = root.get();
+    currentFileName = fileName;
+    yydebug = static_cast<int>(debugDump);
+ 
+    int err = yyparse();
+
+    if (errorFlag | (err != 0) )
+        throw ParserException(fmt::format("Errors found while parsing file '{}'.", fileName));
+
+    return root.release();
 }
 
 //////////////////////////////////////////////////////////////////////////////

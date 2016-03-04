@@ -24,13 +24,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 int yyparse();
 extern int yydebug;
 extern int yylineno;
-struct yy_buffer_state; //forward
-yy_buffer_state* yy_create_buffer(FILE* file, int size);
-void yy_switch_to_buffer(yy_buffer_state* new_buffer);
-yy_buffer_state* yy_scan_buffer(char* buffer, unsigned int size);
-yy_buffer_state* yy_scan_string(const char* yy_str);
-yy_buffer_state* yy_scan_bytes(const char* bytes, int len);
-void yy_delete_buffer(yy_buffer_state*);
+extern FILE *yyin;
+extern FILE *yyout;
 
 
 #endif // LEX_H_INCLUDED

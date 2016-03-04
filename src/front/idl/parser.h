@@ -24,21 +24,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 std::string locationToString(const Location& loc);
 
-struct YyBase {
-    Location location;
-    YyBase();
-    virtual ~YyBase() = 0;
-    YyBase(const YyBase&) = delete;
-    YyBase& operator=(const YyBase&) = delete;
-};
-
 void dbgDumpLeaks();
 
-void reportError(const Location& loc, const std::string& msg);
-void plainError(const std::string& msg);
+Root* parseSourceFile(const string& fileName, bool debugDump);
 
-
-Root* parseCode(const char* code, const std::string& pseudoFileName, bool debugDump);
-Root* parseSourceFile(const std::string& fileName, bool debugDump);
+class ParserException :public runtime_error {
+public:
+    ParserException(const string& what_arg) :runtime_error(what_arg) {}
+};
 
 #endif // PARSER_H_INCLUDED
