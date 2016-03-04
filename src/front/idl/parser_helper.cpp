@@ -642,14 +642,13 @@ YYSTYPE createUnion(YYSTYPE token, YYSTYPE discr_id, YYSTYPE id)
     return new YyPtr<Structure>(yy);
 }
 
-YYSTYPE createUnionAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE discr_id, YYSTYPE id_list)
+YYSTYPE createUnionAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE id_list)
 {
     DataMember* att = makeDataMember(type, id);
 
     YyIdentifierList* al = yystype_cast<YyIdentifierList*>(id_list);
     att->whenDiscriminant = al->ids;
     delete id_list;
-    delete discr_id;
 
     return new YyPtr<EncodedOrMember>(att);
 }

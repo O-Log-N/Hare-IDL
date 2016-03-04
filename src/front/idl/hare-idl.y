@@ -114,11 +114,11 @@ discriminated_union
 
 union_data_element
 	: data_type IDENTIFIER ';' { $$ = createAttribute($1, $2); releaseYys($3); }
-    | data_type IDENTIFIER KW_WHEN_DISCRIMINANT IDENTIFIER KW_IN '{' id_list '}' ';' { $$ = createUnionAttribute($1, $2, $4, $7); releaseYys5($3, $5, $6, $8, $9); }
-    | data_type IDENTIFIER KW_WHEN_DISCRIMINANT IDENTIFIER OP_EQEQ IDENTIFIER ';' { $$ = createUnionAttribute($1, $2, $4, addIdentifier(0, $6)); releaseYys3($3, $5, $7); }
+    | data_type IDENTIFIER KW_WHEN_DISCRIMINANT KW_IN '{' id_list '}' ';' { $$ = createUnionAttribute($1, $2, $6); releaseYys5($3, $4, $5, $7, $8); }
+    | data_type IDENTIFIER KW_WHEN_DISCRIMINANT OP_EQEQ IDENTIFIER ';' { $$ = createUnionAttribute($1, $2, addIdentifier(0, $5)); releaseYys3($3, $4, $6); }
     | IDENTIFIER IDENTIFIER ';' { $$ = createAttribute(createIdType($1, 0), $2); releaseYys($3); }
-    | IDENTIFIER IDENTIFIER KW_WHEN_DISCRIMINANT IDENTIFIER KW_IN '{' id_list '}' ';' { $$ = createUnionAttribute(createIdType($1, 0), $2, $4, $7); releaseYys5($3, $5, $6, $8, $9); }
-    | IDENTIFIER IDENTIFIER KW_WHEN_DISCRIMINANT IDENTIFIER OP_EQEQ IDENTIFIER ';' { $$ = createUnionAttribute(createIdType($1, 0), $2, $4, addIdentifier(0, $6)); releaseYys3($3, $5, $7); }
+    | IDENTIFIER IDENTIFIER KW_WHEN_DISCRIMINANT KW_IN '{' id_list '}' ';' { $$ = createUnionAttribute(createIdType($1, 0), $2, $6); releaseYys5($3, $4, $5, $7, $8); }
+    | IDENTIFIER IDENTIFIER KW_WHEN_DISCRIMINANT OP_EQEQ IDENTIFIER ';' { $$ = createUnionAttribute(createIdType($1, 0), $2, addIdentifier(0, $5)); releaseYys3($3, $4, $6); }
 ;
 
 
@@ -157,7 +157,6 @@ class_ref_type
 
 inline_enum_type
 	: KW_ENUM IDENTIFIER '{' enum_values '}' { $$ = createInlineEnum($1, $2, $4); releaseYys2($3, $5); }
-    | KW_ENUM '{' enum_values '}' { $$ = createInlineEnum($1, 0, $3); releaseYys2($2, $4); }
 ;
 
 enum_values

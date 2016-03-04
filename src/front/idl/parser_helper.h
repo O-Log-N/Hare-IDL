@@ -84,7 +84,7 @@ YYSTYPE addToEncodingGroup(YYSTYPE group, YYSTYPE element);
 YYSTYPE addEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE group);
 
 YYSTYPE createUnion(YYSTYPE token, YYSTYPE discr_id, YYSTYPE id);
-YYSTYPE createUnionAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE discr_id, YYSTYPE id_list);
+YYSTYPE createUnionAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE id_list);
 
 
 YYSTYPE createIdType(YYSTYPE id, YYSTYPE opt_arg_list);
