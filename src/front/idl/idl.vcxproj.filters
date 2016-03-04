@@ -16,6 +16,9 @@
     <Filter Include="cppformat">
       <UniqueIdentifier>{f7df249e-4b2b-4e25-8e65-17da5c915f0f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{e8d70ecd-b79c-4e05-85df-7bde94da9802}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="parser_helper.cpp">
@@ -27,17 +30,17 @@
     <ClCompile Include="..\..\..\3rdparty\cppformat\cppformat\posix.cc">
       <Filter>cppformat</Filter>
     </ClCompile>
-    <ClCompile Include="debug.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="hare-idl.tab.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="lex.yy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="test\main.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="test\debug.cpp">
+      <Filter>test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -50,14 +53,14 @@
     <ClInclude Include="parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="debug.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\hare\hare.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lex.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="test\debug.h">
+      <Filter>test</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
