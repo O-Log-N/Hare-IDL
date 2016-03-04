@@ -64,7 +64,7 @@ namespace hare {
 #define HAREASSERTM(cond,msg) \
     do { \
         if(!(cond)) { \
-            throw hare::AssertException(#cond,msg,__FILE__,__LINE__); \
+            throw hare::AssertException(#cond,(msg),__FILE__,__LINE__); \
         } \
     } while(0)
 
