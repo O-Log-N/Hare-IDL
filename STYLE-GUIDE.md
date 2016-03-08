@@ -55,6 +55,7 @@ Naming conventions examples:
     - if by any chance, libraries do need macros, they SHOULD be prefixed with HARE, for example: HAREASSERT()
 10. **MUST** use `override` for all overridden functions
 11. SHOULD use C++11 member initializers over constructors for 'member default' values 
+12. noexcept use is DISCOURAGED except for moving constructors.
 
 ### I.5 Misc
 
