@@ -61,7 +61,6 @@ int createToken(int token)
 	"/*" { jumpToState( COMMENT ) ; }
 	"//" { jumpToState( SLCOMMENT ) ; }
 
-	"PUBLISHABLE_STRUCT" { return createToken( KW_PUBLISHABLE_STRUCT ); }
     "PUBLISHABLE-STRUCT" { return createToken( KW_PUBLISHABLE_STRUCT ); }
 	"enum" { return createToken( KW_ENUM ); }
 	"class" { return createToken( KW_CLASS ); }
@@ -77,14 +76,12 @@ int createToken(int token)
     "DISCRIMINANT" { return createToken( KW_DISCRIMINANT ); }
 
 
-    "WHEN-DISCRIMINANT" { return createToken( KW_WHEN_DISCRIMINANT ); }
-    "IN" { return createToken( KW_IN ); }
+    "WHEN-DISCRIMINANT-IS" { return createToken( KW_WHEN_DISCRIMINANT_IS ); }
+    "WHEN-DISCRIMINANT-IN" { return createToken( KW_WHEN_DISCRIMINANT_IN ); }
 
 	"NUMERIC" { return createToken( KW_NUMERIC ); }
     "INT" { return createToken( KW_INT ); }
 	"SEQUENCE" { return createToken( KW_SEQUENCE ); }
-
-	"==" { return createToken( OP_EQEQ ); }
 
 	[;<>,:=&\[\]\(\)\{\}\?\.] { yylval = 0; return yytext[0];}
 	[&|!~/%\*\+\-] { return createToken( yytext[0] );}

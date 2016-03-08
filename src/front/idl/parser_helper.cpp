@@ -805,7 +805,7 @@ Root* parseSourceFile(const string& fileName, bool debugDump)
 {
     if (fileName.empty())
         throw ParserException("Missing input file name");
- 
+
 #pragma warning( push )
 #pragma warning( disable : 4996 )
     unique_ptr<FILE, int(*)(FILE*)> file(fopen(fileName.c_str(), "r"), &fclose);
@@ -822,7 +822,7 @@ Root* parseSourceFile(const string& fileName, bool debugDump)
     rootPtr = root.get();
     currentFileName = fileName;
     yydebug = static_cast<int>(debugDump);
- 
+
     int err = yyparse();
 
     if (errorFlag | (err != 0) )

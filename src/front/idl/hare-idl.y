@@ -21,7 +21,7 @@ Copyright (C) 2016 OLogN Technologies AG
 %token KW_MAPPING KW_ENCODING
 %token KW_NUMERIC KW_INT KW_SEQUENCE
 %token KW_EXTEND KW_TO KW_DEFAULT KW_FENCE
-%token KW_DISCRIMINATED_UNION KW_WHEN_DISCRIMINANT KW_IN OP_EQEQ
+%token KW_DISCRIMINATED_UNION KW_WHEN_DISCRIMINANT_IN KW_WHEN_DISCRIMINANT_IS
 %token KW_DISCRIMINANT
 
 %token IDENTIFIER STRING_LITERAL INTEGER_LITERAL CHAR_LITERAL FLOAT_LITERAL
@@ -114,11 +114,11 @@ discriminated_union
 
 union_data_element
 	: data_type IDENTIFIER ';' { $$ = createAttribute($1, $2); releaseYys($3); }
-    | data_type IDENTIFIER KW_WHEN_DISCRIMINANT KW_IN '{' id_list '}' ';' { $$ = createUnionAttribute($1, $2, $6); releaseYys5($3, $4, $5, $7, $8); }
-    | data_type IDENTIFIER KW_WHEN_DISCRIMINANT OP_EQEQ IDENTIFIER ';' { $$ = createUnionAttribute($1, $2, addIdentifier(0, $5)); releaseYys3($3, $4, $6); }
+    | data_type IDENTIFIER KW_WHEN_DISCRIMINANT_IN '{' id_list '}' ';' { $$ = createUnionAttribute($1, $2, $5); releaseYys4($3, $4, $6, $7); }
+    | data_type IDENTIFIER KW_WHEN_DISCRIMINANT_IS IDENTIFIER ';' { $$ = createUnionAttribute($1, $2, addIdentifier(0, $4)); releaseYys2($3, $5); }
     | IDENTIFIER IDENTIFIER ';' { $$ = createAttribute(createIdType($1, 0), $2); releaseYys($3); }
-    | IDENTIFIER IDENTIFIER KW_WHEN_DISCRIMINANT KW_IN '{' id_list '}' ';' { $$ = createUnionAttribute(createIdType($1, 0), $2, $6); releaseYys5($3, $4, $5, $7, $8); }
-    | IDENTIFIER IDENTIFIER KW_WHEN_DISCRIMINANT OP_EQEQ IDENTIFIER ';' { $$ = createUnionAttribute(createIdType($1, 0), $2, addIdentifier(0, $5)); releaseYys3($3, $4, $6); }
+    | IDENTIFIER IDENTIFIER KW_WHEN_DISCRIMINANT_IN '{' id_list '}' ';' { $$ = createUnionAttribute(createIdType($1, 0), $2, $5); releaseYys4($3, $4, $6, $7); }
+    | IDENTIFIER IDENTIFIER KW_WHEN_DISCRIMINANT_IS IDENTIFIER ';' { $$ = createUnionAttribute(createIdType($1, 0), $2, addIdentifier(0, $4)); releaseYys2($3, $5); }
 ;
 
 

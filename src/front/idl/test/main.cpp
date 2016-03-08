@@ -10,7 +10,7 @@
 int main()
 {
     try {
-        Root* root = parseSourceFile("test/sample.idl", true);
+        Root* root = parseSourceFile("test/sample.idl", false);
         HAREASSERT(root);
 
         dbgDumpLeaks();

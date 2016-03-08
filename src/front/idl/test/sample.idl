@@ -110,8 +110,8 @@ ENCODING(Name="MYENCODING2") PUBLISHABLE-STRUCT Character {
 
 DISCRIMINATED-UNION(DISCRIMINANT=x) MyType {
     enum TYPE { Abc = 1, Def = 2, Ghi = 3, Klm = 4 } x;//DISCRIMINANT MUST be an enum
-    string s WHEN-DISCRIMINANT IN { Abc, Def };
-    int i WHEN-DISCRIMINANT == Abc; //mere synonym for 'x IN { Abc };'
+    string s WHEN-DISCRIMINANT-IN { Abc, Def };
+    int i WHEN-DISCRIMINANT-IS Abc; //mere synonym for 'x IN { Abc };'
    // expressions such as x == Abc || x == Def are NOT allowed
    int ii;//as there is no WHEN-DISCRIMINANT clause, it is "always present"
 };
