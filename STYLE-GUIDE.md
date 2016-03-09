@@ -61,8 +61,9 @@ Naming conventions examples:
 
 1. iterations over the vector SHOULD use  size_t as index variable type: for(size_t i=0; i < v.size(); ++i)
 2. prefixed increment SHOULD be used in standalone statements: for(auto it=v.begin();;++it) is preferred over for(auto it=v.begin();;it++)
-3. All text-formatted file/console output SHOULD be done via C++ Format library: https://github.com/cppformat/cppformat . This library is available as 'git submodule' within /3rdparty/cppformat/ .
-4. All file/console I/O (except for-text-formatted output, see item I.5.3 right above) SHOULD be done via std::iostream
+3. All text-formatted file/console output SHOULD be done via C++ Format library: https://github.com/cppformat/cppformat , sitting on top of FILE*. This library is available as 'git submodule' within /3rdparty/cppformat/ .
+4. All file/console I/O (except for-text-formatted output, see item I.5.3 right above) SHOULD be done via FILE*
+    - to work with FILE*, class RaiiStdioFile (from src/front-back/raiistdiofile.h) SHOULD be used 
 5. non-constant global data SHOULD NOT be used unless absolutely necessary
 6. non-constant static data **MUST NOT** be used
 7. const modifier SHOULD be used wherever applicable
