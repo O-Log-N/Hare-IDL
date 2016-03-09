@@ -18,7 +18,7 @@ Naming conventions examples:
 
 1. class TheVeryBestClass //also applies to structs, unions, and typedefs
 2. function prettyMuchUnnecessaryFunction(); //also apples to members
-3. enum BACKGROUND_COLOR { RED, GREEN, BLUE }; //see below on constants
+3. enum class BACKGROUND_COLOR { RED, GREEN, BLUE }; //see below on constants
 4. #define MY_STRING "abracadabra" //see below on #defines
 5. #ifndef FILE_NAME_INCLUDED //"include guard"
 6. **MUST NOT** use identifiers starting with an underscore OR containing adjacent double underscore (technically reserved for C++)
@@ -36,7 +36,7 @@ Naming conventions examples:
 
 ### I.3 On Constants and #defines
 
-1. integer constants SHOULD be declared as C++11's enum BACKGROUND_COLOR { RED, GREEN, BLUE } (and used as BACKGROUND_COLOR::RED etc.)
+1. integer constants SHOULD be declared as C++11's enum class BACKGROUND_COLOR { RED, GREEN, BLUE } (and used as BACKGROUND_COLOR::RED etc.)
 2. string constants MAY be declared via #define
 
 ### I.4 C++11 vs C++03 vs C
