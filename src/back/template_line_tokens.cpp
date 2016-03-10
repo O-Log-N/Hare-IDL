@@ -48,6 +48,12 @@ Copyright (C) 2016 OLogN Technologies AG
 #define PLACEHOLDER_STRING_MEMBER_TYPE "@MEMBER-TYPE@"
 #define PLACEHOLDER_STRING_MEMBER_NAME "@MEMBER-NAME@"
 
+// node type names (not directly derived from keywords
+#define NODETYPE_STRING_FULL_TEMPLATE "FULL-TEMPLATE"
+#define NODETYPE_STRING_IF_TRUE "IF-TRUE"
+#define NODETYPE_STRING_IF_FALSE "IF-FALSE"
+#define NODETYPE_STRING_VERBATIM "VERBATIM"
+
 struct KeyWord
 {
 	const char* kw;
@@ -68,6 +74,27 @@ struct PlaceholderWord
 	const char* kw;
 	int size;
 	PLACEHOLDER id;
+};
+
+struct NodeType
+{
+	const char* kw;
+	NODE_TYPE id;
+};
+
+const NodeType nodeTypes[] = 
+{
+	{NODETYPE_STRING_FULL_TEMPLATE, NODE_TYPE::FULL_TEMPLATE},
+	{KEYWORD_STRING_FOR_EACH_OF_MEMBERS, NODE_TYPE::FOR_EACH_OF_MEMBERS},
+	{KEYWORD_STRING_FOR_EACH_PUBLISHABLE_STRUCT, NODE_TYPE::FOR_EACH_PUBLISHABLE_STRUCT},
+	{KEYWORD_STRING_IF, NODE_TYPE::IF},
+	{NODETYPE_STRING_IF_TRUE, NODE_TYPE::IF_TRUE_BRANCH},
+	{NODETYPE_STRING_IF_FALSE, NODE_TYPE::IF_FALSE_BRANCH},
+	{KEYWORD_STRING_ASSERT, NODE_TYPE::ASSERT},
+	{KEYWORD_STRING_OPEN_OUTPUT_FILE, NODE_TYPE::OPEN_OUTPUT_FILE},
+	{KEYWORD_STRING_INCLUDE, NODE_TYPE::INCLUDE},
+	{NODETYPE_STRING_VERBATIM, NODE_TYPE::CONTENT},
+	{NULL, NODE_TYPE::CONTENT},
 };
 
 const KeyWord keywords[] = 
@@ -112,7 +139,7 @@ template<class T> const T* parseSpecialWord( const string& line, size_t& content
 	int i;
 	for ( i=0; ; i++ )
 	{
-		if ( words[i].size == 0 )
+		if ( words[i].kw == NULL )
 		{
 			return words + i;
 		}
@@ -148,5 +175,41 @@ PLACEHOLDER parsePlaceholder( const string& line, size_t& contentStart )
 	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 	PLACEHOLDER ret = parseSpecialWord( line, contentStart, placeholders )->id;
 	return ret;
+}
+
+/////////////////////////////////////////////////////////////
+
+
+template<class T> string specialWordToString( T* words, int id )
+{
+	int i;
+	for ( i=0; ; i++ )
+	{
+		if ( words[i].kw == NULL )
+			return "???????????";
+		if ( id == words[i].id )
+			return words[i].kw;
+	}
+	return "???????????";
+}
+
+string mainKeywordToString( TemplateLine::LINE_TYPE kw )
+{
+	return specialWordToString( keywords, kw );
+}
+
+string attributeNameToString( ATTRIBUTE id )
+{
+	return specialWordToString( params, id );
+}
+
+string placeholderToString( PLACEHOLDER id )
+{
+	return specialWordToString( placeholders, id );
+}
+
+string nodeTypesToString( NODE_TYPE id )
+{
+	return specialWordToString( nodeTypes, id );
 }
 

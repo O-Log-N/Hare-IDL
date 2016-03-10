@@ -35,5 +35,7 @@ struct TemplateNode_
 };
 
 bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t& flidx );
+void dbgPrintNode_( TemplateNode_& node, int depth );
+
 
 #endif // TEMPLATE_TREE_BUILDER_H

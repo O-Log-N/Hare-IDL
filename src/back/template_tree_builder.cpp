@@ -16,8 +16,90 @@ Copyright (C) 2016 OLogN Technologies AG
 *******************************************************************************/
 
 #include "template_tree_builder.h"
+#include "template_line_tokens.h" // for tree printing
 #include <assert.h> // for assert()
 
+void dbgPrintIndent( int depth )
+{
+	for ( int i=0; i<depth; i++ )
+		fmt::print( " . " );
+}
+
+void dbgPrintLineParts( vector<LinePart>& parts )
+{
+	size_t i;
+	for ( i=0; i<parts.size(); i++ )
+	{
+		if ( parts[i].type == PLACEHOLDER::VERBATIM )
+			fmt::print( "{}", parts[i].verbatim.c_str() );
+		else
+			fmt::print( "{}", placeholderToString( parts[i].type ).c_str() );
+	}
+}
+
+void dbgPrintExpression( vector<ExpressionElement>& expression )
+{
+	size_t i;
+	for ( i=0; i<expression.size(); i++ )
+		switch ( expression[i].oper )
+		{
+			case ExpressionElement::OPERATION::PUSH:
+			{
+				switch ( expression[i].argtype )
+				{
+					case ExpressionElement::ARGTYPE::STRING: fmt::print( "{}", expression[i].stringValue.c_str() ); break;
+					case ExpressionElement::ARGTYPE::NUMBER: fmt::print( "{}", expression[i].numberValue ); break;
+					case ExpressionElement::ARGTYPE::PLACEHOLDER: fmt::print( "{}", placeholderToString( expression[i].placeholder ).c_str() ); break;
+					case ExpressionElement::ARGTYPE::NONE: fmt::print( "\"\"" ); break;
+					default: fmt::print( "?????????" ); break;
+				}
+				break;
+			}
+			case ExpressionElement::OPERATION::EQ: fmt::print( " == " ); break;
+			case ExpressionElement::OPERATION::NEQ: fmt::print( " != " ); break;
+			default:
+			{
+				fmt::print( "Unknown expression.oper = {} found\n", expression[i].oper );
+				assert( 0 == "Error: Not Implemented" );
+			}
+		}
+}
+
+void dbgPrintAttributes( map<AttributeName, vector<LinePart>>& attributes )
+{
+	for ( auto it:attributes )
+	{
+		fmt::print( "{}{}", attributeNameToString( it.first.id ).c_str(), it.first.ext );
+		if ( it.second.size() )
+		{
+			fmt::print( "=" );
+			dbgPrintLineParts( it.second );
+		}
+		fmt::print( " " );
+	}
+}
+
+
+void dbgPrintNode_( TemplateNode_& node, int depth )
+{
+	dbgPrintIndent( depth );
+	if ( node.type == NODE_TYPE::CONTENT )
+	{
+		assert( node.attributes.size() == 1 );
+		dbgPrintLineParts( node.attributes.begin()->second );
+	}
+	else
+	{
+		fmt::print( "[{}] {} ", node.srcLineNum, nodeTypesToString( node.type ) );
+		dbgPrintExpression( node.expression );
+		dbgPrintAttributes( node.attributes );
+	}
+	fmt::print( "\n" );
+	for ( size_t i=0; i<node.childNodes.size(); i++ )
+		dbgPrintNode_( node.childNodes[i], depth + 1 );
+}
+
+	
 bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t& flidx )
 {
 	for ( ; flidx<lines.size(); )
@@ -36,18 +118,6 @@ bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t
 				++flidx;
 				break;
 			}
-/*			case TemplateLine::LINE_TYPE::END_TEMPLATE:
-			case TemplateLine::LINE_TYPE::ELSE:
-			case TemplateLine::LINE_TYPE::ENDIF:
-			case TemplateLine::LINE_TYPE::ELIF:
-			case TemplateLine::LINE_TYPE::CLOSE_OUTPUT_FILE:
-			{
-				// these lines should not happen, if we use this way of tree building
-				fmt::print( "line {}: error: unexpected\n", lines[flidx].srcLineNum );
-				++flidx;
-				return false;
-				break;
-			}*/
 			case TemplateLine::LINE_TYPE::IF:
 			case TemplateLine::LINE_TYPE::ELIF_TO_IF:
 			{
@@ -165,7 +235,6 @@ bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t
 					++flidx;
 					if ( !buildTemplateTree( node, lines, flidx ) )
 						return false;
-//					root.childNodes.push_back( node );
 					bool isBegin1 = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} ) != lines[flidx].attributes.end();
 					bool isEnd1 = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
 					if ( !isEnd1 )
@@ -210,7 +279,6 @@ bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t
 					++flidx;
 					if ( !buildTemplateTree( node, lines, flidx ) )
 						return false;
-//					root.childNodes.push_back( node );
 					bool isBegin1 = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} ) != lines[flidx].attributes.end();
 					bool isEnd1 = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
 					if ( !isEnd1 )

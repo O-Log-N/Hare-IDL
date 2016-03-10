@@ -67,7 +67,7 @@ void readLineParts( const string& line, vector<LinePart>& parts )
 		}
 		else
 		{
-			int placehldr = parsePlaceholder( line, pos );
+			PLACEHOLDER placehldr = parsePlaceholder( line, pos );
 			switch ( placehldr )
 			{
 				case PLACEHOLDER::VERBATIM: 
