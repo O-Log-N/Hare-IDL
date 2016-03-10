@@ -1,0 +1,252 @@
+/*******************************************************************************
+Copyright (C) 2016 OLogN Technologies AG
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 2 as
+    published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*******************************************************************************/
+
+#include "template_tree_builder.h"
+#include <assert.h> // for assert()
+
+bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t& flidx )
+{
+	for ( ; flidx<lines.size(); )
+	{
+///fmt::print( "line {}: node {}\n", lines[flidx].srcLineNum, lines[flidx].type );
+		TemplateLine::LINE_TYPE ltype = lines[flidx].type;
+		switch ( ltype )
+		{
+			case TemplateLine::LINE_TYPE::CONTENT:
+			{
+				TemplateNode_ node;
+				node.type = NODE_TYPE::CONTENT;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				node.attributes = lines[flidx].attributes;
+				root.childNodes.push_back( node );
+				++flidx;
+				break;
+			}
+/*			case TemplateLine::LINE_TYPE::END_TEMPLATE:
+			case TemplateLine::LINE_TYPE::ELSE:
+			case TemplateLine::LINE_TYPE::ENDIF:
+			case TemplateLine::LINE_TYPE::ELIF:
+			case TemplateLine::LINE_TYPE::CLOSE_OUTPUT_FILE:
+			{
+				// these lines should not happen, if we use this way of tree building
+				fmt::print( "line {}: error: unexpected\n", lines[flidx].srcLineNum );
+				++flidx;
+				return false;
+				break;
+			}*/
+			case TemplateLine::LINE_TYPE::IF:
+			case TemplateLine::LINE_TYPE::ELIF_TO_IF:
+			{
+				TemplateNode_ node;
+				node.type = NODE_TYPE::IF;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				node.expression = lines[flidx].expression;
+				++flidx;
+				TemplateNode_ nodeTrueBranch;
+				nodeTrueBranch.type = NODE_TYPE::IF_TRUE_BRANCH;
+				nodeTrueBranch.srcLineNum = lines[flidx].srcLineNum;
+				if ( !buildTemplateTree( nodeTrueBranch, lines, flidx ) )
+					return false;
+				node.childNodes.push_back( nodeTrueBranch );
+				// TODO: think about internal while( ELIF )
+				if ( lines[flidx].type == TemplateLine::LINE_TYPE::ELIF ) // this is not that ELIF with which we've entered; it's a nested one!
+				{
+					lines[flidx].type = TemplateLine::LINE_TYPE::ELIF_TO_IF;
+					TemplateNode_ nodeFalseBranch;
+					nodeFalseBranch.type = NODE_TYPE::IF_FALSE_BRANCH;
+					nodeFalseBranch.srcLineNum = lines[flidx].srcLineNum;
+					// no changes to flidx; we will repeat processing on the next level
+					if ( !buildTemplateTree( nodeFalseBranch, lines, flidx ) )
+						return false;
+					node.childNodes.push_back( nodeFalseBranch );
+				}
+				else if ( lines[flidx].type == TemplateLine::LINE_TYPE::ELSE )
+				{
+					TemplateNode_ nodeFalseBranch;
+					nodeFalseBranch.type = NODE_TYPE::IF_FALSE_BRANCH;
+					nodeFalseBranch.srcLineNum = lines[flidx].srcLineNum;
+					++flidx;
+					if ( !buildTemplateTree( nodeFalseBranch, lines, flidx ) )
+						return false;
+					node.childNodes.push_back( nodeFalseBranch );
+				}
+				if ( lines[flidx].type != TemplateLine::LINE_TYPE::ENDIF )
+				{
+					fmt::print( "line {}: error: ENDIF expected\n", lines[flidx].srcLineNum );
+					return false;
+				}
+				if ( ltype == TemplateLine::LINE_TYPE::IF )
+				{
+					++flidx;
+				}
+				root.childNodes.push_back( node );
+				break;
+			}
+			case TemplateLine::LINE_TYPE::INCLUDE:
+			{
+				TemplateNode_ node;
+				node.type = NODE_TYPE::INCLUDE;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				node.attributes = lines[flidx].attributes;
+				root.childNodes.push_back( node );
+				++flidx;
+				break;
+			}
+			case TemplateLine::LINE_TYPE::ASSERT:
+			{
+				TemplateNode_ node;
+				node.type = NODE_TYPE::ASSERT;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				node.expression = lines[flidx].expression;
+				root.childNodes.push_back( node );
+				++flidx;
+				break;
+			}
+			case TemplateLine::LINE_TYPE::OPEN_OUTPUT_FILE:
+			{
+				TemplateNode_ node;
+				node.type = NODE_TYPE::OPEN_OUTPUT_FILE;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				node.attributes = lines[flidx].attributes;
+				++flidx;
+				if ( !buildTemplateTree( node, lines, flidx ) )
+					return false;
+				if ( lines[flidx].type != TemplateLine::LINE_TYPE::CLOSE_OUTPUT_FILE )
+				{
+					fmt::print( "line {}: error: CLOSE-OUTPUT-FILE expected\n", lines[flidx].srcLineNum );
+					return false;
+				}
+				++flidx;
+				root.childNodes.push_back( node );
+				break;
+			}
+			case TemplateLine::LINE_TYPE::FOR_EACH_OF_MEMBERS:
+			{
+				bool isEnd = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
+				if ( isEnd )
+					return true; // it's upper level end or bullshit
+				TemplateNode_ node;
+				node.type = NODE_TYPE::FOR_EACH_OF_MEMBERS;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				// we may have include statement here, let's check
+				auto incudeTemplate = lines[flidx].attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
+				if ( incudeTemplate != lines[flidx].attributes.end() )
+				{
+					TemplateNode_ nodeIncludeTemplate;
+					nodeIncludeTemplate.type = NODE_TYPE::INCLUDE;
+					nodeIncludeTemplate.srcLineNum = lines[flidx].srcLineNum;
+					nodeIncludeTemplate.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEMPLATE, ""), incudeTemplate->second ) );
+					node.childNodes.push_back( nodeIncludeTemplate );
+					++flidx;
+				}
+				else
+				{
+					bool isBegin = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} ) != lines[flidx].attributes.end();
+					if ( !isBegin )
+					{
+						fmt::print( "line {}: error: FOR_EACH_OF_MEMBERS has unexpected parameter set\n", lines[flidx].srcLineNum );
+						assert( isBegin );
+						return false;
+					}
+					++flidx;
+					if ( !buildTemplateTree( node, lines, flidx ) )
+						return false;
+//					root.childNodes.push_back( node );
+					bool isBegin1 = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} ) != lines[flidx].attributes.end();
+					bool isEnd1 = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
+					if ( !isEnd1 )
+					{
+						fmt::print( "line {}: error: FOR_EACH_OF_MEMBERS END expected\n", lines[flidx].srcLineNum );
+						assert( isBegin1 );
+						return false;
+					}
+					++flidx;
+				}
+				root.childNodes.push_back( node );
+				break;
+			}
+			case TemplateLine::LINE_TYPE::FOR_EACH_PUBLISHABLE_STRUCT:
+			{
+				bool isEnd = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
+				if ( isEnd )
+					return true; // it's upper level end or bullshit
+				TemplateNode_ node;
+				node.type = NODE_TYPE::FOR_EACH_PUBLISHABLE_STRUCT;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				// we may have include statement here, let's check
+				auto incudeTemplate = lines[flidx].attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
+				if ( incudeTemplate != lines[flidx].attributes.end() )
+				{
+					TemplateNode_ nodeIncludeTemplate;
+					nodeIncludeTemplate.type = NODE_TYPE::INCLUDE;
+					nodeIncludeTemplate.srcLineNum = lines[flidx].srcLineNum;
+					nodeIncludeTemplate.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEMPLATE, ""), incudeTemplate->second ) );
+					node.childNodes.push_back( nodeIncludeTemplate );
+					++flidx;
+				}
+				else
+				{
+					bool isBegin = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} ) != lines[flidx].attributes.end();
+					if ( !isBegin )
+					{
+						fmt::print( "line {}: error: FOR_EACH_PUBLISHABLE_STRUCT has unexpected parameter set\n", lines[flidx].srcLineNum );
+						assert( isBegin );
+						return false;
+					}
+					++flidx;
+					if ( !buildTemplateTree( node, lines, flidx ) )
+						return false;
+//					root.childNodes.push_back( node );
+					bool isBegin1 = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} ) != lines[flidx].attributes.end();
+					bool isEnd1 = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
+					if ( !isEnd1 )
+					{
+						fmt::print( "line {}: error: FOR_EACH_PUBLISHABLE_STRUCT END expected\n", lines[flidx].srcLineNum );
+						assert( isBegin1 );
+						return false;
+					}
+					++flidx;
+				}
+				root.childNodes.push_back( node );
+				break;
+			}
+			case TemplateLine::LINE_TYPE::BEGIN_TEMPLATE:
+			{
+				TemplateNode_ node;
+				node.type = NODE_TYPE::FULL_TEMPLATE;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				node.attributes = lines[flidx].attributes;
+				++flidx;
+				if ( !buildTemplateTree( node, lines, flidx ) )
+					return false;
+				root.childNodes.push_back( node );
+				if ( lines[flidx].type != TemplateLine::LINE_TYPE::END_TEMPLATE )
+				{
+					fmt::print( "line {}: error: END-TEMPLATE expected\n", lines[flidx].srcLineNum );
+					return false;
+				}
+				// TODO: check name matching
+				++flidx;
+				break;
+			}
+			default:
+				return true;
+		}
+	}
+
+	return true;
+}
