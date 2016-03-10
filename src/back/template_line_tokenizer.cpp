@@ -16,103 +16,18 @@ Copyright (C) 2016 OLogN Technologies AG
 *******************************************************************************/
 
 #include "template_line_tokenizer.h"
+#include "template_line_tokens.h"
 #include <assert.h> // for assert()
 
-// main keywords
-#define KEYWORD_STD_PREFIX "@@"
-#define KEYWORD_STRING_BEGIN_TEMPLATE "BEGIN-TEMPLATE"
-#define KEYWORD_STRING_END_TEMPLATE "END-TEMPLATE"
-#define KEYWORD_STRING_FOR_EACH_OF_MEMBERS "FOR-EACH-OF-MEMBERS"
-#define KEYWORD_STRING_IF "IF"
-#define KEYWORD_STRING_ELSE "ELSE"
-#define KEYWORD_STRING_ELIF "ELIF"
-#define KEYWORD_STRING_ENDIF "ENDIF"
-#define KEYWORD_STRING_ASSERT "ASSERT"
-
-#define KEYWORD_STRING_OPEN_OUTPUT_FILE "OPEN-OUTPUT-FILE"
-#define KEYWORD_STRING_FOR_EACH_PUBLISHABLE_STRUCT "FOR-EACH-PUBLISHABLE-STRUCT"
-#define KEYWORD_STRING_CLOSE_OUTPUT_FILE "CLOSE-OUTPUT-FILE"
-#define KEYWORD_STRING_INCLUDE "INCLUDE"
-
-// parameters
-#define PARAM_STRING_TYPE "TYPE"
-#define PARAM_STRING_BEGIN "BEGIN"
-#define PARAM_STRING_END "END"
-#define PARAM_STRING_TEMPLATE "TEMPLATE"
-#define PARAM_STRING_PARAM "PARAM-"
-#define PARAM_STRING_NAME "NAME"
-#define PARAM_STRING_FILENAME "FILENAME"
-
-// main keywords ( starting from '@@' )
-#define PLACEHOLDER_STRING_STRUCTNAME "@STRUCT-NAME@"
-#define PLACEHOLDER_STRING_MEMBER_TYPE "@MEMBER-TYPE@"
-#define PLACEHOLDER_STRING_MEMBER_NAME "@MEMBER-NAME@"
-
-//typedef vector<TemplateLine>::iterator TEMPLATE_LINES_ITERATOR;
-
-struct KeyWordProps
+void skipSpaces( const string& line, size_t& contentStart )
 {
-	TemplateLine::LINE_TYPE id;
-	bool expressionRequired;
-};
+	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
+}
 
-struct KeyWord
+void findSpaces( const string& line, size_t& contentStart )
 {
-	const char* kw;
-	int size;
-	KeyWordProps id;
-};
-
-struct ParameterWord
-{
-	const char* kw;
-	int size;
-	ATTRIBUTE id;
-};
-
-struct PlaceholderWord
-{
-	const char* kw;
-	int size;
-	PLACEHOLDER id;
-};
-
-const KeyWord keywords[] = 
-{
-	{KEYWORD_STRING_BEGIN_TEMPLATE, sizeof(KEYWORD_STRING_BEGIN_TEMPLATE)-1, TemplateLine::LINE_TYPE::BEGIN_TEMPLATE, false},
-	{KEYWORD_STRING_END_TEMPLATE, sizeof(KEYWORD_STRING_END_TEMPLATE)-1, TemplateLine::LINE_TYPE::END_TEMPLATE, false},
-	{KEYWORD_STRING_FOR_EACH_OF_MEMBERS, sizeof(KEYWORD_STRING_FOR_EACH_OF_MEMBERS)-1, TemplateLine::LINE_TYPE::FOR_EACH_OF_MEMBERS, false},
-	{KEYWORD_STRING_IF, sizeof(KEYWORD_STRING_IF)-1, TemplateLine::LINE_TYPE::IF, true},
-	{KEYWORD_STRING_ENDIF, sizeof(KEYWORD_STRING_ENDIF)-1, TemplateLine::LINE_TYPE::ENDIF, false},
-	{KEYWORD_STRING_ELIF, sizeof(KEYWORD_STRING_ELIF)-1, TemplateLine::LINE_TYPE::ELIF, true},
-	{KEYWORD_STRING_ELSE, sizeof(KEYWORD_STRING_ELSE)-1, TemplateLine::LINE_TYPE::ELSE, false},
-	{KEYWORD_STRING_ASSERT, sizeof(KEYWORD_STRING_ASSERT)-1, TemplateLine::LINE_TYPE::ASSERT, true},
-	{KEYWORD_STRING_OPEN_OUTPUT_FILE, sizeof(KEYWORD_STRING_OPEN_OUTPUT_FILE)-1, TemplateLine::LINE_TYPE::OPEN_OUTPUT_FILE, false},
-	{KEYWORD_STRING_CLOSE_OUTPUT_FILE, sizeof(KEYWORD_STRING_CLOSE_OUTPUT_FILE)-1, TemplateLine::LINE_TYPE::CLOSE_OUTPUT_FILE, false},
-	{KEYWORD_STRING_FOR_EACH_PUBLISHABLE_STRUCT, sizeof(KEYWORD_STRING_FOR_EACH_PUBLISHABLE_STRUCT)-1, TemplateLine::LINE_TYPE::FOR_EACH_PUBLISHABLE_STRUCT, false},
-	{KEYWORD_STRING_INCLUDE, sizeof(KEYWORD_STRING_INCLUDE)-1, TemplateLine::LINE_TYPE::INCLUDE, false},
-	{NULL, 0, TemplateLine::LINE_TYPE::CONTENT, false},
-};
-
-const PlaceholderWord placeholders[] = 
-{
-	{PLACEHOLDER_STRING_STRUCTNAME, sizeof(PLACEHOLDER_STRING_STRUCTNAME)-1, PLACEHOLDER::STRUCT_NAME},
-	{PLACEHOLDER_STRING_MEMBER_TYPE, sizeof(PLACEHOLDER_STRING_MEMBER_TYPE)-1, PLACEHOLDER::MEMBER_TYPE},
-	{PLACEHOLDER_STRING_MEMBER_NAME, sizeof(PLACEHOLDER_STRING_MEMBER_NAME)-1, PLACEHOLDER::MEMBER_NAME},
-	{NULL, 0, PLACEHOLDER::VERBATIM},
-};
-
-const ParameterWord params[] = 
-{
-	{PARAM_STRING_BEGIN, sizeof(PARAM_STRING_BEGIN)-1, ATTRIBUTE::BEGIN},
-	{PARAM_STRING_END, sizeof(PARAM_STRING_END)-1, ATTRIBUTE::END},
-	{PARAM_STRING_TEMPLATE, sizeof(PARAM_STRING_TEMPLATE)-1, ATTRIBUTE::TEMPLATE},
-	{PARAM_STRING_NAME, sizeof(PARAM_STRING_NAME)-1, ATTRIBUTE::NAME},
-	{PARAM_STRING_FILENAME, sizeof(PARAM_STRING_FILENAME)-1, ATTRIBUTE::FILENAME},
-	{PARAM_STRING_TYPE, sizeof(PARAM_STRING_TYPE)-1, ATTRIBUTE::TYPE},
-	{PARAM_STRING_PARAM, sizeof(PARAM_STRING_PARAM)-1, ATTRIBUTE::PARAM},
-	{NULL, 0, ATTRIBUTE::NONE},
-};
+	while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t')) ) contentStart++;
+}
 
 bool readLine( istream& tf, string& line, int& currentLineNum )
 {
@@ -134,66 +49,6 @@ bool readLine( istream& tf, string& line, int& currentLineNum )
 	while ( line.size() && *(line.end()-1) == '\r' )
 		line.pop_back();
 	return somethingFound;
-}
-
-template<class T> auto  parseSpecialWord( const string& line, size_t& contentStart, T* words ) -> decltype( words->id )
-//template<class T> T*  parseSpecialWord( const string& line, size_t& contentStart, T* words )
-{
-	int i;
-	for ( i=0; ; i++ )
-	{
-		if ( words[i].size == 0 )
-		{
-			return words[i].id;
-//			return words + i;
-		}
-		else if ( line.compare( contentStart, words[i].size, words[i].kw ) == 0 )
-		{
-			contentStart += words[i].size;
-			return words[i].id;
-//			return words + i;
-		}
-	}
-}
-
-//TemplateLine::LINE_TYPE const parseMainKeyword( const string& line, size_t& contentStart )
-//pair<TemplateLine::LINE_TYPE, bool> parseMainKeyword( const string& line, size_t& contentStart )
-KeyWordProps parseMainKeyword( const string& line, size_t& contentStart )
-{
-	if ( line.compare( 0, sizeof(KEYWORD_STD_PREFIX)-1, KEYWORD_STD_PREFIX ) != 0 )
-		return {TemplateLine::LINE_TYPE::CONTENT, false};
-	contentStart += 2;
-	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
-//	TemplateLine::LINE_TYPE ret = parseSpecialWord( line, contentStart, keywords );
-//	const KeyWord* ret = parseSpecialWord( line, contentStart, keywords );
-	KeyWordProps ret = parseSpecialWord( line, contentStart, keywords );
-	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
-//	return make_pair(ret->id, ret->expressionRequired);
-	return ret;
-}
-
-ATTRIBUTE parseParam( const string& line, size_t& contentStart )
-{
-	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
-	ATTRIBUTE ret = parseSpecialWord( line, contentStart, params );
-	return ret;
-}
-
-PLACEHOLDER parsePlaceholder( const string& line, size_t& contentStart )
-{
-	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
-	PLACEHOLDER ret = parseSpecialWord( line, contentStart, placeholders );
-	return ret;
-}
-
-void skipSpaces( const string& line, size_t& contentStart )
-{
-	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
-}
-
-void findSpaces( const string& line, size_t& contentStart )
-{
-	while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t')) ) contentStart++;
 }
 
 void readLineParts( const string& line, vector<LinePart>& parts )
@@ -476,7 +331,10 @@ void readNextParam( const string& line, size_t& pos, TemplateLine& tl, int curre
 	}
 	skipSpaces( line, pos );
 	if ( pos == sz )
+	{
+		tl.attributes.insert( make_pair(attrName, parts ) );
 		return;
+	}
 	if ( line[ pos ] == '=' )
 	{
 		++pos;

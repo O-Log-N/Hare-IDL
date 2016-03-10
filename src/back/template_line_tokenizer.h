@@ -68,9 +68,11 @@ struct TemplateLine
 		OPEN_OUTPUT_FILE,
 		FOR_EACH_PUBLISHABLE_STRUCT,
 		CLOSE_OUTPUT_FILE,
+
+		ELIF_TO_IF, // derived
 	};
 
-	int type;
+	LINE_TYPE type;
 	int srcLineNum;
 	map<AttributeName, vector<LinePart>> attributes;
 //	map<ATTRIBUTE, string> map;
