@@ -19,7 +19,6 @@ Copyright (C) 2016 OLogN Technologies AG
 #define TEMPLATE_LINE_TOKENIZER_H
 
 #include "../idlc_include.h"
-#include "template_parser.h" // for a while...
 #include "template_line_tokenizer.h"
 
 using namespace std;
@@ -35,6 +34,45 @@ enum ATTRIBUTE
 	FILENAME,
 	PARAM,
 	TYPE,
+};
+
+enum NODE_TYPE {
+	FULL_TEMPLATE,
+	CONTENT,
+	IF,
+	INCLUDE,
+	ASSERT,
+	IF_TRUE_BRANCH,
+	IF_FALSE_BRANCH,
+
+	FOR_EACH_OF_MEMBERS, // used ONLY within STRUCT
+	OPEN_OUTPUT_FILE,
+	FOR_EACH_PUBLISHABLE_STRUCT,
+};
+
+enum PLACEHOLDER {
+	VERBATIM,
+	STRUCT_NAME, // used ONLY within STRUCT or down the tree
+	MEMBER_TYPE, // used ONLY within STRUCT-MEMBER
+	MEMBER_NAME, // used ONLY within STRUCT-MEMBER
+};
+
+struct LinePart
+{
+	PLACEHOLDER type;
+	string verbatim;
+};
+
+struct ExpressionElement
+{
+	enum OPERATION { PUSH, EQ, NEQ };
+    enum ARGTYPE {NONE, PLACEHOLDER, NUMBER, STRING};
+	OPERATION oper;
+    ARGTYPE argtype = NONE; // for operation PUSH: any but NONE
+	// values below are used in case of PUSH operation
+    double numberValue = 0; // argtype: NUMBER
+    string stringValue; // argtype: STRING
+	::PLACEHOLDER placeholder; // argtype: PLACEHOLDER
 };
 
 class AttributeName

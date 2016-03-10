@@ -17,7 +17,6 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "idlc_back.h"
 #include "back_idl_tree.h"
-#include "template_parser.h"
 #include "template_tree_builder.h"
 #include "template_instantiator_derived.h"
 

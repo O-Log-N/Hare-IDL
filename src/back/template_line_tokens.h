@@ -19,7 +19,6 @@ Copyright (C) 2016 OLogN Technologies AG
 #define TEMPLATE_LINE_TOKENS_H
 
 #include "../idlc_include.h"
-#include "template_parser.h" // for a while...
 #include "template_line_tokenizer.h"
 
 using namespace std;

@@ -16,7 +16,6 @@ Copyright (C) 2016 OLogN Technologies AG
 *******************************************************************************/
 
 #include "template_instantiator.h"
-#include "template_parser.h"
 
 bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 {
