@@ -16,6 +16,7 @@ Copyright (C) 2016 OLogN Technologies AG
 *******************************************************************************/
 
 #include "template_tree_builder.h"
+#include "template_line_tokenizer.h"
 #include "template_line_tokens.h" // for tree printing
 #include <assert.h> // for assert()
 
@@ -80,7 +81,7 @@ void dbgPrintAttributes( map<AttributeName, vector<LinePart>>& attributes )
 }
 
 
-void dbgPrintNode_( TemplateNode_& node, int depth )
+void dbgPrintNode_( TemplateNode& node, int depth )
 {
 	dbgPrintIndent( depth );
 	if ( node.type == NODE_TYPE::CONTENT )
@@ -100,17 +101,16 @@ void dbgPrintNode_( TemplateNode_& node, int depth )
 }
 
 	
-bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t& flidx )
+bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t& flidx )
 {
 	for ( ; flidx<lines.size(); )
 	{
-///fmt::print( "line {}: node {}\n", lines[flidx].srcLineNum, lines[flidx].type );
 		TemplateLine::LINE_TYPE ltype = lines[flidx].type;
 		switch ( ltype )
 		{
 			case TemplateLine::LINE_TYPE::CONTENT:
 			{
-				TemplateNode_ node;
+				TemplateNode node;
 				node.type = NODE_TYPE::CONTENT;
 				node.srcLineNum = lines[flidx].srcLineNum;
 				node.attributes = lines[flidx].attributes;
@@ -121,12 +121,12 @@ bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t
 			case TemplateLine::LINE_TYPE::IF:
 			case TemplateLine::LINE_TYPE::ELIF_TO_IF:
 			{
-				TemplateNode_ node;
+				TemplateNode node;
 				node.type = NODE_TYPE::IF;
 				node.srcLineNum = lines[flidx].srcLineNum;
 				node.expression = lines[flidx].expression;
 				++flidx;
-				TemplateNode_ nodeTrueBranch;
+				TemplateNode nodeTrueBranch;
 				nodeTrueBranch.type = NODE_TYPE::IF_TRUE_BRANCH;
 				nodeTrueBranch.srcLineNum = lines[flidx].srcLineNum;
 				if ( !buildTemplateTree( nodeTrueBranch, lines, flidx ) )
@@ -136,7 +136,7 @@ bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t
 				if ( lines[flidx].type == TemplateLine::LINE_TYPE::ELIF ) // this is not that ELIF with which we've entered; it's a nested one!
 				{
 					lines[flidx].type = TemplateLine::LINE_TYPE::ELIF_TO_IF;
-					TemplateNode_ nodeFalseBranch;
+					TemplateNode nodeFalseBranch;
 					nodeFalseBranch.type = NODE_TYPE::IF_FALSE_BRANCH;
 					nodeFalseBranch.srcLineNum = lines[flidx].srcLineNum;
 					// no changes to flidx; we will repeat processing on the next level
@@ -146,7 +146,7 @@ bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t
 				}
 				else if ( lines[flidx].type == TemplateLine::LINE_TYPE::ELSE )
 				{
-					TemplateNode_ nodeFalseBranch;
+					TemplateNode nodeFalseBranch;
 					nodeFalseBranch.type = NODE_TYPE::IF_FALSE_BRANCH;
 					nodeFalseBranch.srcLineNum = lines[flidx].srcLineNum;
 					++flidx;
@@ -168,7 +168,7 @@ bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t
 			}
 			case TemplateLine::LINE_TYPE::INCLUDE:
 			{
-				TemplateNode_ node;
+				TemplateNode node;
 				node.type = NODE_TYPE::INCLUDE;
 				node.srcLineNum = lines[flidx].srcLineNum;
 				node.attributes = lines[flidx].attributes;
@@ -178,7 +178,7 @@ bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t
 			}
 			case TemplateLine::LINE_TYPE::ASSERT:
 			{
-				TemplateNode_ node;
+				TemplateNode node;
 				node.type = NODE_TYPE::ASSERT;
 				node.srcLineNum = lines[flidx].srcLineNum;
 				node.expression = lines[flidx].expression;
@@ -188,7 +188,7 @@ bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t
 			}
 			case TemplateLine::LINE_TYPE::OPEN_OUTPUT_FILE:
 			{
-				TemplateNode_ node;
+				TemplateNode node;
 				node.type = NODE_TYPE::OPEN_OUTPUT_FILE;
 				node.srcLineNum = lines[flidx].srcLineNum;
 				node.attributes = lines[flidx].attributes;
@@ -209,17 +209,17 @@ bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t
 				bool isEnd = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
 				if ( isEnd )
 					return true; // it's upper level end or bullshit
-				TemplateNode_ node;
+				TemplateNode node;
 				node.type = NODE_TYPE::FOR_EACH_OF_MEMBERS;
 				node.srcLineNum = lines[flidx].srcLineNum;
 				// we may have include statement here, let's check
-				auto incudeTemplate = lines[flidx].attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
-				if ( incudeTemplate != lines[flidx].attributes.end() )
+				auto includeTemplate = lines[flidx].attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
+				if ( includeTemplate != lines[flidx].attributes.end() )
 				{
-					TemplateNode_ nodeIncludeTemplate;
+					TemplateNode nodeIncludeTemplate;
 					nodeIncludeTemplate.type = NODE_TYPE::INCLUDE;
 					nodeIncludeTemplate.srcLineNum = lines[flidx].srcLineNum;
-					nodeIncludeTemplate.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEMPLATE, ""), incudeTemplate->second ) );
+					nodeIncludeTemplate.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEMPLATE, ""), includeTemplate->second ) );
 					node.childNodes.push_back( nodeIncludeTemplate );
 					++flidx;
 				}
@@ -253,17 +253,17 @@ bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t
 				bool isEnd = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
 				if ( isEnd )
 					return true; // it's upper level end or bullshit
-				TemplateNode_ node;
+				TemplateNode node;
 				node.type = NODE_TYPE::FOR_EACH_PUBLISHABLE_STRUCT;
 				node.srcLineNum = lines[flidx].srcLineNum;
 				// we may have include statement here, let's check
-				auto incudeTemplate = lines[flidx].attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
-				if ( incudeTemplate != lines[flidx].attributes.end() )
+				auto includeTemplate = lines[flidx].attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
+				if ( includeTemplate != lines[flidx].attributes.end() )
 				{
-					TemplateNode_ nodeIncludeTemplate;
+					TemplateNode nodeIncludeTemplate;
 					nodeIncludeTemplate.type = NODE_TYPE::INCLUDE;
 					nodeIncludeTemplate.srcLineNum = lines[flidx].srcLineNum;
-					nodeIncludeTemplate.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEMPLATE, ""), incudeTemplate->second ) );
+					nodeIncludeTemplate.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEMPLATE, ""), includeTemplate->second ) );
 					node.childNodes.push_back( nodeIncludeTemplate );
 					++flidx;
 				}
@@ -294,7 +294,7 @@ bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t
 			}
 			case TemplateLine::LINE_TYPE::BEGIN_TEMPLATE:
 			{
-				TemplateNode_ node;
+				TemplateNode node;
 				node.type = NODE_TYPE::FULL_TEMPLATE;
 				node.srcLineNum = lines[flidx].srcLineNum;
 				node.attributes = lines[flidx].attributes;
@@ -318,3 +318,30 @@ bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t
 
 	return true;
 }
+
+
+bool loadTemplates( istream& tf, TemplateNodeSpace& nodeSpace, int& currentLineNum )
+{
+	for (;;)
+	{
+		TemplateNode rootNode;
+		vector<TemplateLine> templateLines;
+		bool ret = tokenizeTemplateLines( tf, templateLines, currentLineNum );
+		if ( !ret )
+			break;
+		size_t flidx = 0;
+		ret = buildTemplateTree( rootNode, templateLines, flidx );
+		nodeSpace.templates.push_back( rootNode.childNodes[0] );
+	}
+	return true;
+}
+
+void dbgPrintTemplateTrees( TemplateNodeSpace& nodeSpace )
+{
+	for ( auto tt:nodeSpace.templates)
+	{
+		dbgPrintNode_( tt, 0 );
+		fmt::print( "\n" );
+	}
+}
+

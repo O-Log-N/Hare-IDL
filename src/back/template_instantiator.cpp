@@ -85,11 +85,14 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 				fmt::print("Instantiation error at template line{}: no output file", node.srcLineNum );
 				assert(0); // TODO: replace by throwing an exception or alike
 			}
-			for ( size_t i=0; i<node.lineParts.size(); i++ )
-				if ( node.lineParts[i].type == PLACEHOLDER::VERBATIM )
-					fmt::print( *outstr, "{}", node.lineParts[i].verbatim.c_str() );
+			auto attr = node.attributes.find( {ATTRIBUTE::TEXT, ""} );
+			assert( attr != node.attributes.end() );
+			auto& lineParts = attr->second;
+			for ( size_t i=0; i<attr->second.size(); i++ )
+				if ( lineParts[i].type == PLACEHOLDER::VERBATIM )
+					fmt::print( *outstr, "{}", lineParts[i].verbatim.c_str() );
 				else
-					fmt::print(*outstr, "{}", placeholder( node.lineParts[i].type ).c_str() );
+					fmt::print(*outstr, "{}", placeholder( lineParts[i].type ).c_str() );
 			fmt::print(*outstr, "\n" );
 			break;
 		}
@@ -108,7 +111,15 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 				assert(0); // TODO: replace by throwing an exception or alike
 			}
 			ofstream tf;
-			tf.open ( node.outputFileName, ios::out | ios::binary );
+			// prepare file name string
+			auto attr = node.attributes.find( {ATTRIBUTE::FILENAME, ""} );
+			assert( attr != node.attributes.end() );
+			auto& lineParts = attr->second;
+			assert( lineParts.size() == 1 ); // see NOTE and TODO below
+			string fileName = lineParts[0].verbatim;
+			// NOTE: here we implement a quite restricted version
+			// TODO: value of ATTRIBUTE::FILENAME can contain placeholders and filename must be built based on the full content
+			tf.open ( fileName, ios::out | ios::binary );
 			outstr = &tf;
 			for ( size_t k=0; k<node.childNodes.size(); k++ )
 				applyNode( node.childNodes[k] );
@@ -143,7 +154,15 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 		}
 		case NODE_TYPE::INCLUDE:
 		{
-			TemplateNode* tn = templateSpace.getTemplate( node.templateName, context() );
+			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
+			assert( attr != node.attributes.end() );
+			auto& lineParts = attr->second;
+			assert( lineParts.size() == 1 ); // see NOTE and TODO below
+			string templateName = lineParts[0].verbatim;
+			// NOTE: here we implement a quite restricted version
+			// TODO: value of ATTRIBUTE::FILENAME can contain placeholders and filename must be built based on the full content
+
+			TemplateNode* tn = templateSpace.getTemplate( templateName, context() );
 			if ( tn == nullptr )
 			{
 				assert( 0 ); // TODO: throw

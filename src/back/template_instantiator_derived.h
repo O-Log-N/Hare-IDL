@@ -35,13 +35,19 @@ public:
 
 	void apply()
 	{
-		for ( auto t:templateSpace.templates )
+/*		for ( auto t:templateSpace.templates )
 		{
-			if ( t.templateType == "ROOT" )
+			auto attr = t.attributes.find( {ATTRIBUTE::TYPE, ""} );
+			assert( attr != t.attributes.end() );
+			assert( attr->second.size() == 1 );
+			if ( attr->second[0].verbatim == "ROOT" )
 			{
 				applyNode( t );
 			}
-		}
+		}*/
+		TemplateNode* mainT = templateSpace.getTemplate( "MAIN", "ROOT" );
+		if ( mainT != nullptr )
+			applyNode( *mainT );
 	}
 };
 

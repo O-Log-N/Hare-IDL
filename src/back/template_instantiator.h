@@ -20,6 +20,7 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "../idlc_include.h"
 #include "template_parser.h"
+#include "template_tree_builder.h"
 #include "back_idl_tree.h"
 
 #define CONTEXT_STRUCT 1

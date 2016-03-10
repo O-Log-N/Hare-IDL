@@ -18,6 +18,7 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "idlc_back.h"
 #include "back_idl_tree.h"
 #include "template_parser.h"
+#include "template_tree_builder.h"
 #include "template_instantiator_derived.h"
 
 using namespace std;
@@ -31,7 +32,8 @@ void idlcBackEnd( Root& root )
 	TemplateNodeSpace nodeSpace;
 
 	ifstream tf;
-	tf.open ( "template.txt", ios::in | ios::binary );
+//	tf.open ( "template.txt", ios::in | ios::binary );
+	tf.open ( "template2.txt", ios::in | ios::binary );
 	if ( !tf )
 	{
 		fmt::print( "failed to open template file\n" );

@@ -24,18 +24,50 @@ Copyright (C) 2016 OLogN Technologies AG
 
 using namespace std;
 
-struct TemplateNode_
+struct TemplateNode
 {
 	NODE_TYPE type;
 	int srcLineNum;
-	vector<TemplateNode_> childNodes;
+	vector<TemplateNode> childNodes;
 
 	map<AttributeName, vector<LinePart>> attributes;
 	vector<ExpressionElement> expression; // used only for NODE_TYPE::IF(ELIF) and NODE_TYPE::ASSERT
 };
 
-bool buildTemplateTree( TemplateNode_& root, vector<TemplateLine>& lines, size_t& flidx );
-void dbgPrintNode_( TemplateNode_& node, int depth );
+bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t& flidx );
+void dbgPrintNode_( TemplateNode& node, int depth );
 
+
+class TemplateNodeSpace
+{
+public:
+	// TODO: internals of this class might be havily revised; its interface should hopefully survive
+	vector<TemplateNode> templates;
+	void dbgValidateTemplateSpace()
+	{
+		// TODO (at least):
+		// 1. make sure all names distinct (unless map is used for storing, then it's already done)
+		// 2. for each @@include there must be a template with a respective name
+		// 3. there is at least one template of type ROOT
+	}
+	TemplateNode* getTemplate( string name, string expectedType )
+	{
+		for ( auto& node:templates )
+		{
+			auto attrT = node.attributes.find( {ATTRIBUTE::NAME, ""} );
+			assert( attrT != node.attributes.end() );
+			assert( attrT->second.size() == 1 );
+			auto typeT = node.attributes.find( {ATTRIBUTE::TYPE, ""} );
+			assert( typeT != node.attributes.end() );
+			assert( typeT->second.size() == 1 );
+			if ( attrT->second[0].verbatim == name && typeT->second[0].verbatim == expectedType )
+				return &node;
+		}
+		return nullptr;
+	}
+};
+
+bool loadTemplates( istream& tf, TemplateNodeSpace& nodeSpace, int& currentLineNum );
+void dbgPrintTemplateTrees( TemplateNodeSpace& nodeSpace );
 
 #endif // TEMPLATE_TREE_BUILDER_H
