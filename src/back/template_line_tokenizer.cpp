@@ -118,6 +118,7 @@ void formVerbatimLine( const string& line, TemplateLine& tl )
 //TemplateLine::LINE_TYPE getLineType( const string& line, size_t& pos )
 KeyWordProps getLineType( const string& line, size_t& pos )
 {
+	skipSpaces( line, pos );
 	return parseMainKeyword( line, pos );
 }
 
