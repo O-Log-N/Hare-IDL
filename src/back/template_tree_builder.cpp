@@ -294,6 +294,23 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 			}
 			case TemplateLine::LINE_TYPE::BEGIN_TEMPLATE:
 			{
+				int lnStart = lines[flidx].srcLineNum;
+				string templateName;
+				auto attrName = lines[flidx].attributes.find( {ATTRIBUTE::NAME, ""} );
+				bool nameOK = attrName != lines[flidx].attributes.end();
+				if ( nameOK )
+				{
+					auto& lineParts = attrName->second;
+					nameOK = lineParts.size() == 1;
+					if ( nameOK )
+						templateName = lineParts[0].verbatim;
+					else
+					{
+						fmt::print( "line {}: error: template has bad or no name\n", lines[flidx].srcLineNum );
+						return false;
+					}
+				}
+
 				TemplateNode node;
 				node.type = NODE_TYPE::FULL_TEMPLATE;
 				node.srcLineNum = lines[flidx].srcLineNum;
@@ -307,7 +324,28 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 					fmt::print( "line {}: error: END-TEMPLATE expected\n", lines[flidx].srcLineNum );
 					return false;
 				}
-				// TODO: check name matching
+				string closingTemplateName;
+				attrName = lines[flidx].attributes.find( {ATTRIBUTE::NAME, ""} );
+				nameOK = attrName != lines[flidx].attributes.end();
+				if ( nameOK )
+				{
+					auto& lineParts = attrName->second;
+					nameOK = lineParts.size() == 1;
+					if ( nameOK )
+					{
+						closingTemplateName = lineParts[0].verbatim;
+						if ( templateName != closingTemplateName )
+						{
+							fmt::print( "line {}: error: template name at template begin (see line {}) does noy coincide with that at template end\n", lines[flidx].srcLineNum, lnStart );
+							return false;
+						}
+					}
+					else
+					{
+						fmt::print( "line {}: error: template has bad or no name\n", lines[flidx].srcLineNum );
+						return false;
+					}
+				}
 				++flidx;
 				break;
 			}
