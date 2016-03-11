@@ -42,7 +42,7 @@ void RootTemplateInstantiator::applyNode( TemplateNode& node )
 	}
 }
 
-string RootTemplateInstantiator::placeholder( int placeholderId )
+string RootTemplateInstantiator::placeholder( PLACEHOLDER placeholderId )
 {
 	switch( placeholderId )
 	{
@@ -89,7 +89,7 @@ void StructTemplateInstantiator::applyNode( TemplateNode& node )
 	}
 }
 
-string StructTemplateInstantiator::placeholder( int placeholderId )
+string StructTemplateInstantiator::placeholder( PLACEHOLDER placeholderId )
 {
 	switch( placeholderId )
 	{
@@ -118,7 +118,7 @@ void StructMemberTemplateInstantiator::applyNode( TemplateNode& node )
 	}
 }
 
-string StructMemberTemplateInstantiator::placeholder( int placeholderId )
+string StructMemberTemplateInstantiator::placeholder( PLACEHOLDER placeholderId )
 {
 	switch( placeholderId )
 	{

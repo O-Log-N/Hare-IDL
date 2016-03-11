@@ -31,6 +31,7 @@ protected:
 	bool calcConditionOfIfNode( TemplateNode& ifNode );
 	virtual void applyNode( TemplateNode& node );
 	virtual string context();
+	string resolveLinePartsToString( const vector<LinePart>& lineParts );
 
 	ostream* outstr;
 	TemplateNodeSpace& templateSpace;
@@ -38,7 +39,7 @@ protected:
 public:
 	TemplateInstantiator( TemplateNodeSpace& templateSpace_, ostream* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}
 
-	virtual string placeholder( int placeholderId );
+	virtual string placeholder( PLACEHOLDER placeholderId );
 };
 
 

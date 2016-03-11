@@ -336,7 +336,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 						closingTemplateName = lineParts[0].verbatim;
 						if ( templateName != closingTemplateName )
 						{
-							fmt::print( "line {}: error: template name at template begin (see line {}) does noy coincide with that at template end\n", lines[flidx].srcLineNum, lnStart );
+							fmt::print( "line {}: error: template name at template begin (see line {}) does not coincide with that at template end\n", lines[flidx].srcLineNum, lnStart );
 							return false;
 						}
 					}

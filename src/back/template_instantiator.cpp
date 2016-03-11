@@ -67,6 +67,19 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	return ret;
 }
 
+string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart>& lineParts )
+{
+	string ret;
+	for ( auto lp:lineParts )
+	{
+		if ( lp.type == PLACEHOLDER::VERBATIM )
+			ret += lp.verbatim;
+		else
+			ret += placeholder( lp.type );
+	}
+	return ret;
+}
+
 void TemplateInstantiator::applyNode( TemplateNode& node )
 {
 	switch ( node.type )
@@ -113,11 +126,12 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			// prepare file name string
 			auto attr = node.attributes.find( {ATTRIBUTE::FILENAME, ""} );
 			assert( attr != node.attributes.end() );
-			auto& lineParts = attr->second;
+/*			auto& lineParts = attr->second;
 			assert( lineParts.size() == 1 ); // see NOTE and TODO below
 			string fileName = lineParts[0].verbatim;
 			// NOTE: here we implement a quite restricted version
-			// TODO: value of ATTRIBUTE::FILENAME can contain placeholders and filename must be built based on the full content
+			// TODO: value of ATTRIBUTE::FILENAME can contain placeholders and filename must be built based on the full content*/
+			string fileName = resolveLinePartsToString( attr->second );
 			tf.open ( fileName, ios::out | ios::binary );
 			outstr = &tf;
 			for ( size_t k=0; k<node.childNodes.size(); k++ )
@@ -177,7 +191,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 	}
 }
 
-string TemplateInstantiator::placeholder( int placeholderId )
+string TemplateInstantiator::placeholder( PLACEHOLDER placeholderId )
 {
 	fmt::print( "\n" );
 	fmt::print("error_placeholder {}\n", placeholderId );
