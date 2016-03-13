@@ -34,7 +34,11 @@ void dbgPrintLineParts( vector<LinePart>& parts )
 		if ( parts[i].type == PLACEHOLDER::VERBATIM )
 			fmt::print( "{}", parts[i].verbatim.c_str() );
 		else
-			fmt::print( "{}", placeholderToString( parts[i].type ).c_str() );
+		{
+			Placeholder ph = {parts[i].type, parts[i].verbatim};
+			string placeholderStr = placeholderToString( ph );
+			fmt::print( "{}", placeholderStr.c_str() );
+		}
 	}
 }
 
@@ -50,7 +54,13 @@ void dbgPrintExpression( vector<ExpressionElement>& expression )
 				{
 					case ExpressionElement::ARGTYPE::STRING: fmt::print( "{}", expression[i].stringValue.c_str() ); break;
 					case ExpressionElement::ARGTYPE::NUMBER: fmt::print( "{}", expression[i].numberValue ); break;
-					case ExpressionElement::ARGTYPE::PLACEHOLDER: fmt::print( "{}", placeholderToString( expression[i].placeholder ).c_str() ); break;
+					case ExpressionElement::ARGTYPE::PLACEHOLDER:
+					{
+						Placeholder ph = {expression[i].placeholder, expression[i].stringValue};
+						string placeholderStr = placeholderToString( ph );
+						fmt::print( "{}", placeholderStr.c_str() ); 
+						break;
+					}
 					case ExpressionElement::ARGTYPE::NONE: fmt::print( "\"\"" ); break;
 					default: fmt::print( "?????????" ); break;
 				}

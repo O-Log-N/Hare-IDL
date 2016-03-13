@@ -19,11 +19,6 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_line_tokens.h"
 #include <assert.h> // for assert()
 
-void skipSpaces( const string& line, size_t& contentStart )
-{
-	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
-}
-
 void findSpaces( const string& line, size_t& contentStart )
 {
 	while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t')) ) contentStart++;
@@ -67,8 +62,8 @@ void readLineParts( const string& line, vector<LinePart>& parts )
 		}
 		else
 		{
-			PLACEHOLDER placehldr = parsePlaceholder( line, pos );
-			switch ( placehldr )
+			Placeholder placehldr = parsePlaceholder( line, pos );
+			switch ( placehldr.id )
 			{
 				case PLACEHOLDER::VERBATIM: 
 				{
@@ -79,12 +74,15 @@ void readLineParts( const string& line, vector<LinePart>& parts )
 				case PLACEHOLDER::STRUCT_NAME:
 				case PLACEHOLDER::MEMBER_TYPE:
 				case PLACEHOLDER::MEMBER_NAME:
+				case PLACEHOLDER::PARAM_MINUS:
 				{
 					parts.push_back( part ); 
 					part.verbatim.clear(); 
-					part.type = placehldr; 
+					part.type = placehldr.id; 
+					part.verbatim = placehldr.specific;
 					parts.push_back( part ); 
 					part.type = PLACEHOLDER::VERBATIM; 
+					part.verbatim.clear(); 
 					break;
 				}
 				default:
@@ -176,8 +174,8 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 		}
 		else if ( line[ pos ] == '@' )
 		{
-			PLACEHOLDER placehldr = parsePlaceholder( line, pos );
-			switch ( placehldr )
+			Placeholder placehldr = parsePlaceholder( line, pos );
+			switch ( placehldr.id )
 			{
 				case PLACEHOLDER::VERBATIM: 
 				{
@@ -187,15 +185,22 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 				}
 				case PLACEHOLDER::MEMBER_TYPE:
 				case PLACEHOLDER::MEMBER_NAME:
+				case PLACEHOLDER::STRUCT_NAME:
+				case PLACEHOLDER::PARAM_MINUS:
 				{
 					assert( element.oper == ExpressionElement::OPERATION::PUSH );
 					assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
 					if ( element.stringValue.size() )
-						expression.push_back( element ); 
+					{
+						expression.push_back( element );
+						element.stringValue.clear();
+					}
 					element.stringValue.clear(); 
 					element.argtype = ExpressionElement::ARGTYPE::PLACEHOLDER; 
-					element.placeholder = placehldr;
+					element.placeholder = placehldr.id;
+					element.stringValue = placehldr.specific;
 					expression.push_back( element ); 
+					element.stringValue.clear();
 					element.argtype = ExpressionElement::ARGTYPE::STRING; 
 					break;
 				}
@@ -273,8 +278,8 @@ void readAttributeName( const string& line, size_t& pos, AttributeName& attrName
 {
 	size_t sz = line.size();
 	skipSpaces( line, pos );
-	attrName.id = parseParam( line, pos );
-	string secondPart;
+	attrName = parseParam( line, pos );
+/*	string secondPart;
 	if ( attrName.id == ATTRIBUTE::PARAM )
 	{
 		// right after it we expect a qualifying word
@@ -284,7 +289,7 @@ void readAttributeName( const string& line, size_t& pos, AttributeName& attrName
 		attrName.ext = string( line.begin() + startpos, line.begin() + pos );
 	}
 	else
-		attrName.ext.clear();
+		attrName.ext.clear();*/
 }
 
 void readAttributeValue( const string& line, size_t& pos, vector<LinePart>& parts, int currentLineNum )
@@ -322,7 +327,6 @@ void readNextParam( const string& line, size_t& pos, TemplateLine& tl, int curre
 {
 	size_t sz = line.size();
 	AttributeName attrName;
-//	readAttributeName( line, pos, attrName, currentLineNum );
 	vector<LinePart> parts;
 	readAttributeName( line, pos, attrName, currentLineNum );
 	if ( attrName.id == ATTRIBUTE::NONE )

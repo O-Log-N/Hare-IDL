@@ -55,6 +55,13 @@ enum PLACEHOLDER {
 	STRUCT_NAME, // used ONLY within STRUCT or down the tree
 	MEMBER_TYPE, // used ONLY within STRUCT-MEMBER
 	MEMBER_NAME, // used ONLY within STRUCT-MEMBER
+	PARAM_MINUS,
+};
+
+struct Placeholder
+{
+	PLACEHOLDER id;
+	string specific;
 };
 
 struct LinePart
@@ -86,7 +93,13 @@ public:
 	bool operator < ( const AttributeName& other ) const
 	{
 		if ( id < other.id ) return true;
+		if ( id > other.id ) return false;
 		return ext < other.ext;
+		/*
+		bool operator<( const X& other) const {
+			return std::tie(i, s) < std::tie(other.i, other.s);
+		}
+		*/
 	}
 };
 

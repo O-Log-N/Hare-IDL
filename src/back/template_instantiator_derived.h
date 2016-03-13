@@ -27,7 +27,7 @@ protected:
 	BackRoot* root;
 
 	virtual void applyNode( TemplateNode& node );
-	virtual string placeholder( PLACEHOLDER placeholderId );
+	virtual string placeholder( Placeholder ph );
 	virtual string context() override {return "ROOT"; }
 
 public:
@@ -48,7 +48,7 @@ protected:
 	BackStructure* structure;
 
 	virtual void applyNode( TemplateNode& node );
-	virtual string placeholder( PLACEHOLDER placeholderId );
+	virtual string placeholder( Placeholder ph );
 	virtual string context() override {return "STRUCT"; }
 
 public:
@@ -67,7 +67,7 @@ protected:
 	BackDataMember* member;
 
 	virtual void applyNode( TemplateNode& node );
-	virtual string placeholder( PLACEHOLDER placeholderId );
+	virtual string placeholder( Placeholder ph );
 	virtual string context() override {return "STRUCT-MEMBER"; }
 
 public:

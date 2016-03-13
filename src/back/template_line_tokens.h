@@ -29,13 +29,15 @@ struct KeyWordProps
 	bool expressionRequired;
 };
 
+void skipSpaces( const string& line, size_t& contentStart );
+
 KeyWordProps parseMainKeyword( const string& line, size_t& contentStart );
-ATTRIBUTE parseParam( const string& line, size_t& contentStart );
-PLACEHOLDER parsePlaceholder( const string& line, size_t& contentStart );
+AttributeName parseParam( const string& line, size_t& contentStart );
+Placeholder parsePlaceholder( const string& line, size_t& contentStart );
 
 string mainKeywordToString( TemplateLine::LINE_TYPE kw );
 string attributeNameToString( ATTRIBUTE id );
-string placeholderToString( PLACEHOLDER id );
+string placeholderToString( Placeholder id );
 string nodeTypesToString( NODE_TYPE id );
 
 #endif // TEMPLATE_LINE_TOKENS_H

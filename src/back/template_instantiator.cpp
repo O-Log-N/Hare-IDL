@@ -39,15 +39,43 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 		{
 			case ExpressionElement::OPERATION::EQ:
 			{
-				string& lstr = ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ? ifNode.expression[0].stringValue : placeholder( ifNode.expression[0].placeholder );
-				string& rstr = ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::STRING ? ifNode.expression[2].stringValue : placeholder( ifNode.expression[2].placeholder );
+				string lstr;
+				if ( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING )
+					lstr = ifNode.expression[0].stringValue;
+				else
+				{
+					Placeholder ph = {ifNode.expression[0].placeholder, ifNode.expression[0].stringValue};
+					lstr = placeholder( ph );
+				}
+				string rstr;
+				if ( ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::STRING )
+					rstr = ifNode.expression[2].stringValue;
+				else
+				{
+					Placeholder ph = {ifNode.expression[2].placeholder, ifNode.expression[0].stringValue};
+					rstr = placeholder( ph );
+				}
 				ret = lstr == rstr;
 				break;
 			}
 			case ExpressionElement::OPERATION::NEQ:
 			{
-				string& lstr = ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ? ifNode.expression[0].stringValue : placeholder( ifNode.expression[0].placeholder );
-				string& rstr = ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::STRING ? ifNode.expression[2].stringValue : placeholder( ifNode.expression[2].placeholder );
+				string lstr;
+				if ( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING )
+					lstr = ifNode.expression[0].stringValue;
+				else
+				{
+					Placeholder ph = {ifNode.expression[0].placeholder, ifNode.expression[0].stringValue};
+					lstr = placeholder( ph );
+				}
+				string rstr;
+				if ( ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::STRING )
+					rstr = ifNode.expression[2].stringValue;
+				else
+				{
+					Placeholder ph = {ifNode.expression[2].placeholder, ifNode.expression[0].stringValue};
+					rstr = placeholder( ph );
+				}
 				ret = !(lstr == rstr);
 				break;
 			}
@@ -61,7 +89,14 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	else
 	{
 		assert( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING || ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::PLACEHOLDER ); // limitation of a current version; TODO: further development
-		string& lstr = ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ? ifNode.expression[0].stringValue : placeholder( ifNode.expression[0].placeholder );
+		string lstr;
+		if ( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING )
+			lstr = ifNode.expression[0].stringValue;
+		else
+		{
+			Placeholder ph = {ifNode.expression[0].placeholder, ifNode.expression[0].stringValue};
+			lstr = placeholder( ph );
+		}
 		ret = !(lstr == "0" || lstr == "FALSE");
 	}
 	return ret;
@@ -75,7 +110,10 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart>& l
 		if ( lp.type == PLACEHOLDER::VERBATIM )
 			ret += lp.verbatim;
 		else
-			ret += placeholder( lp.type );
+		{
+			Placeholder ph = {lp.type, lp.verbatim};
+			ret += placeholder( ph );
+		}
 	}
 	return ret;
 }
@@ -104,7 +142,10 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 				if ( lineParts[i].type == PLACEHOLDER::VERBATIM )
 					fmt::print( *outstr, "{}", lineParts[i].verbatim.c_str() );
 				else
-					fmt::print(*outstr, "{}", placeholder( lineParts[i].type ).c_str() );
+				{
+					Placeholder ph = {lineParts[i].type, lineParts[i].verbatim};
+					fmt::print(*outstr, "{}", placeholder( ph ).c_str() );
+				}
 			fmt::print(*outstr, "\n" );
 			break;
 		}
@@ -126,11 +167,6 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			// prepare file name string
 			auto attr = node.attributes.find( {ATTRIBUTE::FILENAME, ""} );
 			assert( attr != node.attributes.end() );
-/*			auto& lineParts = attr->second;
-			assert( lineParts.size() == 1 ); // see NOTE and TODO below
-			string fileName = lineParts[0].verbatim;
-			// NOTE: here we implement a quite restricted version
-			// TODO: value of ATTRIBUTE::FILENAME can contain placeholders and filename must be built based on the full content*/
 			string fileName = resolveLinePartsToString( attr->second );
 			tf.open ( fileName, ios::out | ios::binary );
 			outstr = &tf;
@@ -180,7 +216,15 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			{
 				assert( 0 ); // TODO: throw
 			}
+			// load resolved names, if any
+			for ( const auto it:node.attributes )
+				if ( it.first.id == ATTRIBUTE::PARAM )
+				{
+					string resolved = resolveLinePartsToString( it.second );
+					resolvedPlaceholders.insert( make_pair( it.first.ext, resolved ) );
+				}
 			TemplateInstantiator::applyNode( *tn );
+			resolvedPlaceholders.clear();
 			break;
 		}
 		default:
@@ -191,10 +235,17 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 	}
 }
 
-string TemplateInstantiator::placeholder( PLACEHOLDER placeholderId )
+string TemplateInstantiator::placeholder( Placeholder ph )
 {
+	if ( ph.id == PLACEHOLDER::PARAM_MINUS )
+	{
+		auto findres = resolvedPlaceholders.find( ph.specific );
+		if ( findres != resolvedPlaceholders.end() )
+			return findres->second;
+	}
+
 	fmt::print( "\n" );
-	fmt::print("error_placeholder {}\n", placeholderId );
+	fmt::print("error_placeholder {}\n", ph.id );
 	assert( 0 );
 	return "";
 }

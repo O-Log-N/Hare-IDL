@@ -42,13 +42,13 @@ void RootTemplateInstantiator::applyNode( TemplateNode& node )
 	}
 }
 
-string RootTemplateInstantiator::placeholder( PLACEHOLDER placeholderId )
+string RootTemplateInstantiator::placeholder( Placeholder ph )
 {
-	switch( placeholderId )
+	switch( ph.id )
 	{
 		default:
 		{
-			return TemplateInstantiator::placeholder( placeholderId );
+			return TemplateInstantiator::placeholder( ph );
 		}
 	}
 }
@@ -89,9 +89,9 @@ void StructTemplateInstantiator::applyNode( TemplateNode& node )
 	}
 }
 
-string StructTemplateInstantiator::placeholder( PLACEHOLDER placeholderId )
+string StructTemplateInstantiator::placeholder( Placeholder ph )
 {
-	switch( placeholderId )
+	switch( ph.id )
 	{
 		case PLACEHOLDER::STRUCT_NAME:
 		{
@@ -99,7 +99,7 @@ string StructTemplateInstantiator::placeholder( PLACEHOLDER placeholderId )
 		}
 		default:
 		{
-			return TemplateInstantiator::placeholder( placeholderId );
+			return TemplateInstantiator::placeholder( ph );
 		}
 	}
 }
@@ -118,9 +118,9 @@ void StructMemberTemplateInstantiator::applyNode( TemplateNode& node )
 	}
 }
 
-string StructMemberTemplateInstantiator::placeholder( PLACEHOLDER placeholderId )
+string StructMemberTemplateInstantiator::placeholder( Placeholder ph )
 {
-	switch( placeholderId )
+	switch( ph.id )
 	{
 		case PLACEHOLDER::MEMBER_NAME:
 		{
@@ -132,7 +132,7 @@ string StructMemberTemplateInstantiator::placeholder( PLACEHOLDER placeholderId 
 		}
 		default:
 		{
-			return TemplateInstantiator::placeholder( placeholderId );
+			return TemplateInstantiator::placeholder( ph );
 		}
 	}
 }

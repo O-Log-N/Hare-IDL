@@ -43,10 +43,11 @@ Copyright (C) 2016 OLogN Technologies AG
 #define PARAM_STRING_NAME "NAME"
 #define PARAM_STRING_FILENAME "FILENAME"
 
-// main keywords ( starting from '@@' )
+// placeholders ( starting from '@@' )
 #define PLACEHOLDER_STRING_STRUCTNAME "@STRUCT-NAME@"
 #define PLACEHOLDER_STRING_MEMBER_TYPE "@MEMBER-TYPE@"
 #define PLACEHOLDER_STRING_MEMBER_NAME "@MEMBER-NAME@"
+#define PLACEHOLDER_STRING_PARAM_MINUS "@PARAM-" // NOTE: in this case '@' at the end will be processed while parsing specific part
 
 // node type names (not directly derived from keywords
 #define NODETYPE_STRING_FULL_TEMPLATE "FULL-TEMPLATE"
@@ -119,6 +120,7 @@ const PlaceholderWord placeholders[] =
 	{PLACEHOLDER_STRING_STRUCTNAME, sizeof(PLACEHOLDER_STRING_STRUCTNAME)-1, PLACEHOLDER::STRUCT_NAME},
 	{PLACEHOLDER_STRING_MEMBER_TYPE, sizeof(PLACEHOLDER_STRING_MEMBER_TYPE)-1, PLACEHOLDER::MEMBER_TYPE},
 	{PLACEHOLDER_STRING_MEMBER_NAME, sizeof(PLACEHOLDER_STRING_MEMBER_NAME)-1, PLACEHOLDER::MEMBER_NAME},
+	{PLACEHOLDER_STRING_PARAM_MINUS, sizeof(PLACEHOLDER_STRING_PARAM_MINUS)-1, PLACEHOLDER::PARAM_MINUS},
 	{NULL, 0, PLACEHOLDER::VERBATIM},
 };
 
@@ -133,6 +135,11 @@ const ParameterWord params[] =
 	{PARAM_STRING_PARAM, sizeof(PARAM_STRING_PARAM)-1, ATTRIBUTE::PARAM},
 	{NULL, 0, ATTRIBUTE::NONE},
 };
+
+void skipSpaces( const string& line, size_t& contentStart )
+{
+	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
+}
 
 template<class T> const T* parseSpecialWord( const string& line, size_t& contentStart, T* words )
 {
@@ -163,17 +170,70 @@ KeyWordProps parseMainKeyword( const string& line, size_t& contentStart )
 	return ret;
 }
 
-ATTRIBUTE parseParam( const string& line, size_t& contentStart )
+AttributeName parseParam( const string& line, size_t& contentStart )
 {
+	AttributeName ret;
+	size_t iniContentStart = contentStart;
 	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
-	ATTRIBUTE ret = parseSpecialWord( line, contentStart, params )->id;
+	ret.id = parseSpecialWord( line, contentStart, params )->id;
+	if ( ret.id == PARAM )
+	{
+		if ( ( line[contentStart] >= 'a' && line[contentStart] <= 'z' ) || 
+			 ( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ))
+		{
+			ret.ext.push_back( line[contentStart] );
+			++contentStart;
+		}
+		while ( ( line[contentStart] >= 'a' && line[contentStart] <= 'z' ) || 
+			    ( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ) || 
+				( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ) ||
+				line[contentStart] == '-' ) // TODO: consider std::isalnum() instead
+		{
+			ret.ext.push_back( line[contentStart] );
+			++contentStart;
+		}
+		skipSpaces( line, contentStart );
+/*		if ( line[contentStart] != '=' )
+		{
+			ret.id = ATTRIBUTE::NONE;
+			contentStart = iniContentStart; // restore
+		}
+		else
+			++contentStart;*/
+	}
 	return ret;
 }
 
-PLACEHOLDER parsePlaceholder( const string& line, size_t& contentStart )
+Placeholder parsePlaceholder( const string& line, size_t& contentStart )
 {
+	Placeholder ret;
+	size_t iniContentStart = contentStart;
 	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
-	PLACEHOLDER ret = parseSpecialWord( line, contentStart, placeholders )->id;
+	ret.id = parseSpecialWord( line, contentStart, placeholders )->id;
+	if ( ret.id == PARAM_MINUS )
+	{
+		if ( ( line[contentStart] >= 'a' && line[contentStart] <= 'z' ) || 
+			 ( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ))
+		{
+			ret.specific.push_back( line[contentStart] );
+			++contentStart;
+		}
+		while ( ( line[contentStart] >= 'a' && line[contentStart] <= 'z' ) || 
+			    ( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ) || 
+				( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ) ||
+				line[contentStart] == '-' ) // TODO: consider std::isalnum() instead
+		{
+			ret.specific.push_back( line[contentStart] );
+			++contentStart;
+		}
+		if ( line[contentStart] != '@' )
+		{
+			ret.id = PLACEHOLDER::VERBATIM;
+			contentStart = iniContentStart; // restore
+		}
+		else
+			++contentStart;
+	}
 	return ret;
 }
 
@@ -203,9 +263,15 @@ string attributeNameToString( ATTRIBUTE id )
 	return specialWordToString( params, id );
 }
 
-string placeholderToString( PLACEHOLDER id )
+string placeholderToString( Placeholder ph )
 {
-	return specialWordToString( placeholders, id );
+	string ret = specialWordToString( placeholders, ph.id );
+	if ( ph.id == PLACEHOLDER::PARAM_MINUS )
+	{
+		ret += ph.specific;
+		ret.push_back( '@' ); // we have to do it manually here
+	}
+	return ret;
 }
 
 string nodeTypesToString( NODE_TYPE id )

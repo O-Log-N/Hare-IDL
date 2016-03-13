@@ -35,11 +35,13 @@ protected:
 
 	ostream* outstr;
 	TemplateNodeSpace& templateSpace;
+	map<string, string> resolvedPlaceholders; // those starting from "@PARAM-"
 
 public:
 	TemplateInstantiator( TemplateNodeSpace& templateSpace_, ostream* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}
 
-	virtual string placeholder( PLACEHOLDER placeholderId );
+	virtual string placeholder( Placeholder ph );
+	virtual ~TemplateInstantiator() {}
 };
 
 
