@@ -55,6 +55,9 @@ Copyright (C) 2016 OLogN Technologies AG
 #define NODETYPE_STRING_IF_FALSE "IF-FALSE"
 #define NODETYPE_STRING_VERBATIM "VERBATIM"
 
+// predefined functions
+#define FUNCTION_STRING_MY_FN_1 "myFn1"
+
 struct KeyWord
 {
 	const char* kw;
@@ -75,6 +78,14 @@ struct PlaceholderWord
 	const char* kw;
 	int size;
 	PLACEHOLDER id;
+};
+
+struct PredefinedFunctionDetails
+{
+	const char* kw;
+	int size;
+	PREDEFINED_FUNCTION id;
+	size_t argC;
 };
 
 struct NodeType
@@ -136,6 +147,43 @@ const ParameterWord params[] =
 	{NULL, 0, ATTRIBUTE::NONE},
 };
 
+const PredefinedFunctionDetails functions[]
+{
+	{FUNCTION_STRING_MY_FN_1, sizeof(FUNCTION_STRING_MY_FN_1)-1, PREDEFINED_FUNCTION::MY_FN_1, 1},
+	{NULL, 0, PREDEFINED_FUNCTION::NOT_A_FUNCTION, 0},
+};
+
+string readIdentifier( const string& line, size_t& contentStart )
+{
+	string ret;
+	if ( ( line[contentStart] >= 'a' && line[contentStart] <= 'z' ) || 
+			( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ))
+	{
+		ret.push_back( line[contentStart] );
+		++contentStart;
+	}
+	while ( ( line[contentStart] >= 'a' && line[contentStart] <= 'z' ) || 
+			( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ) || 
+			( line[contentStart] >= '0' && line[contentStart] <= '9' ) ||
+			line[contentStart] == '-' )
+	{
+		ret.push_back( line[contentStart] );
+		++contentStart;
+	}
+	return ret;
+}
+
+string readIntegralNumericalLiteral( const string& line, size_t& contentStart )
+{
+	string ret;
+	while (  line[contentStart] >= '0' && line[contentStart] <= '9' )
+	{
+		ret.push_back( line[contentStart] );
+		++contentStart;
+	}
+	return ret;
+}
+
 void skipSpaces( const string& line, size_t& contentStart )
 {
 	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
@@ -178,28 +226,8 @@ AttributeName parseParam( const string& line, size_t& contentStart )
 	ret.id = parseSpecialWord( line, contentStart, params )->id;
 	if ( ret.id == PARAM )
 	{
-		if ( ( line[contentStart] >= 'a' && line[contentStart] <= 'z' ) || 
-			 ( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ))
-		{
-			ret.ext.push_back( line[contentStart] );
-			++contentStart;
-		}
-		while ( ( line[contentStart] >= 'a' && line[contentStart] <= 'z' ) || 
-			    ( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ) || 
-				( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ) ||
-				line[contentStart] == '-' ) // TODO: consider std::isalnum() instead
-		{
-			ret.ext.push_back( line[contentStart] );
-			++contentStart;
-		}
+		ret.ext = readIdentifier( line, contentStart );
 		skipSpaces( line, contentStart );
-/*		if ( line[contentStart] != '=' )
-		{
-			ret.id = ATTRIBUTE::NONE;
-			contentStart = iniContentStart; // restore
-		}
-		else
-			++contentStart;*/
 	}
 	return ret;
 }
@@ -212,27 +240,38 @@ Placeholder parsePlaceholder( const string& line, size_t& contentStart )
 	ret.id = parseSpecialWord( line, contentStart, placeholders )->id;
 	if ( ret.id == PARAM_MINUS )
 	{
-		if ( ( line[contentStart] >= 'a' && line[contentStart] <= 'z' ) || 
-			 ( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ))
-		{
-			ret.specific.push_back( line[contentStart] );
-			++contentStart;
-		}
-		while ( ( line[contentStart] >= 'a' && line[contentStart] <= 'z' ) || 
-			    ( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ) || 
-				( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ) ||
-				line[contentStart] == '-' ) // TODO: consider std::isalnum() instead
-		{
-			ret.specific.push_back( line[contentStart] );
-			++contentStart;
-		}
+		ret.specific = readIdentifier( line, contentStart );
 		if ( line[contentStart] != '@' )
 		{
 			ret.id = PLACEHOLDER::VERBATIM;
+			ret.specific.clear();
 			contentStart = iniContentStart; // restore
 		}
 		else
 			++contentStart;
+	}
+	return ret;
+}
+
+PredefindedFunction parsePredefinedFunction( const string& line, size_t& contentStart )
+{
+	PredefindedFunction ret;
+	size_t iniContentStart = contentStart;
+	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
+	const PredefinedFunctionDetails* fn = parseSpecialWord( line, contentStart, functions );
+	ret.id = fn->id;
+	ret.argC = fn->argC;
+	if ( fn->id != PREDEFINED_FUNCTION::NOT_A_FUNCTION )
+	{
+		skipSpaces( line, contentStart );
+		if ( line[contentStart] == '(' )
+			++contentStart;
+		else
+		{
+			ret.id = PREDEFINED_FUNCTION::NOT_A_FUNCTION;
+			ret.argC = 0;
+			contentStart = iniContentStart; // restore
+		}
 	}
 	return ret;
 }

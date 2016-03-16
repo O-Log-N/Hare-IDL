@@ -46,54 +46,49 @@ bool readLine( istream& tf, string& line, int& currentLineNum )
 	return somethingFound;
 }
 
-void readLineParts( const string& line, vector<LinePart>& parts )
+void readLineParts( const string& line, size_t& currentPos, vector<LinePart>& parts, string terminator = "" )
 {
 	// we have to go char by char; if '@' is found, make sure it's not a placeholder, or replace it accordingly
 	LinePart part;
-	unsigned int pos = 0;
 	size_t sz = line.size();
 	part.type = PLACEHOLDER::VERBATIM;
 	do
 	{
-		if ( line[ pos ] != '@' )
+		if ( terminator.size() )
 		{
-			part.verbatim.push_back( line[ pos ] );
-			pos ++;
+			bool terminal = false; 
+			size_t inTerm = 0; 
+			while ( inTerm < terminator.size() ) if ( terminator[inTerm++] == line[currentPos] ) {terminal = true; break;}
+			if ( terminal )
+				break;
+		}
+		if ( line[ currentPos ] != '@' )
+		{
+			part.verbatim.push_back( line[ currentPos ] );
+			++currentPos;
 		}
 		else
 		{
-			Placeholder placehldr = parsePlaceholder( line, pos );
-			switch ( placehldr.id )
+			Placeholder placehldr = parsePlaceholder( line, currentPos );
+			if ( placehldr.id == PLACEHOLDER::VERBATIM )
 			{
-				case PLACEHOLDER::VERBATIM: 
-				{
-					part.verbatim.push_back( line[ pos ] ); 
-					pos ++; 
-					break;
-				}
-				case PLACEHOLDER::STRUCT_NAME:
-				case PLACEHOLDER::MEMBER_TYPE:
-				case PLACEHOLDER::MEMBER_NAME:
-				case PLACEHOLDER::PARAM_MINUS:
-				{
-					parts.push_back( part ); 
-					part.verbatim.clear(); 
-					part.type = placehldr.id; 
-					part.verbatim = placehldr.specific;
-					parts.push_back( part ); 
-					part.type = PLACEHOLDER::VERBATIM; 
-					part.verbatim.clear(); 
-					break;
-				}
-				default:
-				{
-					assert( 0 == "NOT IMPLEMENTED" );
-					break;
-				}
+				part.verbatim.push_back( line[ currentPos ] ); 
+				++currentPos; 
+				break;
+			}
+			else
+			{
+				parts.push_back( part ); 
+				part.verbatim.clear(); 
+				part.type = placehldr.id; 
+				part.verbatim = placehldr.specific;
+				parts.push_back( part ); 
+				part.type = PLACEHOLDER::VERBATIM; 
+				part.verbatim.clear(); 
 			}
 		}
 	}
-	while ( pos < sz );
+	while ( currentPos < sz );
 
 	if ( part.verbatim.size() )
 	{
@@ -102,12 +97,78 @@ void readLineParts( const string& line, vector<LinePart>& parts )
 	}
 }
 
+void y( const string& line, size_t& currentPos, vector<LinePart>& parts )
+{
+	switch ( line[currentPos] )
+	{
+		case '\"':
+		{
+		}
+	}
+}
+
+void parseExpression( const string& line, size_t& currentPos, vector<ExpressionElement>& expression, int currentLineNum )
+{
+	size_t sz = line.size();
+	for ( ; currentPos<sz; )
+	{
+		if ( line[currentPos] == '\"' )
+		{
+			vector<LinePart> parts;
+			readLineParts( line, currentPos, parts, "\"" );
+			if ( line[currentPos] != '\"' )
+			{
+				fmt::print( "line {}: error: string runs away (lost terminating '\"')\n", currentLineNum );
+				assert( 0 ); // TODO: throw
+			}
+			++currentPos; // for terminating '"'
+		}
+		else if ( line[currentPos] == '(' )
+		{
+			skipSpaces( line, currentPos );
+			parseExpression( line, currentPos, expression, currentLineNum );
+			if ( line[currentPos] != ')' )
+			{
+				fmt::print( "line {}: error: ')' expected\n", currentLineNum );
+				assert( 0 ); // TODO: throw
+			}
+			++currentPos; // for terminating '"'
+		}
+		else if ( line[currentPos] >= '0' && line[currentPos] <= '9' )
+		{
+			string num = readIntegralNumericalLiteral( line, currentPos );
+		}
+		else if ( ( line[currentPos] >= 'a' && line[currentPos] <= 'z' ) || 
+			      ( line[currentPos] >= 'A' && line[currentPos] <= 'Z' ) )
+		{
+			PredefindedFunction fn = parsePredefinedFunction( line, currentPos );
+			if ( fn.id == PREDEFINED_FUNCTION::NOT_A_FUNCTION )
+			{
+				string unknown = readIdentifier( line, currentPos );
+				fmt::print( "line {}:  unexpected token {}\n", currentLineNum, unknown );
+				assert( 0 ); // TODO: throw
+			}
+			if ( fn.argC == 0 )
+			{
+				skipSpaces( line, currentPos );
+			}
+			else
+				for ( size_t i=0; i<fn.argC; ++i )
+				{
+					skipSpaces( line, currentPos );
+				}
+			// todo: push, ...
+		}
+	}
+}
+
 void formVerbatimLine( const string& line, TemplateLine& tl )
 {
 	assert( line.compare( 0, 2, "@@" ) != 0 );
 	tl.type = TemplateLine::LINE_TYPE::CONTENT;
 	vector<LinePart> parts;
-	readLineParts( line, parts );
+	size_t currentPos = 0;
+	readLineParts( line, currentPos, parts );
 
 	tl.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEXT, ""), parts ) );
 //	tl.attributes.insert( map<ATTRIBUTE, string>::value_type(ATTRIBUTE::TEXT, "her") );
@@ -305,21 +366,25 @@ void readAttributeValue( const string& line, size_t& pos, vector<LinePart>& part
 	if ( line[pos] == '\"' )
 	{
 		++pos;
-		size_t startpos = pos;
+/*		size_t startpos = pos;
 		while ( pos < sz && line[pos] != '\"' ) ++pos;
 		if ( pos == sz )
 		{
 			fmt::print( "line {}: error: attribute value string runs away\n", currentLineNum );
 			assert( 0 ); // TODO: throw
 		}
-		readLineParts( string( line.begin() + startpos, line.begin() + pos ), parts );
+		readLineParts( string( line.begin() + startpos, line.begin() + pos ), parts );*/
+		readLineParts( line, pos, parts, "\"" );
+		if ( line[pos] != '\"' )
+		{
+			fmt::print( "line {}: error: string runs away (lost terminating '\"')\n", currentLineNum );
+			assert( 0 ); // TODO: throw
+		}
 		++pos; // for closing '"'
 	}
 	else // single word is expected
 	{
-		size_t startpos = pos;
-		findSpaces( line, pos );
-		readLineParts( string( line.begin() + startpos, line.begin() + pos ), parts );
+		readLineParts( line, pos, parts, " \t" );
 	}
 }
 

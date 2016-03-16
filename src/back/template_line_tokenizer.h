@@ -70,6 +70,18 @@ struct LinePart
 	string verbatim;
 };
 
+enum PREDEFINED_FUNCTION
+{
+	NOT_A_FUNCTION,
+	MY_FN_1,
+};
+
+struct PredefindedFunction
+{
+	PREDEFINED_FUNCTION id;
+	size_t argC;
+};
+
 struct ExpressionElement
 {
 	enum OPERATION { PUSH, EQ, NEQ };
