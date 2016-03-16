@@ -203,37 +203,38 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 	// we have to go char by char; if '@' is found, make sure it's not a placeholder, or replace it accordingly
 	size_t sz = line.size();
 	ExpressionElement element;
-	element.oper = ExpressionElement::OPERATION::PUSH;
-	element.argtype = ExpressionElement::ARGTYPE::STRING;
+	element.oper = ExpressionElement::OPERATION::PUSH; // as a default
+	element.argtype = ExpressionElement::ARGTYPE::STRING; // as a default
 	skipSpaces( line, pos );
 	while ( pos < sz )
 	{
 		if ( line[ pos ] == '\"' )
 		{
 			++pos;
-			size_t startpos = pos;
-			while ( pos < sz && line[ pos ] != '\"' ) ++pos;
+			assert( element.oper == ExpressionElement::OPERATION::PUSH );
+			assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
+			if ( element.lineParts.size() )
+				expression.push_back( element ); 
+			element.lineParts.clear(); 
+			element.argtype = ExpressionElement::ARGTYPE::STRING; 
+//			element.stringValue = string( line.begin() + startpos, line.begin() + pos );
+			readLineParts( line, pos, element.lineParts, "\"" );
 			if ( pos == sz )
 			{
 				fmt::print( "line {}: error: file name string runs away\n", currentLineNum );
 				assert( 0 ); // TODO: throw
 			}
-			assert( element.oper == ExpressionElement::OPERATION::PUSH );
-			assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
-			if ( element.stringValue.size() )
-				expression.push_back( element ); 
-			element.stringValue.clear(); 
-			element.argtype = ExpressionElement::ARGTYPE::STRING; 
-			element.stringValue = string( line.begin() + startpos, line.begin() + pos );
+			++pos; // for terminating '"'
+			
 			expression.push_back( element ); 
-			++pos;
+			element.lineParts.clear();
 		}
 		else if ( line[ pos ] == ')' )
 		{
 			++pos;
 			break;
 		}
-		else if ( line[ pos ] == '@' )
+/*		else if ( line[ pos ] == '@' )
 		{
 			Placeholder placehldr = parsePlaceholder( line, pos );
 			switch ( placehldr.id )
@@ -258,8 +259,10 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 					}
 					element.stringValue.clear(); 
 					element.argtype = ExpressionElement::ARGTYPE::PLACEHOLDER; 
-					element.placeholder = placehldr.id;
-					element.stringValue = placehldr.specific;
+//					element.placeholder = placehldr.id;
+//					element.stringValue = placehldr.specific;
+					element.placeholder = placehldr;
+					element.stringValue.clear();
 					expression.push_back( element ); 
 					element.stringValue.clear();
 					element.argtype = ExpressionElement::ARGTYPE::STRING; 
@@ -271,30 +274,30 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 					break;
 				}
 			}
-		}
+		}*/
 		else
 		{
 			if ( line[ pos ] == ' ' || line[ pos ] == '\t')
 			{
-				if ( element.stringValue.size() )
+				if ( element.lineParts.size() )
 				{
 					assert( element.oper == ExpressionElement::OPERATION::PUSH );
 					assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
 					expression.push_back( element );
-					element.stringValue.clear();
+					element.lineParts.clear();
 				}
 				pos ++;
 			}
 			else if ( line.compare( pos, 2, "==" ) == 0 )
 			{
-				if ( element.stringValue.size() )
+				if ( element.lineParts.size() )
 				{
 					assert( element.oper == ExpressionElement::OPERATION::PUSH );
 					assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
 					expression.push_back( element );
-					element.stringValue.clear();
+					element.lineParts.clear();
 				}
-				element.stringValue.clear();
+				element.lineParts.clear();
 				element.oper = ExpressionElement::OPERATION::EQ;
 				element.argtype = ExpressionElement::ARGTYPE::NONE;
 				expression.push_back( element );
@@ -304,14 +307,14 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 			}
 			else if ( line.compare( pos, 2, "!=" ) == 0 )
 			{
-				if ( element.stringValue.size() )
+				if ( element.lineParts.size() )
 				{
 					assert( element.oper == ExpressionElement::OPERATION::PUSH );
 					assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
 					expression.push_back( element );
-					element.stringValue.clear();
+					element.lineParts.clear();
 				}
-				element.stringValue.clear();
+				element.lineParts.clear();
 				element.oper = ExpressionElement::OPERATION::NEQ;
 				element.argtype = ExpressionElement::ARGTYPE::NONE;
 				expression.push_back( element );
@@ -321,13 +324,14 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 			}
 			else
 			{
-				element.stringValue.push_back( line[ pos ] );
+				assert(0);
+//				element.stringValue.push_back( line[ pos ] );
 				pos ++;
 			}
 		}
 	}
 
-	if ( element.stringValue.size() )
+	if ( element.lineParts.size() )
 	{
 		assert( element.oper == ExpressionElement::OPERATION::PUSH );
 		assert( element.argtype == ExpressionElement::ARGTYPE::STRING );

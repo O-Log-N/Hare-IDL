@@ -52,15 +52,21 @@ void dbgPrintExpression( vector<ExpressionElement>& expression )
 			{
 				switch ( expression[i].argtype )
 				{
-					case ExpressionElement::ARGTYPE::STRING: fmt::print( "{}", expression[i].stringValue.c_str() ); break;
-					case ExpressionElement::ARGTYPE::NUMBER: fmt::print( "{}", expression[i].numberValue ); break;
-					case ExpressionElement::ARGTYPE::PLACEHOLDER:
+					case ExpressionElement::ARGTYPE::STRING: 
 					{
-						Placeholder ph = {expression[i].placeholder, expression[i].stringValue};
-						string placeholderStr = placeholderToString( ph );
-						fmt::print( "{}", placeholderStr.c_str() ); 
+//						fmt::print( "{}", expression[i].stringValue.c_str() ); 
+						dbgPrintLineParts( expression[i].lineParts );
 						break;
 					}
+					case ExpressionElement::ARGTYPE::NUMBER: fmt::print( "{}", expression[i].numberValue ); break;
+/*					case ExpressionElement::ARGTYPE::PLACEHOLDER:
+					{
+//						Placeholder ph = {expression[i].placeholder, expression[i].stringValue};
+//						string placeholderStr = placeholderToString( ph );
+						string placeholderStr = placeholderToString( expression[i].placeholder );
+						fmt::print( "{}", placeholderStr.c_str() ); 
+						break;
+					}*/
 					case ExpressionElement::ARGTYPE::NONE: fmt::print( "\"\"" ); break;
 					default: fmt::print( "?????????" ); break;
 				}

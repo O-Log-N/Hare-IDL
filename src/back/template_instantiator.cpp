@@ -17,6 +17,22 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "template_instantiator.h"
 
+string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart>& lineParts )
+{
+	string ret;
+	for ( auto lp:lineParts )
+	{
+		if ( lp.type == PLACEHOLDER::VERBATIM )
+			ret += lp.verbatim;
+		else
+		{
+			Placeholder ph = {lp.type, lp.verbatim};
+			ret += placeholder( ph );
+		}
+	}
+	return ret;
+}
+
 bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 {
 	// NOTE: here we have a quite quick and dirty solution just for a couple of immediately necessary cases
@@ -33,49 +49,57 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 
 	if (expressionSz == 3)
 	{
-		assert( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING || ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::PLACEHOLDER ); // limitation of a current version; TODO: further development
-		assert( ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::STRING || ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::PLACEHOLDER ); // limitation of a current version; TODO: further development
+		assert( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ); // limitation of a current version; TODO: further development
+		assert( ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::STRING ); // limitation of a current version; TODO: further development
 		switch ( ifNode.expression[1].oper )
 		{
 			case ExpressionElement::OPERATION::EQ:
 			{
-				string lstr;
+				string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
+/*				string lstr;
 				if ( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING )
-					lstr = ifNode.expression[0].stringValue;
+//					lstr = ifNode.expression[0].stringValue;
 				else
 				{
-					Placeholder ph = {ifNode.expression[0].placeholder, ifNode.expression[0].stringValue};
-					lstr = placeholder( ph );
-				}
-				string rstr;
+//					Placeholder ph = {ifNode.expression[0].placeholder, ifNode.expression[0].stringValue};
+//					lstr = placeholder( ph );
+					lstr = placeholder( ifNode.expression[0].placeholder );
+				}*/
+				string rstr = resolveLinePartsToString( ifNode.expression[2].lineParts );
+/*				string rstr;
 				if ( ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::STRING )
 					rstr = ifNode.expression[2].stringValue;
 				else
 				{
-					Placeholder ph = {ifNode.expression[2].placeholder, ifNode.expression[0].stringValue};
-					rstr = placeholder( ph );
-				}
+//					Placeholder ph = {ifNode.expression[2].placeholder, ifNode.expression[0].stringValue};
+//					rstr = placeholder( ph );
+					rstr = placeholder( ifNode.expression[2].placeholder );
+				}*/
 				ret = lstr == rstr;
 				break;
 			}
 			case ExpressionElement::OPERATION::NEQ:
 			{
-				string lstr;
+				string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
+/*				string lstr;
 				if ( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING )
 					lstr = ifNode.expression[0].stringValue;
 				else
 				{
-					Placeholder ph = {ifNode.expression[0].placeholder, ifNode.expression[0].stringValue};
-					lstr = placeholder( ph );
-				}
-				string rstr;
+//					Placeholder ph = {ifNode.expression[0].placeholder, ifNode.expression[0].stringValue};
+//					lstr = placeholder( ph );
+					lstr = placeholder( ifNode.expression[0].placeholder );
+				}*/
+				string rstr = resolveLinePartsToString( ifNode.expression[2].lineParts );
+/*				string rstr;
 				if ( ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::STRING )
 					rstr = ifNode.expression[2].stringValue;
 				else
 				{
-					Placeholder ph = {ifNode.expression[2].placeholder, ifNode.expression[0].stringValue};
-					rstr = placeholder( ph );
-				}
+//					Placeholder ph = {ifNode.expression[2].placeholder, ifNode.expression[0].stringValue};
+//					rstr = placeholder( ph );
+					rstr = placeholder( ifNode.expression[2].placeholder );
+				}*/
 				ret = !(lstr == rstr);
 				break;
 			}
@@ -88,32 +112,18 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	}
 	else
 	{
-		assert( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING || ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::PLACEHOLDER ); // limitation of a current version; TODO: further development
-		string lstr;
+		assert( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ); // limitation of a current version; TODO: further development
+		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
+/*		string lstr;
 		if ( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING )
 			lstr = ifNode.expression[0].stringValue;
 		else
 		{
-			Placeholder ph = {ifNode.expression[0].placeholder, ifNode.expression[0].stringValue};
-			lstr = placeholder( ph );
-		}
+//			Placeholder ph = {ifNode.expression[0].placeholder, ifNode.expression[0].stringValue};
+//			lstr = placeholder( ph );
+			lstr = placeholder( ifNode.expression[0].placeholder );
+		}*/
 		ret = !(lstr == "0" || lstr == "FALSE");
-	}
-	return ret;
-}
-
-string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart>& lineParts )
-{
-	string ret;
-	for ( auto lp:lineParts )
-	{
-		if ( lp.type == PLACEHOLDER::VERBATIM )
-			ret += lp.verbatim;
-		else
-		{
-			Placeholder ph = {lp.type, lp.verbatim};
-			ret += placeholder( ph );
-		}
 	}
 	return ret;
 }

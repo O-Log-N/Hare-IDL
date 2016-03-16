@@ -84,14 +84,15 @@ struct PredefindedFunction
 
 struct ExpressionElement
 {
-	enum OPERATION { PUSH, EQ, NEQ };
-    enum ARGTYPE {NONE, PLACEHOLDER, NUMBER, STRING};
+	enum OPERATION { PUSH, CALL, EQ, NEQ };
+    enum ARGTYPE {NONE, NUMBER, STRING};
 	OPERATION oper;
     ARGTYPE argtype = NONE; // for operation PUSH: any but NONE
 	// values below are used in case of PUSH operation
     double numberValue = 0; // argtype: NUMBER
-    string stringValue; // argtype: STRING
-	::PLACEHOLDER placeholder; // argtype: PLACEHOLDER
+	vector<LinePart> lineParts; // used for ARGTYPE::STRING
+//    string stringValue; // argtype: STRING
+//	Placeholder placeholder; // argtype: PLACEHOLDER
 };
 
 class AttributeName
