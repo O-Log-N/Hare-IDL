@@ -74,7 +74,6 @@ void readLineParts( const string& line, size_t& currentPos, vector<LinePart>& pa
 			{
 				part.verbatim.push_back( line[ currentPos ] ); 
 				++currentPos; 
-				break;
 			}
 			else
 			{
@@ -164,14 +163,21 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 
 void formVerbatimLine( const string& line, TemplateLine& tl )
 {
-	assert( line.compare( 0, 2, "@@" ) != 0 );
+//	assert( line.compare( 0, 2, "@@" ) != 0 );
 	tl.type = TemplateLine::LINE_TYPE::CONTENT;
-	vector<LinePart> parts;
+//	vector<LinePart> parts;
 	size_t currentPos = 0;
-	readLineParts( line, currentPos, parts );
+	ExpressionElement arg;
+	arg.oper = ExpressionElement::OPERATION::PUSH;
+	arg.argtype = ExpressionElement::ARGTYPE::STRING;
+	readLineParts( line, currentPos, arg.lineParts );
+	vector<ExpressionElement> expression;
+	expression.push_back( arg );
+	
+	tl.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEXT, ""), expression ) );
 
-	tl.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEXT, ""), parts ) );
-//	tl.attributes.insert( map<ATTRIBUTE, string>::value_type(ATTRIBUTE::TEXT, "her") );
+//	readLineParts( line, currentPos, parts );
+//	tl.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEXT, ""), parts ) );
 }
 
 //TemplateLine::LINE_TYPE getLineType( const string& line, size_t& pos )
@@ -217,7 +223,6 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 				expression.push_back( element ); 
 			element.lineParts.clear(); 
 			element.argtype = ExpressionElement::ARGTYPE::STRING; 
-//			element.stringValue = string( line.begin() + startpos, line.begin() + pos );
 			readLineParts( line, pos, element.lineParts, "\"" );
 			if ( pos == sz )
 			{
@@ -234,47 +239,6 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 			++pos;
 			break;
 		}
-/*		else if ( line[ pos ] == '@' )
-		{
-			Placeholder placehldr = parsePlaceholder( line, pos );
-			switch ( placehldr.id )
-			{
-				case PLACEHOLDER::VERBATIM: 
-				{
-					element.stringValue.push_back( line[ pos ] ); 
-					pos ++; 
-					break;
-				}
-				case PLACEHOLDER::MEMBER_TYPE:
-				case PLACEHOLDER::MEMBER_NAME:
-				case PLACEHOLDER::STRUCT_NAME:
-				case PLACEHOLDER::PARAM_MINUS:
-				{
-					assert( element.oper == ExpressionElement::OPERATION::PUSH );
-					assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
-					if ( element.stringValue.size() )
-					{
-						expression.push_back( element );
-						element.stringValue.clear();
-					}
-					element.stringValue.clear(); 
-					element.argtype = ExpressionElement::ARGTYPE::PLACEHOLDER; 
-//					element.placeholder = placehldr.id;
-//					element.stringValue = placehldr.specific;
-					element.placeholder = placehldr;
-					element.stringValue.clear();
-					expression.push_back( element ); 
-					element.stringValue.clear();
-					element.argtype = ExpressionElement::ARGTYPE::STRING; 
-					break;
-				}
-				default:
-				{
-					assert( 0 == "NOT IMPLEMENTED" );
-					break;
-				}
-			}
-		}*/
 		else
 		{
 			if ( line[ pos ] == ' ' || line[ pos ] == '\t')
@@ -344,17 +308,6 @@ void readAttributeName( const string& line, size_t& pos, AttributeName& attrName
 	size_t sz = line.size();
 	skipSpaces( line, pos );
 	attrName = parseParam( line, pos );
-/*	string secondPart;
-	if ( attrName.id == ATTRIBUTE::PARAM )
-	{
-		// right after it we expect a qualifying word
-		// in present implementation we apply a relaxed check where a space is a terminator
-		size_t startpos = pos;
-		do { ++pos; } while ( pos < sz && (!( line[pos] == ' ' || line[pos] == '\t' )) );
-		attrName.ext = string( line.begin() + startpos, line.begin() + pos );
-	}
-	else
-		attrName.ext.clear();*/
 }
 
 void readAttributeValue( const string& line, size_t& pos, vector<LinePart>& parts, int currentLineNum )
@@ -396,7 +349,6 @@ void readNextParam( const string& line, size_t& pos, TemplateLine& tl, int curre
 {
 	size_t sz = line.size();
 	AttributeName attrName;
-	vector<LinePart> parts;
 	readAttributeName( line, pos, attrName, currentLineNum );
 	if ( attrName.id == ATTRIBUTE::NONE )
 	{
@@ -406,16 +358,30 @@ void readNextParam( const string& line, size_t& pos, TemplateLine& tl, int curre
 	skipSpaces( line, pos );
 	if ( pos == sz )
 	{
-		tl.attributes.insert( make_pair(attrName, parts ) );
+		vector<ExpressionElement> expression;
+		tl.attributes.insert( make_pair(attrName, expression ) );
 		return;
 	}
+
 	if ( line[ pos ] == '=' )
 	{
 		++pos;
-		readAttributeValue( line, pos, parts, currentLineNum );
+		// temporary code;
+		// TODO: read expression instead
+		ExpressionElement arg;
+		arg.oper = ExpressionElement::OPERATION::PUSH;
+		arg.argtype = ExpressionElement::ARGTYPE::STRING;
+		readAttributeValue( line, pos, arg.lineParts, currentLineNum );
+		vector<ExpressionElement> expression;
+		expression.push_back( arg );
+		tl.attributes.insert( make_pair(attrName, expression ) );
+	}
+	else
+	{
+		vector<ExpressionElement> expression;
+		tl.attributes.insert( make_pair(attrName, expression ) );
 	}
 
-	tl.attributes.insert( make_pair(attrName, parts ) );
 }
 
 void readAttributes( const string& line, size_t& pos, TemplateLine& tl, int currentLineNum )

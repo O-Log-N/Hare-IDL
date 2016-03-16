@@ -29,7 +29,7 @@ struct TemplateNode
 	int srcLineNum;
 	vector<TemplateNode> childNodes;
 
-	map<AttributeName, vector<LinePart>> attributes;
+	map<AttributeName, vector<ExpressionElement>> attributes;
 	vector<ExpressionElement> expression; // used only for NODE_TYPE::IF(ELIF) and NODE_TYPE::ASSERT
 };
 
@@ -56,10 +56,21 @@ public:
 			auto attrT = node.attributes.find( {ATTRIBUTE::NAME, ""} );
 			assert( attrT != node.attributes.end() );
 			assert( attrT->second.size() == 1 );
+			assert( attrT->second[0].oper == ExpressionElement::OPERATION::PUSH );
+			assert( attrT->second[0].argtype == ExpressionElement::ARGTYPE::STRING );
+			assert( attrT->second[0].lineParts.size() == 1 );
+			assert( attrT->second[0].lineParts[0].type == PLACEHOLDER::VERBATIM );
+
 			auto typeT = node.attributes.find( {ATTRIBUTE::TYPE, ""} );
 			assert( typeT != node.attributes.end() );
 			assert( typeT->second.size() == 1 );
-			if ( attrT->second[0].verbatim == name && typeT->second[0].verbatim == expectedType )
+			assert( typeT->second[0].oper == ExpressionElement::OPERATION::PUSH );
+			assert( typeT->second[0].argtype == ExpressionElement::ARGTYPE::STRING );
+			assert( typeT->second[0].lineParts.size() == 1 );
+			assert( typeT->second[0].lineParts.size() == 1 );
+			assert( typeT->second[0].lineParts[0].type == PLACEHOLDER::VERBATIM );
+
+			if ( attrT->second[0].lineParts[0].verbatim == name && typeT->second[0].lineParts[0].verbatim == expectedType )
 				return &node;
 		}
 		return nullptr;

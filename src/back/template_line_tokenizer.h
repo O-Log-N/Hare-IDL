@@ -91,8 +91,6 @@ struct ExpressionElement
 	// values below are used in case of PUSH operation
     double numberValue = 0; // argtype: NUMBER
 	vector<LinePart> lineParts; // used for ARGTYPE::STRING
-//    string stringValue; // argtype: STRING
-//	Placeholder placeholder; // argtype: PLACEHOLDER
 };
 
 class AttributeName
@@ -103,16 +101,9 @@ public:
 
 	AttributeName() {}
 	AttributeName( ATTRIBUTE id_, const string& ext_ ) : id ( id_ ), ext( ext_ ) {}
-	bool operator < ( const AttributeName& other ) const
+	bool operator<( const AttributeName& other) const 
 	{
-		if ( id < other.id ) return true;
-		if ( id > other.id ) return false;
-		return ext < other.ext;
-		/*
-		bool operator<( const X& other) const {
-			return std::tie(i, s) < std::tie(other.i, other.s);
-		}
-		*/
+		return std::tie(id, ext) < std::tie(other.id, other.ext);
 	}
 };
 
@@ -138,7 +129,7 @@ struct TemplateLine
 
 	LINE_TYPE type;
 	int srcLineNum;
-	map<AttributeName, vector<LinePart>> attributes;
+	map<AttributeName, vector<ExpressionElement>> attributes;
 //	map<ATTRIBUTE, string> map;
 	vector<ExpressionElement> expression; // used only for NODE_TYPE::IF(ELIF) and NODE_TYPE::ASSERT
 };

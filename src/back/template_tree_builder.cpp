@@ -82,7 +82,7 @@ void dbgPrintExpression( vector<ExpressionElement>& expression )
 		}
 }
 
-void dbgPrintAttributes( map<AttributeName, vector<LinePart>>& attributes )
+void dbgPrintAttributes( map<AttributeName, vector<ExpressionElement>>& attributes )
 {
 	for ( auto it:attributes )
 	{
@@ -90,7 +90,7 @@ void dbgPrintAttributes( map<AttributeName, vector<LinePart>>& attributes )
 		if ( it.second.size() )
 		{
 			fmt::print( "=" );
-			dbgPrintLineParts( it.second );
+			dbgPrintExpression( it.second );
 		}
 		fmt::print( " " );
 	}
@@ -103,7 +103,7 @@ void dbgPrintNode_( TemplateNode& node, int depth )
 	if ( node.type == NODE_TYPE::CONTENT )
 	{
 		assert( node.attributes.size() == 1 );
-		dbgPrintLineParts( node.attributes.begin()->second );
+		dbgPrintExpression( node.attributes.begin()->second );
 	}
 	else
 	{
@@ -316,11 +316,15 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				bool nameOK = attrName != lines[flidx].attributes.end();
 				if ( nameOK )
 				{
-					auto& lineParts = attrName->second;
-					nameOK = lineParts.size() == 1;
+					auto& expr = attrName->second;
+					nameOK = expr.size() == 1;
 					if ( nameOK )
-						templateName = lineParts[0].verbatim;
-					else
+						nameOK = expr[0].lineParts.size() == 1;
+					if ( nameOK )
+						nameOK = expr[0].lineParts[0].type == PLACEHOLDER::VERBATIM;
+					if ( nameOK )
+						templateName = expr[0].lineParts[0].verbatim;
+					if ( !nameOK )
 					{
 						fmt::print( "line {}: error: template has bad or no name\n", lines[flidx].srcLineNum );
 						return false;
@@ -345,11 +349,17 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				nameOK = attrName != lines[flidx].attributes.end();
 				if ( nameOK )
 				{
-					auto& lineParts = attrName->second;
-					nameOK = lineParts.size() == 1;
+					auto& expr = attrName->second;
+					nameOK = expr.size() == 1;
+					if ( nameOK )
+						nameOK = expr[0].lineParts.size() == 1;
+					if ( nameOK )
+						nameOK = expr[0].lineParts[0].type == PLACEHOLDER::VERBATIM;
+					if ( nameOK )
+						closingTemplateName = expr[0].lineParts[0].verbatim;
+
 					if ( nameOK )
 					{
-						closingTemplateName = lineParts[0].verbatim;
 						if ( templateName != closingTemplateName )
 						{
 							fmt::print( "line {}: error: template name at template begin (see line {}) does not coincide with that at template end\n", lines[flidx].srcLineNum, lnStart );

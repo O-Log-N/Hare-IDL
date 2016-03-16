@@ -29,6 +29,7 @@ class TemplateInstantiator
 {
 protected:
 	bool calcConditionOfIfNode( TemplateNode& ifNode );
+	void evaluateExpression( const vector<ExpressionElement>& expression, ExpressionElement& res ); // TODO: ExpressionElement -> Stack 9which is a vector<StackElement> or alike)
 	virtual void applyNode( TemplateNode& node );
 	virtual string context();
 	string resolveLinePartsToString( const vector<LinePart>& lineParts );
