@@ -28,7 +28,7 @@ Copyright (C) 2016 <CONTRIBUTOR>
 *******************************************************************************/
 ```
 
-**DON'T FORGET** to replace <CONTRIBUTOR> with **your name** (or name of your organization as applicable)
+**DON'T FORGET** to replace `<CONTRIBUTOR>` with **your name** (or name of your organization as applicable)
 
 ### I.1 Naming conventions
 
