@@ -39,9 +39,9 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 	// for now we assume that the expression has only one operation
 	// TODO: implement
 	assert( expression.size() == 1 );
-	assert( expression[0].oper == ExpressionElement::OPERATION::PUSH );
+	assert( expression[0].oper == OPERATOR::PUSH );
 	assert( expression[0].argtype == ExpressionElement::ARGTYPE::STRING );
-	res.oper = ExpressionElement::OPERATION::PUSH;
+	res.oper = OPERATOR::PUSH;
 	res.argtype = ExpressionElement::ARGTYPE::STRING;
 	LinePart part;
 	part.type = PLACEHOLDER::VERBATIM;
@@ -59,9 +59,10 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 
 //	size_t i, j;
 
+#if 0
 	size_t expressionSz = ifNode.expression.size();
-	assert( ( expressionSz == 1 && ifNode.expression[0].oper == ExpressionElement::OPERATION::PUSH ) || 
-		    ( expressionSz == 3 && ifNode.expression[0].oper == ExpressionElement::OPERATION::PUSH && ( ifNode.expression[1].oper == ExpressionElement::OPERATION::EQ || ifNode.expression[1].oper == ExpressionElement::OPERATION::NEQ ) &&ifNode.expression[2].oper == ExpressionElement::OPERATION::PUSH ) ); // limitation of a current version; TODO: further development
+	assert( ( expressionSz == 1 && ifNode.expression[0].oper == OPERATOR::PUSH ) || 
+		    ( expressionSz == 3 && ifNode.expression[0].oper == OPERATOR::PUSH && ( ifNode.expression[1].oper == OPERATOR::EQ || ifNode.expression[1].oper == OPERATOR::NEQ ) &&ifNode.expression[2].oper == OPERATOR::PUSH ) ); // limitation of a current version; TODO: further development
 
 	if (expressionSz == 3)
 	{
@@ -71,12 +72,12 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 		string rstr = resolveLinePartsToString( ifNode.expression[2].lineParts );
 		switch ( ifNode.expression[1].oper )
 		{
-			case ExpressionElement::OPERATION::EQ:
+			case OPERATOR::EQ:
 			{
 				ret = lstr == rstr;
 				break;
 			}
-			case ExpressionElement::OPERATION::NEQ:
+			case OPERATOR::NEQ:
 			{
 				ret = !(lstr == rstr);
 				break;
@@ -94,6 +95,43 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
 		ret = !(lstr == "0" || lstr == "FALSE");
 	}
+#else
+	size_t expressionSz = ifNode.expression.size();
+	assert( ( expressionSz == 1 && ifNode.expression[0].oper == OPERATOR::PUSH ) || 
+		    ( expressionSz == 3 && ifNode.expression[0].oper == OPERATOR::PUSH && ( ifNode.expression[2].oper == OPERATOR::EQ || ifNode.expression[2].oper == OPERATOR::NEQ ) &&ifNode.expression[1].oper == OPERATOR::PUSH ) ); // limitation of a current version; TODO: further development
+
+	if (expressionSz == 3)
+	{
+		assert( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ); // limitation of a current version; TODO: further development
+		assert( ifNode.expression[1].argtype == ExpressionElement::ARGTYPE::STRING ); // limitation of a current version; TODO: further development
+		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
+		string rstr = resolveLinePartsToString( ifNode.expression[1].lineParts );
+		switch ( ifNode.expression[2].oper )
+		{
+			case OPERATOR::EQ:
+			{
+				ret = lstr == rstr;
+				break;
+			}
+			case OPERATOR::NEQ:
+			{
+				ret = !(lstr == rstr);
+				break;
+			}
+			default:
+			{
+				fmt::print("Type {} is unexpected or unsupported\n", ifNode.expression[2].oper );
+				assert(0 == "Error: not supported");
+			}
+		}
+	}
+	else
+	{
+		assert( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ); // limitation of a current version; TODO: further development
+		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
+		ret = !(lstr == "0" || lstr == "FALSE");
+	}
+#endif
 	return ret;
 }
 

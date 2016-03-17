@@ -48,32 +48,25 @@ void dbgPrintExpression( vector<ExpressionElement>& expression )
 	for ( i=0; i<expression.size(); i++ )
 		switch ( expression[i].oper )
 		{
-			case ExpressionElement::OPERATION::PUSH:
+			case OPERATOR::PUSH:
 			{
 				switch ( expression[i].argtype )
 				{
 					case ExpressionElement::ARGTYPE::STRING: 
 					{
-//						fmt::print( "{}", expression[i].stringValue.c_str() ); 
+						fmt::print( "\"" ); 
 						dbgPrintLineParts( expression[i].lineParts );
+						fmt::print( "\" " ); 
 						break;
 					}
 					case ExpressionElement::ARGTYPE::NUMBER: fmt::print( "{}", expression[i].numberValue ); break;
-/*					case ExpressionElement::ARGTYPE::PLACEHOLDER:
-					{
-//						Placeholder ph = {expression[i].placeholder, expression[i].stringValue};
-//						string placeholderStr = placeholderToString( ph );
-						string placeholderStr = placeholderToString( expression[i].placeholder );
-						fmt::print( "{}", placeholderStr.c_str() ); 
-						break;
-					}*/
 					case ExpressionElement::ARGTYPE::NONE: fmt::print( "\"\"" ); break;
 					default: fmt::print( "?????????" ); break;
 				}
 				break;
 			}
-			case ExpressionElement::OPERATION::EQ: fmt::print( " == " ); break;
-			case ExpressionElement::OPERATION::NEQ: fmt::print( " != " ); break;
+			case OPERATOR::EQ: fmt::print( "{} ", operatorToString( expression[i].oper ).c_str() ); break;
+			case OPERATOR::NEQ: fmt::print( "{} ", operatorToString( expression[i].oper ).c_str() ); break;
 			default:
 			{
 				fmt::print( "Unknown expression.oper = {} found\n", expression[i].oper );
@@ -100,6 +93,7 @@ void dbgPrintAttributes( map<AttributeName, vector<ExpressionElement>>& attribut
 void dbgPrintNode_( TemplateNode& node, int depth )
 {
 	dbgPrintIndent( depth );
+	fmt::print( "[{}] {} ", node.srcLineNum, nodeTypesToString( node.type ) );
 	if ( node.type == NODE_TYPE::CONTENT )
 	{
 		assert( node.attributes.size() == 1 );
@@ -107,7 +101,6 @@ void dbgPrintNode_( TemplateNode& node, int depth )
 	}
 	else
 	{
-		fmt::print( "[{}] {} ", node.srcLineNum, nodeTypesToString( node.type ) );
 		dbgPrintExpression( node.expression );
 		dbgPrintAttributes( node.attributes );
 	}

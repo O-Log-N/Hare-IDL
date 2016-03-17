@@ -56,7 +56,7 @@ public:
 			auto attrT = node.attributes.find( {ATTRIBUTE::NAME, ""} );
 			assert( attrT != node.attributes.end() );
 			assert( attrT->second.size() == 1 );
-			assert( attrT->second[0].oper == ExpressionElement::OPERATION::PUSH );
+			assert( attrT->second[0].oper == OPERATOR::PUSH );
 			assert( attrT->second[0].argtype == ExpressionElement::ARGTYPE::STRING );
 			assert( attrT->second[0].lineParts.size() == 1 );
 			assert( attrT->second[0].lineParts[0].type == PLACEHOLDER::VERBATIM );
@@ -64,7 +64,7 @@ public:
 			auto typeT = node.attributes.find( {ATTRIBUTE::TYPE, ""} );
 			assert( typeT != node.attributes.end() );
 			assert( typeT->second.size() == 1 );
-			assert( typeT->second[0].oper == ExpressionElement::OPERATION::PUSH );
+			assert( typeT->second[0].oper == OPERATOR::PUSH );
 			assert( typeT->second[0].argtype == ExpressionElement::ARGTYPE::STRING );
 			assert( typeT->second[0].lineParts.size() == 1 );
 			assert( typeT->second[0].lineParts.size() == 1 );

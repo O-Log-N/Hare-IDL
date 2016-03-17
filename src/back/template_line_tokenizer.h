@@ -58,6 +58,25 @@ enum PLACEHOLDER {
 	PARAM_MINUS,
 };
 
+enum OPERATOR { 
+	INVALID,
+	PUSH, 
+	CALL, 
+	EQ, 
+	NEQ,
+	GREATER,
+	LESS,
+	LEQ,
+	GEQ,
+	ADD,
+	INCREMENT,
+	SUBTR,
+	DECREMENT,
+	NOT,
+	AND,
+	OR,
+};
+
 struct Placeholder
 {
 	PLACEHOLDER id;
@@ -82,15 +101,21 @@ struct PredefindedFunction
 	size_t argC;
 };
 
+struct PredefindedOperator
+{
+	OPERATOR id;
+	size_t argC;
+};
+
 struct ExpressionElement
 {
-	enum OPERATION { PUSH, CALL, EQ, NEQ };
     enum ARGTYPE {NONE, NUMBER, STRING};
-	OPERATION oper;
+	OPERATOR oper;
     ARGTYPE argtype = NONE; // for operation PUSH: any but NONE
 	// values below are used in case of PUSH operation
-    double numberValue = 0; // argtype: NUMBER
+    double numberValue = 0; // argtype: ARGTYPE::NUMBER
 	vector<LinePart> lineParts; // used for ARGTYPE::STRING
+	int fnCallID; // used for OPERATION::CALL
 };
 
 class AttributeName
@@ -130,7 +155,6 @@ struct TemplateLine
 	LINE_TYPE type;
 	int srcLineNum;
 	map<AttributeName, vector<ExpressionElement>> attributes;
-//	map<ATTRIBUTE, string> map;
 	vector<ExpressionElement> expression; // used only for NODE_TYPE::IF(ELIF) and NODE_TYPE::ASSERT
 };
 

@@ -96,34 +96,36 @@ void readLineParts( const string& line, size_t& currentPos, vector<LinePart>& pa
 	}
 }
 
-void y( const string& line, size_t& currentPos, vector<LinePart>& parts )
-{
-	switch ( line[currentPos] )
-	{
-		case '\"':
-		{
-		}
-	}
-}
-
 void parseExpression( const string& line, size_t& currentPos, vector<ExpressionElement>& expression, int currentLineNum )
 {
 	size_t sz = line.size();
+	vector<ExpressionElement> postfixOperations;
 	for ( ; currentPos<sz; )
 	{
-		if ( line[currentPos] == '\"' )
+		if ( line[currentPos] == '\"' ) // beginning of a string; an argument; to be pushed
 		{
-			vector<LinePart> parts;
-			readLineParts( line, currentPos, parts, "\"" );
+			++currentPos;
+			ExpressionElement elem;
+			elem.oper = OPERATOR::PUSH;
+			elem.argtype = ExpressionElement::ARGTYPE::STRING;
+			readLineParts( line, currentPos, elem.lineParts, "\"" );
 			if ( line[currentPos] != '\"' )
 			{
 				fmt::print( "line {}: error: string runs away (lost terminating '\"')\n", currentLineNum );
 				assert( 0 ); // TODO: throw
 			}
 			++currentPos; // for terminating '"'
+			expression.push_back( elem );
+			skipSpaces( line, currentPos );
+			while ( postfixOperations.size() )
+			{
+				expression.push_back( postfixOperations.back() );
+				postfixOperations.pop_back();
+			}
 		}
 		else if ( line[currentPos] == '(' )
 		{
+			++currentPos;
 			skipSpaces( line, currentPos );
 			parseExpression( line, currentPos, expression, currentLineNum );
 			if ( line[currentPos] != ')' )
@@ -131,11 +133,18 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 				fmt::print( "line {}: error: ')' expected\n", currentLineNum );
 				assert( 0 ); // TODO: throw
 			}
-			++currentPos; // for terminating '"'
+			++currentPos; // for terminating ')'
+			skipSpaces( line, currentPos );
+			while ( postfixOperations.size() )
+			{
+				expression.push_back( postfixOperations.back() );
+				postfixOperations.pop_back();
+			}
 		}
 		else if ( line[currentPos] >= '0' && line[currentPos] <= '9' )
 		{
 			string num = readIntegralNumericalLiteral( line, currentPos );
+			assert( 0 ); //TODO: need to define an exact processing
 		}
 		else if ( ( line[currentPos] >= 'a' && line[currentPos] <= 'z' ) || 
 			      ( line[currentPos] >= 'A' && line[currentPos] <= 'Z' ) )
@@ -147,16 +156,58 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 				fmt::print( "line {}:  unexpected token {}\n", currentLineNum, unknown );
 				assert( 0 ); // TODO: throw
 			}
-			if ( fn.argC == 0 )
+			skipSpaces( line, currentPos );
+			if ( line[currentPos] != '(' )
 			{
-				skipSpaces( line, currentPos );
+				fmt::print( "line {}:  unexpected '('\n", currentLineNum );
+				assert( 0 ); // TODO: throw
 			}
-			else
-				for ( size_t i=0; i<fn.argC; ++i )
-				{
-					skipSpaces( line, currentPos );
-				}
-			// todo: push, ...
+			++currentPos; // for opening '('
+			ExpressionElement fncall;
+			fncall.oper = OPERATOR::CALL;
+			fncall.fnCallID = fn.id;
+			postfixOperations.push_back( fncall );
+			size_t inisz = expression.size();
+			skipSpaces( line, currentPos );
+			parseExpression( line, currentPos, expression, currentLineNum );
+			if ( line[currentPos] != ')' )
+			{
+				fmt::print( "line {}: error: ')' expected\n", currentLineNum );
+				assert( 0 ); // TODO: throw
+			}
+			++currentPos; // for terminating ')'
+			skipSpaces( line, currentPos );
+			size_t newsz = expression.size();
+			// quick sanity check for arg'less function
+			// TODO: indeed, we can calculate a number of actually supplied args
+			if ( fn.argC == 0 && inisz != newsz )
+			{
+				fmt::print( "line {}: function {} takes {} arguments\n", currentLineNum, functionNameToString( fn.id ), fn.argC );
+				assert( 0 ); // TODO: throw
+			}
+			skipSpaces( line, currentPos );
+			while ( postfixOperations.size() )
+			{
+				expression.push_back( postfixOperations.back() );
+				postfixOperations.pop_back();
+			}
+		}
+		else
+		{
+			PredefindedOperator oper = parsePredefinedOperator( line, currentPos );
+			if ( oper.id == OPERATOR::INVALID )
+			{
+/*				string unknown;
+				while ( currentPos < line.size() && currentPos < 4 ) unknown.push_back( line[currentPos++] );
+				fmt::print( "line {}:  unrecognized sequence {}\n", currentLineNum, unknown );
+				assert( 0 ); // TODO: throw*/
+				return;
+			}
+
+			ExpressionElement opercall;
+			opercall.oper = oper.id;
+			postfixOperations.push_back( opercall );
+			skipSpaces( line, currentPos );
 		}
 	}
 }
@@ -168,7 +219,7 @@ void formVerbatimLine( const string& line, TemplateLine& tl )
 //	vector<LinePart> parts;
 	size_t currentPos = 0;
 	ExpressionElement arg;
-	arg.oper = ExpressionElement::OPERATION::PUSH;
+	arg.oper = OPERATOR::PUSH;
 	arg.argtype = ExpressionElement::ARGTYPE::STRING;
 	readLineParts( line, currentPos, arg.lineParts );
 	vector<ExpressionElement> expression;
@@ -187,6 +238,7 @@ KeyWordProps getLineType( const string& line, size_t& pos )
 	return parseMainKeyword( line, pos );
 }
 
+#if 0
 void readExpression( const string& line, size_t& pos, vector<ExpressionElement>& expression, int currentLineNum )
 {
 	// expressions are always in ()
@@ -209,7 +261,7 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 	// we have to go char by char; if '@' is found, make sure it's not a placeholder, or replace it accordingly
 	size_t sz = line.size();
 	ExpressionElement element;
-	element.oper = ExpressionElement::OPERATION::PUSH; // as a default
+	element.oper = OPERATOR::PUSH; // as a default
 	element.argtype = ExpressionElement::ARGTYPE::STRING; // as a default
 	skipSpaces( line, pos );
 	while ( pos < sz )
@@ -217,7 +269,7 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 		if ( line[ pos ] == '\"' )
 		{
 			++pos;
-			assert( element.oper == ExpressionElement::OPERATION::PUSH );
+			assert( element.oper == OPERATOR::PUSH );
 			assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
 			if ( element.lineParts.size() )
 				expression.push_back( element ); 
@@ -245,7 +297,7 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 			{
 				if ( element.lineParts.size() )
 				{
-					assert( element.oper == ExpressionElement::OPERATION::PUSH );
+					assert( element.oper == OPERATOR::PUSH );
 					assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
 					expression.push_back( element );
 					element.lineParts.clear();
@@ -256,16 +308,16 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 			{
 				if ( element.lineParts.size() )
 				{
-					assert( element.oper == ExpressionElement::OPERATION::PUSH );
+					assert( element.oper == OPERATOR::PUSH );
 					assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
 					expression.push_back( element );
 					element.lineParts.clear();
 				}
 				element.lineParts.clear();
-				element.oper = ExpressionElement::OPERATION::EQ;
+				element.oper = OPERATOR::EQ;
 				element.argtype = ExpressionElement::ARGTYPE::NONE;
 				expression.push_back( element );
-				element.oper = ExpressionElement::OPERATION::PUSH;
+				element.oper = OPERATOR::PUSH;
 				element.argtype = ExpressionElement::ARGTYPE::STRING;
 				pos += 2;
 			}
@@ -273,16 +325,16 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 			{
 				if ( element.lineParts.size() )
 				{
-					assert( element.oper == ExpressionElement::OPERATION::PUSH );
+					assert( element.oper == OPERATOR::PUSH );
 					assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
 					expression.push_back( element );
 					element.lineParts.clear();
 				}
 				element.lineParts.clear();
-				element.oper = ExpressionElement::OPERATION::NEQ;
+				element.oper = OPERATOR::NEQ;
 				element.argtype = ExpressionElement::ARGTYPE::NONE;
 				expression.push_back( element );
-				element.oper = ExpressionElement::OPERATION::PUSH;
+				element.oper = OPERATOR::PUSH;
 				element.argtype = ExpressionElement::ARGTYPE::STRING;
 				pos += 2;
 			}
@@ -297,12 +349,12 @@ void readExpression( const string& line, size_t& pos, vector<ExpressionElement>&
 
 	if ( element.lineParts.size() )
 	{
-		assert( element.oper == ExpressionElement::OPERATION::PUSH );
+		assert( element.oper == OPERATOR::PUSH );
 		assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
 		expression.push_back( element ); 
 	}
 }
-
+#endif
 void readAttributeName( const string& line, size_t& pos, AttributeName& attrName, int currentLineNum )
 {
 	size_t sz = line.size();
@@ -369,7 +421,7 @@ void readNextParam( const string& line, size_t& pos, TemplateLine& tl, int curre
 		// temporary code;
 		// TODO: read expression instead
 		ExpressionElement arg;
-		arg.oper = ExpressionElement::OPERATION::PUSH;
+		arg.oper = OPERATOR::PUSH;
 		arg.argtype = ExpressionElement::ARGTYPE::STRING;
 		readAttributeValue( line, pos, arg.lineParts, currentLineNum );
 		vector<ExpressionElement> expression;
@@ -442,7 +494,7 @@ bool tokenizeTemplateLines( istream& tf, vector<TemplateLine>& templateLines, in
 				assert( 0 ); // TODO: throw
 			}
 			if ( props.expressionRequired )
-				readExpression( line, pos, tl.expression, currentLineNum );
+				parseExpression( line, pos, tl.expression, currentLineNum );
 			readAttributes( line, pos, tl, currentLineNum );
 			templateLines.push_back( tl );
 			if ( tl.type == TemplateLine::LINE_TYPE::END_TEMPLATE )

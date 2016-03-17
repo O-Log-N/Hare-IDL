@@ -58,6 +58,21 @@ Copyright (C) 2016 OLogN Technologies AG
 // predefined functions
 #define FUNCTION_STRING_MY_FN_1 "myFn1"
 
+// operators
+#define OPERATOR_STRING_EQ "=="
+#define OPERATOR_STRING_NEQ "!="
+#define OPERATOR_STRING_GREATER ">"
+#define OPERATOR_STRING_LESS "<"
+#define OPERATOR_STRING_LEQ "<="
+#define OPERATOR_STRING_GEQ ">="
+#define OPERATOR_STRING_ADD "+"
+#define OPERATOR_STRING_INCREMENT "++"
+#define OPERATOR_STRING_SUBTR "-"
+#define OPERATOR_STRING_DECREMENT "--"
+#define OPERATOR_STRING_NOT "!"
+#define OPERATOR_STRING_AND "&&"
+#define OPERATOR_STRING_OR "||"
+
 struct KeyWord
 {
 	const char* kw;
@@ -85,6 +100,14 @@ struct PredefinedFunctionDetails
 	const char* kw;
 	int size;
 	PREDEFINED_FUNCTION id;
+	size_t argC;
+};
+
+struct Operator
+{
+	const char* kw;
+	int size;
+	OPERATOR id;
 	size_t argC;
 };
 
@@ -151,6 +174,28 @@ const PredefinedFunctionDetails functions[]
 {
 	{FUNCTION_STRING_MY_FN_1, sizeof(FUNCTION_STRING_MY_FN_1)-1, PREDEFINED_FUNCTION::MY_FN_1, 1},
 	{NULL, 0, PREDEFINED_FUNCTION::NOT_A_FUNCTION, 0},
+};
+
+const Operator operators[]
+{
+	// WARNING:
+	// FOR PARSING TO WORK CORRECLY this array MUST be sorted in descending order with respect to the sizeof() of a respective string
+	{OPERATOR_STRING_EQ, sizeof(OPERATOR_STRING_EQ)-1, OPERATOR::EQ, 2},
+	{OPERATOR_STRING_NEQ, sizeof(OPERATOR_STRING_NEQ)-1, OPERATOR::NEQ, 2 },
+	{OPERATOR_STRING_LEQ, sizeof(OPERATOR_STRING_LEQ)-1, OPERATOR::LEQ, 2},
+	{OPERATOR_STRING_GEQ, sizeof(OPERATOR_STRING_GEQ)-1, OPERATOR::GEQ, 2},
+	{OPERATOR_STRING_AND, sizeof(OPERATOR_STRING_AND)-1, OPERATOR::AND, 2},
+	{OPERATOR_STRING_OR, sizeof(OPERATOR_STRING_OR)-1, OPERATOR::OR, 2},
+	{OPERATOR_STRING_GREATER, sizeof(OPERATOR_STRING_GREATER)-1, OPERATOR::GREATER, 2},
+	{OPERATOR_STRING_LESS, sizeof(OPERATOR_STRING_LESS)-1, OPERATOR::LESS, 2},
+	{OPERATOR_STRING_ADD, sizeof(OPERATOR_STRING_ADD)-1, OPERATOR::ADD, 2},
+	{OPERATOR_STRING_SUBTR, sizeof(OPERATOR_STRING_SUBTR)-1, OPERATOR::SUBTR, 2},
+
+	{OPERATOR_STRING_NOT, sizeof(OPERATOR_STRING_NOT)-1, OPERATOR::NOT, 1},
+	{OPERATOR_STRING_INCREMENT, sizeof(OPERATOR_STRING_INCREMENT)-1, OPERATOR::INCREMENT, 1},
+	{OPERATOR_STRING_DECREMENT, sizeof(OPERATOR_STRING_DECREMENT)-1, OPERATOR::DECREMENT, 1},
+
+	{NULL, 0, OPERATOR::INVALID, 0},
 };
 
 string readIdentifier( const string& line, size_t& contentStart )
@@ -261,18 +306,17 @@ PredefindedFunction parsePredefinedFunction( const string& line, size_t& content
 	const PredefinedFunctionDetails* fn = parseSpecialWord( line, contentStart, functions );
 	ret.id = fn->id;
 	ret.argC = fn->argC;
-	if ( fn->id != PREDEFINED_FUNCTION::NOT_A_FUNCTION )
-	{
-		skipSpaces( line, contentStart );
-		if ( line[contentStart] == '(' )
-			++contentStart;
-		else
-		{
-			ret.id = PREDEFINED_FUNCTION::NOT_A_FUNCTION;
-			ret.argC = 0;
-			contentStart = iniContentStart; // restore
-		}
-	}
+	return ret;
+}
+
+PredefindedOperator parsePredefinedOperator( const string& line, size_t& contentStart )
+{
+	PredefindedOperator ret;
+	size_t iniContentStart = contentStart;
+	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
+	const Operator* oper = parseSpecialWord( line, contentStart, operators );
+	ret.id = oper->id;
+	ret.argC = oper->argC;
 	return ret;
 }
 
@@ -316,5 +360,15 @@ string placeholderToString( Placeholder ph )
 string nodeTypesToString( NODE_TYPE id )
 {
 	return specialWordToString( nodeTypes, id );
+}
+
+string functionNameToString( PREDEFINED_FUNCTION id )
+{
+	return specialWordToString( functions, id );
+}
+
+string operatorToString( OPERATOR id )
+{
+	return specialWordToString( operators, id );
 }
 

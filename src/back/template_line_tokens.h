@@ -38,10 +38,13 @@ KeyWordProps parseMainKeyword( const string& line, size_t& contentStart );
 AttributeName parseParam( const string& line, size_t& contentStart );
 Placeholder parsePlaceholder( const string& line, size_t& contentStart );
 PredefindedFunction parsePredefinedFunction( const string& line, size_t& contentStart );
+PredefindedOperator parsePredefinedOperator( const string& line, size_t& contentStart );
 
 string mainKeywordToString( TemplateLine::LINE_TYPE kw );
 string attributeNameToString( ATTRIBUTE id );
 string placeholderToString( Placeholder id );
 string nodeTypesToString( NODE_TYPE id );
+string functionNameToString( PREDEFINED_FUNCTION id );
+string operatorToString( OPERATOR id );
 
 #endif // TEMPLATE_LINE_TOKENS_H
