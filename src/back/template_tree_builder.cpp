@@ -213,6 +213,52 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				root.childNodes.push_back( node );
 				break;
 			}
+			case TemplateLine::LINE_TYPE::FOR_EACH_OF:
+			{
+				bool isEnd = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
+				if ( isEnd )
+					return true; // it's upper level end or bullshit
+				TemplateNode node;
+				node.type = NODE_TYPE::FOR_EACH_OF;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				node.attributes = lines[flidx].attributes;
+				node.expression = lines[flidx].expression;
+				// we may have include statement here, let's check
+				auto includeTemplate = lines[flidx].attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
+				if ( includeTemplate != lines[flidx].attributes.end() )
+				{
+					TemplateNode nodeIncludeTemplate;
+					nodeIncludeTemplate.type = NODE_TYPE::INCLUDE;
+					nodeIncludeTemplate.srcLineNum = lines[flidx].srcLineNum;
+					nodeIncludeTemplate.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEMPLATE, ""), includeTemplate->second ) );
+					node.childNodes.push_back( nodeIncludeTemplate );
+					++flidx;
+				}
+				else
+				{
+					bool isBegin = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} ) != lines[flidx].attributes.end();
+					if ( !isBegin )
+					{
+						fmt::print( "line {}: error: FOR_EACH_OF has unexpected parameter set\n", lines[flidx].srcLineNum );
+						assert( isBegin );
+						return false;
+					}
+					++flidx;
+					if ( !buildTemplateTree( node, lines, flidx ) )
+						return false;
+					bool isBegin1 = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} ) != lines[flidx].attributes.end();
+					bool isEnd1 = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
+					if ( !isEnd1 )
+					{
+						fmt::print( "line {}: error: FOR_EACH_OF END expected\n", lines[flidx].srcLineNum );
+						assert( isBegin1 );
+						return false;
+					}
+					++flidx;
+				}
+				root.childNodes.push_back( node );
+				break;
+			}
 			case TemplateLine::LINE_TYPE::FOR_EACH_OF_MEMBERS:
 			{
 				bool isEnd = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();

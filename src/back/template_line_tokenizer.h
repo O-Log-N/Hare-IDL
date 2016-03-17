@@ -41,6 +41,7 @@ enum NODE_TYPE {
 	CONTENT,
 	IF,
 	INCLUDE,
+//	INCLUDE_FOR_TYPE, // necessity is yet to be proven (think about variation of INCLUDE instead)
 	ASSERT,
 	IF_TRUE_BRANCH,
 	IF_FALSE_BRANCH,
@@ -48,6 +49,7 @@ enum NODE_TYPE {
 	FOR_EACH_OF_MEMBERS, // used ONLY within STRUCT
 	OPEN_OUTPUT_FILE,
 	FOR_EACH_PUBLISHABLE_STRUCT,
+	FOR_EACH_OF,
 };
 
 enum PLACEHOLDER {
@@ -92,7 +94,7 @@ struct LinePart
 enum PREDEFINED_FUNCTION
 {
 	NOT_A_FUNCTION,
-	MY_FN_1,
+	MEMBERS,
 };
 
 struct PredefindedFunction
@@ -122,7 +124,7 @@ struct ExpressionElement
 	// values below are used in case of PUSH operation
     double numberValue = 0; // argtype: ARGTYPE::NUMBER
 	vector<LinePart> lineParts; // used for ARGTYPE::STRING
-	int fnCallID; // used for OPERATION::CALL
+	PREDEFINED_FUNCTION fnCallID; // used for OPERATION::CALL
 };
 
 class AttributeName
@@ -150,6 +152,8 @@ struct TemplateLine
 		ELIF,
 		ENDIF,
 		INCLUDE,
+//		INCLUDE_FOR_TYPE,
+		FOR_EACH_OF,
 		ASSERT,
 		FOR_EACH_OF_MEMBERS, // used ONLY within STRUCT
 		OPEN_OUTPUT_FILE,
