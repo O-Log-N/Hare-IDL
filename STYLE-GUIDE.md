@@ -1,14 +1,12 @@
-Hare-IDL Style Guide
-====================
+# Hare-IDL Style Guide
 
 This is a style guide for Hare-IDL project. Many of the rules here are merely for consintency 
 (a.k.a. "It just so happened that we want to do it this way"), so don't complain when something looks arbitrary -
 it probably is.
 
-I. C++ for IDL Compiler
------------------------
+## I. C++ for IDL Compiler
 
-### I.0 Generala
+### I.0 General
 
 We're using very standard C++11.
 
