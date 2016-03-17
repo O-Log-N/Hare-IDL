@@ -77,7 +77,9 @@ void readLineParts( const string& line, size_t& currentPos, vector<LinePart>& pa
 			}
 			else
 			{
-				parts.push_back( part ); 
+				assert( part.type == PLACEHOLDER::VERBATIM );
+				if ( part.verbatim.size() )
+					parts.push_back( part ); 
 				part.verbatim.clear(); 
 				part.type = placehldr.id; 
 				part.verbatim = placehldr.specific;
@@ -213,11 +215,11 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 	}
 }
 
-void formVerbatimLine( const string& line, TemplateLine& tl )
+void formVerbatimLine( const string& line, TemplateLine& tl, int currentLineNum )
 {
-//	assert( line.compare( 0, 2, "@@" ) != 0 );
+	// NOTE: when parsed verbatim line is treated as a set of line parts, not an expression
+	//       (as otherwise we would require to enclose it in "")
 	tl.type = TemplateLine::LINE_TYPE::CONTENT;
-//	vector<LinePart> parts;
 	size_t currentPos = 0;
 	ExpressionElement arg;
 	arg.oper = OPERATOR::PUSH;
@@ -227,9 +229,6 @@ void formVerbatimLine( const string& line, TemplateLine& tl )
 	expression.push_back( arg );
 	
 	tl.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEXT, ""), expression ) );
-
-//	readLineParts( line, currentPos, parts );
-//	tl.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEXT, ""), parts ) );
 }
 
 KeyWordProps getLineType( const string& line, size_t& pos )
@@ -357,7 +356,7 @@ bool tokenizeTemplateLines( istream& tf, vector<TemplateLine>& templateLines, in
 					assert( 0 ); // TODO: throw
 				}
 			}
-			formVerbatimLine( line, tl );
+			formVerbatimLine( line, tl, currentLineNum );
 			templateLines.push_back( tl );
 			continue;
 		}
