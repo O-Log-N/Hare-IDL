@@ -39,9 +39,6 @@ protected:
 
 protected:
 	bool calcConditionOfIfNode( TemplateNode& ifNode );
-#if 0
-	void evaluateExpression( const vector<ExpressionElement>& expression, ExpressionElement& res ); // TODO: ExpressionElement -> Stack 9which is a vector<StackElement> or alike)
-#endif // 0
 	void evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack );
 	virtual void applyNode( TemplateNode& node );
 	virtual string context();

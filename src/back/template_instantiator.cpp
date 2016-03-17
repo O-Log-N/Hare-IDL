@@ -33,24 +33,6 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart>& l
 	return ret;
 }
 
-#if 0
-void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& expression, ExpressionElement& res )
-{
-	// currect implementation is a stub
-	// for now we assume that the expression has only one operation
-	// TODO: implement
-	assert( expression.size() == 1 );
-	assert( expression[0].oper == OPERATOR::PUSH );
-	assert( expression[0].argtype == ARGTYPE::STRING );
-	res.oper = OPERATOR::PUSH;
-	res.argtype = ARGTYPE::STRING;
-	LinePart part;
-	part.type = PLACEHOLDER::VERBATIM;
-	part.verbatim = resolveLinePartsToString( expression[0].lineParts );
-	res.lineParts.push_back( part );
-}
-#endif // 0
-
 void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack )
 {
 	for ( auto it:expression )
@@ -140,48 +122,7 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	// TODO: full implementation
 
 	assert(ifNode.type == NODE_TYPE::IF || ifNode.type == NODE_TYPE::ASSERT);
-#if 0
-	bool ret;
 
-//	size_t i, j;
-
-	size_t expressionSz = ifNode.expression.size();
-	assert( ( expressionSz == 1 && ifNode.expression[0].oper == OPERATOR::PUSH ) || 
-		    ( expressionSz == 3 && ifNode.expression[0].oper == OPERATOR::PUSH && ( ifNode.expression[2].oper == OPERATOR::EQ || ifNode.expression[2].oper == OPERATOR::NEQ ) &&ifNode.expression[1].oper == OPERATOR::PUSH ) ); // limitation of a current version; TODO: further development
-
-	if (expressionSz == 3)
-	{
-		assert( ifNode.expression[0].argtype == ARGTYPE::STRING ); // limitation of a current version; TODO: further development
-		assert( ifNode.expression[1].argtype == ARGTYPE::STRING ); // limitation of a current version; TODO: further development
-		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
-		string rstr = resolveLinePartsToString( ifNode.expression[1].lineParts );
-		switch ( ifNode.expression[2].oper )
-		{
-			case OPERATOR::EQ:
-			{
-				ret = lstr == rstr;
-				break;
-			}
-			case OPERATOR::NEQ:
-			{
-				ret = !(lstr == rstr);
-				break;
-			}
-			default:
-			{
-				fmt::print("Type {} is unexpected or unsupported\n", ifNode.expression[2].oper );
-				assert(0 == "Error: not supported");
-			}
-		}
-	}
-	else
-	{
-		assert( ifNode.expression[0].argtype == ARGTYPE::STRING ); // limitation of a current version; TODO: further development
-		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
-		ret = !(lstr == "0" || lstr == "FALSE");
-	}
-	return ret;
-#else // 0
 	Stack stack;
 	evaluateExpression( ifNode.expression, stack );
 	assert( stack.size() == 1 );
@@ -194,7 +135,6 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
 		return !(lstr == "0" || lstr == "FALSE");
 	}
-#endif // 0
 }
 
 void TemplateInstantiator::applyNode( TemplateNode& node )
@@ -217,20 +157,10 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			auto attr = node.attributes.find( {ATTRIBUTE::TEXT, ""} );
 			assert( attr != node.attributes.end() );
 			auto& expr = attr->second;
-//			ExpressionElement evalres;
-//			evaluateExpression( expr, evalres );
 			Stack stack;
 			evaluateExpression( expr, stack );
 			assert( stack.size() == 1 );
 			assert( stack[0].argtype == ARGTYPE::STRING );
-/*			for ( size_t i=0; i<attr->second.size(); i++ )
-				if ( lineParts[i].type == PLACEHOLDER::VERBATIM )
-					fmt::print( *outstr, "{}", lineParts[i].verbatim.c_str() );
-				else
-				{
-					Placeholder ph = {lineParts[i].type, lineParts[i].verbatim};
-					fmt::print(*outstr, "{}", placeholder( ph ).c_str() );
-				}*/
 			fmt::print( *outstr, "{}", stack[0].lineParts[0].verbatim.c_str() );
 			fmt::print(*outstr, "\n" );
 			break;
@@ -253,12 +183,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			// prepare file name string
 			auto attr = node.attributes.find( {ATTRIBUTE::FILENAME, ""} );
 			assert( attr != node.attributes.end() );
-//			string fileName = resolveLinePartsToString( attr->second );
 			auto& expr = attr->second;
-/*			ExpressionElement evalres;
-			evaluateExpression( expr, evalres );
-			assert( evalres.argtype == ARGTYPE::STRING );
-			string fileName = evalres.lineParts[0].verbatim;*/
 			Stack stack;
 			evaluateExpression( expr, stack );
 			assert( stack.size() == 1 );
@@ -302,10 +227,6 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
 			assert( attr != node.attributes.end() );
 			auto& expr = attr->second;
-/*			ExpressionElement evalres;
-			evaluateExpression( expr, evalres );
-			assert( evalres.argtype == ARGTYPE::STRING );
-			string templateName = evalres.lineParts[0].verbatim;*/
 			Stack stack;
 			evaluateExpression( expr, stack );
 			assert( stack.size() == 1 );
@@ -321,12 +242,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			for ( const auto it:node.attributes )
 				if ( it.first.id == ATTRIBUTE::PARAM )
 				{
-//					string resolved = resolveLinePartsToString( it.second );
 					auto& expr1 = it.second;
-/*					ExpressionElement evalres1;
-					evaluateExpression( expr1, evalres1 );
-					assert( evalres1.argtype == ARGTYPE::STRING );
-					string resolved = evalres1.lineParts[0].verbatim;*/
 					Stack stack1;
 					evaluateExpression( expr1, stack1 );
 					assert( stack1.size() == 1 );
