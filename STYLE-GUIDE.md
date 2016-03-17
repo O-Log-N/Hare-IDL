@@ -15,7 +15,7 @@ We're using very standard C++11.
 Naming conventions examples:
 
 1. class TheVeryBestClass //also applies to structs, unions, and typedefs
-2. function prettyMuchUnnecessaryFunction(); //also apples to members
+2. void prettyMuchUnnecessaryFunction(); int myVar; //also apples to members
 3. enum class BACKGROUND_COLOR { RED, GREEN, BLUE }; //see below on constants
 4. #define MY_STRING "abracadabra" //see below on #defines
 5. #ifndef FILE_NAME_INCLUDED //"include guard"
