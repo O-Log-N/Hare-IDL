@@ -46,33 +46,32 @@ void dbgPrintExpression( vector<ExpressionElement>& expression )
 {
 	size_t i;
 	for ( i=0; i<expression.size(); i++ )
-		switch ( expression[i].oper )
+	{
+		if ( expression[i].oper == OPERATOR::PUSH )
 		{
-			case OPERATOR::PUSH:
+			switch ( expression[i].argtype )
 			{
-				switch ( expression[i].argtype )
+				case ARGTYPE::STRING: 
 				{
-					case ARGTYPE::STRING: 
-					{
-						fmt::print( "\"" ); 
-						dbgPrintLineParts( expression[i].lineParts );
-						fmt::print( "\" " ); 
-						break;
-					}
-					case ARGTYPE::NUMBER: fmt::print( "{}", expression[i].numberValue ); break;
-					case ARGTYPE::NO_ARGTYPE: fmt::print( "\"\"" ); break;
-					default: fmt::print( "?????????" ); break;
+					fmt::print( "\"" ); 
+					dbgPrintLineParts( expression[i].lineParts );
+					fmt::print( "\" " ); 
+					break;
 				}
-				break;
-			}
-			case OPERATOR::EQ: fmt::print( "{} ", operatorToString( expression[i].oper ).c_str() ); break;
-			case OPERATOR::NEQ: fmt::print( "{} ", operatorToString( expression[i].oper ).c_str() ); break;
-			default:
-			{
-				fmt::print( "Unknown expression.oper = {} found\n", expression[i].oper );
-				assert( 0 == "Error: Not Implemented" );
+				case ARGTYPE::NUMBER: fmt::print( "{}", expression[i].numberValue ); break;
+				case ARGTYPE::NO_ARGTYPE: fmt::print( "\"\"" ); break;
+				default: fmt::print( "?????????" ); break;
 			}
 		}
+		else if ( expression[i].oper == OPERATOR::CALL )
+		{
+			fmt::print( "{}() ", functionNameToString( expression[i].fnCallID ).c_str() );
+		}
+		else
+		{
+			fmt::print( "{} ", operatorToString( expression[i].oper ).c_str() );
+		}
+	}
 }
 
 void dbgPrintAttributes( map<AttributeName, vector<ExpressionElement>>& attributes )
