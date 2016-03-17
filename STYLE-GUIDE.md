@@ -98,7 +98,7 @@ Naming conventions examples:
     `string name;//used ONLY for SOMETYPE::X and SOMETYPE::Y`
 
     `int val;//used ONLY for SOMETYPE::X and SOMETYPE::Z`
-11. exceptions a STRONGLY encouraged over error codes. All exceptions **MUST** be derived from std::exception and **MUST** provide meaningful what() explanation (this explanation MAY be a constant string specific to this exception)
+11. exceptions SHOULD be user over error codes. All exceptions **MUST** be derived from std::exception and **MUST** provide meaningful what() explanation (this explanation MAY be a constant string specific to this exception)
 
 ### I.6 astyle
 1. All the C++ files SHOULD be run through astyle before committing to develop branch
