@@ -107,11 +107,18 @@ struct PredefindedOperator
 	size_t argC;
 };
 
+enum ARGTYPE 
+{
+	NO_ARGTYPE, 
+	NUMBER, 
+	STRING, 
+	BOOL, 
+};
+
 struct ExpressionElement
 {
-    enum ARGTYPE {NONE, NUMBER, STRING};
 	OPERATOR oper;
-    ARGTYPE argtype = NONE; // for operation PUSH: any but NONE
+    ARGTYPE argtype = NO_ARGTYPE; // for operation PUSH: any but NONE
 	// values below are used in case of PUSH operation
     double numberValue = 0; // argtype: ARGTYPE::NUMBER
 	vector<LinePart> lineParts; // used for ARGTYPE::STRING

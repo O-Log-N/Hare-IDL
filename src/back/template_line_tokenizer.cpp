@@ -107,7 +107,7 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 			++currentPos;
 			ExpressionElement elem;
 			elem.oper = OPERATOR::PUSH;
-			elem.argtype = ExpressionElement::ARGTYPE::STRING;
+			elem.argtype = ARGTYPE::STRING;
 			readLineParts( line, currentPos, elem.lineParts, "\"" );
 			if ( line[currentPos] != '\"' )
 			{
@@ -220,7 +220,7 @@ void formVerbatimLine( const string& line, TemplateLine& tl )
 	size_t currentPos = 0;
 	ExpressionElement arg;
 	arg.oper = OPERATOR::PUSH;
-	arg.argtype = ExpressionElement::ARGTYPE::STRING;
+	arg.argtype = ARGTYPE::STRING;
 	readLineParts( line, currentPos, arg.lineParts );
 	vector<ExpressionElement> expression;
 	expression.push_back( arg );
@@ -238,123 +238,6 @@ KeyWordProps getLineType( const string& line, size_t& pos )
 	return parseMainKeyword( line, pos );
 }
 
-#if 0
-void readExpression( const string& line, size_t& pos, vector<ExpressionElement>& expression, int currentLineNum )
-{
-	// expressions are always in ()
-	// expression elements:
-	// numbers (so far not supported)
-	// strings in "" 
-	// placeholders
-	// (, ) (so far not supported)
-	// ==, != (so far), other (later)
-
-	// note: here we implement quite a simple version working with elementary expressions of one or two args and == and != operators in between where applicable
-	// TODO: full implementation
-	if ( line[pos] != '(' )
-	{
-		fmt::print( "line {}: error: '(' is expected;\n", currentLineNum );
-		assert( 0 ); // TODO: throw
-	}
-	++pos;
-
-	// we have to go char by char; if '@' is found, make sure it's not a placeholder, or replace it accordingly
-	size_t sz = line.size();
-	ExpressionElement element;
-	element.oper = OPERATOR::PUSH; // as a default
-	element.argtype = ExpressionElement::ARGTYPE::STRING; // as a default
-	skipSpaces( line, pos );
-	while ( pos < sz )
-	{
-		if ( line[ pos ] == '\"' )
-		{
-			++pos;
-			assert( element.oper == OPERATOR::PUSH );
-			assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
-			if ( element.lineParts.size() )
-				expression.push_back( element ); 
-			element.lineParts.clear(); 
-			element.argtype = ExpressionElement::ARGTYPE::STRING; 
-			readLineParts( line, pos, element.lineParts, "\"" );
-			if ( pos == sz )
-			{
-				fmt::print( "line {}: error: file name string runs away\n", currentLineNum );
-				assert( 0 ); // TODO: throw
-			}
-			++pos; // for terminating '"'
-			
-			expression.push_back( element ); 
-			element.lineParts.clear();
-		}
-		else if ( line[ pos ] == ')' )
-		{
-			++pos;
-			break;
-		}
-		else
-		{
-			if ( line[ pos ] == ' ' || line[ pos ] == '\t')
-			{
-				if ( element.lineParts.size() )
-				{
-					assert( element.oper == OPERATOR::PUSH );
-					assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
-					expression.push_back( element );
-					element.lineParts.clear();
-				}
-				pos ++;
-			}
-			else if ( line.compare( pos, 2, "==" ) == 0 )
-			{
-				if ( element.lineParts.size() )
-				{
-					assert( element.oper == OPERATOR::PUSH );
-					assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
-					expression.push_back( element );
-					element.lineParts.clear();
-				}
-				element.lineParts.clear();
-				element.oper = OPERATOR::EQ;
-				element.argtype = ExpressionElement::ARGTYPE::NONE;
-				expression.push_back( element );
-				element.oper = OPERATOR::PUSH;
-				element.argtype = ExpressionElement::ARGTYPE::STRING;
-				pos += 2;
-			}
-			else if ( line.compare( pos, 2, "!=" ) == 0 )
-			{
-				if ( element.lineParts.size() )
-				{
-					assert( element.oper == OPERATOR::PUSH );
-					assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
-					expression.push_back( element );
-					element.lineParts.clear();
-				}
-				element.lineParts.clear();
-				element.oper = OPERATOR::NEQ;
-				element.argtype = ExpressionElement::ARGTYPE::NONE;
-				expression.push_back( element );
-				element.oper = OPERATOR::PUSH;
-				element.argtype = ExpressionElement::ARGTYPE::STRING;
-				pos += 2;
-			}
-			else
-			{
-				assert(0);
-//				element.stringValue.push_back( line[ pos ] );
-				pos ++;
-			}
-		}
-	}
-
-	if ( element.lineParts.size() )
-	{
-		assert( element.oper == OPERATOR::PUSH );
-		assert( element.argtype == ExpressionElement::ARGTYPE::STRING );
-		expression.push_back( element ); 
-	}
-}
-#endif
 void readAttributeName( const string& line, size_t& pos, AttributeName& attrName, int currentLineNum )
 {
 	size_t sz = line.size();
@@ -375,14 +258,6 @@ void readAttributeValue( const string& line, size_t& pos, vector<LinePart>& part
 	if ( line[pos] == '\"' )
 	{
 		++pos;
-/*		size_t startpos = pos;
-		while ( pos < sz && line[pos] != '\"' ) ++pos;
-		if ( pos == sz )
-		{
-			fmt::print( "line {}: error: attribute value string runs away\n", currentLineNum );
-			assert( 0 ); // TODO: throw
-		}
-		readLineParts( string( line.begin() + startpos, line.begin() + pos ), parts );*/
 		readLineParts( line, pos, parts, "\"" );
 		if ( line[pos] != '\"' )
 		{
@@ -422,7 +297,7 @@ void readNextParam( const string& line, size_t& pos, TemplateLine& tl, int curre
 		// TODO: read expression instead
 		ExpressionElement arg;
 		arg.oper = OPERATOR::PUSH;
-		arg.argtype = ExpressionElement::ARGTYPE::STRING;
+		arg.argtype = ARGTYPE::STRING;
 		readAttributeValue( line, pos, arg.lineParts, currentLineNum );
 		vector<ExpressionElement> expression;
 		expression.push_back( arg );

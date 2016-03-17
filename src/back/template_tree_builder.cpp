@@ -52,15 +52,15 @@ void dbgPrintExpression( vector<ExpressionElement>& expression )
 			{
 				switch ( expression[i].argtype )
 				{
-					case ExpressionElement::ARGTYPE::STRING: 
+					case ARGTYPE::STRING: 
 					{
 						fmt::print( "\"" ); 
 						dbgPrintLineParts( expression[i].lineParts );
 						fmt::print( "\" " ); 
 						break;
 					}
-					case ExpressionElement::ARGTYPE::NUMBER: fmt::print( "{}", expression[i].numberValue ); break;
-					case ExpressionElement::ARGTYPE::NONE: fmt::print( "\"\"" ); break;
+					case ARGTYPE::NUMBER: fmt::print( "{}", expression[i].numberValue ); break;
+					case ARGTYPE::NO_ARGTYPE: fmt::print( "\"\"" ); break;
 					default: fmt::print( "?????????" ); break;
 				}
 				break;

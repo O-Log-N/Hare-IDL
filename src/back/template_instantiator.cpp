@@ -33,6 +33,7 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart>& l
 	return ret;
 }
 
+#if 0
 void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& expression, ExpressionElement& res )
 {
 	// currect implementation is a stub
@@ -40,13 +41,97 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 	// TODO: implement
 	assert( expression.size() == 1 );
 	assert( expression[0].oper == OPERATOR::PUSH );
-	assert( expression[0].argtype == ExpressionElement::ARGTYPE::STRING );
+	assert( expression[0].argtype == ARGTYPE::STRING );
 	res.oper = OPERATOR::PUSH;
-	res.argtype = ExpressionElement::ARGTYPE::STRING;
+	res.argtype = ARGTYPE::STRING;
 	LinePart part;
 	part.type = PLACEHOLDER::VERBATIM;
 	part.verbatim = resolveLinePartsToString( expression[0].lineParts );
 	res.lineParts.push_back( part );
+}
+#endif // 0
+
+void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack )
+{
+	for ( auto it:expression )
+	{
+		switch ( it.oper )
+		{
+			case OPERATOR::PUSH: 
+			{
+				StackElement se;
+				se.argtype = it.argtype;
+				LinePart part;
+				part.type = PLACEHOLDER::VERBATIM;
+				part.verbatim = resolveLinePartsToString( it.lineParts );
+				se.lineParts.push_back( part );
+				se.numberValue = it.numberValue;
+				stack.push_back( se );
+				break;
+			}
+			case OPERATOR::EQ: 
+			{
+				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
+				bool res;
+				auto arg1 = stack.begin() + stack.size() - 1;
+				auto arg2 = stack.begin() + stack.size() - 2;
+				if ( arg1->argtype == ARGTYPE::STRING && arg2->argtype == ARGTYPE::STRING )
+					res = resolveLinePartsToString( arg1->lineParts ) == resolveLinePartsToString( arg2->lineParts );
+				else if ( arg1->argtype == ARGTYPE::NUMBER && arg2->argtype == ARGTYPE::NUMBER )
+					res = arg1->numberValue == arg2->numberValue;
+				else if ( arg1->argtype == ARGTYPE::BOOL && arg2->argtype == ARGTYPE::BOOL )
+					res = arg1->boolValue == arg2->boolValue;
+				else
+					assert( 0 );
+
+				stack.pop_back();
+				stack.pop_back();
+
+				StackElement se;
+				se.argtype = ARGTYPE::BOOL;
+				se.boolValue = res;
+				stack.push_back( se );
+				break;
+			}
+			case OPERATOR::NEQ:
+			{
+				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
+				bool res;
+				auto arg1 = stack.begin() + stack.size() - 1;
+				auto arg2 = stack.begin() + stack.size() - 2;
+				if ( arg1->argtype == ARGTYPE::STRING && arg2->argtype == ARGTYPE::STRING )
+					res = resolveLinePartsToString( arg1->lineParts ) != resolveLinePartsToString( arg2->lineParts );
+				else if ( arg1->argtype == ARGTYPE::NUMBER && arg2->argtype == ARGTYPE::NUMBER )
+					res = arg1->numberValue != arg2->numberValue;
+				else if ( arg1->argtype == ARGTYPE::BOOL && arg2->argtype == ARGTYPE::BOOL )
+					res = arg1->boolValue != arg2->boolValue;
+				else
+					assert( 0 );
+
+				stack.pop_back();
+				stack.pop_back();
+
+				StackElement se;
+				se.argtype = ARGTYPE::BOOL;
+				se.boolValue = res;
+				stack.push_back( se );
+				break;
+			}
+			case OPERATOR::CALL: 
+			case OPERATOR::GREATER:
+			case OPERATOR::LESS:
+			case OPERATOR::LEQ:
+			case OPERATOR::GEQ:
+			case OPERATOR::ADD:
+			case OPERATOR::INCREMENT:
+			case OPERATOR::SUBTR:
+			case OPERATOR::DECREMENT:
+			case OPERATOR::NOT:
+			case OPERATOR::AND:
+			case OPERATOR::OR:
+				assert( 0); // TODO: implement
+		}
+	}
 }
 
 bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
@@ -55,55 +140,19 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	// TODO: full implementation
 
 	assert(ifNode.type == NODE_TYPE::IF || ifNode.type == NODE_TYPE::ASSERT);
+#if 0
 	bool ret;
 
 //	size_t i, j;
 
-#if 0
-	size_t expressionSz = ifNode.expression.size();
-	assert( ( expressionSz == 1 && ifNode.expression[0].oper == OPERATOR::PUSH ) || 
-		    ( expressionSz == 3 && ifNode.expression[0].oper == OPERATOR::PUSH && ( ifNode.expression[1].oper == OPERATOR::EQ || ifNode.expression[1].oper == OPERATOR::NEQ ) &&ifNode.expression[2].oper == OPERATOR::PUSH ) ); // limitation of a current version; TODO: further development
-
-	if (expressionSz == 3)
-	{
-		assert( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ); // limitation of a current version; TODO: further development
-		assert( ifNode.expression[2].argtype == ExpressionElement::ARGTYPE::STRING ); // limitation of a current version; TODO: further development
-		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
-		string rstr = resolveLinePartsToString( ifNode.expression[2].lineParts );
-		switch ( ifNode.expression[1].oper )
-		{
-			case OPERATOR::EQ:
-			{
-				ret = lstr == rstr;
-				break;
-			}
-			case OPERATOR::NEQ:
-			{
-				ret = !(lstr == rstr);
-				break;
-			}
-			default:
-			{
-				fmt::print("Type {} is unexpected or unsupported\n", ifNode.expression[1].oper );
-				assert(0 == "Error: not supported");
-			}
-		}
-	}
-	else
-	{
-		assert( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ); // limitation of a current version; TODO: further development
-		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
-		ret = !(lstr == "0" || lstr == "FALSE");
-	}
-#else
 	size_t expressionSz = ifNode.expression.size();
 	assert( ( expressionSz == 1 && ifNode.expression[0].oper == OPERATOR::PUSH ) || 
 		    ( expressionSz == 3 && ifNode.expression[0].oper == OPERATOR::PUSH && ( ifNode.expression[2].oper == OPERATOR::EQ || ifNode.expression[2].oper == OPERATOR::NEQ ) &&ifNode.expression[1].oper == OPERATOR::PUSH ) ); // limitation of a current version; TODO: further development
 
 	if (expressionSz == 3)
 	{
-		assert( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ); // limitation of a current version; TODO: further development
-		assert( ifNode.expression[1].argtype == ExpressionElement::ARGTYPE::STRING ); // limitation of a current version; TODO: further development
+		assert( ifNode.expression[0].argtype == ARGTYPE::STRING ); // limitation of a current version; TODO: further development
+		assert( ifNode.expression[1].argtype == ARGTYPE::STRING ); // limitation of a current version; TODO: further development
 		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
 		string rstr = resolveLinePartsToString( ifNode.expression[1].lineParts );
 		switch ( ifNode.expression[2].oper )
@@ -127,12 +176,25 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	}
 	else
 	{
-		assert( ifNode.expression[0].argtype == ExpressionElement::ARGTYPE::STRING ); // limitation of a current version; TODO: further development
+		assert( ifNode.expression[0].argtype == ARGTYPE::STRING ); // limitation of a current version; TODO: further development
 		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
 		ret = !(lstr == "0" || lstr == "FALSE");
 	}
-#endif
 	return ret;
+#else // 0
+	Stack stack;
+	evaluateExpression( ifNode.expression, stack );
+	assert( stack.size() == 1 );
+	if ( stack[0].argtype == ARGTYPE::BOOL )
+		return stack[0].boolValue;
+	else
+	{
+		// TODO: consider type conversion as a standard operation
+		assert( ifNode.expression[0].argtype == ARGTYPE::STRING ); // limitation of a current version; TODO: further development
+		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
+		return !(lstr == "0" || lstr == "FALSE");
+	}
+#endif // 0
 }
 
 void TemplateInstantiator::applyNode( TemplateNode& node )
@@ -155,9 +217,12 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			auto attr = node.attributes.find( {ATTRIBUTE::TEXT, ""} );
 			assert( attr != node.attributes.end() );
 			auto& expr = attr->second;
-			ExpressionElement evalres;
-			evaluateExpression( expr, evalres );
-			assert( evalres.argtype == ExpressionElement::ARGTYPE::STRING );
+//			ExpressionElement evalres;
+//			evaluateExpression( expr, evalres );
+			Stack stack;
+			evaluateExpression( expr, stack );
+			assert( stack.size() == 1 );
+			assert( stack[0].argtype == ARGTYPE::STRING );
 /*			for ( size_t i=0; i<attr->second.size(); i++ )
 				if ( lineParts[i].type == PLACEHOLDER::VERBATIM )
 					fmt::print( *outstr, "{}", lineParts[i].verbatim.c_str() );
@@ -166,7 +231,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 					Placeholder ph = {lineParts[i].type, lineParts[i].verbatim};
 					fmt::print(*outstr, "{}", placeholder( ph ).c_str() );
 				}*/
-			fmt::print( *outstr, "{}", evalres.lineParts[0].verbatim.c_str() );
+			fmt::print( *outstr, "{}", stack[0].lineParts[0].verbatim.c_str() );
 			fmt::print(*outstr, "\n" );
 			break;
 		}
@@ -190,10 +255,15 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			assert( attr != node.attributes.end() );
 //			string fileName = resolveLinePartsToString( attr->second );
 			auto& expr = attr->second;
-			ExpressionElement evalres;
+/*			ExpressionElement evalres;
 			evaluateExpression( expr, evalres );
-			assert( evalres.argtype == ExpressionElement::ARGTYPE::STRING );
-			string fileName = evalres.lineParts[0].verbatim;
+			assert( evalres.argtype == ARGTYPE::STRING );
+			string fileName = evalres.lineParts[0].verbatim;*/
+			Stack stack;
+			evaluateExpression( expr, stack );
+			assert( stack.size() == 1 );
+			assert( stack[0].argtype == ARGTYPE::STRING );
+			string fileName = stack[0].lineParts[0].verbatim;
 			tf.open ( fileName, ios::out | ios::binary );
 			outstr = &tf;
 			for ( size_t k=0; k<node.childNodes.size(); k++ )
@@ -232,10 +302,15 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
 			assert( attr != node.attributes.end() );
 			auto& expr = attr->second;
-			ExpressionElement evalres;
+/*			ExpressionElement evalres;
 			evaluateExpression( expr, evalres );
-			assert( evalres.argtype == ExpressionElement::ARGTYPE::STRING );
-			string templateName = evalres.lineParts[0].verbatim;
+			assert( evalres.argtype == ARGTYPE::STRING );
+			string templateName = evalres.lineParts[0].verbatim;*/
+			Stack stack;
+			evaluateExpression( expr, stack );
+			assert( stack.size() == 1 );
+			assert( stack[0].argtype == ARGTYPE::STRING );
+			string templateName = stack[0].lineParts[0].verbatim;
 
 			TemplateNode* tn = templateSpace.getTemplate( templateName, context() );
 			if ( tn == nullptr )
@@ -248,10 +323,15 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 				{
 //					string resolved = resolveLinePartsToString( it.second );
 					auto& expr1 = it.second;
-					ExpressionElement evalres1;
+/*					ExpressionElement evalres1;
 					evaluateExpression( expr1, evalres1 );
-					assert( evalres1.argtype == ExpressionElement::ARGTYPE::STRING );
-					string resolved = evalres1.lineParts[0].verbatim;
+					assert( evalres1.argtype == ARGTYPE::STRING );
+					string resolved = evalres1.lineParts[0].verbatim;*/
+					Stack stack1;
+					evaluateExpression( expr1, stack1 );
+					assert( stack1.size() == 1 );
+					assert( stack1[0].argtype == ARGTYPE::STRING );
+					string resolved = stack1[0].lineParts[0].verbatim;
 					resolvedPlaceholders.insert( make_pair( it.first.ext, resolved ) );
 				}
 			TemplateInstantiator::applyNode( *tn );

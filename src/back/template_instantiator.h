@@ -28,8 +28,21 @@ Copyright (C) 2016 OLogN Technologies AG
 class TemplateInstantiator
 {
 protected:
+	struct StackElement
+	{
+		ARGTYPE argtype = NO_ARGTYPE; // for operation PUSH: any but NONE
+		double numberValue = 0; // argtype: ARGTYPE::NUMBER
+		bool boolValue = false; // argtype: ARGTYPE::BOOL
+		vector<LinePart> lineParts; // used for ARGTYPE::STRING
+	};
+	typedef vector<StackElement> Stack;
+
+protected:
 	bool calcConditionOfIfNode( TemplateNode& ifNode );
+#if 0
 	void evaluateExpression( const vector<ExpressionElement>& expression, ExpressionElement& res ); // TODO: ExpressionElement -> Stack 9which is a vector<StackElement> or alike)
+#endif // 0
+	void evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack );
 	virtual void applyNode( TemplateNode& node );
 	virtual string context();
 	string resolveLinePartsToString( const vector<LinePart>& lineParts );
