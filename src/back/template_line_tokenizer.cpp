@@ -152,9 +152,10 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 			PredefindedFunction fn = parsePredefinedFunction( line, currentPos );
 			if ( fn.id == PREDEFINED_FUNCTION::NOT_A_FUNCTION )
 			{
-				string unknown = readIdentifier( line, currentPos );
+/*				string unknown = readIdentifier( line, currentPos );
 				fmt::print( "line {}:  unexpected token {}\n", currentLineNum, unknown );
-				assert( 0 ); // TODO: throw
+				assert( 0 ); // TODO: throw*/
+				return;
 			}
 			skipSpaces( line, currentPos );
 			if ( line[currentPos] != '(' )
@@ -231,7 +232,6 @@ void formVerbatimLine( const string& line, TemplateLine& tl )
 //	tl.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEXT, ""), parts ) );
 }
 
-//TemplateLine::LINE_TYPE getLineType( const string& line, size_t& pos )
 KeyWordProps getLineType( const string& line, size_t& pos )
 {
 	skipSpaces( line, pos );
@@ -245,17 +245,17 @@ void readAttributeName( const string& line, size_t& pos, AttributeName& attrName
 	attrName = parseParam( line, pos );
 }
 
-void readAttributeValue( const string& line, size_t& pos, vector<LinePart>& parts, int currentLineNum )
+void readAttributeValue( const string& line, size_t& currentPos, vector<ExpressionElement>& expression, int currentLineNum )
 {
 	// this call should be done only if a value is expected ( attribute nabe is followed by '=')
 	size_t sz = line.size();
-	skipSpaces( line, pos );
-	if ( pos == sz )
+	skipSpaces( line, currentPos );
+	if ( currentPos == sz )
 	{
 		fmt::print( "line {}: error: attribute value is expected\n", currentLineNum );
 		assert( 0 ); // TODO: throw
 	}
-	if ( line[pos] == '\"' )
+/*	if ( line[pos] == '\"' )
 	{
 		++pos;
 		readLineParts( line, pos, parts, "\"" );
@@ -269,7 +269,8 @@ void readAttributeValue( const string& line, size_t& pos, vector<LinePart>& part
 	else // single word is expected
 	{
 		readLineParts( line, pos, parts, " \t" );
-	}
+	}*/
+	parseExpression( line, currentPos, expression, currentLineNum );
 }
 
 void readNextParam( const string& line, size_t& pos, TemplateLine& tl, int currentLineNum )
@@ -295,12 +296,13 @@ void readNextParam( const string& line, size_t& pos, TemplateLine& tl, int curre
 		++pos;
 		// temporary code;
 		// TODO: read expression instead
-		ExpressionElement arg;
+/*		ExpressionElement arg;
 		arg.oper = OPERATOR::PUSH;
-		arg.argtype = ARGTYPE::STRING;
-		readAttributeValue( line, pos, arg.lineParts, currentLineNum );
+		arg.argtype = ARGTYPE::STRING;*/
 		vector<ExpressionElement> expression;
-		expression.push_back( arg );
+//		readAttributeValue( line, pos, arg.lineParts, currentLineNum );
+//		expression.push_back( arg );
+		readAttributeValue( line, pos, expression, currentLineNum );
 		tl.attributes.insert( make_pair(attrName, expression ) );
 	}
 	else
