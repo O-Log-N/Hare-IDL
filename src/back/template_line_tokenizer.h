@@ -23,7 +23,7 @@ Copyright (C) 2016 OLogN Technologies AG
 
 using namespace std;
 
-enum ATTRIBUTE
+enum class ATTRIBUTE
 {
 	NONE,
 	TEXT, // implicit (used with verbatim lines)
@@ -36,7 +36,7 @@ enum ATTRIBUTE
 	TYPE,
 };
 
-enum NODE_TYPE {
+enum class NODE_TYPE {
 	FULL_TEMPLATE,
 	CONTENT,
 	IF,
@@ -52,7 +52,7 @@ enum NODE_TYPE {
 	FOR_EACH_OF,
 };
 
-enum PLACEHOLDER {
+enum class PLACEHOLDER {
 	VERBATIM,
 	STRUCT_NAME, // used ONLY within STRUCT or down the tree
 	MEMBER_TYPE, // used ONLY within STRUCT-MEMBER
@@ -60,7 +60,7 @@ enum PLACEHOLDER {
 	PARAM_MINUS,
 };
 
-enum OPERATOR { 
+enum class OPERATOR { 
 	INVALID,
 	PUSH, 
 	CALL, 
@@ -113,7 +113,7 @@ struct PredefindedOperator
 	size_t argC;
 };
 
-enum ARGTYPE 
+enum class ARGTYPE 
 {
 	NO_ARGTYPE, 
 	NUMBER, 
@@ -126,7 +126,7 @@ enum ARGTYPE
 struct ExpressionElement
 {
 	OPERATOR oper;
-    ARGTYPE argtype = NO_ARGTYPE; // for operation PUSH: any but NONE
+    ARGTYPE argtype = ARGTYPE::NO_ARGTYPE; // for operation PUSH: any but NONE
 	// values below are used in case of PUSH operation
     double numberValue = 0; // argtype: ARGTYPE::NUMBER
 	vector<LinePart> lineParts; // used for ARGTYPE::STRING

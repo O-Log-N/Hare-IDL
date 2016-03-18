@@ -277,7 +277,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 		}
 		default:
 		{
-			fmt::print("Unexpected node type {} found\n", node.type );
+			fmt::print("Unexpected node type {} found\n", static_cast<int>(node.type) );
 			assert( 0 == "ERROR: UNEXPECTED" );
 		}
 	}
@@ -293,7 +293,7 @@ string TemplateInstantiator::placeholder( Placeholder ph )
 	}
 
 	fmt::print( "\n" );
-	fmt::print("error_placeholder {}\n", ph.id );
+	fmt::print("error_placeholder {}\n", static_cast<int>(ph.id) );
 	assert( 0 );
 	return "";
 }

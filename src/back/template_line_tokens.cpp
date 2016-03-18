@@ -282,7 +282,7 @@ AttributeName parseParam( const string& line, size_t& contentStart )
 	size_t iniContentStart = contentStart;
 	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 	ret.id = parseSpecialWord( line, contentStart, params )->id;
-	if ( ret.id == PARAM )
+	if ( ret.id == ATTRIBUTE::PARAM )
 	{
 		ret.ext = readIdentifier( line, contentStart );
 		skipSpaces( line, contentStart );
@@ -296,7 +296,7 @@ Placeholder parsePlaceholder( const string& line, size_t& contentStart )
 	size_t iniContentStart = contentStart;
 	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 	ret.id = parseSpecialWord( line, contentStart, placeholders )->id;
-	if ( ret.id == PARAM_MINUS )
+	if ( ret.id == PLACEHOLDER::PARAM_MINUS )
 	{
 		ret.specific = readIdentifier( line, contentStart );
 		if ( line[contentStart] != '@' )

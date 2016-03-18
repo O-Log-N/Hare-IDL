@@ -30,7 +30,7 @@ class TemplateInstantiator
 protected:
 	struct StackElement
 	{
-		ARGTYPE argtype = NO_ARGTYPE; // for operation PUSH: any but NONE
+		ARGTYPE argtype = ARGTYPE::NO_ARGTYPE; // for operation PUSH: any but NONE
 		double numberValue = 0; // argtype: ARGTYPE::NUMBER
 		bool boolValue = false; // argtype: ARGTYPE::BOOL
 		vector<LinePart> lineParts; // used for ARGTYPE::STRING
