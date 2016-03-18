@@ -26,6 +26,7 @@ class RootTemplateInstantiator : public TemplateInstantiator
 protected:
 	BackRoot* root;
 
+	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
 	virtual void applyNode( TemplateNode& node );
 	virtual string placeholder( Placeholder ph );
 	virtual string context() override {return "ROOT"; }
@@ -47,6 +48,7 @@ class StructTemplateInstantiator : public TemplateInstantiator
 protected:
 	BackStructure* structure;
 
+	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
 	virtual void applyNode( TemplateNode& node );
 	virtual string placeholder( Placeholder ph );
 	virtual string context() override {return "STRUCT"; }
@@ -66,6 +68,7 @@ class StructMemberTemplateInstantiator : public TemplateInstantiator
 protected:
 	BackDataMember* member;
 
+	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
 	virtual void applyNode( TemplateNode& node );
 	virtual string placeholder( Placeholder ph );
 	virtual string context() override {return "STRUCT-MEMBER"; }

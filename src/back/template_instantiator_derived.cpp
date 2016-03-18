@@ -53,6 +53,18 @@ string RootTemplateInstantiator::placeholder( Placeholder ph )
 	}
 }
 
+void RootTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID )
+{
+	switch ( fnID )
+	{
+		default:
+		{
+			TemplateInstantiator::execBuiltinFunction( stack, fnID );
+			break;
+		}
+	}
+}
+
 /////////////////////////////////////////////////////////////////////////
 
 
@@ -104,6 +116,40 @@ string StructTemplateInstantiator::placeholder( Placeholder ph )
 	}
 }
 
+void StructTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID )
+{
+	switch ( fnID )
+	{
+		case PREDEFINED_FUNCTION::MEMBERS:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::OBJPTR_LIST;
+			size_t memberCnt = structure->getChildCount();
+			for ( size_t j=0; j<memberCnt; j++ )
+			{
+				BackDataMember* member = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
+				if ( member != NULL )
+				{
+					StructMemberTemplateInstantiator* smti = new StructMemberTemplateInstantiator( *member, templateSpace, outstr );
+					elem.objects.push_back( smti );
+				}
+				else
+				{
+					// TODO: this case requires additional analysis
+					assert( 0 );
+				}
+			}
+			stack.push_back( elem );
+			break;
+		}
+		default:
+		{
+			TemplateInstantiator::execBuiltinFunction( stack, fnID );
+			break;
+		}
+	}
+}
+
 /////////////////////////////////////////////////////////////////////////
 
 
@@ -133,6 +179,18 @@ string StructMemberTemplateInstantiator::placeholder( Placeholder ph )
 		default:
 		{
 			return TemplateInstantiator::placeholder( ph );
+		}
+	}
+}
+
+void StructMemberTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID )
+{
+	switch ( fnID )
+	{
+		default:
+		{
+			TemplateInstantiator::execBuiltinFunction( stack, fnID );
+			break;
 		}
 	}
 }

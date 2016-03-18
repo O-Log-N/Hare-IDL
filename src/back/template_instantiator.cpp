@@ -33,6 +33,10 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart>& l
 	return ret;
 }
 
+void TemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID )
+{
+}
+
 void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack )
 {
 	for ( auto it:expression )
@@ -100,6 +104,10 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 				break;
 			}
 			case OPERATOR::CALL: 
+			{
+				execBuiltinFunction( stack, it.fnCallID );
+				break;
+			}
 			case OPERATOR::GREATER:
 			case OPERATOR::LESS:
 			case OPERATOR::LEQ:
@@ -252,6 +260,19 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 				}
 			TemplateInstantiator::applyNode( *tn );
 			resolvedPlaceholders.clear();
+			break;
+		}
+		case NODE_TYPE::FOR_EACH_OF:
+		{
+			Stack stack;
+			evaluateExpression( node.expression, stack );
+			assert( stack.size() == 1 );
+			assert( stack[0].argtype == ARGTYPE::OBJPTR_LIST );
+			for ( auto it:stack[0].objects )
+				for ( size_t k=0; k<node.childNodes.size(); k++ )
+				{
+					it->applyNode( node.childNodes[k] );
+				}
 			break;
 		}
 		default:

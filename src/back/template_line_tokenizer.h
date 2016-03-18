@@ -115,6 +115,8 @@ enum ARGTYPE
 	NUMBER, 
 	STRING, 
 	BOOL, 
+	// internal
+	OBJPTR_LIST,
 };
 
 struct ExpressionElement

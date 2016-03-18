@@ -34,10 +34,12 @@ protected:
 		double numberValue = 0; // argtype: ARGTYPE::NUMBER
 		bool boolValue = false; // argtype: ARGTYPE::BOOL
 		vector<LinePart> lineParts; // used for ARGTYPE::STRING
+		vector<TemplateInstantiator*> objects; // used for ARGTYPE::OBJPTR_LIST
 	};
 	typedef vector<StackElement> Stack;
 
 protected:
+	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
 	bool calcConditionOfIfNode( TemplateNode& ifNode );
 	void evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack );
 	virtual void applyNode( TemplateNode& node );
