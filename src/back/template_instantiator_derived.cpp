@@ -18,17 +18,6 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_instantiator_derived.h"
 
 
-void RootTemplateInstantiator::applyNode( TemplateNode& node )
-{
-	switch ( node.type )
-	{
-		default:
-		{
-			TemplateInstantiator::applyNode( node );
-		}
-	}
-}
-
 string RootTemplateInstantiator::placeholder( Placeholder ph )
 {
 	switch( ph.id )
@@ -51,17 +40,8 @@ void RootTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUN
 			size_t structCnt = root->structures.size();
 			for ( size_t j=0; j<structCnt; j++ )
 			{
-//				BackStructure* structure = dynamic_cast<BackStructure*>( root->structures[j] );
-//				if ( structure != NULL )
-				{
-					StructTemplateInstantiator* structti = new StructTemplateInstantiator( *(root->structures[j]), templateSpace, outstr );
-					elem.objects.push_back( structti );
-				}
-/*				else
-				{
-					// TODO: this case requires additional analysis
-					assert( 0 );
-				}*/
+				StructTemplateInstantiator* structti = new StructTemplateInstantiator( *(root->structures[j]), templateSpace, outstr );
+				elem.objects.push_back( structti );
 			}
 			stack.push_back( elem );
 			break;
@@ -76,17 +56,6 @@ void RootTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUN
 
 /////////////////////////////////////////////////////////////////////////
 
-
-void StructTemplateInstantiator::applyNode( TemplateNode& node )
-{
-	switch ( node.type )
-	{
-		default:
-		{
-			TemplateInstantiator::applyNode( node );
-		}
-	}
-}
 
 string StructTemplateInstantiator::placeholder( Placeholder ph )
 {
@@ -139,17 +108,6 @@ void StructTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_F
 
 /////////////////////////////////////////////////////////////////////////
 
-
-void StructMemberTemplateInstantiator::applyNode( TemplateNode& node )
-{
-	switch ( node.type )
-	{
-		default:
-		{
-			TemplateInstantiator::applyNode( node );
-		}
-	}
-}
 
 string StructMemberTemplateInstantiator::placeholder( Placeholder ph )
 {

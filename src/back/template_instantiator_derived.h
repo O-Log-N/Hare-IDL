@@ -27,7 +27,6 @@ protected:
 	BackRoot* root;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
-	virtual void applyNode( TemplateNode& node );
 	virtual string placeholder( Placeholder ph );
 	virtual string context() override {return "ROOT"; }
 
@@ -49,7 +48,6 @@ protected:
 	BackStructure* structure;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
-	virtual void applyNode( TemplateNode& node );
 	virtual string placeholder( Placeholder ph );
 	virtual string context() override {return "STRUCT"; }
 
@@ -69,7 +67,6 @@ protected:
 	BackDataMember* member;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
-	virtual void applyNode( TemplateNode& node );
 	virtual string placeholder( Placeholder ph );
 	virtual string context() override {return "STRUCT-MEMBER"; }
 

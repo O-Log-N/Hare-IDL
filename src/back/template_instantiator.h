@@ -42,7 +42,7 @@ protected:
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
 	bool calcConditionOfIfNode( TemplateNode& ifNode );
 	void evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack );
-	virtual void applyNode( TemplateNode& node );
+	void applyNode( TemplateNode& node );
 	virtual string context();
 	string resolveLinePartsToString( const vector<LinePart>& lineParts );
 
