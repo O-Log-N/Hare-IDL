@@ -59,13 +59,15 @@ int main()
 	try
 	{
         // mb: fix path
-        Root* root = parseSourceFile("src/front/idl/sample.idl", false);
+//        Root* root = parseSourceFile("sample.idl", false);
 
 		// Roughly: front end
-//		loadFakeSample( root );
+		Root root;
+		loadFakeSample( root );
 
 		// Roughly: back end
-		idlcBackEnd( *root );
+//		idlcBackEnd( *root );
+		idlcBackEnd( root );
 	}
 	catch ( std::exception& x )
 	{

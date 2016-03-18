@@ -143,6 +143,36 @@ void StructMemberTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEF
 /////////////////////////////////////////////////////////////////////////
 
 
+string MemberTypeTemplateInstantiator::placeholder( Placeholder ph )
+{
+	switch( ph.id )
+	{
+		case PLACEHOLDER::MEMBER_TYPE:
+		{
+			return dataType->name;
+		}
+		default:
+		{
+			return TemplateInstantiator::placeholder( ph );
+		}
+	}
+}
+
+void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID )
+{
+	switch ( fnID )
+	{
+		default:
+		{
+			TemplateInstantiator::execBuiltinFunction( stack, fnID );
+			break;
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+
 void apply( BackRoot& structure, TemplateNodeSpace& templateSpace )
 {
 	RootTemplateInstantiator rti( structure, templateSpace, nullptr );
