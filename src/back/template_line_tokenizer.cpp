@@ -30,9 +30,6 @@ bool readLine( FILE* tf, string& line, int& currentLineNum )
 	for(;;) // through all chars - just read the line
 	{
 		char ch;
-/*		tf.read( &ch, 1);
-		if ( !tf )
-			break;*/
 		size_t readret = fread( &ch, 1, 1, tf );
 		if ( readret == 0 )
 			break;
@@ -360,11 +357,6 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 	}
 	return true;
 }
-
-/*
-NAME
-FILENAME
-*/
 
 #if 0
 // let the code be compilable

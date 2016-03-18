@@ -169,8 +169,6 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			evaluateExpression( expr, stack );
 			assert( stack.size() == 1 );
 			assert( stack[0].argtype == ARGTYPE::STRING );
-/*			fmt::print( *outstr, "{}", stack[0].lineParts[0].verbatim.c_str() );
-			fmt::print(*outstr, "\n" );*/
 			fmt::print( outstr, "{}", stack[0].lineParts[0].verbatim.c_str() );
 			fmt::print( outstr, "\n" );
 			break;
@@ -198,9 +196,6 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			assert( stack.size() == 1 );
 			assert( stack[0].argtype == ARGTYPE::STRING );
 			string fileName = stack[0].lineParts[0].verbatim;
-/*			ofstream tf;
-			tf.open ( fileName, ios::out | ios::binary );
-			outstr = &tf;*/
 			FILE* tf = fopen( fileName.c_str(), "wb" );
 			outstr = tf;
 			for ( size_t k=0; k<node.childNodes.size(); k++ )

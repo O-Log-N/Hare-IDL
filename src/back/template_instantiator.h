@@ -46,13 +46,11 @@ protected:
 	virtual string context();
 	string resolveLinePartsToString( const vector<LinePart>& lineParts );
 
-//	ostream* outstr;
 	FILE* outstr;
 	TemplateNodeSpace& templateSpace;
 	map<string, string> resolvedPlaceholders; // those starting from "@PARAM-"
 
 public:
-//	TemplateInstantiator( TemplateNodeSpace& templateSpace_, ostream* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}
 	TemplateInstantiator( TemplateNodeSpace& templateSpace_, FILE* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}
 
 	virtual string placeholder( Placeholder ph );

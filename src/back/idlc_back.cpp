@@ -27,21 +27,16 @@ void idlcBackEnd( Root& root )
 	BackRoot backRoot;
 	convertToBackTree( root, backRoot );
 
-//	TemplateNode template_root;
 	TemplateNodeSpace nodeSpace;
 
-/*	ifstream tf;
-//	tf.open ( "template.txt", ios::in | ios::binary );
-	tf.open ( "template2.txt", ios::in | ios::binary );
-	if ( !tf )
+	FILE* tf = fopen( "template2.txt", "rb" );
+	if ( tf == NULL )
 	{
 		fmt::print( "failed to open template file\n" );
 		return;
-	}*/
-	FILE* tf = fopen( "template2.txt", "rb" );
+	}
 
 	int line = 0;
-//	if ( !loadTemplate( tf, template_root, line ) )
 	if ( !loadTemplates( tf, nodeSpace, line ) )
 		return;
 	fmt::print( "\n\n" );

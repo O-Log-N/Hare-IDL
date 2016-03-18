@@ -22,19 +22,6 @@ void RootTemplateInstantiator::applyNode( TemplateNode& node )
 {
 	switch ( node.type )
 	{
-		case NODE_TYPE::FOR_EACH_PUBLISHABLE_STRUCT:
-		{
-			size_t structCnt = root->structures.size();
-			for ( size_t j=0; j<structCnt; j++ )
-			{
-				for ( size_t k=0; k<node.childNodes.size(); k++ )
-				{
-					StructTemplateInstantiator structti( *(root->structures[j]), templateSpace, outstr );
-					structti.apply( node.childNodes[k] );
-				}
-			}
-			break;
-		}
 		default:
 		{
 			TemplateInstantiator::applyNode( node );
@@ -94,28 +81,6 @@ void StructTemplateInstantiator::applyNode( TemplateNode& node )
 {
 	switch ( node.type )
 	{
-		case NODE_TYPE::FOR_EACH_OF_MEMBERS:
-		{
-			size_t memberCnt = structure->getChildCount();
-			for ( size_t j=0; j<memberCnt; j++ )
-			{
-				for ( size_t k=0; k<node.childNodes.size(); k++ )
-				{
-					BackDataMember* member = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
-					if ( member != NULL )
-					{
-						StructMemberTemplateInstantiator smti( *member, templateSpace, outstr );
-						smti.apply( node.childNodes[k] );
-					}
-					else
-					{
-						// TODO: this case requires additional analysis
-						assert( 0 );
-					}
-				}
-			}
-			break;
-		}
 		default:
 		{
 			TemplateInstantiator::applyNode( node );
