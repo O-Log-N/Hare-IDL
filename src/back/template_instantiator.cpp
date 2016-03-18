@@ -169,8 +169,10 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			evaluateExpression( expr, stack );
 			assert( stack.size() == 1 );
 			assert( stack[0].argtype == ARGTYPE::STRING );
-			fmt::print( *outstr, "{}", stack[0].lineParts[0].verbatim.c_str() );
-			fmt::print(*outstr, "\n" );
+/*			fmt::print( *outstr, "{}", stack[0].lineParts[0].verbatim.c_str() );
+			fmt::print(*outstr, "\n" );*/
+			fmt::print( outstr, "{}", stack[0].lineParts[0].verbatim.c_str() );
+			fmt::print( outstr, "\n" );
 			break;
 		}
 		case NODE_TYPE::IF_TRUE_BRANCH:
@@ -187,7 +189,6 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 				fmt::print("Instantiation error at template line{}: output file is already open", node.srcLineNum );
 				assert(0); // TODO: replace by throwing an exception or alike
 			}
-			ofstream tf;
 			// prepare file name string
 			auto attr = node.attributes.find( {ATTRIBUTE::FILENAME, ""} );
 			assert( attr != node.attributes.end() );
@@ -197,8 +198,11 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			assert( stack.size() == 1 );
 			assert( stack[0].argtype == ARGTYPE::STRING );
 			string fileName = stack[0].lineParts[0].verbatim;
+/*			ofstream tf;
 			tf.open ( fileName, ios::out | ios::binary );
-			outstr = &tf;
+			outstr = &tf;*/
+			FILE* tf = fopen( fileName.c_str(), "wb" );
+			outstr = tf;
 			for ( size_t k=0; k<node.childNodes.size(); k++ )
 				applyNode( node.childNodes[k] );
 			outstr = nullptr;

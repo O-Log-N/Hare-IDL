@@ -175,7 +175,7 @@ struct TemplateLine
 	vector<ExpressionElement> expression; // used only for NODE_TYPE::IF(ELIF) and NODE_TYPE::ASSERT
 };
 
-bool tokenizeTemplateLines( istream& tf, vector<TemplateLine>& templateLines, int& currentLineNum );
+bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& currentLineNum );
 
 
 #endif // TEMPLATE_LINE_TOKENIZER_H

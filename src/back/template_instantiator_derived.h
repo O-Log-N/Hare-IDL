@@ -32,7 +32,8 @@ protected:
 	virtual string context() override {return "ROOT"; }
 
 public:
-	RootTemplateInstantiator( BackRoot& structRoot, TemplateNodeSpace& templateSpace_, ostream* outStr ) : TemplateInstantiator( templateSpace_, outStr ), root( &structRoot ) {}
+//	RootTemplateInstantiator( BackRoot& structRoot, TemplateNodeSpace& templateSpace_, ostream* outStr ) : TemplateInstantiator( templateSpace_, outStr ), root( &structRoot ) {}
+	RootTemplateInstantiator( BackRoot& structRoot, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), root( &structRoot ) {}
 
 	void apply()
 	{
@@ -54,7 +55,8 @@ protected:
 	virtual string context() override {return "STRUCT"; }
 
 public:
-	StructTemplateInstantiator( BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, ostream* outStr ) : TemplateInstantiator( templateSpace_, outStr ), structure( &currentStruct ) {}
+//	StructTemplateInstantiator( BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, ostream* outStr ) : TemplateInstantiator( templateSpace_, outStr ), structure( &currentStruct ) {}
+	StructTemplateInstantiator( BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), structure( &currentStruct ) {}
 
 	void apply( TemplateNode& node )
 	{
@@ -74,7 +76,8 @@ protected:
 	virtual string context() override {return "STRUCT-MEMBER"; }
 
 public:
-	StructMemberTemplateInstantiator( BackDataMember& currentMember, TemplateNodeSpace& templateSpace_, ostream* outStr ) : TemplateInstantiator( templateSpace_, outStr ), member( &currentMember ) {}
+//	StructMemberTemplateInstantiator( BackDataMember& currentMember, TemplateNodeSpace& templateSpace_, ostream* outStr ) : TemplateInstantiator( templateSpace_, outStr ), member( &currentMember ) {}
+	StructMemberTemplateInstantiator( BackDataMember& currentMember, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), member( &currentMember ) {}
 
 	void apply( TemplateNode& node )
 	{

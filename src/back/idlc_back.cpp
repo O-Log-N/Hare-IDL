@@ -30,14 +30,15 @@ void idlcBackEnd( Root& root )
 //	TemplateNode template_root;
 	TemplateNodeSpace nodeSpace;
 
-	ifstream tf;
+/*	ifstream tf;
 //	tf.open ( "template.txt", ios::in | ios::binary );
 	tf.open ( "template2.txt", ios::in | ios::binary );
 	if ( !tf )
 	{
 		fmt::print( "failed to open template file\n" );
 		return;
-	}
+	}*/
+	FILE* tf = fopen( "template2.txt", "rb" );
 
 	int line = 0;
 //	if ( !loadTemplate( tf, template_root, line ) )

@@ -422,7 +422,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 }
 
 
-bool loadTemplates( istream& tf, TemplateNodeSpace& nodeSpace, int& currentLineNum )
+bool loadTemplates( FILE* tf, TemplateNodeSpace& nodeSpace, int& currentLineNum )
 {
 	for (;;)
 	{

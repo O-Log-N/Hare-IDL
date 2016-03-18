@@ -24,14 +24,17 @@ void findSpaces( const string& line, size_t& contentStart )
 	while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t')) ) contentStart++;
 }
 
-bool readLine( istream& tf, string& line, int& currentLineNum )
+bool readLine( FILE* tf, string& line, int& currentLineNum )
 {
 	bool somethingFound = false;
 	for(;;) // through all chars - just read the line
 	{
 		char ch;
-		tf.read( &ch, 1);
+/*		tf.read( &ch, 1);
 		if ( !tf )
+			break;*/
+		size_t readret = fread( &ch, 1, 1, tf );
+		if ( readret == 0 )
 			break;
 		somethingFound = true;
 		if ( ch == '\n' )
@@ -302,7 +305,7 @@ void readAttributes( const string& line, size_t& pos, TemplateLine& tl, int curr
 	}
 }
 
-bool tokenizeTemplateLines( istream& tf, vector<TemplateLine>& templateLines, int& currentLineNum )
+bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& currentLineNum )
 {
 	bool startFound = false;
 

@@ -18,9 +18,13 @@ Copyright (C) 2016 OLogN Technologies AG
 #ifndef IDLC_INCLUDE_H
 #define IDLC_INCLUDE_H
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <assert.h> // for assert(); TODO: replace by our own HAREASSERT
-#include <iostream>
-#include <fstream>
+//#include <iostream>
+//#include <fstream>
 #include <memory>
 #include <vector>
 #include <map>

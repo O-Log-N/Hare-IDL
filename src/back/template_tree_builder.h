@@ -77,7 +77,7 @@ public:
 	}
 };
 
-bool loadTemplates( istream& tf, TemplateNodeSpace& nodeSpace, int& currentLineNum );
+bool loadTemplates( FILE* tf, TemplateNodeSpace& nodeSpace, int& currentLineNum );
 void dbgPrintTemplateTrees( TemplateNodeSpace& nodeSpace );
 
 #endif // TEMPLATE_TREE_BUILDER_H
