@@ -59,6 +59,10 @@ Copyright (C) 2016 OLogN Technologies AG
 
 // predefined functions
 #define FUNCTION_STRING_MEMBERS "MEMBERS"
+#define FUNCTION_STRING_PUBLISHABLE_STRUCTS "PUBLISHABLE-STRUCTS"
+#define FUNCTION_STRING_MEMBER_TYPE "MEMBER-TYPE"
+#define FUNCTION_STRING_COLLECTION_TYPE "COLLECTION-TYPE"
+#define FUNCTION_STRING_MAKE_LIST "MAKE-LIST"
 
 // operators
 #define OPERATOR_STRING_EQ "=="
@@ -178,6 +182,10 @@ const ParameterWord params[] =
 const PredefinedFunctionDetails functions[]
 {
 	{FUNCTION_STRING_MEMBERS, sizeof(FUNCTION_STRING_MEMBERS)-1, PREDEFINED_FUNCTION::MEMBERS, 0},
+	{FUNCTION_STRING_PUBLISHABLE_STRUCTS, sizeof(FUNCTION_STRING_PUBLISHABLE_STRUCTS)-1, PREDEFINED_FUNCTION::PUBLISHABLE_STRUCTS, 0},
+	{FUNCTION_STRING_MEMBER_TYPE, sizeof(FUNCTION_STRING_MEMBER_TYPE)-1, PREDEFINED_FUNCTION::MEMBER_TYPE, 0},
+	{FUNCTION_STRING_COLLECTION_TYPE, sizeof(FUNCTION_STRING_COLLECTION_TYPE)-1, PREDEFINED_FUNCTION::COLLECTION_TYPE, 0},
+	{FUNCTION_STRING_MAKE_LIST, sizeof(FUNCTION_STRING_MAKE_LIST)-1, PREDEFINED_FUNCTION::MAKE_LIST, 0},
 	{NULL, 0, PREDEFINED_FUNCTION::NOT_A_FUNCTION, 0},
 };
 
@@ -328,7 +336,7 @@ PredefindedOperator parsePredefinedOperator( const string& line, size_t& content
 /////////////////////////////////////////////////////////////
 
 
-template<class T> string specialWordToString( T* words, int id )
+template<class T, class ID> string specialWordToString( T* words, ID id )
 {
 	int i;
 	for ( i=0; ; i++ )

@@ -57,6 +57,28 @@ void RootTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUN
 {
 	switch ( fnID )
 	{
+		case PREDEFINED_FUNCTION::PUBLISHABLE_STRUCTS:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::OBJPTR_LIST;
+			size_t structCnt = root->structures.size();
+			for ( size_t j=0; j<structCnt; j++ )
+			{
+//				BackStructure* structure = dynamic_cast<BackStructure*>( root->structures[j] );
+//				if ( structure != NULL )
+				{
+					StructTemplateInstantiator* structti = new StructTemplateInstantiator( *(root->structures[j]), templateSpace, outstr );
+					elem.objects.push_back( structti );
+				}
+/*				else
+				{
+					// TODO: this case requires additional analysis
+					assert( 0 );
+				}*/
+			}
+			stack.push_back( elem );
+			break;
+		}
 		default:
 		{
 			TemplateInstantiator::execBuiltinFunction( stack, fnID );

@@ -254,21 +254,6 @@ void readAttributeValue( const string& line, size_t& currentPos, vector<Expressi
 		fmt::print( "line {}: error: attribute value is expected\n", currentLineNum );
 		assert( 0 ); // TODO: throw
 	}
-/*	if ( line[pos] == '\"' )
-	{
-		++pos;
-		readLineParts( line, pos, parts, "\"" );
-		if ( line[pos] != '\"' )
-		{
-			fmt::print( "line {}: error: string runs away (lost terminating '\"')\n", currentLineNum );
-			assert( 0 ); // TODO: throw
-		}
-		++pos; // for closing '"'
-	}
-	else // single word is expected
-	{
-		readLineParts( line, pos, parts, " \t" );
-	}*/
 	parseExpression( line, currentPos, expression, currentLineNum );
 }
 
@@ -293,14 +278,7 @@ void readNextParam( const string& line, size_t& pos, TemplateLine& tl, int curre
 	if ( line[ pos ] == '=' )
 	{
 		++pos;
-		// temporary code;
-		// TODO: read expression instead
-/*		ExpressionElement arg;
-		arg.oper = OPERATOR::PUSH;
-		arg.argtype = ARGTYPE::STRING;*/
 		vector<ExpressionElement> expression;
-//		readAttributeValue( line, pos, arg.lineParts, currentLineNum );
-//		expression.push_back( arg );
 		readAttributeValue( line, pos, expression, currentLineNum );
 		tl.attributes.insert( make_pair(attrName, expression ) );
 	}

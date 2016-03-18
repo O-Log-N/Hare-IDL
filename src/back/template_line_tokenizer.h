@@ -91,10 +91,14 @@ struct LinePart
 	string verbatim;
 };
 
-enum PREDEFINED_FUNCTION
+enum class PREDEFINED_FUNCTION
 {
 	NOT_A_FUNCTION,
 	MEMBERS,
+	PUBLISHABLE_STRUCTS,
+	MEMBER_TYPE,
+	COLLECTION_TYPE,
+	MAKE_LIST,
 };
 
 struct PredefindedFunction
