@@ -261,16 +261,57 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			resolvedPlaceholders.clear();
 			break;
 		}
+		case NODE_TYPE::INCLUDE_WITH:
+		{
+			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
+			assert( attr != node.attributes.end() );
+			auto& expr = attr->second;
+			Stack stack;
+			evaluateExpression( expr, stack );
+			assert( stack.size() == 1 );
+			assert( stack[0].argtype == ARGTYPE::STRING );
+			string templateName = stack[0].lineParts[0].verbatim;
+
+			stack.clear();
+			evaluateExpression( node.expression, stack );
+			assert( stack.size() == 1 );
+			assert( stack[0].argtype == ARGTYPE::OBJPTR );
+
+			// load resolved names, if any
+			for ( const auto it:node.attributes )
+				if ( it.first.id == ATTRIBUTE::PARAM )
+				{
+					auto& expr1 = it.second;
+					Stack stack1;
+					evaluateExpression( expr1, stack1 );
+					assert( stack1.size() == 1 );
+					assert( stack1[0].argtype == ARGTYPE::STRING );
+					string resolved = stack1[0].lineParts[0].verbatim;
+					stack[0].singleObject->resolvedPlaceholders.insert( make_pair( it.first.ext, resolved ) );
+				}
+
+			TemplateNode* tn = templateSpace.getTemplate( templateName, stack[0].singleObject->context() );
+			if ( tn == nullptr )
+			{
+				assert( 0 ); // TODO: throw
+			}
+			for ( auto nodeit:tn->childNodes )
+			{
+				stack[0].singleObject->applyNode( nodeit );
+			}
+			resolvedPlaceholders.clear();
+			break;
+		}
 		case NODE_TYPE::FOR_EACH_OF:
 		{
 			Stack stack;
 			evaluateExpression( node.expression, stack );
 			assert( stack.size() == 1 );
 			assert( stack[0].argtype == ARGTYPE::OBJPTR_LIST );
-			for ( auto it:stack[0].objects )
-				for ( size_t k=0; k<node.childNodes.size(); k++ )
+			for ( auto obj:stack[0].objects )
+				for ( auto nodeit:node.childNodes )
 				{
-					it->applyNode( node.childNodes[k] );
+					obj->applyNode(nodeit );
 				}
 			break;
 		}

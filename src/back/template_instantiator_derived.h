@@ -87,7 +87,7 @@ protected:
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
 	virtual string placeholder( Placeholder ph );
-	virtual string context() override {return "STRUCT-MEMBER"; }
+	virtual string context() override {return "DATATYPE"; }
 
 public:
 	MemberTypeTemplateInstantiator( DataType& currentDataType, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), dataType( &currentDataType ) {}

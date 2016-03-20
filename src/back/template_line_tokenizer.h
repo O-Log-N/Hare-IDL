@@ -47,6 +47,7 @@ enum class NODE_TYPE {
 	IF_FALSE_BRANCH,
 	OPEN_OUTPUT_FILE,
 	FOR_EACH_OF,
+	INCLUDE_WITH,
 };
 
 enum class PLACEHOLDER {
@@ -117,6 +118,7 @@ enum class ARGTYPE
 	STRING, 
 	BOOL, 
 	// internal
+	OBJPTR,
 	OBJPTR_LIST,
 };
 
@@ -160,6 +162,7 @@ struct TemplateLine
 		ASSERT,
 		OPEN_OUTPUT_FILE,
 		CLOSE_OUTPUT_FILE,
+		INCLUDE_WITH,
 
 		ELIF_TO_IF, // derived
 	};

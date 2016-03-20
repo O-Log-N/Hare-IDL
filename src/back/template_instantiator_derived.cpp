@@ -132,6 +132,29 @@ void StructMemberTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEF
 {
 	switch ( fnID )
 	{
+		case PREDEFINED_FUNCTION::MEMBER_TYPE:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::OBJPTR;
+//			size_t memberCnt = structure->getChildCount();
+//			for ( size_t j=0; j<memberCnt; j++ )
+			{
+//				DataType* memberType = dynamic_cast<DataType*>( &(member->type) );
+				DataType* memberType = new DataType( member->type );
+				if ( memberType != NULL )
+				{
+					MemberTypeTemplateInstantiator* mtti = new MemberTypeTemplateInstantiator( *memberType, templateSpace, outstr );
+					elem.singleObject = mtti;
+				}
+				else
+				{
+					// TODO: this case requires additional analysis
+					assert( 0 );
+				}
+			}
+			stack.push_back( elem );
+			break;
+		}
 		default:
 		{
 			TemplateInstantiator::execBuiltinFunction( stack, fnID );

@@ -35,6 +35,7 @@ protected:
 		bool boolValue = false; // argtype: ARGTYPE::BOOL
 		vector<LinePart> lineParts; // used for ARGTYPE::STRING
 		vector<TemplateInstantiator*> objects; // used for ARGTYPE::OBJPTR_LIST
+		TemplateInstantiator* singleObject;
 	};
 	typedef vector<StackElement> Stack;
 

@@ -184,6 +184,17 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				++flidx;
 				break;
 			}
+			case TemplateLine::LINE_TYPE::INCLUDE_WITH:
+			{
+				TemplateNode node;
+				node.type = NODE_TYPE::INCLUDE_WITH;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				node.attributes = lines[flidx].attributes;
+				node.expression = lines[flidx].expression;
+				root.childNodes.push_back( node );
+				++flidx;
+				break;
+			}
 			case TemplateLine::LINE_TYPE::ASSERT:
 			{
 				TemplateNode node;
