@@ -22,9 +22,6 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_tree_builder.h"
 #include "back_idl_tree.h"
 
-#define CONTEXT_STRUCT 1
-#define CONTEXT_STRUCT_MEMBER 2
-
 class TemplateInstantiator
 {
 protected:

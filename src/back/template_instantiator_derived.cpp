@@ -136,21 +136,16 @@ void StructMemberTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEF
 		{
 			StackElement elem;
 			elem.argtype = ARGTYPE::OBJPTR;
-//			size_t memberCnt = structure->getChildCount();
-//			for ( size_t j=0; j<memberCnt; j++ )
+			DataType* memberType = new DataType( member->type );
+			if ( memberType != NULL )
 			{
-//				DataType* memberType = dynamic_cast<DataType*>( &(member->type) );
-				DataType* memberType = new DataType( member->type );
-				if ( memberType != NULL )
-				{
-					MemberTypeTemplateInstantiator* mtti = new MemberTypeTemplateInstantiator( *memberType, templateSpace, outstr );
-					elem.singleObject = unique_ptr<TemplateInstantiator>(mtti);
-				}
-				else
-				{
-					// TODO: this case requires additional analysis
-					assert( 0 );
-				}
+				MemberTypeTemplateInstantiator* mtti = new MemberTypeTemplateInstantiator( *memberType, templateSpace, outstr );
+				elem.singleObject = unique_ptr<TemplateInstantiator>(mtti);
+			}
+			else
+			{
+				// TODO: this case requires additional analysis
+				assert( 0 );
 			}
 			stack.push_back( std::move(elem) );
 			break;
@@ -185,6 +180,25 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 {
 	switch ( fnID )
 	{
+		case PREDEFINED_FUNCTION::COLLECTION_TYPE:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::OBJPTR;
+//			DataType* memberType = new DataType( member->type );
+//			if ( memberType != NULL )
+			{
+				assert( dataType->kind == DataType::KIND::SEQUENCE );
+				MemberTypeTemplateInstantiator* mtti = new MemberTypeTemplateInstantiator( *(dataType->paramType), templateSpace, outstr );
+				elem.singleObject = unique_ptr<TemplateInstantiator>(mtti);
+			}
+/*			else
+			{
+				// TODO: this case requires additional analysis
+				assert( 0 );
+			}*/
+			stack.push_back( std::move(elem) );
+			break;
+		}
 		default:
 		{
 			TemplateInstantiator::execBuiltinFunction( stack, fnID );

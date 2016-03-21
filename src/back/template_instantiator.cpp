@@ -52,7 +52,7 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 				part.verbatim = resolveLinePartsToString( it.lineParts );
 				se.lineParts.push_back( part );
 				se.numberValue = it.numberValue;
-				stack.push_back( se );
+				stack.push_back( std::move(se) );
 				break;
 			}
 			case OPERATOR::EQ: 
@@ -76,7 +76,7 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 				StackElement se;
 				se.argtype = ARGTYPE::BOOL;
 				se.boolValue = res;
-				stack.push_back( se );
+				stack.push_back( std::move(se) );
 				break;
 			}
 			case OPERATOR::NEQ:
@@ -100,7 +100,7 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 				StackElement se;
 				se.argtype = ARGTYPE::BOOL;
 				se.boolValue = res;
-				stack.push_back( se );
+				stack.push_back( std::move(se) );
 				break;
 			}
 			case OPERATOR::CALL: 
@@ -240,7 +240,8 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			assert( stack[0].argtype == ARGTYPE::STRING );
 			string templateName = stack[0].lineParts[0].verbatim;
 
-			TemplateNode* tn = templateSpace.getTemplate( templateName, context() );
+			string tContext = context();
+			TemplateNode* tn = templateSpace.getTemplate( templateName, tContext );
 			if ( tn == nullptr )
 			{
 				assert( 0 ); // TODO: throw
@@ -308,7 +309,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			evaluateExpression( node.expression, stack );
 			assert( stack.size() == 1 );
 			assert( stack[0].argtype == ARGTYPE::OBJPTR_LIST );
-			for ( auto obj:stack[0].objects )
+			for ( auto &obj:stack[0].objects )
 				for ( auto nodeit:node.childNodes )
 				{
 					obj->applyNode(nodeit );
