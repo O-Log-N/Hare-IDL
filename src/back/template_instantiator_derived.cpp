@@ -41,9 +41,9 @@ void RootTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUN
 			for ( size_t j=0; j<structCnt; j++ )
 			{
 				StructTemplateInstantiator* structti = new StructTemplateInstantiator( *(root->structures[j]), templateSpace, outstr );
-				elem.objects.push_back( structti );
+				elem.objects.push_back( unique_ptr<TemplateInstantiator>(structti) );
 			}
-			stack.push_back( elem );
+			stack.push_back( std::move(elem) );
 			break;
 		}
 		default:
@@ -87,7 +87,7 @@ void StructTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_F
 				if ( member != NULL )
 				{
 					StructMemberTemplateInstantiator* smti = new StructMemberTemplateInstantiator( *member, templateSpace, outstr );
-					elem.objects.push_back( smti );
+					elem.objects.push_back( unique_ptr<TemplateInstantiator>(smti) );
 				}
 				else
 				{
@@ -95,7 +95,7 @@ void StructTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_F
 					assert( 0 );
 				}
 			}
-			stack.push_back( elem );
+			stack.push_back( std::move(elem) );
 			break;
 		}
 		default:
@@ -144,7 +144,7 @@ void StructMemberTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEF
 				if ( memberType != NULL )
 				{
 					MemberTypeTemplateInstantiator* mtti = new MemberTypeTemplateInstantiator( *memberType, templateSpace, outstr );
-					elem.singleObject = mtti;
+					elem.singleObject = unique_ptr<TemplateInstantiator>(mtti);
 				}
 				else
 				{
@@ -152,7 +152,7 @@ void StructMemberTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEF
 					assert( 0 );
 				}
 			}
-			stack.push_back( elem );
+			stack.push_back( std::move(elem) );
 			break;
 		}
 		default:

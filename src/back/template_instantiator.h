@@ -34,8 +34,13 @@ protected:
 		double numberValue = 0; // argtype: ARGTYPE::NUMBER
 		bool boolValue = false; // argtype: ARGTYPE::BOOL
 		vector<LinePart> lineParts; // used for ARGTYPE::STRING
-		vector<TemplateInstantiator*> objects; // used for ARGTYPE::OBJPTR_LIST
-		TemplateInstantiator* singleObject;
+		vector<unique_ptr<TemplateInstantiator>> objects; // used for ARGTYPE::OBJPTR_LIST
+		unique_ptr<TemplateInstantiator> singleObject = nullptr;
+		StackElement() {}
+		StackElement ( StackElement & other ) = delete; 
+		StackElement ( StackElement && other ) : 
+			argtype( other.argtype ), numberValue( other.numberValue ), boolValue( other.boolValue ), 
+			lineParts( std::move(other.lineParts) ), objects( std::move(other.objects) ), singleObject( std::move(other.singleObject) ) {}
 	};
 	typedef vector<StackElement> Stack;
 
