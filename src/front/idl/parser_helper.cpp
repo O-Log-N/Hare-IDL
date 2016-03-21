@@ -35,6 +35,7 @@ static set<YyBase*> dbgLeakDetector;
 
 static bool errorFlag = false;
 
+static const set<string> primitives = { "INT8", "INT16", "INT32", "UINT8", "UINT16", "UINT32" };
 
 string locationToString(const Location& loc)
 {
@@ -641,8 +642,12 @@ YYSTYPE createIdType(YYSTYPE id, YYSTYPE opt_arg_list)
         yy->dataType.encodingAttrs = argumentListFromYyAndDelete(opt_arg_list);
     }
     else {
-        yy->dataType.kind = DataType::PRIMITIVE;
         yy->dataType.name = nameFromYyIdentifierAndDelete(id);
+
+        if (primitives.find(yy->dataType.name) != primitives.end())
+            yy->dataType.kind = DataType::PRIMITIVE;
+        else
+            yy->dataType.kind = DataType::NAMED_TYPE;
     }
 
     return yy;
