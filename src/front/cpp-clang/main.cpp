@@ -61,13 +61,14 @@ public:
 
             //outs() << "\n";
 
-            outs() << "MAPPING(\"TODO\") PUBLISHABLE_STRUCT " << declaration->getNameAsString() << " {\n";
+            outs() << "MAPPING(\"TODO\") PUBLISHABLE_STRUCT " <<
+                declaration->getQualifiedNameAsString() << " {\n";
             
             RecordDecl::field_range r = declaration->fields();
             for (auto it = r.begin(); it != r.end(); ++it) {
                 FieldDecl* current = *it;
-                StringRef n = current->getName();
-                QualType t = current->getType();
+                StringRef n = current->getQualifiedNameAsString();
+                QualType t = current->getType().getCanonicalType();
 
                 llvm::outs() << t.getAsString() << " " << n.str() << ";\n";
             }

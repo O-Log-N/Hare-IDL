@@ -30,29 +30,23 @@ class myharesampleItem {
 public:
     string name;
 };
- 
+
+typedef vector<myharesampleItem> mySampleVector;
 
 class myharesampleCharacter {
 public:
-  int character_id;//can be omitted, as default mapping
-                      //  for UINT16 is UINT16
-  double x;//all 'double' declarations can be omitted too
+  int character_id;
+  double x;
   double y;
   double z;
   double vx;
   double vy;
   double vz;
-  float angle;//this is the only Encoding specification in this fragment
-              //  which makes any difference compared to defaults
-              // if we want angle to be double, we can omit it too
+  float angle;
   enum Animation {Standing=0,Walking=1, Running=2} anim;
-              //can be omitted too
-  int animation_frame;//can be omitted, as
-                        //  UINT8 is a default mapping for INT[0,120)
-
-  vector<myharesampleItem> inventory;//can be also omitted,
-                         //  as default mapping for SEQUENCE<Item>
-                         //  is vector<Item>
+  int animation_frame;
+  vector<myharesampleItem> inventory;
+  mySampleVector other_inventory;
 };
 
 
