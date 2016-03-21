@@ -16,21 +16,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 *******************************************************************************/
 
 #ifndef SAMPLE_H_INCLUDED
-#define SAMPLE_H_INCLUDED "include guard"
+#define SAMPLE_H_INCLUDED
 
 #include <cstdint>
 #include <string>
 #include <vector>
 
+#include "hareidl.h"
+
 using namespace std;
 
-class sampleItem {
+class myharesampleItem {
 public:
     string name;
 };
  
 
-class [[hare::something]] sampleCharacter {
+class myharesampleCharacter {
 public:
   int character_id;//can be omitted, as default mapping
                       //  for UINT16 is UINT16
@@ -43,12 +45,12 @@ public:
   float angle;//this is the only Encoding specification in this fragment
               //  which makes any difference compared to defaults
               // if we want angle to be double, we can omit it too
-  enum __attribute__((flag_enum)) Animation {Standing=0,Walking=1, Running=2} anim;
+  enum Animation {Standing=0,Walking=1, Running=2} anim;
               //can be omitted too
   int animation_frame;//can be omitted, as
                         //  UINT8 is a default mapping for INT[0,120)
 
-  vector<sampleItem> inventory;//can be also omitted,
+  vector<myharesampleItem> inventory;//can be also omitted,
                          //  as default mapping for SEQUENCE<Item>
                          //  is vector<Item>
 };

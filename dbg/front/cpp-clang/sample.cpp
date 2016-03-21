@@ -15,14 +15,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-//#include <stdio.h>
-//#include "sample.h"
+#include <stdio.h>
+#include "sample.h"
 
 [[hare::nobugs]]
 void hareFunc() {}
 
 int main()
 {
-//	printf("Hello world!\n");
+	printf("Hello world!\n");
     return 0;
 }
