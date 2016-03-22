@@ -37,10 +37,9 @@ void RootTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUN
 		{
 			StackElement elem;
 			elem.argtype = ARGTYPE::OBJPTR_LIST;
-			size_t structCnt = root->structures.size();
-			for ( size_t j=0; j<structCnt; j++ )
+			for ( auto& it:root->structures )
 			{
-				StructTemplateInstantiator* structti = new StructTemplateInstantiator( *(root->structures[j]), templateSpace, outstr );
+				StructTemplateInstantiator* structti = new StructTemplateInstantiator( *it, templateSpace, outstr );
 				elem.objects.push_back( unique_ptr<TemplateInstantiator>(structti) );
 			}
 			stack.push_back( std::move(elem) );
@@ -194,8 +193,6 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 		{
 			StackElement elem;
 			elem.argtype = ARGTYPE::OBJPTR_LIST;
-//			size_t valueCnt = dataType->enumValues.size();
-//			for ( size_t j=0; j<valueCnt; j++ )
 			for ( auto it:dataType->enumValues )
 			{
 				EnumValueTemplateInstantiator* evti = new EnumValueTemplateInstantiator( it.first, it.second, templateSpace, outstr );
@@ -276,9 +273,7 @@ string EnumValueTemplateInstantiator::placeholder( Placeholder ph )
 		}
 		case PLACEHOLDER::ENUM_VALUE_VALUE:
 		{
-			string ret = fmt::format( "{}", value );
-			;
-			return ret;
+			return fmt::format( "{}", value );
 		}
 		default:
 		{

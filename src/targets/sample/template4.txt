@@ -48,7 +48,7 @@ void serialize@STRUCT-NAME@( @STRUCT-NAME@& s, OStream& o ) {
 @@ELIF IS-PRIMITIVE-INTEGER()
    o.writeINT(@PARAM-NAME@);
 @@ELIF IS-STRUCTURE()
-   write@MEMBER-TYPE@(o, @PARAM-NAME@);
+   serialize@MEMBER-TYPE@(@PARAM-NAME@, o);
 @@ELIF IS-ENUM()
    o.writeINT(@PARAM-NAME@);
 @@ELIF IS-SEQUENCE()

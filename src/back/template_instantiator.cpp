@@ -151,8 +151,8 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 	{
 		case NODE_TYPE::FULL_TEMPLATE:
 		{
-			for ( size_t k=0; k<node.childNodes.size(); k++ )
-				applyNode( node.childNodes[k] );
+			for ( auto& nodeIt: node.childNodes )
+				applyNode( nodeIt );
 			break;
 		}
 		case NODE_TYPE::CONTENT:
@@ -176,8 +176,8 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 		case NODE_TYPE::IF_TRUE_BRANCH:
 		case NODE_TYPE::IF_FALSE_BRANCH:
 		{
-			for ( size_t k=0; k<node.childNodes.size(); k++ )
-				applyNode( node.childNodes[k] );
+			for ( auto& nodeIt: node.childNodes )
+				applyNode( nodeIt );
 			break;
 		}
 		case NODE_TYPE::OPEN_OUTPUT_FILE:
@@ -198,8 +198,8 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			string fileName = stack[0].lineParts[0].verbatim;
 			FILE* tf = fopen( fileName.c_str(), "wb" );
 			outstr = tf;
-			for ( size_t k=0; k<node.childNodes.size(); k++ )
-				applyNode( node.childNodes[k] );
+			for ( auto& nodeIt: node.childNodes )
+				applyNode( nodeIt );
 			outstr = nullptr;
 			break;
 		}
