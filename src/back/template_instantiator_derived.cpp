@@ -184,18 +184,60 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 		{
 			StackElement elem;
 			elem.argtype = ARGTYPE::OBJPTR;
-//			DataType* memberType = new DataType( member->type );
-//			if ( memberType != NULL )
-			{
-				assert( dataType->kind == DataType::KIND::SEQUENCE );
-				MemberTypeTemplateInstantiator* mtti = new MemberTypeTemplateInstantiator( *(dataType->paramType), templateSpace, outstr );
-				elem.singleObject = unique_ptr<TemplateInstantiator>(mtti);
-			}
-/*			else
-			{
-				// TODO: this case requires additional analysis
-				assert( 0 );
-			}*/
+			assert( dataType->kind == DataType::KIND::SEQUENCE );
+			MemberTypeTemplateInstantiator* mtti = new MemberTypeTemplateInstantiator( *(dataType->paramType), templateSpace, outstr );
+			elem.singleObject = unique_ptr<TemplateInstantiator>(mtti);
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		// type-related
+		// NOTE: this list is subject to change (see issue #52, for instance)
+		// TODO: update as necessary
+		case PREDEFINED_FUNCTION::IS_PRIMITIVE_DOUBLE:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::PRIMITIVE &&dataType->name == "DOUBLE";
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_PRIMITIVE_INTEGER:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::PRIMITIVE && ( dataType->name == "INTEGER" || dataType->name == "UINT16" );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_STRUCTURE:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::NAMED_TYPE;
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_ENUM:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::ENUM;
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_SEQUENCE:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::SEQUENCE;
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_PARAMETRIZED_DOUBLE:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::LIMITED_PRIMITIVE && dataType->name == "NUMERIC";
 			stack.push_back( std::move(elem) );
 			break;
 		}

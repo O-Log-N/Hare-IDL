@@ -98,6 +98,15 @@ enum class PREDEFINED_FUNCTION
 	MEMBER_TYPE,
 	COLLECTION_TYPE,
 	MAKE_LIST,
+	// type-related
+	// NOTE: this list is subject to change (see issue #52, for instance)
+	// TODO: update as necessary
+	IS_PRIMITIVE_DOUBLE,
+	IS_PRIMITIVE_INTEGER,
+	IS_STRUCTURE,
+	IS_ENUM,
+	IS_SEQUENCE,
+	IS_PARAMETRIZED_DOUBLE,
 };
 
 struct PredefindedFunction
