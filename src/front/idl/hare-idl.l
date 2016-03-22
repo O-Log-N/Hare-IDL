@@ -80,7 +80,6 @@ int createToken(int token)
 
 	"NUMERIC" { return createToken( KW_NUMERIC ); }
     "INT" { return createToken( KW_INT ); }
-	"SEQUENCE" { return createToken( KW_SEQUENCE ); }
 
 	"INTEGER" { return createToken( KW_INTEGER ); }
 	"FIXED-POINT" { return createToken( KW_FIXED_POINT ); }
@@ -88,6 +87,9 @@ int createToken(int token)
 	"CHARACTER" { return createToken( KW_CHARACTER ); }
 	"CHARACTER-STRING" { return createToken( KW_CHARACTER_STRING ); }
 	"BIT-STRING" { return createToken( KW_BIT_STRING ); }
+
+	"SEQUENCE" { return createToken( KW_SEQUENCE ); }
+	"DICTIONARY" { return createToken( KW_DICTIONARY ); }
 
 
 	[;<>,:=&\[\]\(\)\{\}\?\.] { yylval = 0; return yytext[0];}

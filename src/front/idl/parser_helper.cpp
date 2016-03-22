@@ -35,7 +35,7 @@ static set<YyBase*> dbgLeakDetector;
 
 static bool errorFlag = false;
 
-static const set<string> primitives = { "INT8", "INT16", "INT32", "UINT8", "UINT16", "UINT32" };
+//static const set<string> primitives = { "INT8", "INT16", "INT32", "UINT8", "UINT16", "UINT32" };
 
 string locationToString(const Location& loc)
 {
@@ -645,10 +645,10 @@ YYSTYPE createIdType(YYSTYPE id, YYSTYPE opt_arg_list)
     else {
         yy->dataType.name = nameFromYyIdentifierAndDelete(id);
 
-        if (primitives.find(yy->dataType.name) != primitives.end())
-            yy->dataType.kind = DataType::PRIMITIVE;
-        else
-            yy->dataType.kind = DataType::NAMED_TYPE;
+        //if (primitives.find(yy->dataType.name) != primitives.end())
+        //    yy->dataType.kind = DataType::PRIMITIVE;
+        //else
+        yy->dataType.kind = DataType::NAMED_TYPE;
     }
 
     return yy;
@@ -811,8 +811,8 @@ YYSTYPE createSequence(YYSTYPE opt_id, YYSTYPE type)
     yy->dataType.kind = DataType::SEQUENCE;
     if (opt_id)
         yy->dataType.name = nameFromYyIdentifierAndDelete(opt_id);
-    else
-        yy->dataType.name = "SEQUENCE";
+    //else
+    //    yy->dataType.name = "SEQUENCE";
 
     YyDataType* t = yystype_cast<YyDataType*>(type);
     yy->dataType.paramType.reset(new DataType());
@@ -821,6 +821,26 @@ YYSTYPE createSequence(YYSTYPE opt_id, YYSTYPE type)
 
     return yy;
 }
+
+YYSTYPE createDictionaryType(YYSTYPE token, YYSTYPE key_type, YYSTYPE value_type)
+{
+    unique_ptr<YyBase> r0(token);
+    unique_ptr<YyBase> r1(key_type);
+    unique_ptr<YyBase> r2(value_type);
+
+    YyDataType* yy = new YyDataType();
+
+    yy->dataType.kind = DataType::DICTIONARY;
+
+    YyDataType* kt = yystype_cast<YyDataType*>(key_type);
+    yy->dataType.keyType.reset(new DataType(kt->dataType));
+
+    YyDataType* vt = yystype_cast<YyDataType*>(value_type);
+    yy->dataType.paramType.reset(new DataType(vt->dataType));
+
+    return yy;
+}
+
 
 YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type)
 {

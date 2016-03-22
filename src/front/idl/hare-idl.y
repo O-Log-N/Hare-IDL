@@ -19,7 +19,7 @@ Copyright (C) 2016 OLogN Technologies AG
 %token KW_PUBLISHABLE_STRUCT
 %token KW_ENUM KW_CLASS
 %token KW_MAPPING KW_ENCODING
-%token KW_NUMERIC KW_INT KW_SEQUENCE
+%token KW_NUMERIC KW_INT
 %token KW_EXTEND KW_TO KW_DEFAULT KW_FENCE
 %token KW_DISCRIMINATED_UNION KW_WHEN_DISCRIMINANT_IN KW_WHEN_DISCRIMINANT_IS
 %token KW_DISCRIMINANT
@@ -29,6 +29,7 @@ Copyright (C) 2016 OLogN Technologies AG
 %token KW_INTEGER KW_FIXED_POINT KW_FLOATING_POINT
 %token KW_CHARACTER KW_CHARACTER_STRING KW_BIT_STRING
 
+%token KW_SEQUENCE KW_DICTIONARY
 
 %error-verbose
 %start file
@@ -135,6 +136,7 @@ data_type
     | character_string_type
     | bit_string_type
 	| sequence_type
+	| dictionary_type
 	| inline_enum_type
 	| class_ref_type
 ;
@@ -192,6 +194,13 @@ sequence_type
     | KW_SEQUENCE '<' IDENTIFIER '>' { $$ = createSequence(0, createIdType($3, 0)); releaseYys3($1, $2, $4); }
 	| IDENTIFIER '<' data_type '>' { $$ = createSequence($1, $3); releaseYys2($2, $4); }
     | IDENTIFIER '<' IDENTIFIER '>' { $$ = createSequence($1, createIdType($3, 0)); releaseYys2($2, $4); }
+;
+
+dictionary_type
+    : KW_DICTIONARY '<' data_type ',' data_type '>' { $$ = createDictionaryType($1, $3, $5); releaseYys3($2, $4, $6); }
+    | KW_DICTIONARY '<' IDENTIFIER ',' data_type '>' { $$ = createDictionaryType($1, createIdType($3, 0), $5); releaseYys3($2, $4, $6); }
+    | KW_DICTIONARY '<' data_type ',' IDENTIFIER '>' { $$ = createDictionaryType($1, $3, createIdType($5, 0)); releaseYys3($2, $4, $6); }
+    | KW_DICTIONARY '<' IDENTIFIER ',' IDENTIFIER '>' { $$ = createDictionaryType($1, createIdType($3, 0), createIdType($5, 0)); releaseYys3($2, $4, $6); }
 ;
 
 class_ref_type

@@ -49,9 +49,10 @@ class DataType
 {
 public:
     enum KIND { PRIMITIVE, LIMITED_PRIMITIVE, ENUM, NAMED_TYPE, SEQUENCE, ENCODING_SPECIFIC, MAPPING_SPECIFIC,
-        INTEGER, FIXED_POINT, FLOATING_POINT, CHARACTER, CHARACTER_STRING, BIT_STRING};
+        INTEGER, FIXED_POINT, FLOATING_POINT, CHARACTER, CHARACTER_STRING, BIT_STRING, DICTIONARY};
     KIND kind = PRIMITIVE;
 	string name;
+    unique_ptr<DataType> keyType;
     unique_ptr<DataType> paramType;
     Limit lowLimit;
     Limit highLimit;
@@ -69,6 +70,7 @@ public:
 	DataType() {}
     DataType(const DataType& other)
         : kind(other.kind), name(other.name),
+        keyType(other.keyType != nullptr ? new DataType(*(other.keyType)) : nullptr),
         paramType(other.paramType != nullptr ? new DataType(*(other.paramType)) : nullptr),
         lowLimit(other.lowLimit), highLimit(other.highLimit),
         fixedPrecision(other.fixedPrecision), floatingSignificandBits(other.floatingSignificandBits),
@@ -81,8 +83,9 @@ public:
 	{
 		kind = other.kind;
 		name = other.name;
-		paramType = other.paramType != nullptr ? unique_ptr<DataType>( new DataType( *(other.paramType) ) ) : unique_ptr<DataType>( nullptr );
-		lowLimit = other.lowLimit;
+        keyType.reset(other.keyType != nullptr ? new DataType(*(other.keyType)) : nullptr );
+        paramType.reset(other.paramType != nullptr ? new DataType(*(other.paramType)) : nullptr);
+        lowLimit = other.lowLimit;
 		highLimit = other.highLimit;
         fixedPrecision = other.fixedPrecision;
         floatingSignificandBits = other.floatingSignificandBits;
