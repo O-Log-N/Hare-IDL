@@ -99,6 +99,26 @@ public:
 };
 
 
+class EnumValueTemplateInstantiator : public TemplateInstantiator
+{
+protected:
+	string name;
+	int value;
+
+	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
+	virtual string placeholder( Placeholder ph );
+	virtual string context() override {return "ENUMVALUE"; }
+
+public:
+	EnumValueTemplateInstantiator( const string& currentName, int currentValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), name( currentName ), value( currentValue ) {}
+
+	void apply( TemplateNode& node )
+	{
+		applyNode( node );
+	}
+};
+
+
 void apply( BackRoot& structure, TemplateNodeSpace& templateSpace );
 
 

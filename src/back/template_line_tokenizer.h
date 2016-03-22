@@ -57,6 +57,8 @@ enum class PLACEHOLDER {
 	MEMBER_TYPE, // used ONLY within STRUCT-MEMBER
 	MEMBER_NAME, // used ONLY within STRUCT-MEMBER
 	PARAM_MINUS,
+	ENUM_VALUE_NAME,
+	ENUM_VALUE_VALUE,
 };
 
 enum class OPERATOR { 
@@ -97,7 +99,8 @@ enum class PREDEFINED_FUNCTION
 	PUBLISHABLE_STRUCTS,
 	MEMBER_TYPE,
 	COLLECTION_TYPE,
-	MAKE_LIST,
+//	MAKE_LIST,
+	ENUM_VALUES,
 	// type-related
 	// NOTE: this list is subject to change (see issue #52, for instance)
 	// TODO: update as necessary

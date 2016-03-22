@@ -190,6 +190,20 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			stack.push_back( std::move(elem) );
 			break;
 		}
+		case PREDEFINED_FUNCTION::ENUM_VALUES:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::OBJPTR_LIST;
+//			size_t valueCnt = dataType->enumValues.size();
+//			for ( size_t j=0; j<valueCnt; j++ )
+			for ( auto it:dataType->enumValues )
+			{
+				EnumValueTemplateInstantiator* evti = new EnumValueTemplateInstantiator( it.first, it.second, templateSpace, outstr );
+				elem.objects.push_back( unique_ptr<TemplateInstantiator>(evti) );
+			}
+			stack.push_back( std::move(elem) );
+			break;
+		}
 		// type-related
 		// NOTE: this list is subject to change (see issue #52, for instance)
 		// TODO: update as necessary
@@ -241,6 +255,42 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			stack.push_back( std::move(elem) );
 			break;
 		}
+		default:
+		{
+			TemplateInstantiator::execBuiltinFunction( stack, fnID );
+			break;
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+
+string EnumValueTemplateInstantiator::placeholder( Placeholder ph )
+{
+	switch( ph.id )
+	{
+		case PLACEHOLDER::ENUM_VALUE_NAME:
+		{
+			return name;
+		}
+		case PLACEHOLDER::ENUM_VALUE_VALUE:
+		{
+			string ret = fmt::format( "{}", value );
+			;
+			return ret;
+		}
+		default:
+		{
+			return TemplateInstantiator::placeholder( ph );
+		}
+	}
+}
+
+void EnumValueTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID )
+{
+	switch ( fnID )
+	{
 		default:
 		{
 			TemplateInstantiator::execBuiltinFunction( stack, fnID );
