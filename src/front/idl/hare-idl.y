@@ -24,7 +24,10 @@ Copyright (C) 2016 OLogN Technologies AG
 %token KW_DISCRIMINATED_UNION KW_WHEN_DISCRIMINANT_IN KW_WHEN_DISCRIMINANT_IS
 %token KW_DISCRIMINANT
 
-%token IDENTIFIER STRING_LITERAL INTEGER_LITERAL CHAR_LITERAL FLOAT_LITERAL
+%token IDENTIFIER
+%token STRING_LITERAL INTEGER_LITERAL CHAR_LITERAL FLOAT_LITERAL
+%token KW_INTEGER KW_FIXED_POINT KW_FLOATING_POINT
+%token KW_CHARACTER KW_CHARACTER_STRING KW_BIT_STRING
 
 
 %error-verbose
@@ -125,10 +128,19 @@ union_data_element
 data_type
 	: numeric_type
     | int_type
+    | integer_type
+    | fixed_point_type
+    | floating_point_type
+    | character_type
+    | character_string_type
+    | bit_string_type
 	| sequence_type
 	| inline_enum_type
 	| class_ref_type
 ;
+
+
+
 
 numeric_type
 	: KW_NUMERIC '[' expr ',' expr ']' { $$ = createNumeric($1, true, $3, $5, true); releaseYys3($2, $4, $6); }
@@ -142,6 +154,37 @@ int_type
 	| KW_INT '(' expr ',' expr ']' { $$ = createInt($1, false, $3, $5, true); releaseYys3($2, $4, $6); }
 	| KW_INT '[' expr ',' expr ')' { $$ = createInt($1, true, $3, $5, false); releaseYys3($2, $4, $6); }
 	| KW_INT '(' expr ',' expr ')' { $$ = createInt($1, false, $3, $5, false); releaseYys3($2, $4, $6); }
+;
+
+integer_type
+	: KW_INTEGER '[' expr ',' expr ']' { $$ = createIntegerType($1, true, $3, $5, true); releaseYys3($2, $4, $6); }
+	| KW_INTEGER '(' expr ',' expr ']' { $$ = createIntegerType($1, false, $3, $5, true); releaseYys3($2, $4, $6); }
+	| KW_INTEGER '[' expr ',' expr ')' { $$ = createIntegerType($1, true, $3, $5, false); releaseYys3($2, $4, $6); }
+	| KW_INTEGER '(' expr ',' expr ')' { $$ = createIntegerType($1, false, $3, $5, false); releaseYys3($2, $4, $6); }
+;
+
+fixed_point_type
+	: KW_FIXED_POINT '[' expr ',' expr ',' expr ']' { $$ = createFixedPointType($1, true, $3, $5, $7, true); releaseYys4($2, $4, $6, $8); }
+	| KW_FIXED_POINT '(' expr ',' expr ',' expr ']' { $$ = createFixedPointType($1, false, $3, $5, $7, true); releaseYys4($2, $4, $6, $8); }
+	| KW_FIXED_POINT '[' expr ',' expr ',' expr ')' { $$ = createFixedPointType($1, true, $3, $5, $7, false); releaseYys4($2, $4, $6, $8); }
+	| KW_FIXED_POINT '(' expr ',' expr ',' expr ')' { $$ = createFixedPointType($1, false, $3, $5, $7, false); releaseYys4($2, $4, $6, $8); }
+;
+
+floating_point_type
+	: KW_FLOATING_POINT '(' expr ',' expr ')' { $$ = createFloatingPointType($1, $3, $5); releaseYys3($2, $4, $6); }
+;
+
+character_type
+	: KW_CHARACTER '{' expr '}' { $$ = createCharacterType($1, $3); releaseYys2($2, $4); }
+;
+
+character_string_type
+	: KW_CHARACTER_STRING '{' expr '}' { $$ = createCharacterStringType($1, $3, 0, 0); releaseYys2($2, $4); }
+	| KW_CHARACTER_STRING '{' expr '}' '[' expr ',' expr ']' { $$ = createCharacterStringType($1, $3, $6, $8); releaseYys5($2, $4, $5, $7, $9); }
+;
+
+bit_string_type
+	: KW_BIT_STRING '[' expr ',' expr ']' { $$ = createBitStringType($1, $3, $5); releaseYys3($2, $4, $6); }
 ;
 
 sequence_type

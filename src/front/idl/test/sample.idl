@@ -1,22 +1,46 @@
 
 
 PUBLISHABLE-STRUCT Character {
-  UINT16 character_id;
-  NUMERIC[-10000.,10000.] x;//for our example IDL compiler, notation [a,b] means
+  INTEGER[0,65536] character_id;
+  FIXED-POINT[-10000,0.01,10000] x;//for our example IDL compiler, notation [a,b] means
                           //  “from a to b inclusive”
                           //our Game World has size of 20000x20000m
-  NUMERIC[-10000.,10000.] y;
-  NUMERIC[-100.,100.] z;//Z coordinate is just +- 100m
-  NUMERIC[-10.,10.] vx;
-  NUMERIC[-10.,10.] vy;
-  NUMERIC[-10.,10.] vz;
-  NUMERIC[0.,360.) angle;//where our Character is facing
+  FIXED-POINT[-10000,0.01,10000] y;
+  FIXED-POINT[-100,0.01,100] z;//Z coordinate is just +- 100m
+  FIXED-POINT[-10,0.01,10] vx;
+  FIXED-POINT[-10,0.01,10] vy;
+  FIXED-POINT[-10,0.01,10] vz;
+  FIXED-POINT[0,0.01,360) angle;//where our Character is facing
                        //notation [a,b) means “from a inclusive to b exclusive”
   enum Animation {Standing=0,Walking=1, Running=2} anim;
-  INT[0,120) animation_frame;//120 is 2 seconds of animation at 60fps
+  INTEGER[0,120) animation_frame;//120 is 2 seconds of animation at 60fps
 
   SEQUENCE<Item> inventory;//Item is another PUBLISHABLE_STRUCT
                            // defined elsewhere
+};
+
+PUBLISHABLE-STRUCT PrimitiveTypes {
+  
+  INTEGER[-10,10] integer0;
+  INTEGER(-20,20] integer1;
+  INTEGER[-30,30) integer2;
+  INTEGER(-40,40) integer3;
+
+  FIXED-POINT[-10,0.01,10] fixed0;
+  FIXED-POINT(-20,0.01,20] fixed1;
+  FIXED-POINT[-30,0.01,30) fixed2;
+  FIXED-POINT(-40,0.01,40) fixed3;
+  FIXED-POINT[-50.5,.5,50.5] fixed4;
+
+  FLOATING-POINT(53,11) floating0;
+  FLOATING-POINT(65,15) floating1;
+
+  CHARACTER{"TODO"} character0;
+
+  CHARACTER-STRING{"TODO"} string0;
+  CHARACTER-STRING{"TODO"}[5,10] string1;
+
+  BIT-STRING[4,8] bit0;
 };
 
 MAPPING(Lang="CPP",Role="Client") PUBLISHABLE-STRUCT Character {

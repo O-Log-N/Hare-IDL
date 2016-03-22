@@ -73,6 +73,7 @@ private:
         }
 
     }
+
     static string dbgTypeToString(const DataType& dataType) {
 
         switch (dataType.kind) {
@@ -84,6 +85,40 @@ private:
             return fmt::format("{{ kind=LIMITED_PRIMITIVE name={} lowLimit={}:{} highLimit={}:{} }}",
                                dataType.name, dataType.lowLimit.inclusive, dataType.lowLimit.value,
                                dataType.highLimit.inclusive, dataType.highLimit.value);
+            break;
+        case DataType::INTEGER:
+
+            return fmt::format("{{ kind=INTEGER{}{},{}{} }}",
+                dataType.lowLimit.inclusive ? "[" : "(", dataType.lowLimit.value,
+                dataType.highLimit.value, dataType.highLimit.inclusive ? ']' : ')');
+            break;
+        case DataType::FIXED_POINT:
+
+            return fmt::format("{{ kind=FIXED-POINT{}{},{},{}{} }}",
+                dataType.lowLimit.inclusive ? "[" : "(", dataType.lowLimit.value,
+                dataType.fixedPrecision,
+                dataType.highLimit.value, dataType.highLimit.inclusive ? ']' : ')');
+            break;
+        case DataType::FLOATING_POINT:
+
+            return fmt::format("{{ kind=FLOATING-POINT({},{}) }}",
+                dataType.floatingSignificandBits, dataType.floatingExponentBits);
+            break;
+        case DataType::CHARACTER:
+
+            return fmt::format("{{ kind=CHARACTER{{ {} }} }}",
+                "TODO");
+            break;
+        case DataType::CHARACTER_STRING:
+
+            return fmt::format("{{ kind=CHARACTER-STRING{{{}}}[{},{}] }}",
+                "TODO",
+                dataType.stringMinSize, dataType.stringMaxSize);
+            break;
+        case DataType::BIT_STRING:
+
+            return fmt::format("{{ kind=BIT-STRING[{},{}] }}",
+                dataType.stringMinSize, dataType.stringMaxSize);
             break;
         case DataType::ENUM:
         {

@@ -62,5 +62,11 @@
     <ClInclude Include="test\debug.h">
       <Filter>test</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\front-back\idl_tree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\front-back\raiistdiofile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

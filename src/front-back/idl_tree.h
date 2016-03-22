@@ -32,6 +32,10 @@ struct Location {
 	int lineNumber = 0;
 };
 
+class CharacterSet {
+    /*TBD*/
+};
+
 class Variant {
 public:
     enum KIND {NONE, NUMBER, STRING};
@@ -44,21 +48,34 @@ public:
 class DataType
 {
 public:
-    enum KIND { PRIMITIVE, LIMITED_PRIMITIVE, ENUM, NAMED_TYPE, SEQUENCE, ENCODING_SPECIFIC, MAPPING_SPECIFIC };
+    enum KIND { PRIMITIVE, LIMITED_PRIMITIVE, ENUM, NAMED_TYPE, SEQUENCE, ENCODING_SPECIFIC, MAPPING_SPECIFIC,
+        INTEGER, FIXED_POINT, FLOATING_POINT, CHARACTER, CHARACTER_STRING, BIT_STRING};
     KIND kind = PRIMITIVE;
 	string name;
     unique_ptr<DataType> paramType;
     Limit lowLimit;
     Limit highLimit;
+    double fixedPrecision = 0;
+    int floatingSignificandBits = 0; /* TODO check type */
+    int floatingExponentBits = 0;    /* TODO check type */
+    CharacterSet characterSet;
+    int stringMinSize = 0;          /* TODO check type */
+    int stringMaxSize = 0;          /* TODO check type */
+
     map<string,Variant> encodingAttrs;
     map<string,Variant> mappingAttrs;
 	map<string, int> enumValues;
 
 	DataType() {}
-	DataType( const DataType& other )
-		: kind( other.kind ), name( other.name ), paramType( other.paramType != nullptr ? new DataType( *(other.paramType) ) : nullptr ), lowLimit( other.lowLimit ), highLimit( other.highLimit ),
-		  encodingAttrs( other.encodingAttrs ), mappingAttrs( other.mappingAttrs ), enumValues( other.enumValues ) {
-	}
+    DataType(const DataType& other)
+        : kind(other.kind), name(other.name),
+        paramType(other.paramType != nullptr ? new DataType(*(other.paramType)) : nullptr),
+        lowLimit(other.lowLimit), highLimit(other.highLimit),
+        fixedPrecision(other.fixedPrecision), floatingSignificandBits(other.floatingSignificandBits),
+        floatingExponentBits(other.floatingExponentBits), characterSet(other.characterSet),
+        stringMinSize(other.stringMinSize), stringMaxSize(other.stringMaxSize),
+        encodingAttrs(other.encodingAttrs), mappingAttrs(other.mappingAttrs),
+        enumValues(other.enumValues) {}
 
 	DataType& operator = ( const DataType& other )
 	{
@@ -67,11 +84,20 @@ public:
 		paramType = other.paramType != nullptr ? unique_ptr<DataType>( new DataType( *(other.paramType) ) ) : unique_ptr<DataType>( nullptr );
 		lowLimit = other.lowLimit;
 		highLimit = other.highLimit;
+        fixedPrecision = other.fixedPrecision;
+        floatingSignificandBits = other.floatingSignificandBits;
+        floatingExponentBits = other.floatingExponentBits;
+        characterSet = other.characterSet;
+        stringMinSize = other.stringMinSize;
+        stringMaxSize = other.stringMaxSize;
 		encodingAttrs = other.encodingAttrs;
 		mappingAttrs = other.mappingAttrs;
 		enumValues = other.enumValues;
 		return *this;
 	}
+
+    DataType(DataType&& other) = default;
+    DataType& operator = (DataType&& other) = default;
 
 };
 

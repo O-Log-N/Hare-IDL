@@ -180,46 +180,34 @@ Location getLocationFromYyIdentifier(YyBase* id)
 static
 string nameFromYyIdentifierAndDelete(YyBase* id)
 {
-    YyIdentifier* i = yystype_cast<YyIdentifier*>(id);
-    std::string temp = i->text;
-
-    delete id;
-    return temp;
+    unique_ptr<YyBase> deleter(id);
+    return yystype_cast<YyIdentifier*>(id)->text;
 }
 
 static
 Variant variantFromExpressionAndDelete(YYSTYPE expr)
 {
+    unique_ptr<YyBase> deleter(expr);
     if (YyIntegerLiteral* intLit = dynamic_cast<YyIntegerLiteral*>(expr)) {
-        double value = static_cast<double>(intLit->value);
-        delete expr;
-
         Variant v;
         v.kind = Variant::NUMBER;
-        v.numberValue = value;
+        v.numberValue = static_cast<double>(intLit->value);
         return v;
     }
     else if(YyFloatLiteral* floatLit = dynamic_cast<YyFloatLiteral*>(expr)) {
-        double value = floatLit->value;
-        delete expr;
-
         Variant v;
         v.kind = Variant::NUMBER;
-        v.numberValue = value;
+        v.numberValue = floatLit->value;
         return v;
     }
     else if (YyStringLiteral* strLit = dynamic_cast<YyStringLiteral*>(expr)) {
-        string text = strLit->text;
-        delete expr;
-
         Variant v;
         v.kind = Variant::STRING;
-        v.stringValue = text;
+        v.stringValue = strLit->text;
         return v;
     }
     else {
         reportError(expr->location, "Unsuported value");
-
         return Variant();
     }
 }
@@ -227,22 +215,35 @@ Variant variantFromExpressionAndDelete(YYSTYPE expr)
 static
 double floatLiteralFromExpressionAndDelete(YYSTYPE expr)
 {
+    unique_ptr<YyBase> deleter(expr);
     if (YyIntegerLiteral* intLit = dynamic_cast<YyIntegerLiteral*>(expr)) {
-        double value = static_cast<double>(intLit->value);
-        delete expr;
-
-        return value;
+        return static_cast<double>(intLit->value);
     }
     else if (YyFloatLiteral* floatLit = dynamic_cast<YyFloatLiteral*>(expr)) {
-        double value = floatLit->value;
-        delete expr;
-
-        return value;
+        return floatLit->value;
     }
     else {
         reportError(expr->location, "Unsuported value");
-
         return 0;
+    }
+}
+
+static
+long long integerLiteralFromExpressionAndDelete(YYSTYPE expr, long long min_value, long long max_value)
+{
+    unique_ptr<YyBase> deleter(expr);
+    if (YyIntegerLiteral* intLit = dynamic_cast<YyIntegerLiteral*>(expr)) {
+        if (intLit->value >= min_value && intLit->value <= max_value) {
+            return intLit->value;
+        }
+        else {
+            reportError(expr->location, fmt::format("Value outside valid range [{},{}]", min_value, max_value));
+            return min_value;
+        }
+    }
+    else {
+        reportError(expr->location, "Unsuported value");
+        return min_value;
     }
 }
 
@@ -693,6 +694,115 @@ YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_e
 
     return yy;
 }
+
+YYSTYPE createIntegerType(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag)
+{
+    YyDataType* yy = new YyDataType();
+
+    yy->dataType.kind = DataType::INTEGER;
+
+    double l = floatLiteralFromExpressionAndDelete(low_expr);
+    yy->dataType.lowLimit.inclusive = low_flag;
+    yy->dataType.lowLimit.value = l;
+
+    double h = floatLiteralFromExpressionAndDelete(high_expr);
+    yy->dataType.highLimit.inclusive = high_flag;
+    yy->dataType.highLimit.value = h;
+
+    if (!(yy->dataType.lowLimit.value < yy->dataType.highLimit.value))
+        reportError(token->location, "Low limit must be less than high limit");
+
+    delete token;
+    return yy;
+}
+
+YYSTYPE createFixedPointType(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE precision_expr, YYSTYPE high_expr, bool high_flag)
+{
+    YyDataType* yy = new YyDataType();
+
+    yy->dataType.kind = DataType::FIXED_POINT;
+
+    yy->dataType.lowLimit.inclusive = low_flag;
+    yy->dataType.lowLimit.value = floatLiteralFromExpressionAndDelete(low_expr);
+
+    yy->dataType.highLimit.inclusive = high_flag;
+    yy->dataType.highLimit.value = floatLiteralFromExpressionAndDelete(high_expr);
+
+    yy->dataType.fixedPrecision = floatLiteralFromExpressionAndDelete(precision_expr);
+
+    if (!(yy->dataType.lowLimit.value < yy->dataType.highLimit.value))
+        reportError(token->location, "Low limit must be less than high limit");
+
+    delete token;
+    return yy;
+}
+
+YYSTYPE createFloatingPointType(YYSTYPE token, YYSTYPE significand_expr, YYSTYPE exponent_expr)
+{
+    YyDataType* yy = new YyDataType();
+
+    yy->dataType.kind = DataType::FLOATING_POINT;
+
+    yy->dataType.floatingSignificandBits = static_cast<int>(
+            integerLiteralFromExpressionAndDelete(significand_expr, 1, 65));
+    yy->dataType.floatingExponentBits = static_cast<int>(
+                                            integerLiteralFromExpressionAndDelete(exponent_expr, 1, 15));
+
+    delete token;
+    return yy;
+}
+
+YYSTYPE createCharacterType(YYSTYPE token, YYSTYPE allowed_expr)
+{
+    YyDataType* yy = new YyDataType();
+
+    yy->dataType.kind = DataType::CHARACTER;
+
+//    yy->dataType.characterSet;
+    delete allowed_expr;
+
+    delete token;
+    return yy;
+}
+
+YYSTYPE createCharacterStringType(YYSTYPE token, YYSTYPE allowed_expr, YYSTYPE min_expr, YYSTYPE max_expr)
+{
+    YyDataType* yy = new YyDataType();
+
+    yy->dataType.kind = DataType::CHARACTER_STRING;
+
+    delete allowed_expr;
+
+    if (min_expr) {
+        yy->dataType.stringMinSize = static_cast<int>(
+                                         integerLiteralFromExpressionAndDelete(min_expr, 0, INT_MAX));
+
+        yy->dataType.stringMaxSize = static_cast<int>(
+                                         integerLiteralFromExpressionAndDelete(max_expr, yy->dataType.stringMinSize, INT_MAX));
+    }
+
+    delete token;
+    return yy;
+}
+
+YYSTYPE createBitStringType(YYSTYPE token, YYSTYPE min_expr, YYSTYPE max_expr)
+{
+    YyDataType* yy = new YyDataType();
+
+    yy->dataType.kind = DataType::BIT_STRING;
+
+    if (min_expr) {
+        yy->dataType.stringMinSize = static_cast<int>(
+                                         integerLiteralFromExpressionAndDelete(min_expr, 0, INT_MAX));
+
+        yy->dataType.stringMaxSize = static_cast<int>(
+                                         integerLiteralFromExpressionAndDelete(max_expr, yy->dataType.stringMinSize, INT_MAX));
+    }
+
+    delete token;
+    return yy;
+}
+
 
 YYSTYPE createSequence(YYSTYPE opt_id, YYSTYPE type)
 {

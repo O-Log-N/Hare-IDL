@@ -75,13 +75,20 @@ int createToken(int token)
     "DISCRIMINATED-UNION" { return createToken( KW_DISCRIMINATED_UNION ); }
     "DISCRIMINANT" { return createToken( KW_DISCRIMINANT ); }
 
-
     "WHEN-DISCRIMINANT-IS" { return createToken( KW_WHEN_DISCRIMINANT_IS ); }
     "WHEN-DISCRIMINANT-IN" { return createToken( KW_WHEN_DISCRIMINANT_IN ); }
 
 	"NUMERIC" { return createToken( KW_NUMERIC ); }
     "INT" { return createToken( KW_INT ); }
 	"SEQUENCE" { return createToken( KW_SEQUENCE ); }
+
+	"INTEGER" { return createToken( KW_INTEGER ); }
+	"FIXED-POINT" { return createToken( KW_FIXED_POINT ); }
+	"FLOATING-POINT" { return createToken( KW_FLOATING_POINT ); }
+	"CHARACTER" { return createToken( KW_CHARACTER ); }
+	"CHARACTER-STRING" { return createToken( KW_CHARACTER_STRING ); }
+	"BIT-STRING" { return createToken( KW_BIT_STRING ); }
+
 
 	[;<>,:=&\[\]\(\)\{\}\?\.] { yylval = 0; return yytext[0];}
 	[&|!~/%\*\+\-] { return createToken( yytext[0] );}
