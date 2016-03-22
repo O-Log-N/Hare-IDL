@@ -225,7 +225,23 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			bool cond = calcConditionOfIfNode( node );
 			if ( !cond )					
 			{
-				fmt::print("Instantiation Error: Assertion failed: Line {}\n", node.srcLineNum );
+				string msg;
+				// prepare msg string
+				auto attr = node.attributes.find( {ATTRIBUTE::MSG, ""} );
+				if ( attr != node.attributes.end() )
+				{
+					auto& expr = attr->second;
+					Stack stack;
+					evaluateExpression( expr, stack );
+					assert( stack.size() == 1 );
+					assert( stack[0].argtype == ARGTYPE::STRING );
+					msg = stack[0].lineParts[0].verbatim;
+					fmt::print("Instantiation Error: Assertion failed: Line {}, message: {}\n", node.srcLineNum, msg );
+				}
+				else
+				{
+					fmt::print("Instantiation Error: Assertion failed: Line {}\n", node.srcLineNum );
+				}
 			}
 			break;
 		}

@@ -34,6 +34,7 @@ enum class ATTRIBUTE
 	FILENAME,
 	PARAM,
 	TYPE,
+	MSG,
 };
 
 enum class NODE_TYPE {

@@ -201,6 +201,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				node.type = NODE_TYPE::ASSERT;
 				node.srcLineNum = lines[flidx].srcLineNum;
 				node.expression = lines[flidx].expression;
+				node.attributes = lines[flidx].attributes;
 				root.childNodes.push_back( node );
 				++flidx;
 				break;

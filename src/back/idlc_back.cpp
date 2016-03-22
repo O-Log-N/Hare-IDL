@@ -29,7 +29,7 @@ void idlcBackEnd( Root& root )
 
 	TemplateNodeSpace nodeSpace;
 
-	FILE* tf = fopen( "template3.txt", "rb" );
+	FILE* tf = fopen( "template4.txt", "rb" );
 	if ( tf == NULL )
 	{
 		fmt::print( "failed to open template file\n" );
