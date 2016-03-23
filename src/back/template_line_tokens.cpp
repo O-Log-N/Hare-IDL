@@ -178,7 +178,7 @@ const PlaceholderWord placeholders[] =
 	{PLACEHOLDER_STRING_MEMBER_TYPE, sizeof(PLACEHOLDER_STRING_MEMBER_TYPE)-1, PLACEHOLDER::MEMBER_TYPE},
 	{PLACEHOLDER_STRING_MEMBER_NAME, sizeof(PLACEHOLDER_STRING_MEMBER_NAME)-1, PLACEHOLDER::MEMBER_NAME},
 	{PLACEHOLDER_STRING_PARAM_MINUS, sizeof(PLACEHOLDER_STRING_PARAM_MINUS)-1, PLACEHOLDER::PARAM_MINUS},
-//	{PLACEHOLDER_STRING_LOCAL_MINUS, sizeof(PLACEHOLDER_STRING_LOCAL_MINUS)-1, PLACEHOLDER::LOCAL_MINUS},
+	{PLACEHOLDER_STRING_LOCAL_MINUS, sizeof(PLACEHOLDER_STRING_LOCAL_MINUS)-1, PLACEHOLDER::LOCAL_MINUS},
 	{PLACEHOLDER_STRING_ENUM_VALUE_NAME, sizeof(PLACEHOLDER_STRING_ENUM_VALUE_NAME)-1, PLACEHOLDER::ENUM_VALUE_NAME},
 	{PLACEHOLDER_STRING_ENUM_VALUE_VALUE, sizeof(PLACEHOLDER_STRING_ENUM_VALUE_VALUE)-1, PLACEHOLDER::ENUM_VALUE_VALUE},
 	{NULL, 0, PLACEHOLDER::VERBATIM},
@@ -323,7 +323,7 @@ Placeholder parsePlaceholder( const string& line, size_t& contentStart )
 	size_t iniContentStart = contentStart;
 	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 	ret.id = parseSpecialWord( line, contentStart, placeholders )->id;
-	if ( ret.id == PLACEHOLDER::PARAM_MINUS )
+	if ( ret.id == PLACEHOLDER::PARAM_MINUS || ret.id == PLACEHOLDER::LOCAL_MINUS )
 	{
 		ret.specific = readIdentifier( line, contentStart );
 		if ( line[contentStart] != '@' )

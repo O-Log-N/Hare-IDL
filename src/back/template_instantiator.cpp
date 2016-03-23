@@ -272,10 +272,10 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 					assert( stack1.size() == 1 );
 					assert( stack1[0].argtype == ARGTYPE::STRING );
 					string resolved = stack1[0].lineParts[0].verbatim;
-					resolvedPlaceholders.insert( make_pair( it.first.ext, resolved ) );
+					resolvedParamPlaceholders.insert( make_pair( it.first.ext, resolved ) );
 				}
 			TemplateInstantiator::applyNode( *tn );
-			resolvedPlaceholders.clear();
+			resolvedParamPlaceholders.clear();
 			break;
 		}
 		case NODE_TYPE::INCLUDE_WITH:
@@ -304,7 +304,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 					assert( stack1.size() == 1 );
 					assert( stack1[0].argtype == ARGTYPE::STRING );
 					string resolved = stack1[0].lineParts[0].verbatim;
-					stack[0].singleObject->resolvedPlaceholders.insert( make_pair( it.first.ext, resolved ) );
+					stack[0].singleObject->resolvedParamPlaceholders.insert( make_pair( it.first.ext, resolved ) );
 				}
 
 			TemplateNode* tn = templateSpace.getTemplate( templateName, stack[0].singleObject->context() );
@@ -316,7 +316,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			{
 				stack[0].singleObject->applyNode( nodeit );
 			}
-			resolvedPlaceholders.clear();
+			resolvedParamPlaceholders.clear();
 			break;
 		}
 		case NODE_TYPE::LET:
@@ -331,7 +331,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 					assert( stack.size() == 1 );
 					assert( stack[0].argtype == ARGTYPE::STRING );
 					string resolved = stack[0].lineParts[0].verbatim;
-					resolvedPlaceholders.insert( make_pair( it.first.ext, resolved ) );
+					resolvedLocalPlaceholders.insert( make_pair( it.first.ext, resolved ) );
 				}
 
 			break;
@@ -361,8 +361,14 @@ string TemplateInstantiator::placeholder( Placeholder ph )
 {
 	if ( ph.id == PLACEHOLDER::PARAM_MINUS )
 	{
-		auto findres = resolvedPlaceholders.find( ph.specific );
-		if ( findres != resolvedPlaceholders.end() )
+		auto findres = resolvedParamPlaceholders.find( ph.specific );
+		if ( findres != resolvedParamPlaceholders.end() )
+			return findres->second;
+	}
+	else if ( ph.id == PLACEHOLDER::LOCAL_MINUS )
+	{
+		auto findres = resolvedLocalPlaceholders.find( ph.specific );
+		if ( findres != resolvedLocalPlaceholders.end() )
 			return findres->second;
 	}
 

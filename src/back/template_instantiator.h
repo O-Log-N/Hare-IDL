@@ -51,7 +51,8 @@ protected:
 
 	FILE* outstr;
 	TemplateNodeSpace& templateSpace;
-	map<string, string> resolvedPlaceholders; // those starting from "@PARAM-"
+	map<string, string> resolvedParamPlaceholders; // those starting from "@PARAM-"
+	map<string, string> resolvedLocalPlaceholders; // those starting from "@LOCAL-"
 
 public:
 	TemplateInstantiator( TemplateNodeSpace& templateSpace_, FILE* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}
