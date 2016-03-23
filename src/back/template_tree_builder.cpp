@@ -206,6 +206,17 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				++flidx;
 				break;
 			}
+			case TemplateLine::LINE_TYPE::LET:
+			{
+				TemplateNode node;
+				node.type = NODE_TYPE::LET;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				node.expression = lines[flidx].expression;
+				node.attributes = lines[flidx].attributes;
+				root.childNodes.push_back( node );
+				++flidx;
+				break;
+			}
 			case TemplateLine::LINE_TYPE::OPEN_OUTPUT_FILE:
 			{
 				TemplateNode node;

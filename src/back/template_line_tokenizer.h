@@ -33,6 +33,7 @@ enum class ATTRIBUTE
 	NAME,
 	FILENAME,
 	PARAM,
+	LOCAL,
 	TYPE,
 	MSG,
 };
@@ -49,6 +50,7 @@ enum class NODE_TYPE {
 	OPEN_OUTPUT_FILE,
 	FOR_EACH_OF,
 	INCLUDE_WITH,
+	LET,
 };
 
 enum class PLACEHOLDER {
@@ -57,6 +59,7 @@ enum class PLACEHOLDER {
 	MEMBER_TYPE, // used ONLY within STRUCT-MEMBER
 	MEMBER_NAME, // used ONLY within STRUCT-MEMBER
 	PARAM_MINUS,
+//	LOCAL_MINUS,
 	ENUM_VALUE_NAME,
 	ENUM_VALUE_VALUE,
 };
@@ -176,6 +179,7 @@ struct TemplateLine
 		OPEN_OUTPUT_FILE,
 		CLOSE_OUTPUT_FILE,
 		INCLUDE_WITH,
+		LET,
 
 		ELIF_TO_IF, // derived
 	};

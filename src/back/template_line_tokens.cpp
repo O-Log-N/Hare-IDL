@@ -33,6 +33,7 @@ Copyright (C) 2016 OLogN Technologies AG
 //#define KEYWORD_STRING_INCLUDE_FOR_TYPE "INCLUDE-FOR-TYPE"
 #define KEYWORD_STRING_FOR_EACH_OF "FOR-EACH-OF"
 #define KEYWORD_STRING_INCLUDE_WITH "INCLUDE-WITH"
+#define KEYWORD_STRING_LET "LET"
 
 // parameters
 #define PARAM_STRING_TYPE "TYPE"
@@ -40,6 +41,7 @@ Copyright (C) 2016 OLogN Technologies AG
 #define PARAM_STRING_END "END"
 #define PARAM_STRING_TEMPLATE "TEMPLATE"
 #define PARAM_STRING_PARAM "PARAM-"
+#define PARAM_STRING_LOCAL "LOCAL-"
 #define PARAM_STRING_NAME "NAME"
 #define PARAM_STRING_FILENAME "FILENAME"
 #define PARAM_STRING_MSG "MSG"
@@ -51,6 +53,7 @@ Copyright (C) 2016 OLogN Technologies AG
 #define PLACEHOLDER_STRING_ENUM_VALUE_NAME "@ENUM-VALUE-NAME@"
 #define PLACEHOLDER_STRING_ENUM_VALUE_VALUE "@ENUM-VALUE-VALUE@"
 #define PLACEHOLDER_STRING_PARAM_MINUS "@PARAM-" // NOTE: in this case '@' at the end will be processed while parsing specific part
+#define PLACEHOLDER_STRING_LOCAL_MINUS "@LOCAL-" // NOTE: in this case '@' at the end will be processed while parsing specific part
 
 // node type names (not directly derived from keywords
 #define NODETYPE_STRING_FULL_TEMPLATE "FULL-TEMPLATE"
@@ -146,6 +149,7 @@ const NodeType nodeTypes[] =
 	{NODETYPE_STRING_VERBATIM, NODE_TYPE::CONTENT},
 	{KEYWORD_STRING_FOR_EACH_OF, NODE_TYPE::FOR_EACH_OF},
 	{KEYWORD_STRING_INCLUDE_WITH, NODE_TYPE::INCLUDE_WITH},
+	{KEYWORD_STRING_LET, NODE_TYPE::LET},
 	{NULL, NODE_TYPE::CONTENT},
 };
 
@@ -164,6 +168,7 @@ const KeyWord keywords[] =
 	{KEYWORD_STRING_INCLUDE, sizeof(KEYWORD_STRING_INCLUDE)-1, TemplateLine::LINE_TYPE::INCLUDE, false},
 //	{KEYWORD_STRING_INCLUDE_FOR_TYPE, sizeof(KEYWORD_STRING_INCLUDE_FOR_TYPE)-1, TemplateLine::LINE_TYPE::INCLUDE_FOR_TYPE, false},
 	{KEYWORD_STRING_FOR_EACH_OF, sizeof(KEYWORD_STRING_FOR_EACH_OF)-1, TemplateLine::LINE_TYPE::FOR_EACH_OF, true},
+	{KEYWORD_STRING_LET, sizeof(KEYWORD_STRING_LET)-1, TemplateLine::LINE_TYPE::LET, false},
 	{NULL, 0, TemplateLine::LINE_TYPE::CONTENT, false},
 };
 
@@ -173,6 +178,7 @@ const PlaceholderWord placeholders[] =
 	{PLACEHOLDER_STRING_MEMBER_TYPE, sizeof(PLACEHOLDER_STRING_MEMBER_TYPE)-1, PLACEHOLDER::MEMBER_TYPE},
 	{PLACEHOLDER_STRING_MEMBER_NAME, sizeof(PLACEHOLDER_STRING_MEMBER_NAME)-1, PLACEHOLDER::MEMBER_NAME},
 	{PLACEHOLDER_STRING_PARAM_MINUS, sizeof(PLACEHOLDER_STRING_PARAM_MINUS)-1, PLACEHOLDER::PARAM_MINUS},
+//	{PLACEHOLDER_STRING_LOCAL_MINUS, sizeof(PLACEHOLDER_STRING_LOCAL_MINUS)-1, PLACEHOLDER::LOCAL_MINUS},
 	{PLACEHOLDER_STRING_ENUM_VALUE_NAME, sizeof(PLACEHOLDER_STRING_ENUM_VALUE_NAME)-1, PLACEHOLDER::ENUM_VALUE_NAME},
 	{PLACEHOLDER_STRING_ENUM_VALUE_VALUE, sizeof(PLACEHOLDER_STRING_ENUM_VALUE_VALUE)-1, PLACEHOLDER::ENUM_VALUE_VALUE},
 	{NULL, 0, PLACEHOLDER::VERBATIM},
@@ -187,6 +193,7 @@ const ParameterWord params[] =
 	{PARAM_STRING_FILENAME, sizeof(PARAM_STRING_FILENAME)-1, ATTRIBUTE::FILENAME},
 	{PARAM_STRING_TYPE, sizeof(PARAM_STRING_TYPE)-1, ATTRIBUTE::TYPE},
 	{PARAM_STRING_PARAM, sizeof(PARAM_STRING_PARAM)-1, ATTRIBUTE::PARAM},
+	{PARAM_STRING_LOCAL, sizeof(PARAM_STRING_LOCAL)-1, ATTRIBUTE::LOCAL},
 	{PARAM_STRING_MSG, sizeof(PARAM_STRING_MSG)-1, ATTRIBUTE::MSG},
 	{NULL, 0, ATTRIBUTE::NONE},
 };
@@ -302,7 +309,7 @@ AttributeName parseParam( const string& line, size_t& contentStart )
 	size_t iniContentStart = contentStart;
 	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 	ret.id = parseSpecialWord( line, contentStart, params )->id;
-	if ( ret.id == ATTRIBUTE::PARAM )
+	if ( ret.id == ATTRIBUTE::PARAM || ret.id == ATTRIBUTE::LOCAL )
 	{
 		ret.ext = readIdentifier( line, contentStart );
 		skipSpaces( line, contentStart );

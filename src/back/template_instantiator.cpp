@@ -319,6 +319,23 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			resolvedPlaceholders.clear();
 			break;
 		}
+		case NODE_TYPE::LET:
+		{
+			// load resolved names, if any
+			for ( const auto it:node.attributes )
+				if ( it.first.id == ATTRIBUTE::LOCAL )
+				{
+					auto& expr1 = it.second;
+					Stack stack;
+					evaluateExpression( expr1, stack );
+					assert( stack.size() == 1 );
+					assert( stack[0].argtype == ARGTYPE::STRING );
+					string resolved = stack[0].lineParts[0].verbatim;
+					resolvedPlaceholders.insert( make_pair( it.first.ext, resolved ) );
+				}
+
+			break;
+		}
 		case NODE_TYPE::FOR_EACH_OF:
 		{
 			Stack stack;
