@@ -262,6 +262,9 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			{
 				assert( 0 ); // TODO: throw
 			}
+			// store current state of resolved params and locals
+			map<string, string> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
+			map<string, string> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
 			// load resolved names, if any
 			for ( const auto it:node.attributes )
 				if ( it.first.id == ATTRIBUTE::PARAM )
@@ -274,8 +277,11 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 					string resolved = stack1[0].lineParts[0].verbatim;
 					resolvedParamPlaceholders.insert( make_pair( it.first.ext, resolved ) );
 				}
-			TemplateInstantiator::applyNode( *tn );
-			resolvedParamPlaceholders.clear();
+			applyNode( *tn );
+			// restore ini content of resolved params and locals
+			resolvedParamPlaceholders = map<string, string>( std::move(resolvedParamPlaceholdersIni) );
+			resolvedLocalPlaceholders = map<string, string>( std::move(resolvedLocalPlaceholdersIni) );
+//			resolvedParamPlaceholders.clear();
 			break;
 		}
 		case NODE_TYPE::INCLUDE_WITH:
@@ -293,8 +299,9 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			evaluateExpression( node.expression, stack );
 			assert( stack.size() == 1 );
 			assert( stack[0].argtype == ARGTYPE::OBJPTR );
+			assert( stack[0].singleObject->resolvedParamPlaceholders.size() == 0 );
 
-			// load resolved names, if any
+			// load resolved params, if any
 			for ( const auto it:node.attributes )
 				if ( it.first.id == ATTRIBUTE::PARAM )
 				{
@@ -316,7 +323,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			{
 				stack[0].singleObject->applyNode( nodeit );
 			}
-			resolvedParamPlaceholders.clear();
+//			resolvedParamPlaceholders.clear();
 			break;
 		}
 		case NODE_TYPE::LET:
@@ -336,17 +343,42 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 
 			break;
 		}
-		case NODE_TYPE::FOR_EACH_OF:
+		case NODE_TYPE::FOR_EACH_OF_INCLUDE_TEMPLATE:
+		{
+			Stack stack;
+			evaluateExpression( node.expression, stack );
+			assert( stack.size() == 1 );
+			assert( stack[0].argtype == ARGTYPE::OBJPTR_LIST );
+			assert( node.childNodes.size() == 1 );
+			assert( node.childNodes[0].type == NODE_TYPE::INCLUDE );
+			for ( auto &obj:stack[0].objects )
+			{
+				// NOTE: this object has empty lists of resolved locals and params;
+				// As a (single) child node is of type INCLUDE, those lists will be populated as necessary
+				obj->applyNode( node.childNodes[0] );
+			}
+			break;
+		}
+		case NODE_TYPE::FOR_EACH_OF_ENTER_BLOCK:
 		{
 			Stack stack;
 			evaluateExpression( node.expression, stack );
 			assert( stack.size() == 1 );
 			assert( stack[0].argtype == ARGTYPE::OBJPTR_LIST );
 			for ( auto &obj:stack[0].objects )
+			{
+				assert( obj->resolvedParamPlaceholders.size() == 0 );
+				assert( obj->resolvedLocalPlaceholders.size() == 0 );
+				// NOTE: we continue with the same template and with the same  lists of resolved locals and params
+				obj->resolvedParamPlaceholders = map<string, string>( std::move(resolvedParamPlaceholders) );
+				obj->resolvedLocalPlaceholders = map<string, string>( std::move(resolvedLocalPlaceholders) );
 				for ( auto nodeit:node.childNodes )
 				{
 					obj->applyNode(nodeit );
 				}
+				resolvedParamPlaceholders = map<string, string>( std::move(obj->resolvedParamPlaceholders) );
+				resolvedLocalPlaceholders = map<string, string>( std::move(obj->resolvedLocalPlaceholders) );
+			}
 			break;
 		}
 		default:

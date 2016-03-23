@@ -241,23 +241,14 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				if ( isEnd )
 					return true; // it's upper level end or bullshit
 				TemplateNode node;
-				node.type = NODE_TYPE::FOR_EACH_OF;
 				node.srcLineNum = lines[flidx].srcLineNum;
 				node.attributes = lines[flidx].attributes;
 				node.expression = lines[flidx].expression;
 				// we may have include statement here, let's check
-				auto includeTemplate = lines[flidx].attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
-				if ( includeTemplate != lines[flidx].attributes.end() )
+				auto beginBlock = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} );
+				if ( beginBlock != lines[flidx].attributes.end() )
 				{
-					TemplateNode nodeIncludeTemplate;
-					nodeIncludeTemplate.type = NODE_TYPE::INCLUDE;
-					nodeIncludeTemplate.srcLineNum = lines[flidx].srcLineNum;
-					nodeIncludeTemplate.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEMPLATE, ""), includeTemplate->second ) );
-					node.childNodes.push_back( nodeIncludeTemplate );
-					++flidx;
-				}
-				else
-				{
+					node.type = NODE_TYPE::FOR_EACH_OF_ENTER_BLOCK;
 					bool isBegin = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} ) != lines[flidx].attributes.end();
 					if ( !isBegin )
 					{
@@ -276,6 +267,17 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 						assert( isBegin1 );
 						return false;
 					}
+					++flidx;
+				}
+				else
+				{
+					auto includeTemplate = lines[flidx].attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
+					node.type = NODE_TYPE::FOR_EACH_OF_INCLUDE_TEMPLATE;
+					TemplateNode nodeIncludeTemplate;
+					nodeIncludeTemplate.type = NODE_TYPE::INCLUDE;
+					nodeIncludeTemplate.srcLineNum = lines[flidx].srcLineNum;
+					nodeIncludeTemplate.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEMPLATE, ""), includeTemplate->second ) );
+					node.childNodes.push_back( nodeIncludeTemplate );
 					++flidx;
 				}
 				root.childNodes.push_back( node );
