@@ -75,11 +75,9 @@ YYSTYPE createExtendAttribute(YYSTYPE id, YYSTYPE type);
 
 YYSTYPE createEncodingGroup(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE opt_att);
 YYSTYPE addToEncodingGroup(YYSTYPE group, YYSTYPE element);
-YYSTYPE addEncodingOption(YYSTYPE id, YYSTYPE opt_arg_list, YYSTYPE group);
 
 YYSTYPE createUnion(YYSTYPE token, YYSTYPE discr_id, YYSTYPE id);
 YYSTYPE createUnionAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE id_list);
-
 
 YYSTYPE createIdType(YYSTYPE id);
 YYSTYPE createEncodingType(YYSTYPE id, YYSTYPE arg_list);
@@ -102,6 +100,6 @@ YYSTYPE createUnicodeStringType(YYSTYPE token);
 YYSTYPE addString(YYSTYPE list, YYSTYPE str);
 YYSTYPE addIdentifier(YYSTYPE list, YYSTYPE id);
 YYSTYPE addExpression(YYSTYPE list, YYSTYPE id, YYSTYPE expr);
-YYSTYPE createIdentifierExpression(YYSTYPE id);
+
 
 #endif // PARSER_HELPER_H_INCLUDED

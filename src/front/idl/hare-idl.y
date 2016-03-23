@@ -104,8 +104,8 @@ data_group
 	: data_group_begin '}' { $$ = $1; releaseYys($2); }
     | IDENTIFIER data_element { $$ = createEncodingGroup($1, 0, $2); }
 	| IDENTIFIER '(' arg_list ')' data_element { $$ = createEncodingGroup($1, $3, $5); releaseYys2($2, $4); }
-    | IDENTIFIER data_group { $$ = addEncodingOption($1, 0, $2); }
-	| IDENTIFIER '(' arg_list ')'  data_group { $$ = addEncodingOption($1, $3, $5); releaseYys2($2, $4); }
+    | IDENTIFIER data_group { $$ = createEncodingGroup($1, 0, $2); }
+	| IDENTIFIER '(' arg_list ')'  data_group { $$ = createEncodingGroup($1, $3, $5); releaseYys2($2, $4); }
 ;
 
 discriminated_union_begin
