@@ -81,7 +81,8 @@ YYSTYPE createUnion(YYSTYPE token, YYSTYPE discr_id, YYSTYPE id);
 YYSTYPE createUnionAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE id_list);
 
 
-YYSTYPE createIdType(YYSTYPE id, YYSTYPE opt_arg_list);
+YYSTYPE createIdType(YYSTYPE id);
+YYSTYPE createEncodingType(YYSTYPE id, YYSTYPE arg_list);
 YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
 YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
 YYSTYPE createIntegerType(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
@@ -94,8 +95,9 @@ YYSTYPE createSequence(YYSTYPE opt_id, YYSTYPE type);
 YYSTYPE createDictionaryType(YYSTYPE token, YYSTYPE key_type, YYSTYPE value_type);
 YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type);
 YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE opt_id, YYSTYPE values);
-
 YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit);
+YYSTYPE createPrintableAsciiStringType(YYSTYPE token);
+YYSTYPE createUnicodeStringType(YYSTYPE token);
 
 YYSTYPE addString(YYSTYPE list, YYSTYPE str);
 YYSTYPE addIdentifier(YYSTYPE list, YYSTYPE id);

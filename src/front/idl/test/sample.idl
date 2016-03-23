@@ -45,10 +45,21 @@ PUBLISHABLE-STRUCT PrimitiveTypes {
   SEQUENCE<INTEGER[-10,10]> sequence0;
   SEQUENCE<UINT16> sequence1;
 
-  DICTIONARY<INTEGER[-10,10], CHARACTER-STRING{"TODO"}> dictionary0;
-  DICTIONARY<UINT16, CHARACTER-STRING{"TODO"}> dictionary1; // fake UINT16 still TODO
+  DICTIONARY<INTEGER[-10,10], INTEGER[-10,10]> dictionary0;
+  DICTIONARY<UINT16, INTEGER[-10,10]> dictionary1; // fake UINT16 still TODO
   DICTIONARY<INTEGER[-10,10], UINT16> dictionary2;
   DICTIONARY<UINT16, UINT16> dictionary3;
+
+  INT8 typedef0;
+  INT16 typedef1;
+  INT32 typedef2;
+  UINT8 typedef3;
+  UINT16 typedef4;
+  UINT32 typedef5;
+  DOUBLE typedef6;
+  DOUBLE80 typedef7;
+  PRINTABLE-ASCII-STRING typedef8;
+  UNICODE-STRING typedef9;
 };
 
 MAPPING(Lang="CPP",Role="Client") PUBLISHABLE-STRUCT Character {

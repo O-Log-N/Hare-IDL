@@ -91,6 +91,11 @@ int createToken(int token)
 	"SEQUENCE" { return createToken( KW_SEQUENCE ); }
 	"DICTIONARY" { return createToken( KW_DICTIONARY ); }
 
+	/* INT32, DOUBLE, etc will be parsed as IDENTIFIER (easier),
+		but currently idetifiers do not support hypen,
+		so PRINTABLE-ASCII-STRING and UNICODE-STRING must be keywords */
+	"PRINTABLE-ASCII-STRING" { return createToken( KW_PRINTABLE_ASCII_STRING ); }
+	"UNICODE-STRING" { return createToken( KW_UNICODE_STRING ); }
 
 	[;<>,:=&\[\]\(\)\{\}\?\.] { yylval = 0; return yytext[0];}
 	[&|!~/%\*\+\-] { return createToken( yytext[0] );}

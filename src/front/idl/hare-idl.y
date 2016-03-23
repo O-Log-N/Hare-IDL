@@ -30,6 +30,7 @@ Copyright (C) 2016 OLogN Technologies AG
 %token KW_CHARACTER KW_CHARACTER_STRING KW_BIT_STRING
 
 %token KW_SEQUENCE KW_DICTIONARY
+%token KW_PRINTABLE_ASCII_STRING KW_UNICODE_STRING
 
 %error-verbose
 %start file
@@ -52,7 +53,7 @@ file : { $$ = 0; }
 publishable_struct_begin
 	: KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createPublishableStruct($1, $2); releaseYys($3); }
 	| publishable_struct_begin data_type IDENTIFIER ';' { $$ = addToStruct($1, createAttribute($2, $3)); releaseYys($4); }
-	| publishable_struct_begin IDENTIFIER IDENTIFIER ';' { $$ = addToStruct($1, createAttribute(createIdType($2, 0), $3)); releaseYys($4); }
+	| publishable_struct_begin IDENTIFIER IDENTIFIER ';' { $$ = addToStruct($1, createAttribute(createIdType($2), $3)); releaseYys($4); }
 ;
 
 publishable_struct
@@ -62,7 +63,7 @@ publishable_struct
 mapping_begin
 	: KW_MAPPING '(' arg_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createMapping($1, $3, $6); releaseYys4($2, $4, $5, $7); }
 	| mapping_begin data_type IDENTIFIER ';' { $$ = addToStruct($1, createAttribute($2, $3));  releaseYys($4); }
-    | mapping_begin IDENTIFIER IDENTIFIER ';' { $$ = addToStruct($1, createAttribute(createIdType($2, 0), $3));  releaseYys($4); }
+    | mapping_begin IDENTIFIER IDENTIFIER ';' { $$ = addToStruct($1, createAttribute(createIdType($2), $3));  releaseYys($4); }
 ;
 
 mapping
@@ -84,12 +85,12 @@ data_element
 	: data_type IDENTIFIER ';' { $$ = createAttribute($1, $2); releaseYys($3); }
     | data_type IDENTIFIER KW_DEFAULT '=' expr ';' { $$ = createEncodingAttribute($1, $2, $5); releaseYys3($3, $4, $6); }
     | KW_EXTEND IDENTIFIER KW_TO data_type ';' { $$ = createExtendAttribute($2, $4); releaseYys3($1, $3, $5); }
-	| IDENTIFIER IDENTIFIER ';' { $$ = createAttribute(createIdType($1, 0), $2); releaseYys($3); }
-    | IDENTIFIER IDENTIFIER KW_DEFAULT '=' expr ';' { $$ = createEncodingAttribute(createIdType($1, 0), $2, $5); releaseYys3($3, $4, $6);}
-    | KW_EXTEND IDENTIFIER KW_TO IDENTIFIER ';' { $$ = createExtendAttribute($2, createIdType($4, 0)); releaseYys3($1, $3, $5);}
-    | IDENTIFIER '(' arg_list ')' IDENTIFIER ';' { $$ = createAttribute(createIdType($1, $3), $5); releaseYys3($2, $4, $6); }
-    | IDENTIFIER '(' arg_list ')' IDENTIFIER KW_DEFAULT '=' expr ';' { $$ = createEncodingAttribute(createIdType($1, $3), $5, $8); releaseYys5($2, $4, $6, $7, $9); }
-    | KW_EXTEND IDENTIFIER KW_TO IDENTIFIER '(' arg_list ')' ';' { $$ = createExtendAttribute($2, createIdType($4, $6)); releaseYys5($1, $3, $5, $7, $8); }
+	| IDENTIFIER IDENTIFIER ';' { $$ = createAttribute(createIdType($1), $2); releaseYys($3); }
+    | IDENTIFIER IDENTIFIER KW_DEFAULT '=' expr ';' { $$ = createEncodingAttribute(createIdType($1), $2, $5); releaseYys3($3, $4, $6);}
+    | KW_EXTEND IDENTIFIER KW_TO IDENTIFIER ';' { $$ = createExtendAttribute($2, createIdType($4)); releaseYys3($1, $3, $5);}
+    | IDENTIFIER '(' arg_list ')' IDENTIFIER ';' { $$ = createAttribute(createEncodingType($1, $3), $5); releaseYys3($2, $4, $6); }
+    | IDENTIFIER '(' arg_list ')' IDENTIFIER KW_DEFAULT '=' expr ';' { $$ = createEncodingAttribute(createEncodingType($1, $3), $5, $8); releaseYys5($2, $4, $6, $7, $9); }
+    | KW_EXTEND IDENTIFIER KW_TO IDENTIFIER '(' arg_list ')' ';' { $$ = createExtendAttribute($2, createEncodingType($4, $6)); releaseYys5($1, $3, $5, $7, $8); }
 ;
 
 data_group_begin
@@ -120,9 +121,9 @@ union_data_element
 	: data_type IDENTIFIER ';' { $$ = createAttribute($1, $2); releaseYys($3); }
     | data_type IDENTIFIER KW_WHEN_DISCRIMINANT_IN '{' id_list '}' ';' { $$ = createUnionAttribute($1, $2, $5); releaseYys4($3, $4, $6, $7); }
     | data_type IDENTIFIER KW_WHEN_DISCRIMINANT_IS IDENTIFIER ';' { $$ = createUnionAttribute($1, $2, addIdentifier(0, $4)); releaseYys2($3, $5); }
-    | IDENTIFIER IDENTIFIER ';' { $$ = createAttribute(createIdType($1, 0), $2); releaseYys($3); }
-    | IDENTIFIER IDENTIFIER KW_WHEN_DISCRIMINANT_IN '{' id_list '}' ';' { $$ = createUnionAttribute(createIdType($1, 0), $2, $5); releaseYys4($3, $4, $6, $7); }
-    | IDENTIFIER IDENTIFIER KW_WHEN_DISCRIMINANT_IS IDENTIFIER ';' { $$ = createUnionAttribute(createIdType($1, 0), $2, addIdentifier(0, $4)); releaseYys2($3, $5); }
+    | IDENTIFIER IDENTIFIER ';' { $$ = createAttribute(createIdType($1), $2); releaseYys($3); }
+    | IDENTIFIER IDENTIFIER KW_WHEN_DISCRIMINANT_IN '{' id_list '}' ';' { $$ = createUnionAttribute(createIdType($1), $2, $5); releaseYys4($3, $4, $6, $7); }
+    | IDENTIFIER IDENTIFIER KW_WHEN_DISCRIMINANT_IS IDENTIFIER ';' { $$ = createUnionAttribute(createIdType($1), $2, addIdentifier(0, $4)); releaseYys2($3, $5); }
 ;
 
 
@@ -139,6 +140,8 @@ data_type
 	| dictionary_type
 	| inline_enum_type
 	| class_ref_type
+	| KW_PRINTABLE_ASCII_STRING { $$ = createPrintableAsciiStringType($1); }
+	| KW_UNICODE_STRING { $$ = createUnicodeStringType($1); }
 ;
 
 
@@ -191,16 +194,16 @@ bit_string_type
 
 sequence_type
     : KW_SEQUENCE '<' data_type '>' { $$ = createSequence(0, $3); releaseYys3($1, $2, $4); }
-    | KW_SEQUENCE '<' IDENTIFIER '>' { $$ = createSequence(0, createIdType($3, 0)); releaseYys3($1, $2, $4); }
+    | KW_SEQUENCE '<' IDENTIFIER '>' { $$ = createSequence(0, createIdType($3)); releaseYys3($1, $2, $4); }
 	| IDENTIFIER '<' data_type '>' { $$ = createSequence($1, $3); releaseYys2($2, $4); }
-    | IDENTIFIER '<' IDENTIFIER '>' { $$ = createSequence($1, createIdType($3, 0)); releaseYys2($2, $4); }
+    | IDENTIFIER '<' IDENTIFIER '>' { $$ = createSequence($1, createIdType($3)); releaseYys2($2, $4); }
 ;
 
 dictionary_type
     : KW_DICTIONARY '<' data_type ',' data_type '>' { $$ = createDictionaryType($1, $3, $5); releaseYys3($2, $4, $6); }
-    | KW_DICTIONARY '<' IDENTIFIER ',' data_type '>' { $$ = createDictionaryType($1, createIdType($3, 0), $5); releaseYys3($2, $4, $6); }
-    | KW_DICTIONARY '<' data_type ',' IDENTIFIER '>' { $$ = createDictionaryType($1, $3, createIdType($5, 0)); releaseYys3($2, $4, $6); }
-    | KW_DICTIONARY '<' IDENTIFIER ',' IDENTIFIER '>' { $$ = createDictionaryType($1, createIdType($3, 0), createIdType($5, 0)); releaseYys3($2, $4, $6); }
+    | KW_DICTIONARY '<' IDENTIFIER ',' data_type '>' { $$ = createDictionaryType($1, createIdType($3), $5); releaseYys3($2, $4, $6); }
+    | KW_DICTIONARY '<' data_type ',' IDENTIFIER '>' { $$ = createDictionaryType($1, $3, createIdType($5)); releaseYys3($2, $4, $6); }
+    | KW_DICTIONARY '<' IDENTIFIER ',' IDENTIFIER '>' { $$ = createDictionaryType($1, createIdType($3), createIdType($5)); releaseYys3($2, $4, $6); }
 ;
 
 class_ref_type

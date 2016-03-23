@@ -633,27 +633,81 @@ YYSTYPE createUnionAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE id_list)
     return new YyPtr<EncodedOrMember>(att);
 }
 
-YYSTYPE createIdType(YYSTYPE id, YYSTYPE opt_arg_list)
+YYSTYPE createIdType(YYSTYPE id)
 {
     YyDataType* yy = new YyDataType();
 
-    if (opt_arg_list) {
-        yy->dataType.kind = DataType::ENCODING_SPECIFIC;
-        yy->dataType.name = nameFromYyIdentifierAndDelete(id);
-        yy->dataType.encodingAttrs = argumentListFromYyAndDelete(opt_arg_list);
+    string name = nameFromYyIdentifierAndDelete(id);
+    if (name == "INT8") {
+        yy->dataType.kind = DataType::INTEGER;
+        yy->dataType.lowLimit.inclusive = true;
+        yy->dataType.lowLimit.value = INT8_MIN;
+        yy->dataType.highLimit.inclusive = true;
+        yy->dataType.highLimit.value = INT8_MAX;
+    }
+    else if (name == "INT16") {
+        yy->dataType.kind = DataType::INTEGER;
+        yy->dataType.lowLimit.inclusive = true;
+        yy->dataType.lowLimit.value = INT16_MIN;
+        yy->dataType.highLimit.inclusive = true;
+        yy->dataType.highLimit.value = INT16_MAX;
+    }
+    else if (name == "INT32") {
+        yy->dataType.kind = DataType::INTEGER;
+        yy->dataType.lowLimit.inclusive = true;
+        yy->dataType.lowLimit.value = INT32_MIN;
+        yy->dataType.highLimit.inclusive = true;
+        yy->dataType.highLimit.value = INT32_MAX;
+    }
+    else if (name == "UINT8") {
+        yy->dataType.kind = DataType::INTEGER;
+        yy->dataType.lowLimit.inclusive = true;
+        yy->dataType.lowLimit.value = 0;
+        yy->dataType.highLimit.inclusive = true;
+        yy->dataType.highLimit.value = UINT8_MAX;
+    }
+    else if (name == "UINT16") {
+        yy->dataType.kind = DataType::INTEGER;
+        yy->dataType.lowLimit.inclusive = true;
+        yy->dataType.lowLimit.value = 0;
+        yy->dataType.highLimit.inclusive = true;
+        yy->dataType.highLimit.value = UINT16_MAX;
+    }
+    else if (name == "UINT32") {
+        yy->dataType.kind = DataType::INTEGER;
+        yy->dataType.lowLimit.inclusive = true;
+        yy->dataType.lowLimit.value = 0;
+        yy->dataType.highLimit.inclusive = true;
+        yy->dataType.highLimit.value = UINT32_MAX;
+    }
+    else if (name == "DOUBLE") {
+        yy->dataType.kind = DataType::FLOATING_POINT;
+        yy->dataType.floatingSignificandBits = 53;
+        yy->dataType.floatingExponentBits = 11;
+    }
+    else if (name == "DOUBLE80") {
+        yy->dataType.kind = DataType::FLOATING_POINT;
+        yy->dataType.floatingSignificandBits = 65;
+        yy->dataType.floatingExponentBits = 15;
     }
     else {
-        yy->dataType.name = nameFromYyIdentifierAndDelete(id);
-
-        //if (primitives.find(yy->dataType.name) != primitives.end())
-        //    yy->dataType.kind = DataType::PRIMITIVE;
-        //else
+        yy->dataType.name = name;
         yy->dataType.kind = DataType::NAMED_TYPE;
     }
 
     return yy;
 }
 
+YYSTYPE createEncodingType(YYSTYPE id, YYSTYPE arg_list)
+{
+    YyDataType* yy = new YyDataType();
+
+    yy->dataType.kind = DataType::ENCODING_SPECIFIC;
+    yy->dataType.name = nameFromYyIdentifierAndDelete(id);
+    yy->dataType.encodingAttrs = argumentListFromYyAndDelete(arg_list);
+
+    return yy;
+}
 
 YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag)
 {
@@ -754,24 +808,28 @@ YYSTYPE createFloatingPointType(YYSTYPE token, YYSTYPE significand_expr, YYSTYPE
 
 YYSTYPE createCharacterType(YYSTYPE token, YYSTYPE allowed_expr)
 {
+    unique_ptr<YyBase> r0(token);
+    unique_ptr<YyBase> r1(allowed_expr);
+
     YyDataType* yy = new YyDataType();
 
     yy->dataType.kind = DataType::CHARACTER;
 
-//    yy->dataType.characterSet;
-    delete allowed_expr;
+    // TODO character class
 
-    delete token;
     return yy;
 }
 
 YYSTYPE createCharacterStringType(YYSTYPE token, YYSTYPE allowed_expr, YYSTYPE min_expr, YYSTYPE max_expr)
 {
+    unique_ptr<YyBase> r0(token);
+    unique_ptr<YyBase> r1(allowed_expr);
+
     YyDataType* yy = new YyDataType();
 
     yy->dataType.kind = DataType::CHARACTER_STRING;
 
-    delete allowed_expr;
+    // TODO character class
 
     if (min_expr) {
         yy->dataType.stringMinSize = static_cast<int>(
@@ -781,7 +839,6 @@ YYSTYPE createCharacterStringType(YYSTYPE token, YYSTYPE allowed_expr, YYSTYPE m
                                          integerLiteralFromExpressionAndDelete(max_expr, yy->dataType.stringMinSize, INT_MAX));
     }
 
-    delete token;
     return yy;
 }
 
@@ -888,6 +945,31 @@ YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit)
 
     yy->enumValues.insert(make_pair(name, static_cast<int>(l->value)));
     delete int_lit;
+
+    return yy;
+}
+
+YYSTYPE createPrintableAsciiStringType(YYSTYPE token)
+{
+    unique_ptr<YyBase> r0(token);
+
+    YyDataType* yy = new YyDataType();
+
+    yy->dataType.kind = DataType::CHARACTER_STRING;
+
+    // TODO character class
+
+    return yy;
+}
+YYSTYPE createUnicodeStringType(YYSTYPE token)
+{
+    unique_ptr<YyBase> r0(token);
+
+    YyDataType* yy = new YyDataType();
+
+    yy->dataType.kind = DataType::CHARACTER_STRING;
+
+    // TODO character class
 
     return yy;
 }
