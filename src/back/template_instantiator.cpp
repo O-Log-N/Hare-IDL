@@ -338,7 +338,12 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 					assert( stack.size() == 1 );
 					assert( stack[0].argtype == ARGTYPE::STRING );
 					string resolved = stack[0].lineParts[0].verbatim;
-					resolvedLocalPlaceholders.insert( make_pair( it.first.ext, resolved ) );
+					auto insret = resolvedLocalPlaceholders.insert( make_pair( it.first.ext, resolved ) );
+					if ( !insret.second )
+					{
+						// re-write with a new value
+						insret.first->second = resolved;
+				    }
 				}
 
 			break;
