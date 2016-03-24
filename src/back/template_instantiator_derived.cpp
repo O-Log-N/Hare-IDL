@@ -183,8 +183,18 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 		{
 			StackElement elem;
 			elem.argtype = ARGTYPE::OBJPTR;
-			assert( dataType->kind == DataType::KIND::SEQUENCE );
+			assert( dataType->kind == DataType::KIND::SEQUENCE || dataType->kind == DataType::KIND::DICTIONARY );
 			MemberTypeTemplateInstantiator* mtti = new MemberTypeTemplateInstantiator( *(dataType->paramType), templateSpace, outstr );
+			elem.singleObject = unique_ptr<TemplateInstantiator>(mtti);
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::COLLECTION_TYPE2:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::OBJPTR;
+			assert( dataType->kind == DataType::KIND::DICTIONARY );
+			MemberTypeTemplateInstantiator* mtti = new MemberTypeTemplateInstantiator( *(dataType->keyType), templateSpace, outstr );
 			elem.singleObject = unique_ptr<TemplateInstantiator>(mtti);
 			stack.push_back( std::move(elem) );
 			break;
@@ -241,6 +251,14 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			StackElement elem;
 			elem.argtype = ARGTYPE::BOOL;
 			elem.boolValue = dataType->kind == DataType::KIND::SEQUENCE;
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_DICTIONARY:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::DICTIONARY;
 			stack.push_back( std::move(elem) );
 			break;
 		}

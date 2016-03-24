@@ -99,8 +99,36 @@ public:
 		return *this;
 	}
 
-    DataType(DataType&& other) = default;
-    DataType& operator = (DataType&& other) = default;
+    DataType(DataType&& other)
+        : kind(other.kind), name(other.name),
+        keyType(other.keyType != nullptr ? std::move(other.keyType) : nullptr),
+        paramType(other.keyType != nullptr ? std::move(other.paramType) : nullptr),
+        lowLimit(other.lowLimit), highLimit(other.highLimit),
+        fixedPrecision(other.fixedPrecision), floatingSignificandBits(other.floatingSignificandBits),
+        floatingExponentBits(other.floatingExponentBits), characterSet(other.characterSet),
+        stringMinSize(other.stringMinSize), stringMaxSize(other.stringMaxSize),
+        encodingAttrs(other.encodingAttrs), mappingAttrs(other.mappingAttrs),
+        enumValues(other.enumValues) {}
+
+    DataType& operator = (DataType&& other)
+	{
+		kind = other.kind;
+		name = other.name;
+        keyType = std::move(other.keyType);
+        paramType = std::move(other.paramType);
+        lowLimit = other.lowLimit;
+		highLimit = other.highLimit;
+        fixedPrecision = other.fixedPrecision;
+        floatingSignificandBits = other.floatingSignificandBits;
+        floatingExponentBits = other.floatingExponentBits;
+        characterSet = other.characterSet;
+        stringMinSize = other.stringMinSize;
+        stringMaxSize = other.stringMaxSize;
+		encodingAttrs = other.encodingAttrs;
+		mappingAttrs = other.mappingAttrs;
+		enumValues = other.enumValues;
+		return *this;
+	}
 
 };
 
