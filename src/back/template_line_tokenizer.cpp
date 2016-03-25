@@ -145,8 +145,14 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 		}
 		else if ( line[currentPos] >= '0' && line[currentPos] <= '9' )
 		{
+			ExpressionElement elem;
+			elem.oper = OPERATOR::PUSH;
+			elem.argtype = ARGTYPE::NUMBER;
 			string num = readIntegralNumericalLiteral( line, currentPos );
-			assert( 0 ); //TODO: need to define an exact processing
+			elem.numberValue = atoi( num.c_str() );
+			expression.push_back( elem );
+			skipSpaces( line, currentPos );
+			//TODO: THINK ABOUT ADDING FLOATING POINT
 		}
 		else if ( ( line[currentPos] >= 'a' && line[currentPos] <= 'z' ) || 
 			      ( line[currentPos] >= 'A' && line[currentPos] <= 'Z' ) )
@@ -170,22 +176,31 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 			fncall.oper = OPERATOR::CALL;
 			fncall.fnCallID = fn.id;
 			postfixOperations.push_back( fncall );
-			size_t inisz = expression.size();
 			skipSpaces( line, currentPos );
-			parseExpression( line, currentPos, expression, currentLineNum );
-			if ( line[currentPos] != ')' )
+			int argCnt = 0;
+			size_t iniExprSz;
+			char terminator;
+			do
+			{
+				iniExprSz = expression.size();
+				parseExpression( line, currentPos, expression, currentLineNum );
+				skipSpaces( line, currentPos );
+				if ( expression.size() > iniExprSz )
+					++argCnt;
+				terminator = line[currentPos++];
+			}
+			while ( terminator == ',' );
+			if ( terminator != ')' )
 			{
 				fmt::print( "line {}: error: ')' expected\n", currentLineNum );
 				assert( 0 ); // TODO: throw
 			}
-			++currentPos; // for terminating ')'
 			skipSpaces( line, currentPos );
-			size_t newsz = expression.size();
 			// quick sanity check for arg'less function
 			// TODO: indeed, we can calculate a number of actually supplied args
-			if ( fn.argC == 0 && inisz != newsz )
+			if ( fn.argC != argCnt )
 			{
-				fmt::print( "line {}: function {} takes {} arguments\n", currentLineNum, functionNameToString( fn.id ), fn.argC );
+				fmt::print( "line {}: function {} takes {} arguments ({} actually supplied)\n", currentLineNum, functionNameToString( fn.id ), fn.argC, argCnt );
 				assert( 0 ); // TODO: throw
 			}
 			skipSpaces( line, currentPos );

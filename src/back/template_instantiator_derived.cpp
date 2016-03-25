@@ -300,6 +300,77 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			stack.push_back( std::move(elem) );
 			break;
 		}
+		case PREDEFINED_FUNCTION::IS_UNSIGNED_INTEGER:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			assert( dataType->kind == DataType::KIND::INTEGER ); // TODO: think about proper error reporting
+			elem.boolValue = dataType->lowLimit.inclusive ? dataType->lowLimit.value >= 0 : dataType->lowLimit.value >= -1; // TODO: lowLimit.value is currently double; make sure comparison always work as intended
+			assert( dataType->lowLimit.value <= dataType->highLimit.value );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_UNSIGNED_INTEGER_FITTING_UINT:
+		{
+			assert( dataType->kind == DataType::KIND::INTEGER ); // TODO: think about proper error reporting
+			bool unsignedInt = dataType->lowLimit.inclusive ? dataType->lowLimit.value >= 0 : dataType->lowLimit.value >= -1; // TODO: lowLimit.value is currently double; make sure comparison always work as intended
+			assert( unsignedInt ); // TODO: think about proper error reporting
+			assert( stack.size() );
+			auto& arg = stack.back();
+			assert( arg.argtype == ARGTYPE::NUMBER );
+			assert( arg.numberValue > 0 );
+			assert( arg.numberValue <= 64 ); // there is a practical limit here TODO: think about a limit or about addressing other cases
+			assert( arg.numberValue > 0 ); // there is a practical limit here TODO: think about a limit or about addressing other cases
+			int binCnt = arg.numberValue;
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = binCnt < 64 ? dataType->highLimit.value < ( 1 << binCnt ) : true; // TODO: proper check
+			// pop args, push result
+			stack.pop_back();
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_SIGNED_INTEGER_FITTING_INT:
+		{
+			assert( dataType->kind == DataType::KIND::INTEGER ); // TODO: think about proper error reporting
+			assert( stack.size() );
+			auto& arg = stack.back();
+			assert( arg.argtype == ARGTYPE::NUMBER );
+			assert( arg.numberValue <= 64 ); // there is a practical limit here TODO: think about a limit or about addressing other cases
+			assert( arg.numberValue > 0 ); // there is a practical limit here TODO: think about a limit or about addressing other cases
+			int bitCnt = arg.numberValue;
+
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			bool OK = bitCnt < 64 ? dataType->highLimit.value <= ( 1 << (bitCnt-1) ) : true;
+			elem.boolValue = OK && ( bitCnt < 64 ? dataType->highLimit.value <= ( 1 << (bitCnt-1) ) : true );
+			// pop args, push result
+			stack.pop_back();
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_FLOATING_POINT_FITTING_FLOAT:
+		{
+			assert( dataType->kind == DataType::KIND::FLOATING_POINT ); // TODO: think about proper error reporting
+			assert( stack.size() > 1 ); // we have two args
+			auto significandBits = stack.begin() + stack.size() - 2;
+			auto exponentBits = stack.begin() + stack.size() - 1;
+			assert( significandBits->argtype == ARGTYPE::NUMBER );
+			assert( significandBits->numberValue <= 64 ); // there is a practical limit here TODO: think about a limit or about addressing other cases
+			assert( significandBits->numberValue > 0 ); // there is a practical limit here TODO: think about a limit or about addressing other cases
+			assert( exponentBits->argtype == ARGTYPE::NUMBER );
+			assert( exponentBits->numberValue < 64 ); // there is a practical limit here TODO: think about a limit or about addressing other cases
+			assert( exponentBits->numberValue >= 0 ); // there is a practical limit here TODO: think about a limit or about addressing other cases
+
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->floatingSignificandBits <= significandBits->numberValue && dataType->floatingExponentBits <= exponentBits->numberValue;
+			// pop args, push result
+			stack.pop_back();
+			stack.pop_back();
+			stack.push_back( std::move(elem) );
+			break;
+		}
 		default:
 		{
 			TemplateInstantiator::execBuiltinFunction( stack, fnID );

@@ -60,7 +60,7 @@ void dbgPrintExpression( vector<ExpressionElement>& expression )
 				}
 				case ARGTYPE::NUMBER: fmt::print( "{}", expression[i].numberValue ); break;
 				case ARGTYPE::NO_ARGTYPE: fmt::print( "\"\"" ); break;
-				default: fmt::print( "?????????" ); break;
+				default: fmt::print( "[????[type={}]????] ", static_cast<int>(expression[i].argtype) ); break;
 			}
 		}
 		else if ( expression[i].oper == OPERATOR::CALL )
