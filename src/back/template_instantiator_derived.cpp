@@ -214,22 +214,6 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 		// type-related
 		// NOTE: this list is subject to change (see issue #52, for instance)
 		// TODO: update as necessary
-		case PREDEFINED_FUNCTION::IS_PRIMITIVE_DOUBLE:
-		{
-			StackElement elem;
-			elem.argtype = ARGTYPE::BOOL;
-			elem.boolValue = dataType->kind == DataType::KIND::PRIMITIVE &&dataType->name == "DOUBLE";
-			stack.push_back( std::move(elem) );
-			break;
-		}
-		case PREDEFINED_FUNCTION::IS_PRIMITIVE_INTEGER:
-		{
-			StackElement elem;
-			elem.argtype = ARGTYPE::BOOL;
-			elem.boolValue = dataType->kind == DataType::KIND::PRIMITIVE && ( dataType->name == "INTEGER" || dataType->name == "UINT16" );
-			stack.push_back( std::move(elem) );
-			break;
-		}
 		case PREDEFINED_FUNCTION::IS_STRUCTURE:
 		{
 			StackElement elem;
@@ -259,14 +243,6 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			StackElement elem;
 			elem.argtype = ARGTYPE::BOOL;
 			elem.boolValue = dataType->kind == DataType::KIND::DICTIONARY;
-			stack.push_back( std::move(elem) );
-			break;
-		}
-		case PREDEFINED_FUNCTION::IS_PARAMETRIZED_DOUBLE:
-		{
-			StackElement elem;
-			elem.argtype = ARGTYPE::BOOL;
-			elem.boolValue = dataType->kind == DataType::KIND::LIMITED_PRIMITIVE && dataType->name == "NUMERIC";
 			stack.push_back( std::move(elem) );
 			break;
 		}

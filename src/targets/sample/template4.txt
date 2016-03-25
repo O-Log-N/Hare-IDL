@@ -43,12 +43,8 @@ void serialize@STRUCT-NAME@( @STRUCT-NAME@& s, OStream& o ) {
 
 
 @@BEGIN-TEMPLATE NAME="SERIALIZE-TYPE" TYPE="DATATYPE"
-@@IF IS-PRIMITIVE-DOUBLE()
-   o.writeDouble(@PARAM-NAME@);
-@@ELIF IS-PRIMITIVE-INTEGER()
-   o.writeINT(@PARAM-NAME@);
-@@ELIF IS-INTEGER()
-   o.writeINT(@PARAM-NAME@);
+@@IF IS-INTEGER()
+   o.writeInt(@PARAM-NAME@);
 @@ELIF IS-FIXED-POINT()
    o.writeDouble(@PARAM-NAME@);
 @@ELIF IS-FLOATING-POINT()
@@ -66,8 +62,6 @@ void serialize@STRUCT-NAME@( @STRUCT-NAME@& s, OStream& o ) {
 @@INCLUDE-WITH COLLECTION-TYPE2() TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item.first" TYPE="DATATYPE"
 @@INCLUDE-WITH COLLECTION-TYPE() TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item.second" TYPE="DATATYPE"
    }
-@@ELIF IS-PARAMETRIZED-DOUBLE()
-   o.writeDouble(@PARAM-NAME@);
 @@ELSE
 @@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@, type=@MEMBER-TYPE@"
 @@ENDIF
@@ -85,9 +79,7 @@ typedef _@STRUCT-NAME@ {
 
 
 @@BEGIN-TEMPLATE NAME="MAP-TYPE" TYPE="DATATYPE"
-@@IF IS-PRIMITIVE-DOUBLE()
-   double 
-@@ELIF IS-INTEGER()
+@@IF IS-INTEGER()
 @@IF IS-UNSIGNED-INTEGER()
   @@IF IS-UNSIGNED-INTEGER-FITTING-UINT(8)
    uint8_t 
@@ -120,6 +112,8 @@ typedef _@STRUCT-NAME@ {
    float 
   @@ELIF IS-FLOATING-POINT-FITTING-FLOAT(53,11)
    double 
+  @@ELIF IS-FLOATING-POINT-FITTING-FLOAT(64,16)
+   long double 
   @@ELSE
     @@ASSERT "0" MSG="Cannot process member for declaring: type=@MEMBER-TYPE@"
   @@ENDIF
