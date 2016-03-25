@@ -270,6 +270,36 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			stack.push_back( std::move(elem) );
 			break;
 		}
+		case PREDEFINED_FUNCTION::IS_INTEGER:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::INTEGER;
+			if ( elem.boolValue )
+				assert( dataType->name.size() == 0 );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_FLOATING_POINT:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::FLOATING_POINT;
+			if ( elem.boolValue )
+				assert( dataType->name.size() == 0 );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_FIXED_POINT:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::FIXED_POINT;
+			if ( elem.boolValue )
+				assert( dataType->name.size() == 0 );
+			stack.push_back( std::move(elem) );
+			break;
+		}
 		default:
 		{
 			TemplateInstantiator::execBuiltinFunction( stack, fnID );
