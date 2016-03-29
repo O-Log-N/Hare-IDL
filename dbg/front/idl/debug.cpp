@@ -15,11 +15,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#include "../../../idlc_include.h"
+#include "idlc_include.h"
 
 #include "debug.h"
-#include "../../../front-back/idl_tree.h"
-#include "../parser.h" // string locationToString(const Location& loc)
+#include "front-back/idl_tree.h"
+#include "front/idl/parser.h" // string locationToString(const Location& loc)
 
 using namespace std;
 
