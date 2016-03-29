@@ -77,15 +77,6 @@ private:
     static string dbgTypeToString(const DataType& dataType) {
 
         switch (dataType.kind) {
-        case DataType::PRIMITIVE:
-            return fmt::format("{{ kind=PRIMITIVE name={} }}", dataType.name);
-            break;
-        case DataType::LIMITED_PRIMITIVE:
-
-            return fmt::format("{{ kind=LIMITED_PRIMITIVE name={} lowLimit={}:{} highLimit={}:{} }}",
-                               dataType.name, dataType.lowLimit.inclusive, dataType.lowLimit.value,
-                               dataType.highLimit.inclusive, dataType.highLimit.value);
-            break;
         case DataType::INTEGER:
 
             return fmt::format("INTEGER{} {} , {} {}",

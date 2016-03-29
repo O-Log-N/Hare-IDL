@@ -734,50 +734,6 @@ YYSTYPE createEncodingType(YYSTYPE id, YYSTYPE arg_list)
     return yy;
 }
 
-YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag)
-{
-    unique_ptr<YyBase> d0(token);
-    unique_ptr<YyBase> d1(low_expr);
-    unique_ptr<YyBase> d2(high_expr);
-
-    YyDataType* yy = new YyDataType();
-
-    yy->dataType.kind = DataType::LIMITED_PRIMITIVE;
-    yy->dataType.name = "NUMERIC";
-
-    double l = floatLiteralFromExpression(low_expr);
-    yy->dataType.lowLimit.inclusive = low_flag;
-    yy->dataType.lowLimit.value = l;
-
-    double h = floatLiteralFromExpression(high_expr);
-    yy->dataType.highLimit.inclusive = high_flag;
-    yy->dataType.highLimit.value = h;
-
-    return yy;
-}
-
-YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag)
-{
-    unique_ptr<YyBase> d0(token);
-    unique_ptr<YyBase> d1(low_expr);
-    unique_ptr<YyBase> d2(high_expr);
-
-    YyDataType* yy = new YyDataType();
-
-    yy->dataType.kind = DataType::LIMITED_PRIMITIVE;
-    yy->dataType.name = "INT";
-
-    double l = floatLiteralFromExpression(low_expr);
-    yy->dataType.lowLimit.inclusive = low_flag;
-    yy->dataType.lowLimit.value = l;
-
-    double h = floatLiteralFromExpression(high_expr);
-    yy->dataType.highLimit.inclusive = high_flag;
-    yy->dataType.highLimit.value = h;
-
-    return yy;
-}
-
 YYSTYPE createIntegerType(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag)
 {
     unique_ptr<YyBase> d0(token);

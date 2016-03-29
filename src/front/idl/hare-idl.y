@@ -128,9 +128,7 @@ union_data_element
 
 
 data_type
-	: numeric_type
-    | int_type
-    | integer_type
+    : integer_type
     | fixed_point_type
     | floating_point_type
     | character_type
@@ -142,23 +140,6 @@ data_type
 	| class_ref_type
 	| KW_PRINTABLE_ASCII_STRING { $$ = createPrintableAsciiStringType($1); }
 	| KW_UNICODE_STRING { $$ = createUnicodeStringType($1); }
-;
-
-
-
-
-numeric_type
-	: KW_NUMERIC '[' expr ',' expr ']' { $$ = createNumeric($1, true, $3, $5, true); releaseYys3($2, $4, $6); }
-	| KW_NUMERIC '(' expr ',' expr ']' { $$ = createNumeric($1, false, $3, $5, true); releaseYys3($2, $4, $6); }
-	| KW_NUMERIC '[' expr ',' expr ')' { $$ = createNumeric($1, true, $3, $5, false); releaseYys3($2, $4, $6); }
-	| KW_NUMERIC '(' expr ',' expr ')' { $$ = createNumeric($1, false, $3, $5, false); releaseYys3($2, $4, $6); }
-;
-
-int_type
-	: KW_INT '[' expr ',' expr ']' { $$ = createInt($1, true, $3, $5, true); releaseYys3($2, $4, $6); }
-	| KW_INT '(' expr ',' expr ']' { $$ = createInt($1, false, $3, $5, true); releaseYys3($2, $4, $6); }
-	| KW_INT '[' expr ',' expr ')' { $$ = createInt($1, true, $3, $5, false); releaseYys3($2, $4, $6); }
-	| KW_INT '(' expr ',' expr ')' { $$ = createInt($1, false, $3, $5, false); releaseYys3($2, $4, $6); }
 ;
 
 integer_type

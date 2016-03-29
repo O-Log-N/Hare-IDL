@@ -81,8 +81,6 @@ YYSTYPE createUnionAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE id_list);
 
 YYSTYPE createIdType(YYSTYPE id);
 YYSTYPE createEncodingType(YYSTYPE id, YYSTYPE arg_list);
-YYSTYPE createNumeric(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
-YYSTYPE createInt(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
 YYSTYPE createIntegerType(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
 YYSTYPE createFixedPointType(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE precision_expr, YYSTYPE high_expr, bool high_flag);
 YYSTYPE createFloatingPointType(YYSTYPE token, YYSTYPE significand_expr, YYSTYPE exponent_expr);
