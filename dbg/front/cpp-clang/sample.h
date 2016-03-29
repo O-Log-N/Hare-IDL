@@ -15,14 +15,38 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-//#include <stdio.h>
-//#include "sample.h"
+#ifndef SAMPLE_H_INCLUDED
+#define SAMPLE_H_INCLUDED
 
-[[hare::nobugs]]
-void hareFunc() {}
+#include <cstdint>
+#include <string>
+#include <vector>
 
-int main()
-{
-//	printf("Hello world!\n");
-    return 0;
-}
+#include "hareidl.h"
+
+using namespace std;
+
+class myharesampleItem {
+public:
+    string name;
+};
+
+typedef vector<myharesampleItem> mySampleVector;
+
+class myharesampleCharacter {
+public:
+  int character_id;
+  double x;
+  double y;
+  double z;
+  double vx;
+  double vy;
+  double vz;
+  float angle;
+  enum Animation {Standing=0,Walking=1, Running=2} anim;
+  int animation_frame;
+  vector<myharesampleItem> inventory;
+  mySampleVector other_inventory;
+};
+
+#endif // SAMPLE_H_INCLUDED
