@@ -104,13 +104,13 @@ int createToken(int token)
 
 	0[0-9]+ { parserError("Octal integer literal not supported '%s'.", yytext, yylineno); }
 
-	[+-]?[1-9][0-9]* { yylval = createIntegerLiteral(yytext, yylineno); return INTEGER_LITERAL; }
+	[1-9][0-9]* { yylval = createIntegerLiteral(yytext, yylineno); return INTEGER_LITERAL; }
 	0 { yylval = createZeroLiteral(yytext, yylineno); return INTEGER_LITERAL; }
 	0x[a-fA-F0-9]+ { yylval = createHexIntegerLiteral(yytext, yylineno); return INTEGER_LITERAL; }
 
-	[+-]?[0-9]*\.[0-9]+([eE][+-]?[0-9]+)? { yylval = createFloatLiteral(yytext, yylineno); return FLOAT_LITERAL; }
-	[+-]?[0-9]+\.[0-9]*([eE][+-]?[0-9]+)? { yylval = createFloatLiteral(yytext, yylineno); return FLOAT_LITERAL; }
-	[+-]?[0-9]+[eE][+-]?[0-9]+ { yylval = createFloatLiteral(yytext, yylineno); return FLOAT_LITERAL; }
+	[0-9]*\.[0-9]+([eE][+-]?[0-9]+)? { yylval = createFloatLiteral(yytext, yylineno); return FLOAT_LITERAL; }
+	[0-9]+\.[0-9]*([eE][+-]?[0-9]+)? { yylval = createFloatLiteral(yytext, yylineno); return FLOAT_LITERAL; }
+	[0-9]+[eE][+-]?[0-9]+ { yylval = createFloatLiteral(yytext, yylineno); return FLOAT_LITERAL; }
 
 
 	\"([^\\"]|\\.)*\" { yylval = createStringLiteral(yytext, yylineno); return STRING_LITERAL; }

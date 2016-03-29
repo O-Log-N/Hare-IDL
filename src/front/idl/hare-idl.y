@@ -161,12 +161,15 @@ floating_point_type
 ;
 
 character_type
-	: KW_CHARACTER '{' expr '}' { $$ = createCharacterType($1, $3); releaseYys2($2, $4); }
+	: KW_CHARACTER '{' STRING_LITERAL '}' { $$ = createCharacterType($1, $3); releaseYys2($2, $4); }
+	| KW_CHARACTER '{' character_set '}' { $$ = createCharacterType($1, $3); releaseYys2($2, $4); }
 ;
 
 character_string_type
-	: KW_CHARACTER_STRING '{' expr '}' { $$ = createCharacterStringType($1, $3, 0, 0); releaseYys2($2, $4); }
-	| KW_CHARACTER_STRING '{' expr '}' '[' expr ',' expr ']' { $$ = createCharacterStringType($1, $3, $6, $8); releaseYys5($2, $4, $5, $7, $9); }
+	: KW_CHARACTER_STRING '{' STRING_LITERAL '}' { $$ = createCharacterStringType($1, $3, 0, 0); releaseYys2($2, $4); }
+	| KW_CHARACTER_STRING '{' STRING_LITERAL '}' '[' expr ',' expr ']' { $$ = createCharacterStringType($1, $3, $6, $8); releaseYys5($2, $4, $5, $7, $9); }
+	| KW_CHARACTER_STRING '{' character_set '}' { $$ = createCharacterStringType($1, $3, 0, 0); releaseYys2($2, $4); }
+	| KW_CHARACTER_STRING '{' character_set '}' '[' expr ',' expr ']' { $$ = createCharacterStringType($1, $3, $6, $8); releaseYys5($2, $4, $5, $7, $9); }
 ;
 
 bit_string_type
@@ -212,6 +215,17 @@ id_list
 
 expr
 	: INTEGER_LITERAL { $$ = $1; }
+	| '+' INTEGER_LITERAL { $$ = $2; releaseYys($1); }
+	| '-' INTEGER_LITERAL { $$ = makeMinusIntLit($2); releaseYys($1); }
 	| FLOAT_LITERAL { $$ = $1; }
+	| '+' FLOAT_LITERAL { $$ = $2; releaseYys($1); }
+	| '-' FLOAT_LITERAL { $$ = makeMinusFloatLit($2); releaseYys($1); }
 	| STRING_LITERAL { $$ = $1; }
+;
+
+character_set
+	: INTEGER_LITERAL { $$ = addToCharSet(0, $1, 0); }
+	| INTEGER_LITERAL '-' INTEGER_LITERAL { $$ = addToCharSet(0, $1, $3); releaseYys($2); }
+	| character_set ',' INTEGER_LITERAL { $$ = addToCharSet($1, $3, 0);  releaseYys($2); }
+	| character_set ',' INTEGER_LITERAL '-' INTEGER_LITERAL { $$ = addToCharSet($1, $3, $5); releaseYys2($2, $4); }
 ;

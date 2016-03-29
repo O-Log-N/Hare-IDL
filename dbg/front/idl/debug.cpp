@@ -74,6 +74,20 @@ private:
 
     }
 
+    static string dbgCharacterSetToString(const CharacterSet& cs) {
+
+        string result;
+        for (auto it = cs.ranges.begin(); it != cs.ranges.end(); ++it) {
+            if (it != cs.ranges.begin())
+                result += " , ";
+            if (it->from == it->to)
+                result += fmt::format("{:x}", it->from);
+            else
+                result += fmt::format("{:x} - {:x}", it->from, it->to);
+        }
+        return result;
+    }
+
     static string dbgTypeToString(const DataType& dataType) {
 
         switch (dataType.kind) {
@@ -82,35 +96,29 @@ private:
             return fmt::format("INTEGER{} {} , {} {}",
                 dataType.lowLimit.inclusive ? '[' : '(', dataType.lowLimit.value,
                 dataType.highLimit.value, dataType.highLimit.inclusive ? ']' : ')');
-            break;
         case DataType::FIXED_POINT:
 
             return fmt::format("FIXED-POINT{} {} , {} , {} {}",
                 dataType.lowLimit.inclusive ? '[' : '(', dataType.lowLimit.value,
                 dataType.fixedPrecision,
                 dataType.highLimit.value, dataType.highLimit.inclusive ? ']' : ')');
-            break;
         case DataType::FLOATING_POINT:
 
             return fmt::format("FLOATING-POINT( {} , {} )",
                 dataType.floatingSignificandBits, dataType.floatingExponentBits);
-            break;
         case DataType::CHARACTER:
 
             return fmt::format("CHARACTER{{ {} }}",
-                "TODO");
-            break;
+                dbgCharacterSetToString(dataType.characterSet));
         case DataType::CHARACTER_STRING:
 
             return fmt::format("CHARACTER-STRING{{ {} }}[ {} , {} ]",
-                "TODO",
+                dbgCharacterSetToString(dataType.characterSet),
                 dataType.stringMinSize, dataType.stringMaxSize);
-            break;
         case DataType::BIT_STRING:
 
             return fmt::format("BIT-STRING[ {} , {} ]",
                 dataType.stringMinSize, dataType.stringMaxSize);
-            break;
         case DataType::ENUM:
         {
             string enumValues;
@@ -122,10 +130,8 @@ private:
 
             return fmt::format("ENUM {} {{ {} }}", dataType.name, enumValues);
         }
-        break;
         case DataType::NAMED_TYPE:
             return dataType.name;
-            break;
         case DataType::SEQUENCE:
         {
             HAREASSERT(dataType.paramType);
@@ -135,7 +141,6 @@ private:
             else
                 return fmt::format("SEQUENCE {} < {} >", dataType.name, arg);
         }
-        break;
         case DataType::DICTIONARY:
         {
             HAREASSERT(dataType.keyType);
@@ -144,21 +149,18 @@ private:
             string arg1 = dbgTypeToString(*dataType.paramType);
             return fmt::format("DICTIONARY< {} , {} >", arg0, arg1);
         }
-        break;
         case DataType::ENCODING_SPECIFIC:
         {
             string attrs = dbgAttributesToString(dataType.encodingAttrs);
             return fmt::format("ENCODING_SPECIFIC {} {}",
                                dataType.name, attrs);
         }
-        break;
         case DataType::MAPPING_SPECIFIC:
         {
             string attrs = dbgAttributesToString(dataType.mappingAttrs);
             return fmt::format("MAPPING_SPECIFIC {} {}",
                                dataType.name, attrs);
         }
-        break;
         default:
             HAREASSERT(false);
         }

@@ -84,8 +84,8 @@ YYSTYPE createEncodingType(YYSTYPE id, YYSTYPE arg_list);
 YYSTYPE createIntegerType(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
 YYSTYPE createFixedPointType(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE precision_expr, YYSTYPE high_expr, bool high_flag);
 YYSTYPE createFloatingPointType(YYSTYPE token, YYSTYPE significand_expr, YYSTYPE exponent_expr);
-YYSTYPE createCharacterType(YYSTYPE token, YYSTYPE allowed_expr);
-YYSTYPE createCharacterStringType(YYSTYPE token, YYSTYPE allowed_expr, YYSTYPE min_expr, YYSTYPE max_expr);
+YYSTYPE createCharacterType(YYSTYPE token, YYSTYPE charset);
+YYSTYPE createCharacterStringType(YYSTYPE token, YYSTYPE charset, YYSTYPE min_expr, YYSTYPE max_expr);
 YYSTYPE createBitStringType(YYSTYPE token, YYSTYPE min_expr, YYSTYPE max_expr);
 YYSTYPE createSequence(YYSTYPE opt_id, YYSTYPE type);
 YYSTYPE createDictionaryType(YYSTYPE token, YYSTYPE key_type, YYSTYPE value_type);
@@ -98,6 +98,10 @@ YYSTYPE createUnicodeStringType(YYSTYPE token);
 YYSTYPE addString(YYSTYPE list, YYSTYPE str);
 YYSTYPE addIdentifier(YYSTYPE list, YYSTYPE id);
 YYSTYPE addExpression(YYSTYPE list, YYSTYPE id, YYSTYPE expr);
+YYSTYPE makeMinusIntLit(YYSTYPE int_lit);
+YYSTYPE makeMinusFloatLit(YYSTYPE float_lit);
+
+YYSTYPE addToCharSet(YYSTYPE list, YYSTYPE from, YYSTYPE to);
 
 
 #endif // PARSER_HELPER_H_INCLUDED

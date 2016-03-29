@@ -32,8 +32,17 @@ struct Location {
 	int lineNumber = 0;
 };
 
+class CharacterRange {
+public:
+    uint32_t from = 0;
+    uint32_t to = 0;
+
+    CharacterRange(uint32_t from, uint32_t to) : from(from), to(to) {}
+};
+
 class CharacterSet {
-    /*TBD*/
+public:
+    vector<CharacterRange> ranges;
 };
 
 class Variant {

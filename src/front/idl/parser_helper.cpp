@@ -126,6 +126,10 @@ struct YyArgumentList : public YyBase {
     map<string, Variant> arguments;
 };
 
+struct YyCharacterSet : public YyBase {
+    CharacterSet charSet;
+};
+
 typedef YyIdentifier YyStringLiteral;
 
 /*
@@ -242,6 +246,89 @@ map<string, Variant> argumentListFromYy(YYSTYPE arg_list)
     map<string, Variant> result = std::move(al->arguments);
 
     return result;
+}
+
+static
+CharacterSet getNamedCharacterSet(const Location& loc, const string& name)
+{
+    if (name == "PRINTABLE-ASCII") {
+        //PRINTABLE-ASCII-STRING is a typedef to CHARACTER-STRING {32-126}
+        // see https://github.com/O-Log-N/Hare-IDL/issues/52
+        CharacterSet cs;
+        cs.ranges.emplace_back(32, 126);
+        return cs;
+    }
+    else if (name == "UNICODE") {
+        //UNICODE-STRING is a typedef to CHARACTER-STRING {1-1114111}
+        // see https://github.com/O-Log-N/Hare-IDL/issues/52
+        CharacterSet cs;
+        cs.ranges.emplace_back(1, 0x10ffff);
+        return cs;
+    }
+    else {
+        reportError(loc, fmt::format("Unknown named character set '{}'", name));
+        return CharacterSet();
+    }
+}
+
+static
+bool checkCharRangeValues(const Location& loc, const CharacterRange& range)
+{
+    if (range.from > range.to) {
+        reportError(loc, fmt::format("Character range is inverted"));
+        return false;
+    }
+    else if (range.from == 0) {
+        reportError(loc, fmt::format("Character zero or null not allowed"));
+        return false;
+    }
+    else if (range.from > 0x10ffff || range.to > 0x10ffff) {
+        reportError(loc, fmt::format("Character range overflow"));
+        return false;
+    }
+    else
+        return true;
+}
+
+static
+CharacterSet getCharacterSet(YYSTYPE charset)
+{
+    if (YyStringLiteral* strLit = dynamic_cast<YyStringLiteral*>(charset)) {
+        return getNamedCharacterSet(strLit->location, strLit->text);
+    }
+    else if (YyCharacterSet* cs = dynamic_cast<YyCharacterSet*>(charset)) {
+
+        HAREASSERT(!cs->charSet.ranges.empty());
+        auto it = cs->charSet.ranges.begin();
+        if(!checkCharRangeValues(charset->location, *it))
+            return CharacterSet();
+
+        auto prev = it;
+        HAREASSERT(it != cs->charSet.ranges.end());
+        ++it;
+        while (it != cs->charSet.ranges.end()) {
+
+            if (!checkCharRangeValues(charset->location, *it))
+                return CharacterSet();
+            else if (it->from <= prev->to) {
+                reportError(charset->location, fmt::format("Character set ranges are overlapping"));
+                return CharacterSet();
+            }
+            else if (it->from == prev->to + 1) {
+                //need to merge with previous;
+                prev->to = it->to;
+                it = cs->charSet.ranges.erase(it);
+            }
+            else {
+                prev = it;
+                ++it;
+            }
+        }
+        return std::move(cs->charSet);
+    }
+    else
+        HAREASSERT(false);
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -803,32 +890,30 @@ YYSTYPE createFloatingPointType(YYSTYPE token, YYSTYPE significand_expr, YYSTYPE
     return yy;
 }
 
-YYSTYPE createCharacterType(YYSTYPE token, YYSTYPE allowed_expr)
+YYSTYPE createCharacterType(YYSTYPE token, YYSTYPE charset)
 {
     unique_ptr<YyBase> d0(token);
-    unique_ptr<YyBase> d1(allowed_expr);
+    unique_ptr<YyBase> d1(charset);
 
     YyDataType* yy = new YyDataType();
 
     yy->dataType.kind = DataType::CHARACTER;
-
-    // TODO character class
+    yy->dataType.characterSet = getCharacterSet(charset);
 
     return yy;
 }
 
-YYSTYPE createCharacterStringType(YYSTYPE token, YYSTYPE allowed_expr, YYSTYPE min_expr, YYSTYPE max_expr)
+YYSTYPE createCharacterStringType(YYSTYPE token, YYSTYPE charset, YYSTYPE min_expr, YYSTYPE max_expr)
 {
     unique_ptr<YyBase> d0(token);
-    unique_ptr<YyBase> d1(allowed_expr);
+    unique_ptr<YyBase> d1(charset);
     unique_ptr<YyBase> d2(min_expr);
     unique_ptr<YyBase> d3(max_expr);
 
     YyDataType* yy = new YyDataType();
 
     yy->dataType.kind = DataType::CHARACTER_STRING;
-
-    // TODO character class
+    yy->dataType.characterSet = getCharacterSet(charset);
 
     if (min_expr) {
         yy->dataType.stringMinSize = static_cast<int>(
@@ -911,7 +996,7 @@ YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type)
     yy->dataType.name = "class";
 
     Variant value = variantFromExpression(id_type);
-    yy->dataType.mappingAttrs.insert(make_pair(string("className"), value));
+    yy->dataType.mappingAttrs.emplace("className", value);
 
     return yy;
 }
@@ -951,7 +1036,7 @@ YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit)
     string name = nameFromYyIdentifier(id);
     int value = static_cast<int>(integerLiteralFromExpression(int_lit, 0, INT_MAX));
 
-    yy->enumValues.insert(make_pair(name, value));
+    yy->enumValues.emplace(name, value);
 
     return d0.release();
 }
@@ -962,21 +1047,24 @@ YYSTYPE createPrintableAsciiStringType(YYSTYPE token)
 
     YyDataType* yy = new YyDataType();
 
+    //PRINTABLE-ASCII-STRING is a typedef to CHARACTER-STRING {32-126}
+    // see https://github.com/O-Log-N/Hare-IDL/issues/52
     yy->dataType.kind = DataType::CHARACTER_STRING;
-
-    // TODO character class
+    yy->dataType.characterSet = getNamedCharacterSet(token->location, "PRINTABLE-ASCII");
 
     return yy;
 }
+
 YYSTYPE createUnicodeStringType(YYSTYPE token)
 {
     unique_ptr<YyBase> d0(token);
 
     YyDataType* yy = new YyDataType();
 
+    //UNICODE-STRING is a typedef to CHARACTER-STRING {1-1114111}
+    // see https://github.com/O-Log-N/Hare-IDL/issues/52
     yy->dataType.kind = DataType::CHARACTER_STRING;
-
-    // TODO character class
+    yy->dataType.characterSet = getNamedCharacterSet(token->location, "UNICODE");
 
     return yy;
 }
@@ -984,17 +1072,11 @@ YYSTYPE createUnicodeStringType(YYSTYPE token)
 
 YYSTYPE addIdentifier(YYSTYPE list, YYSTYPE id)
 {
-    unique_ptr<YyBase> d0(list);
+    unique_ptr<YyBase> d0(list ? list : new YyIdentifierList());
     unique_ptr<YyBase> d1(id);
 
+    YyIdentifierList* yy = yystype_cast<YyIdentifierList*>(list);
 
-    YyIdentifierList* yy = 0;
-    if (list)
-        yy = yystype_cast<YyIdentifierList*>(list);
-    else {
-        yy = new YyIdentifierList();
-        d0.reset(yy);
-    }
     string value = nameFromYyIdentifier(id);
     yy->ids.push_back(value);
 
@@ -1004,24 +1086,56 @@ YYSTYPE addIdentifier(YYSTYPE list, YYSTYPE id)
 
 YYSTYPE addExpression(YYSTYPE list, YYSTYPE id, YYSTYPE expr)
 {
-    unique_ptr<YyBase> d0(list);
+    unique_ptr<YyBase> d0(list ? list : new YyArgumentList());
     unique_ptr<YyBase> d1(id);
     unique_ptr<YyBase> d2(expr);
 
-    YyArgumentList* yy = 0;
-    if (list)
-        yy = yystype_cast<YyArgumentList*>(list);
-    else {
-        yy = new YyArgumentList();
-        d0.reset(yy);
-    }
+    YyArgumentList* yy = yystype_cast<YyArgumentList*>(list);
 
     string name = nameFromYyIdentifier(id);
     Variant value = variantFromExpression(expr);
-    yy->arguments.insert(make_pair(name, value));
+    yy->arguments.emplace(name, value);
 
     return d0.release();
 }
+
+YYSTYPE makeMinusIntLit(YYSTYPE int_lit)
+{
+    YyIntegerLiteral* yy = yystype_cast<YyIntegerLiteral*>(int_lit);
+
+    yy->value = -(yy->value);
+
+    return yy;
+}
+
+YYSTYPE makeMinusFloatLit(YYSTYPE float_lit)
+{
+    YyFloatLiteral* yy = yystype_cast<YyFloatLiteral*>(float_lit);
+
+    yy->value = -(yy->value);
+
+    return yy;
+}
+
+YYSTYPE addToCharSet(YYSTYPE list, YYSTYPE from, YYSTYPE to)
+{
+    unique_ptr<YyBase> d0(list ? list : new YyCharacterSet());
+    unique_ptr<YyBase> d1(from);
+    unique_ptr<YyBase> d2(to);
+
+    YyCharacterSet* yy = yystype_cast<YyCharacterSet*>(d0.get());
+
+    uint32_t from_32 = static_cast<uint32_t>(integerLiteralFromExpression(from, 0, UINT32_MAX));
+    uint32_t to_32 = from_32;
+    if (to)
+        to_32 = static_cast<uint32_t>(integerLiteralFromExpression(to, 0, UINT32_MAX));
+
+    yy->charSet.ranges.emplace_back(from_32, to_32);
+
+    return d0.release();
+}
+
+
 
 //////////////////////////////////////////////////////////////////////////////
 

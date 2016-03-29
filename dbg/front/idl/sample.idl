@@ -35,10 +35,11 @@ PUBLISHABLE-STRUCT PrimitiveTypes {
   FLOATING-POINT(53,11) floating0;
   FLOATING-POINT(65,15) floating1;
 
-  CHARACTER{"TODO"} character0; // fake character set, still TODO
+  CHARACTER{"UNICODE"} character0; // fake character set, still TODO
+  CHARACTER{ 1-99, 100, 101-124, 125, 126 } character0; // fake character set, still TODO
 
-  CHARACTER-STRING{"TODO"} string0; // fake character set, still TODO
-  CHARACTER-STRING{"TODO"}[5,10] string1;
+  CHARACTER-STRING{"UNICODE"} string0; // fake character set, still TODO
+  CHARACTER-STRING{ 1-99, 100, 101-124, 125, 126 }[5,10] string1;
 
   BIT-STRING[4,8] bit0;
 
