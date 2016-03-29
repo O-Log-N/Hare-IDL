@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "../../idlc_include.h"
 
+#include "../../front-back/raiistdiofile.h"
+
 #include "parser_helper.h"
 #include "parser.h"
 #include "lex.h"
@@ -1021,7 +1023,6 @@ YYSTYPE addExpression(YYSTYPE list, YYSTYPE id, YYSTYPE expr)
     return d0.release();
 }
 
-
 //////////////////////////////////////////////////////////////////////////////
 
 Root* parseSourceFile(const string& fileName, bool debugDump)
@@ -1029,17 +1030,14 @@ Root* parseSourceFile(const string& fileName, bool debugDump)
     if (fileName.empty())
         throw ParserException("Missing input file name");
 
-#pragma warning( push )
-#pragma warning( disable : 4996 )
-    unique_ptr<FILE, int(*)(FILE*)> file(fopen(fileName.c_str(), "r"), &fclose);
-#pragma warning( pop )
+    RaiiStdioFile file(fopen(fileName.c_str(), "r"));
 
     if (!file)
         throw ParserException(fmt::format("Failed to open file '{}'.", fileName));
 
     unique_ptr<Root> root(new Root());
 
-    yyin = file.get();
+    yyin = file;
     yyout = stderr;
     yylineno = 1;
     rootPtr = root.get();

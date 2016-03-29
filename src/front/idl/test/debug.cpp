@@ -40,7 +40,7 @@ public:
     void dbgDumpRoot(const Root* node) {
         dbgWrite("Root");
         ++offset;
-        for (auto& it : node->structures)
+        for (const auto& it : node->structures)
             dbgDumpStructure(it.get());
 
         --offset;
@@ -49,7 +49,7 @@ public:
 private:
     static string dbgAttributesToString(const map<string, Variant>& v) {
         string tags = "( ";
-        for (auto& it = v.begin(); it != v.end(); ++it) {
+        for (auto it = v.begin(); it != v.end(); ++it) {
             if (it != v.begin())
                 tags += " , ";
             tags += fmt::format("{} = {}", it->first, dbgVariantToString(it->second));
