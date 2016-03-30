@@ -17,6 +17,7 @@ Copyright (C) 2016 OLogN Technologies AG
 
 
 %token KW_PUBLISHABLE_STRUCT
+%token KW_TYPEDEF
 %token KW_ENUM KW_CLASS
 %token KW_MAPPING KW_ENCODING
 %token KW_NUMERIC KW_INT
@@ -44,10 +45,16 @@ extern int yylex();
 %%
 
 file : { $$ = 0; }
-     | file publishable_struct { $$ = addToFile($1, $2); }
-	 | file mapping { $$ = addToFile($1, $2); }
-	 | file encoding { $$ = addToFile($1, $2); }
-     | file discriminated_union { $$ = addToFile($1, $2); }
+	| file typedef_decl { $$ = addTypedefToFile($1, $2); }
+    | file publishable_struct { $$ = addToFile($1, $2); }
+	| file mapping { $$ = addToFile($1, $2); }
+	| file encoding { $$ = addToFile($1, $2); }
+    | file discriminated_union { $$ = addToFile($1, $2); }
+;
+
+typedef_decl
+	: KW_TYPEDEF data_type IDENTIFIER ';' { $$ = createTypedef($1, $2, $3); releaseYys($4); }
+	| KW_TYPEDEF IDENTIFIER IDENTIFIER ';' { $$ = createTypedef($1, createIdType($2), $3); releaseYys($4); }
 ;
 
 publishable_struct_begin

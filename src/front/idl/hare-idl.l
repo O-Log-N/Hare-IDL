@@ -62,6 +62,7 @@ int createToken(int token)
 	"//" { jumpToState( SLCOMMENT ) ; }
 
     "PUBLISHABLE-STRUCT" { return createToken( KW_PUBLISHABLE_STRUCT ); }
+    "TYPEDEF" { return createToken( KW_TYPEDEF ); }
 	"enum" { return createToken( KW_ENUM ); }
 	"class" { return createToken( KW_CLASS ); }
 

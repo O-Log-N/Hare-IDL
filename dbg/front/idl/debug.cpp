@@ -40,6 +40,8 @@ public:
     void dbgDumpRoot(const Root* node) {
         dbgWrite("Root");
         ++offset;
+        for (const auto& each : node->typedefs)
+            dbgDumpTypedef(each);
         for (const auto& it : node->structures)
             dbgDumpStructure(it.get());
 
@@ -166,6 +168,14 @@ private:
         }
     }
 
+    void dbgDumpTypedef(const Typedef& node) {
+
+        string typeStr = dbgTypeToString(node.type);
+
+        dbgWriteWithLocation(node.location,
+            fmt::format("TYPEDEF type={} name={}",
+                typeStr, node.name));
+    }
 
     void dbgDumpStructure(const Structure* node) {
 

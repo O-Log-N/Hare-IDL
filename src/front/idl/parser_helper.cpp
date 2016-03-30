@@ -96,6 +96,10 @@ struct YyDataType : public YyBase {
     DataType dataType;
 };
 
+struct YyTypedef : public YyBase {
+    Typedef data;
+};
+
 struct YyEnumValues : public YyBase {
     map<string, int> enumValues;
 };
@@ -518,6 +522,19 @@ YYSTYPE addToFile(YYSTYPE file, YYSTYPE item)
     return 0;
 }
 
+YYSTYPE addTypedefToFile(YYSTYPE file, YYSTYPE td)
+{
+    HAREASSERT(!file);
+    unique_ptr<YyBase> d0(td);
+
+    YyTypedef* dt = yystype_cast<YyTypedef*>(td);
+
+    rootPtr->typedefs.emplace_back(dt->data);
+
+    return 0;
+}
+
+
 YYSTYPE addToStruct(YYSTYPE decl, YYSTYPE attr)
 {
     unique_ptr<YyBase> d0(decl);
@@ -554,6 +571,22 @@ YYSTYPE createAttribute(YYSTYPE type, YYSTYPE id)
     DataMember* att = makeDataMember(type, id);
 
     return new YyPtr<EncodedOrMember>(att);
+}
+
+YYSTYPE createTypedef(YYSTYPE token, YYSTYPE type, YYSTYPE id)
+{
+    unique_ptr<YyBase> d0(token);
+    unique_ptr<YyBase> d1(type);
+    unique_ptr<YyBase> d2(id);
+
+    YyTypedef* yy = new YyTypedef();
+    yy->data.location = id->location;
+    yy->data.name = nameFromYyIdentifier(id);
+
+    YyDataType* dt = yystype_cast<YyDataType*>(type);
+    yy->data.type = std::move(dt->dataType);
+
+    return yy;
 }
 
 YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id)
@@ -1075,7 +1108,7 @@ YYSTYPE addIdentifier(YYSTYPE list, YYSTYPE id)
     unique_ptr<YyBase> d0(list ? list : new YyIdentifierList());
     unique_ptr<YyBase> d1(id);
 
-    YyIdentifierList* yy = yystype_cast<YyIdentifierList*>(list);
+    YyIdentifierList* yy = yystype_cast<YyIdentifierList*>(d0.get());
 
     string value = nameFromYyIdentifier(id);
     yy->ids.push_back(value);
@@ -1090,7 +1123,7 @@ YYSTYPE addExpression(YYSTYPE list, YYSTYPE id, YYSTYPE expr)
     unique_ptr<YyBase> d1(id);
     unique_ptr<YyBase> d2(expr);
 
-    YyArgumentList* yy = yystype_cast<YyArgumentList*>(list);
+    YyArgumentList* yy = yystype_cast<YyArgumentList*>(d0.get());
 
     string name = nameFromYyIdentifier(id);
     Variant value = variantFromExpression(expr);

@@ -186,7 +186,10 @@ public:
 };
 
 class Typedef {
-// TBD
+public:
+    Location location;
+    DataType type;
+    string name;
 };
 
 class Root

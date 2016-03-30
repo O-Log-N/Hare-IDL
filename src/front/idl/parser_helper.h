@@ -57,11 +57,13 @@ YYSTYPE createBooleanLiteral(const char* text, int line);
 YYSTYPE createFloatLiteral(const char* text, int line);
 
 YYSTYPE addToFile(YYSTYPE file, YYSTYPE item);
+YYSTYPE addTypedefToFile(YYSTYPE file, YYSTYPE td);
 
 YYSTYPE addToStruct(YYSTYPE decl, YYSTYPE attr);
 
 YYSTYPE createAttribute(YYSTYPE type, YYSTYPE id);
 
+YYSTYPE createTypedef(YYSTYPE token, YYSTYPE type, YYSTYPE id);
 YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id);
 
 YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id);

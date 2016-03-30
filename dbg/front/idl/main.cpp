@@ -9,7 +9,7 @@
 
 int main()
 {
-    try {
+//    try {
         Root* root = parseSourceFile("..\\..\\..\\Hare-IDL\\dbg\\front\\idl\\sample.idl", false);
         HAREASSERT(root);
 
@@ -17,16 +17,16 @@ int main()
         dbgDumpTree(stdout, root, false);
 
         return 0;
-    }
-    catch (const std::exception& e) {
+    //}
+    //catch (const std::exception& e) {
 
-        fmt::print(stderr, "Exception!");
-        fmt::print(stderr, e.what());
-        return 1;
-    }
-    catch (...) {
-        fmt::print(stderr, "Unknown exception!");
-        return 1;
-    }
+    //    fmt::print(stderr, "Exception!");
+    //    fmt::print(stderr, e.what());
+    //    return 1;
+    //}
+    //catch (...) {
+    //    fmt::print(stderr, "Unknown exception!");
+    //    return 1;
+    //}
 }
 

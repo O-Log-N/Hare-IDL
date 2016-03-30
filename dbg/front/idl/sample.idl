@@ -35,10 +35,10 @@ PUBLISHABLE-STRUCT PrimitiveTypes {
   FLOATING-POINT(53,11) floating0;
   FLOATING-POINT(65,15) floating1;
 
-  CHARACTER{"UNICODE"} character0; // fake character set, still TODO
-  CHARACTER{ 1-99, 100, 101-124, 125, 126 } character0; // fake character set, still TODO
+  CHARACTER{"UNICODE"} character0;
+  CHARACTER{ 1-99, 100, 101-124, 125, 126 } character0;
 
-  CHARACTER-STRING{"UNICODE"} string0; // fake character set, still TODO
+  CHARACTER-STRING{"UNICODE"} string0;
   CHARACTER-STRING{ 1-99, 100, 101-124, 125, 126 }[5,10] string1;
 
   BIT-STRING[4,8] bit0;
@@ -47,7 +47,7 @@ PUBLISHABLE-STRUCT PrimitiveTypes {
   SEQUENCE<UINT16> sequence1;
 
   DICTIONARY<INTEGER[-10,10], INTEGER[-10,10]> dictionary0;
-  DICTIONARY<UINT16, INTEGER[-10,10]> dictionary1; // fake UINT16 still TODO
+  DICTIONARY<UINT16, INTEGER[-10,10]> dictionary1;
   DICTIONARY<INTEGER[-10,10], UINT16> dictionary2;
   DICTIONARY<UINT16, UINT16> dictionary3;
 
@@ -62,6 +62,8 @@ PUBLISHABLE-STRUCT PrimitiveTypes {
   PRINTABLE-ASCII-STRING typedef8;
   UNICODE-STRING typedef9;
 };
+
+TYPEDEF SEQUENCE<PrimitiveTypes> SequenceOfPrimitiveTypes;
 
 MAPPING(Lang="CPP",Role="Client") PUBLISHABLE-STRUCT Character {
   UINT16 character_id;//can be omitted, as default mapping
