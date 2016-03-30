@@ -66,15 +66,15 @@ public:
     Limit lowLimit;
     Limit highLimit;
     double fixedPrecision = 0;
-    int floatingSignificandBits = 0; /* TODO check type */
-    int floatingExponentBits = 0;    /* TODO check type */
+    uint8_t floatingSignificandBits = 0; /* TODO check type */
+    uint8_t floatingExponentBits = 0;    /* TODO check type */
     CharacterSet characterSet;
-    int stringMinSize = 0;          /* TODO check type */
-    int stringMaxSize = 0;          /* TODO check type */
+    uint32_t stringMinSize = 0;          /* TODO check type */
+    uint32_t stringMaxSize = 0;          /* TODO check type */
 
     map<string,Variant> encodingAttrs;
     map<string,Variant> mappingAttrs;
-	map<string, int> enumValues;
+	map<string, uint32_t> enumValues;
 
 	DataType() {}
     DataType(const DataType& other)

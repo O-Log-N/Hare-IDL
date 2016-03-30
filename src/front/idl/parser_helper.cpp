@@ -101,7 +101,7 @@ struct YyTypedef : public YyBase {
 };
 
 struct YyEnumValues : public YyBase {
-    map<string, int> enumValues;
+    map<string, uint32_t> enumValues;
 };
 
 struct YyIdentifierList : public YyBase {
@@ -915,9 +915,9 @@ YYSTYPE createFloatingPointType(YYSTYPE token, YYSTYPE significand_expr, YYSTYPE
 
     yy->dataType.kind = DataType::FLOATING_POINT;
 
-    yy->dataType.floatingSignificandBits = static_cast<int>(
+    yy->dataType.floatingSignificandBits = static_cast<uint8_t>(
             integerLiteralFromExpression(significand_expr, 1, 65));
-    yy->dataType.floatingExponentBits = static_cast<int>(
+    yy->dataType.floatingExponentBits = static_cast<uint8_t>(
                                             integerLiteralFromExpression(exponent_expr, 1, 15));
 
     return yy;
@@ -949,11 +949,11 @@ YYSTYPE createCharacterStringType(YYSTYPE token, YYSTYPE charset, YYSTYPE min_ex
     yy->dataType.characterSet = getCharacterSet(charset);
 
     if (min_expr) {
-        yy->dataType.stringMinSize = static_cast<int>(
-                                         integerLiteralFromExpression(min_expr, 0, INT_MAX));
+        yy->dataType.stringMinSize = static_cast<uint32_t>(
+                                         integerLiteralFromExpression(min_expr, 0, UINT32_MAX));
 
-        yy->dataType.stringMaxSize = static_cast<int>(
-                                         integerLiteralFromExpression(max_expr, yy->dataType.stringMinSize, INT_MAX));
+        yy->dataType.stringMaxSize = static_cast<uint32_t>(
+                                         integerLiteralFromExpression(max_expr, yy->dataType.stringMinSize, UINT32_MAX));
     }
 
     return yy;
@@ -970,29 +970,51 @@ YYSTYPE createBitStringType(YYSTYPE token, YYSTYPE min_expr, YYSTYPE max_expr)
     yy->dataType.kind = DataType::BIT_STRING;
 
     if (min_expr) {
-        yy->dataType.stringMinSize = static_cast<int>(
-                                         integerLiteralFromExpression(min_expr, 0, INT_MAX));
+        yy->dataType.stringMinSize = static_cast<uint32_t>(
+                                         integerLiteralFromExpression(min_expr, 0, UINT32_MAX));
 
-        yy->dataType.stringMaxSize = static_cast<int>(
-                                         integerLiteralFromExpression(max_expr, yy->dataType.stringMinSize, INT_MAX));
+        yy->dataType.stringMaxSize = static_cast<uint32_t>(
+                                         integerLiteralFromExpression(max_expr, yy->dataType.stringMinSize, UINT32_MAX));
     }
 
     return yy;
 }
 
 
-YYSTYPE createSequence(YYSTYPE opt_id, YYSTYPE type)
+YYSTYPE createSequence(YYSTYPE token, YYSTYPE type)
 {
-    unique_ptr<YyBase> d0(opt_id);
+    unique_ptr<YyBase> d0(token);
     unique_ptr<YyBase> d1(type);
 
     YyDataType* yy = new YyDataType();
 
     yy->dataType.kind = DataType::SEQUENCE;
-    if (opt_id)
-        yy->dataType.name = nameFromYyIdentifier(opt_id);
 
     YyDataType* t = yystype_cast<YyDataType*>(type);
+    yy->dataType.paramType.reset(new DataType(t->dataType));
+
+    DataType::KIND k1 = t->dataType.kind;
+    if (k1 != DataType::ENUM && k1 != DataType::NAMED_TYPE && k1 != DataType::INTEGER &&
+        k1 != DataType::FIXED_POINT && k1 != DataType::FLOATING_POINT &&
+        k1 != DataType::CHARACTER && k1 != DataType::CHARACTER_STRING &&
+        k1 != DataType::BIT_STRING)
+        reportError(token->location, "SEQUENCE parameter type not allowed");
+
+    return yy;
+}
+
+YYSTYPE createNamedSequence(YYSTYPE id, YYSTYPE type)
+{
+    unique_ptr<YyBase> d0(id);
+    unique_ptr<YyBase> d1(type);
+
+    YyDataType* yy = new YyDataType();
+
+    yy->dataType.kind = DataType::SEQUENCE;
+    yy->dataType.name = nameFromYyIdentifier(id);
+
+    YyDataType* t = yystype_cast<YyDataType*>(type);
+
     yy->dataType.paramType.reset(new DataType(t->dataType));
 
     return yy;
@@ -1013,6 +1035,19 @@ YYSTYPE createDictionaryType(YYSTYPE token, YYSTYPE key_type, YYSTYPE value_type
 
     YyDataType* vt = yystype_cast<YyDataType*>(value_type);
     yy->dataType.paramType.reset(new DataType(vt->dataType));
+
+    DataType::KIND k0 = kt->dataType.kind;
+    if (k0 != DataType::ENUM && k0 != DataType::INTEGER &&
+        k0 != DataType::CHARACTER && k0 != DataType::CHARACTER_STRING &&
+        k0 != DataType::BIT_STRING)
+        reportError(token->location, "DICTIONARY key type not allowed");
+
+    DataType::KIND k1 = vt->dataType.kind;
+    if (k1 != DataType::ENUM && k1 != DataType::NAMED_TYPE && k1 != DataType::INTEGER &&
+        k1 != DataType::FIXED_POINT && k1 != DataType::FLOATING_POINT &&
+        k1 != DataType::CHARACTER && k1 != DataType::CHARACTER_STRING &&
+        k1 != DataType::BIT_STRING)
+        reportError(token->location, "DICTIONARY value type not allowed");
 
     return yy;
 }
@@ -1067,7 +1102,7 @@ YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit)
     }
 
     string name = nameFromYyIdentifier(id);
-    int value = static_cast<int>(integerLiteralFromExpression(int_lit, 0, INT_MAX));
+    uint32_t value = static_cast<uint32_t>(integerLiteralFromExpression(int_lit, 0, UINT32_MAX));
 
     yy->enumValues.emplace(name, value);
 

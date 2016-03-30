@@ -184,10 +184,10 @@ bit_string_type
 ;
 
 sequence_type
-    : KW_SEQUENCE '<' data_type '>' { $$ = createSequence(0, $3); releaseYys3($1, $2, $4); }
-    | KW_SEQUENCE '<' IDENTIFIER '>' { $$ = createSequence(0, createIdType($3)); releaseYys3($1, $2, $4); }
-	| IDENTIFIER '<' data_type '>' { $$ = createSequence($1, $3); releaseYys2($2, $4); }
-    | IDENTIFIER '<' IDENTIFIER '>' { $$ = createSequence($1, createIdType($3)); releaseYys2($2, $4); }
+    : KW_SEQUENCE '<' data_type '>' { $$ = createSequence($1, $3); releaseYys2($2, $4); }
+    | KW_SEQUENCE '<' IDENTIFIER '>' { $$ = createSequence($1, createIdType($3)); releaseYys2($2, $4); }
+	| IDENTIFIER '<' data_type '>' { $$ = createNamedSequence($1, $3); releaseYys2($2, $4); }
+    | IDENTIFIER '<' IDENTIFIER '>' { $$ = createNamedSequence($1, createIdType($3)); releaseYys2($2, $4); }
 ;
 
 dictionary_type

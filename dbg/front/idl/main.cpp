@@ -9,24 +9,14 @@
 
 int main()
 {
-//    try {
-        Root* root = parseSourceFile("..\\..\\..\\Hare-IDL\\dbg\\front\\idl\\sample.idl", false);
-        HAREASSERT(root);
+    // don't try-catch, since this is debug only code, better to have an unhandled exception
 
-        dbgDumpLeaks();
-        dbgDumpTree(stdout, root, false);
+    Root* root = parseSourceFile("..\\..\\..\\Hare-IDL\\dbg\\front\\idl\\sample.idl", false);
+    HAREASSERT(root);
 
-        return 0;
-    //}
-    //catch (const std::exception& e) {
+    dbgDumpLeaks();
+    dbgDumpTree(stdout, root, false);
 
-    //    fmt::print(stderr, "Exception!");
-    //    fmt::print(stderr, e.what());
-    //    return 1;
-    //}
-    //catch (...) {
-    //    fmt::print(stderr, "Unknown exception!");
-    //    return 1;
-    //}
+    return 0;
 }
 

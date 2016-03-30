@@ -89,7 +89,8 @@ YYSTYPE createFloatingPointType(YYSTYPE token, YYSTYPE significand_expr, YYSTYPE
 YYSTYPE createCharacterType(YYSTYPE token, YYSTYPE charset);
 YYSTYPE createCharacterStringType(YYSTYPE token, YYSTYPE charset, YYSTYPE min_expr, YYSTYPE max_expr);
 YYSTYPE createBitStringType(YYSTYPE token, YYSTYPE min_expr, YYSTYPE max_expr);
-YYSTYPE createSequence(YYSTYPE opt_id, YYSTYPE type);
+YYSTYPE createSequence(YYSTYPE token, YYSTYPE type);
+YYSTYPE createNamedSequence(YYSTYPE id, YYSTYPE type);
 YYSTYPE createDictionaryType(YYSTYPE token, YYSTYPE key_type, YYSTYPE value_type);
 YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type);
 YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE opt_id, YYSTYPE values);
