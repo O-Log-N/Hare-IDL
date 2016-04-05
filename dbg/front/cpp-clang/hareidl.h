@@ -19,6 +19,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #ifndef HARE_IDL_H_INCLUDED
 #define HARE_IDL_H_INCLUDED
 
-#define HAREIDL(X) __attribute__((annotate(X))
+#if 0
+#define HAREIDL(X) __attribute__((annotate("hare::idl(" X ")")))
+#else
+#if 1
+#define HAREIDL(X) [[hare::idl( X )]]
+#else 
+#define HAREIDL(X) 
+#endif
+#endif
 
 #endif // HARE_IDL_H_INCLUDED

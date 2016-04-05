@@ -26,14 +26,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 using namespace std;
 
-class myharesampleItem {
+class HAREIDL("nobugs") myharesampleItem {
 public:
     string name;
 };
 
 typedef vector<myharesampleItem> mySampleVector;
 
-class myharesampleCharacter {
+
+class HAREIDL("nobugs") myharesampleCharacter {
 public:
   int character_id;
   double x;
@@ -47,6 +48,27 @@ public:
   int animation_frame;
   vector<myharesampleItem> inventory;
   mySampleVector other_inventory;
+};
+
+class foundByName {
+public:
+    string name;
+};
+
+class [[hare::idl]] foundByC11Attribute {
+public:
+    string name;
+};
+
+class [[hare::idl("nobugs")]] foundByC11AttributeWithArguments {
+public:
+    string name;
+};
+
+
+class __attribute__((annotate("hare::idl(nobugs)"))) foundByGCCAttribute {
+public:
+    string name;
 };
 
 #endif // SAMPLE_H_INCLUDED

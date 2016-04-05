@@ -18,7 +18,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <stdio.h>
 #include "sample.h"
 
-[[hare::nobugs]]
+// add hare build folder to path and run as:
+// hare.exe sample.cpp -- -fno-ms-compatibility
+
 void hareFunc() {}
 
 int main()
