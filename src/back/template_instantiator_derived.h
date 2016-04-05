@@ -27,7 +27,7 @@ protected:
 	BackRoot* root;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
-	virtual string placeholder( Placeholder ph );
+	virtual StackElement placeholder( Placeholder ph );
 	virtual string context() override {return "ROOT"; }
 
 public:
@@ -48,7 +48,7 @@ protected:
 	BackStructure* structure;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
-	virtual string placeholder( Placeholder ph );
+	virtual StackElement placeholder( Placeholder ph );
 	virtual string context() override {return "STRUCT"; }
 
 public:
@@ -67,7 +67,7 @@ protected:
 	BackDataMember* member;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
-	virtual string placeholder( Placeholder ph );
+	virtual StackElement placeholder( Placeholder ph );
 	virtual string context() override {return "STRUCT-MEMBER"; }
 
 public:
@@ -86,7 +86,7 @@ protected:
 	DataType* dataType;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
-	virtual string placeholder( Placeholder ph );
+	virtual StackElement placeholder( Placeholder ph );
 	virtual string context() override {return "DATATYPE"; }
 
 public:
@@ -106,7 +106,7 @@ protected:
 	int value;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
-	virtual string placeholder( Placeholder ph );
+	virtual StackElement placeholder( Placeholder ph );
 	virtual string context() override {return "ENUMVALUE"; }
 
 public:

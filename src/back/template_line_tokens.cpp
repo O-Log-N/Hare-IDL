@@ -46,14 +46,14 @@ Copyright (C) 2016 OLogN Technologies AG
 #define PARAM_STRING_FILENAME "FILENAME"
 #define PARAM_STRING_MSG "MSG"
 
-// placeholders ( starting from '@@' )
-#define PLACEHOLDER_STRING_STRUCTNAME "@STRUCT-NAME@"
-#define PLACEHOLDER_STRING_MEMBER_TYPE "@MEMBER-TYPE@"
-#define PLACEHOLDER_STRING_MEMBER_NAME "@MEMBER-NAME@"
-#define PLACEHOLDER_STRING_ENUM_VALUE_NAME "@ENUM-VALUE-NAME@"
-#define PLACEHOLDER_STRING_ENUM_VALUE_VALUE "@ENUM-VALUE-VALUE@"
-#define PLACEHOLDER_STRING_PARAM_MINUS "@PARAM-" // NOTE: in this case '@' at the end will be processed while parsing specific part
-#define PLACEHOLDER_STRING_LOCAL_MINUS "@LOCAL-" // NOTE: in this case '@' at the end will be processed while parsing specific part
+// placeholders (note: inline usage merkers @...@ must be processed outside)
+#define PLACEHOLDER_STRING_STRUCTNAME "STRUCT-NAME"
+#define PLACEHOLDER_STRING_MEMBER_TYPE "MEMBER-TYPE"
+#define PLACEHOLDER_STRING_MEMBER_NAME "MEMBER-NAME"
+#define PLACEHOLDER_STRING_ENUM_VALUE_NAME "ENUM-VALUE-NAME"
+#define PLACEHOLDER_STRING_ENUM_VALUE_VALUE "ENUM-VALUE-VALUE"
+#define PLACEHOLDER_STRING_PARAM_MINUS "PARAM-"
+#define PLACEHOLDER_STRING_LOCAL_MINUS "LOCAL-"
 
 // node type names (not directly derived from keywords
 #define NODETYPE_STRING_FULL_TEMPLATE "FULL-TEMPLATE"
@@ -85,6 +85,9 @@ Copyright (C) 2016 OLogN Technologies AG
 #define FUNCTION_STRING_IS_UNSIGNED_INTEGER_FITTING_UINT "IS-UNSIGNED-INTEGER-FITTING-UINT"
 #define FUNCTION_STRING_IS_SIGNED_INTEGER_FITTING_INT "IS-SIGNED-INTEGER-FITTING-INT"
 #define FUNCTION_STRING_IS_FLOATING_POINT_FITTING_FLOAT "IS-FLOATING-POINT-FITTING-FLOAT"
+#define FUNCTION_STRING_IS_CHARACTER "IS-CHARACTER"
+#define FUNCTION_STRING_IS_CHARACTER_STRING "IS-CHARACTER-STRING"
+#define FUNCTION_STRING_IS_BIT_STRING "IS-BIT-STRING"
 
 // operators
 #define OPERATOR_STRING_EQ "=="
@@ -227,6 +230,9 @@ const PredefinedFunctionDetails functions[]
 	{FUNCTION_STRING_IS_UNSIGNED_INTEGER, sizeof(FUNCTION_STRING_IS_UNSIGNED_INTEGER)-1, PREDEFINED_FUNCTION::IS_UNSIGNED_INTEGER, 0},
 	{FUNCTION_STRING_IS_FLOATING_POINT_FITTING_FLOAT, sizeof(FUNCTION_STRING_IS_FLOATING_POINT_FITTING_FLOAT)-1, PREDEFINED_FUNCTION::IS_FLOATING_POINT_FITTING_FLOAT, 2},
 	{FUNCTION_STRING_IS_FLOATING_POINT, sizeof(FUNCTION_STRING_IS_FLOATING_POINT)-1, PREDEFINED_FUNCTION::IS_FLOATING_POINT, 0},
+	{FUNCTION_STRING_IS_CHARACTER_STRING, sizeof(FUNCTION_STRING_IS_CHARACTER_STRING)-1, PREDEFINED_FUNCTION::IS_CHARACTER_STRING, 0},
+	{FUNCTION_STRING_IS_CHARACTER, sizeof(FUNCTION_STRING_IS_CHARACTER)-1, PREDEFINED_FUNCTION::IS_CHARACTER, 0},
+	{FUNCTION_STRING_IS_BIT_STRING, sizeof(FUNCTION_STRING_IS_BIT_STRING)-1, PREDEFINED_FUNCTION::IS_BIT_STRING, 0},
 	{NULL, 0, PREDEFINED_FUNCTION::NOT_A_FUNCTION, 0},
 };
 
@@ -340,14 +346,14 @@ Placeholder parsePlaceholder( const string& line, size_t& contentStart )
 	if ( ret.id == PLACEHOLDER::PARAM_MINUS || ret.id == PLACEHOLDER::LOCAL_MINUS )
 	{
 		ret.specific = readIdentifier( line, contentStart );
-		if ( line[contentStart] != '@' )
+/*		if ( line[contentStart] != '@' )
 		{
 			ret.id = PLACEHOLDER::VERBATIM;
 			ret.specific.clear();
 			contentStart = iniContentStart; // restore
 		}
 		else
-			++contentStart;
+			++contentStart;*/
 	}
 	return ret;
 }
@@ -403,7 +409,7 @@ string attributeNameToString( ATTRIBUTE id )
 string placeholderToString( Placeholder ph )
 {
 	string ret = specialWordToString( placeholders, ph.id );
-	if ( ph.id == PLACEHOLDER::PARAM_MINUS )
+	if ( ph.id == PLACEHOLDER::PARAM_MINUS || ph.id == PLACEHOLDER::LOCAL_MINUS )
 	{
 		ret += ph.specific;
 		ret.push_back( '@' ); // we have to do it manually here

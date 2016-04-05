@@ -119,6 +119,9 @@ enum class PREDEFINED_FUNCTION
 	IS_UNSIGNED_INTEGER_FITTING_UINT,
 	IS_SIGNED_INTEGER_FITTING_INT,
 	IS_FLOATING_POINT_FITTING_FLOAT,
+	IS_CHARACTER_STRING,
+	IS_CHARACTER,
+	IS_BIT_STRING,
 };
 
 struct PredefindedFunction
@@ -139,6 +142,7 @@ enum class ARGTYPE
 	NUMBER, 
 	STRING, 
 	BOOL, 
+	PLACEHOLDER,
 	// internal
 	OBJPTR,
 	OBJPTR_LIST,
@@ -152,6 +156,7 @@ struct ExpressionElement
     double numberValue = 0; // argtype: ARGTYPE::NUMBER
 	vector<LinePart> lineParts; // used for ARGTYPE::STRING
 	PREDEFINED_FUNCTION fnCallID; // used for OPERATION::CALL
+	Placeholder ph; // used for OPERATION::PUSH, ARGTYPE::PLACEHOLDER
 };
 
 class AttributeName

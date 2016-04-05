@@ -69,14 +69,15 @@ void readLineParts( const string& line, size_t& currentPos, vector<LinePart>& pa
 		}
 		else
 		{
+			++currentPos;
 			Placeholder placehldr = parsePlaceholder( line, currentPos );
 			if ( placehldr.id == PLACEHOLDER::VERBATIM )
 			{
-				part.verbatim.push_back( line[ currentPos ] ); 
-				++currentPos; 
+				part.verbatim.push_back( '@' ); 
 			}
-			else
+			else if ( line[ currentPos ] == '@' )
 			{
+				++currentPos; //for terminating @
 				assert( part.type == PLACEHOLDER::VERBATIM );
 				if ( part.verbatim.size() )
 					parts.push_back( part ); 
@@ -86,6 +87,10 @@ void readLineParts( const string& line, size_t& currentPos, vector<LinePart>& pa
 				parts.push_back( part ); 
 				part.type = PLACEHOLDER::VERBATIM; 
 				part.verbatim.clear(); 
+			}
+			else
+			{
+				part.verbatim.push_back( '@' ); 
 			}
 		}
 	}
@@ -100,10 +105,14 @@ void readLineParts( const string& line, size_t& currentPos, vector<LinePart>& pa
 
 void parseExpression( const string& line, size_t& currentPos, vector<ExpressionElement>& expression, int currentLineNum )
 {
+if ( currentLineNum == 75 )
+currentLineNum = currentLineNum;
 	size_t sz = line.size();
 	vector<ExpressionElement> postfixOperations;
+	size_t prevPos;
 	for ( ; currentPos<sz; )
 	{
+		prevPos = currentPos;
 		if ( line[currentPos] == '\"' ) // beginning of a string; an argument; to be pushed
 		{
 			++currentPos;
@@ -117,6 +126,11 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 				assert( 0 ); // TODO: throw
 			}
 			++currentPos; // for terminating '"'
+			if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+			{
+				currentPos = prevPos;
+				return;
+			}
 			expression.push_back( elem );
 			skipSpaces( line, currentPos );
 			while ( postfixOperations.size() )
@@ -150,64 +164,131 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 			elem.argtype = ARGTYPE::NUMBER;
 			string num = readIntegralNumericalLiteral( line, currentPos );
 			elem.numberValue = atoi( num.c_str() );
+			if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+			{
+				currentPos = prevPos;
+				return;
+			}
 			expression.push_back( elem );
+			while ( postfixOperations.size() )
+			{
+				expression.push_back( postfixOperations.back() );
+				postfixOperations.pop_back();
+			}
 			skipSpaces( line, currentPos );
 			//TODO: THINK ABOUT ADDING FLOATING POINT
 		}
 		else if ( ( line[currentPos] >= 'a' && line[currentPos] <= 'z' ) || 
 			      ( line[currentPos] >= 'A' && line[currentPos] <= 'Z' ) )
 		{
+			// we expect a predefined function or a PARAM- or LOCAL- placeholder here
 			PredefindedFunction fn = parsePredefinedFunction( line, currentPos );
 			if ( fn.id == PREDEFINED_FUNCTION::NOT_A_FUNCTION )
 			{
-/*				string unknown = readIdentifier( line, currentPos );
-				fmt::print( "line {}:  unexpected token {}\n", currentLineNum, unknown );
-				assert( 0 ); // TODO: throw*/
-				return;
+				Placeholder ph =parsePlaceholder( line, currentPos );
+				if ( ph.id == PLACEHOLDER::PARAM_MINUS || ph.id == PLACEHOLDER::LOCAL_MINUS )
+				{
+					ExpressionElement elem;
+					elem.oper = OPERATOR::PUSH;
+					elem.argtype = ARGTYPE::PLACEHOLDER;
+					elem.ph = ph;
+					if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+					{
+						currentPos = prevPos;
+						return;
+					}
+					expression.push_back( elem );
+					while ( postfixOperations.size() )
+					{
+						expression.push_back( postfixOperations.back() );
+						postfixOperations.pop_back();
+					}
+					skipSpaces( line, currentPos );
+				}
+				else if ( ph.id != PLACEHOLDER::VERBATIM )
+				{
+					// TODO: is it good to do the same with all placeholders?
+					ExpressionElement elem;
+					elem.oper = OPERATOR::PUSH;
+					elem.argtype = ARGTYPE::PLACEHOLDER;
+					elem.ph = ph;
+					if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+					{
+						currentPos = prevPos;
+						return;
+					}
+					expression.push_back( elem );
+					while ( postfixOperations.size() )
+					{
+						expression.push_back( postfixOperations.back() );
+						postfixOperations.pop_back();
+					}
+					skipSpaces( line, currentPos );
+				}
+				else
+				{
+	/*				string unknown = readIdentifier( line, currentPos );
+					fmt::print( "line {}:  unexpected token {}\n", currentLineNum, unknown );
+					assert( 0 ); // TODO: throw*/
+					return;
+				}
 			}
-			skipSpaces( line, currentPos );
-			if ( line[currentPos] != '(' )
+			else
 			{
-				fmt::print( "line {}:  unexpected '('\n", currentLineNum );
-				assert( 0 ); // TODO: throw
-			}
-			++currentPos; // for opening '('
-			ExpressionElement fncall;
-			fncall.oper = OPERATOR::CALL;
-			fncall.fnCallID = fn.id;
-			postfixOperations.push_back( fncall );
-			skipSpaces( line, currentPos );
-			int argCnt = 0;
-			size_t iniExprSz;
-			char terminator;
-			do
-			{
-				iniExprSz = expression.size();
-				parseExpression( line, currentPos, expression, currentLineNum );
 				skipSpaces( line, currentPos );
-				if ( expression.size() > iniExprSz )
-					++argCnt;
-				terminator = line[currentPos++];
-			}
-			while ( terminator == ',' );
-			if ( terminator != ')' )
-			{
-				fmt::print( "line {}: error: ')' expected\n", currentLineNum );
-				assert( 0 ); // TODO: throw
-			}
-			skipSpaces( line, currentPos );
-			// quick sanity check for arg'less function
-			// TODO: indeed, we can calculate a number of actually supplied args
-			if ( fn.argC != argCnt )
-			{
-				fmt::print( "line {}: function {} takes {} arguments ({} actually supplied)\n", currentLineNum, functionNameToString( fn.id ), fn.argC, argCnt );
-				assert( 0 ); // TODO: throw
-			}
-			skipSpaces( line, currentPos );
-			while ( postfixOperations.size() )
-			{
-				expression.push_back( postfixOperations.back() );
-				postfixOperations.pop_back();
+				if ( line[currentPos] != '(' )
+				{
+					fmt::print( "line {}:  expected '('\n", currentLineNum );
+					assert( 0 ); // TODO: throw
+				}
+				++currentPos; // for opening '('
+				ExpressionElement fncall;
+				fncall.oper = OPERATOR::CALL;
+				fncall.fnCallID = fn.id;
+				postfixOperations.push_back( fncall );
+				skipSpaces( line, currentPos );
+				int argCnt = 0;
+				size_t iniExprSz;
+				char terminator;
+				bool afterComma = false;
+				do
+				{
+					iniExprSz = expression.size();
+					vector<ExpressionElement> expression2;
+					parseExpression( line, currentPos, expression2, currentLineNum );
+					if ( expression2.size() == 0 && afterComma )
+					{
+						fmt::print( "line {}:  expression expected after ','\n", currentLineNum );
+						assert( 0 ); // TODO: throw
+					}
+					for ( auto eit:expression2 )
+						expression.push_back( eit );
+					skipSpaces( line, currentPos );
+					if ( expression.size() > iniExprSz )
+						++argCnt;
+					terminator = line[currentPos++];
+					afterComma = true;
+				}
+				while ( terminator == ',' );
+				if ( terminator != ')' )
+				{
+					fmt::print( "line {}: error: ')' expected\n", currentLineNum );
+					assert( 0 ); // TODO: throw
+				}
+				skipSpaces( line, currentPos );
+				// quick sanity check for arg'less function
+				// TODO: indeed, we can calculate a number of actually supplied args
+				if ( fn.argC != argCnt )
+				{
+					fmt::print( "line {}: function {} takes {} arguments ({} actually supplied)\n", currentLineNum, functionNameToString( fn.id ), fn.argC, argCnt );
+					assert( 0 ); // TODO: throw
+				}
+				skipSpaces( line, currentPos );
+				while ( postfixOperations.size() )
+				{
+					expression.push_back( postfixOperations.back() );
+					postfixOperations.pop_back();
+				}
 			}
 		}
 		else
@@ -274,6 +355,8 @@ void readAttributeValue( const string& line, size_t& currentPos, vector<Expressi
 
 void readNextParam( const string& line, size_t& pos, TemplateLine& tl, int currentLineNum )
 {
+	if ( currentLineNum  == 76 )
+		currentLineNum = currentLineNum;
 	size_t sz = line.size();
 	AttributeName attrName;
 	readAttributeName( line, pos, attrName, currentLineNum );

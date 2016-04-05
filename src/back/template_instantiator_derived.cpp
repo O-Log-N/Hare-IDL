@@ -18,7 +18,7 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_instantiator_derived.h"
 
 
-string RootTemplateInstantiator::placeholder( Placeholder ph )
+StructTemplateInstantiator::StackElement RootTemplateInstantiator::placeholder( Placeholder ph )
 {
 	switch( ph.id )
 	{
@@ -56,13 +56,19 @@ void RootTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUN
 /////////////////////////////////////////////////////////////////////////
 
 
-string StructTemplateInstantiator::placeholder( Placeholder ph )
+StructTemplateInstantiator::StackElement StructTemplateInstantiator::placeholder( Placeholder ph )
 {
+	StackElement se;
+	se.argtype = ARGTYPE::STRING;
+	LinePart lp;
+	lp.type = PLACEHOLDER::VERBATIM;
 	switch( ph.id )
 	{
 		case PLACEHOLDER::STRUCT_NAME:
 		{
-			return structure->name;
+			lp.verbatim = structure->name;
+			se.lineParts.push_back( lp );
+			return move(se);
 		}
 		default:
 		{
@@ -108,17 +114,25 @@ void StructTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_F
 /////////////////////////////////////////////////////////////////////////
 
 
-string StructMemberTemplateInstantiator::placeholder( Placeholder ph )
+StructTemplateInstantiator::StackElement StructMemberTemplateInstantiator::placeholder( Placeholder ph )
 {
+	StackElement se;
+	se.argtype = ARGTYPE::STRING;
+	LinePart lp;
+	lp.type = PLACEHOLDER::VERBATIM;
 	switch( ph.id )
 	{
 		case PLACEHOLDER::MEMBER_NAME:
 		{
-			return member->name;
+			lp.verbatim = member->name;
+			se.lineParts.push_back( lp );
+			return move(se);
 		}
 		case PLACEHOLDER::MEMBER_TYPE:
 		{
-			return member->type.name;
+			lp.verbatim = member->type.name;
+			se.lineParts.push_back( lp );
+			return move(se);
 		}
 		default:
 		{
@@ -160,13 +174,19 @@ void StructMemberTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEF
 /////////////////////////////////////////////////////////////////////////
 
 
-string MemberTypeTemplateInstantiator::placeholder( Placeholder ph )
+StructTemplateInstantiator::StackElement MemberTypeTemplateInstantiator::placeholder( Placeholder ph )
 {
+	StackElement se;
+	se.argtype = ARGTYPE::STRING;
+	LinePart lp;
+	lp.type = PLACEHOLDER::VERBATIM;
 	switch( ph.id )
 	{
 		case PLACEHOLDER::MEMBER_TYPE:
 		{
-			return dataType->name;
+			lp.verbatim = dataType->name;
+			se.lineParts.push_back( lp );
+			return move(se);
 		}
 		default:
 		{
@@ -347,6 +367,36 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			stack.push_back( std::move(elem) );
 			break;
 		}
+		case PREDEFINED_FUNCTION::IS_CHARACTER_STRING:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::CHARACTER_STRING;
+			if ( elem.boolValue )
+				assert( dataType->name.size() == 0 );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_CHARACTER:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::CHARACTER;
+			if ( elem.boolValue )
+				assert( dataType->name.size() == 0 );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_BIT_STRING:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::BIT_STRING;
+			if ( elem.boolValue )
+				assert( dataType->name.size() == 0 );
+			stack.push_back( std::move(elem) );
+			break;
+		}
 		default:
 		{
 			TemplateInstantiator::execBuiltinFunction( stack, fnID );
@@ -358,17 +408,25 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 /////////////////////////////////////////////////////////////////////////
 
 
-string EnumValueTemplateInstantiator::placeholder( Placeholder ph )
+StructTemplateInstantiator::StackElement EnumValueTemplateInstantiator::placeholder( Placeholder ph )
 {
+	StackElement se;
+	se.argtype = ARGTYPE::STRING;
+	LinePart lp;
+	lp.type = PLACEHOLDER::VERBATIM;
 	switch( ph.id )
 	{
 		case PLACEHOLDER::ENUM_VALUE_NAME:
 		{
-			return name;
+			lp.verbatim = name;
+			se.lineParts.push_back( lp );
+			return move(se);
 		}
 		case PLACEHOLDER::ENUM_VALUE_VALUE:
 		{
-			return fmt::format( "{}", value );
+			lp.verbatim = fmt::format( "{}", value );
+			se.lineParts.push_back( lp );
+			return move(se);
 		}
 		default:
 		{

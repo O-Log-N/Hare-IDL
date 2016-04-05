@@ -37,7 +37,16 @@ protected:
 		StackElement ( StackElement & other ) = delete; 
 		StackElement ( StackElement && other ) : 
 			argtype( other.argtype ), numberValue( other.numberValue ), boolValue( other.boolValue ), 
-			lineParts( std::move(other.lineParts) ), objects( std::move(other.objects) ), singleObject( std::move(other.singleObject) ) {}
+			lineParts( (other.lineParts) ), objects( std::move(other.objects) ), singleObject( std::move(other.singleObject) ) {}
+		StackElement& operator = ( StackElement && other ) {
+			argtype = other.argtype;
+			numberValue = other.numberValue;
+			boolValue = other.boolValue;
+			lineParts = (other.lineParts );
+			objects = std::move(other.objects); 
+			singleObject = std::move(other.singleObject); 
+			return *this;
+		}
 	};
 	typedef vector<StackElement> Stack;
 
@@ -48,16 +57,17 @@ protected:
 	void applyNode( TemplateNode& node );
 	virtual string context();
 	string resolveLinePartsToString( const vector<LinePart>& lineParts );
+	string placeholderAsString( Placeholder ph );
 
 	FILE* outstr;
 	TemplateNodeSpace& templateSpace;
-	map<string, string> resolvedParamPlaceholders; // those starting from "@PARAM-"
-	map<string, string> resolvedLocalPlaceholders; // those starting from "@LOCAL-"
+	map<string, StackElement> resolvedParamPlaceholders; // those starting from "@PARAM-"
+	map<string, StackElement> resolvedLocalPlaceholders; // those starting from "@LOCAL-"
 
 public:
 	TemplateInstantiator( TemplateNodeSpace& templateSpace_, FILE* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}
 
-	virtual string placeholder( Placeholder ph );
+	virtual StackElement placeholder( Placeholder ph );
 	virtual ~TemplateInstantiator() {}
 };
 

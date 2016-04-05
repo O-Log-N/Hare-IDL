@@ -49,6 +49,8 @@ void serialize@STRUCT-NAME@( @STRUCT-NAME@& s, OStream& o ) {
    o.writeDouble(@PARAM-NAME@);
 @@ELIF IS-FLOATING-POINT()
    o.writeDouble(@PARAM-NAME@);
+@@ELIF IS-CHARACTER-STRING()
+   o.writeString(@PARAM-NAME@);
 @@ELIF IS-STRUCTURE()
    serialize@MEMBER-TYPE@(@PARAM-NAME@, o);
 @@ELIF IS-ENUM()
@@ -70,11 +72,14 @@ void serialize@STRUCT-NAME@( @STRUCT-NAME@& s, OStream& o ) {
 
 @@BEGIN-TEMPLATE NAME="MAP-S-CALLING" TYPE="STRUCT"
 typedef _@STRUCT-NAME@ {
+@@LET LOCAL-MEMCTR=1
 @@FOR-EACH-OF MEMBERS() BEGIN
    @@INCLUDE-WITH MEMBER-TYPE() TEMPLATE="MAP-TYPE" TYPE="DATATYPE"
-   @MEMBER-NAME@;
+   @MEMBER-NAME@; // @LOCAL-MEMCTR@
+   @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
 @@FOR-EACH-OF END
 } @STRUCT-NAME@;
+
 @@END-TEMPLATE NAME="MAP-S-CALLING"
 
 
@@ -117,6 +122,8 @@ typedef _@STRUCT-NAME@ {
   @@ELSE
     @@ASSERT "0" MSG="Cannot process member for declaring: type=@MEMBER-TYPE@"
   @@ENDIF
+@@ELIF IS-CHARACTER-STRING()
+   std::string 
 @@ELIF IS-STRUCTURE()
    @MEMBER-TYPE@ 
 @@ELIF IS-SEQUENCE()

@@ -17,6 +17,43 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "template_instantiator.h"
 
+string TemplateInstantiator::placeholderAsString( Placeholder ph )
+{
+/*
+static int cnt = 0;
+cnt++;
+fmt::print( "   ===  cnt = {}  ===\n", cnt );
+if ( cnt == 2 )
+{
+	cnt = cnt;
+}*/
+	StackElement& se = placeholder( ph );
+	// TODO: here we may need to perform type convergence
+	switch ( se.argtype )
+	{
+		case ARGTYPE::STRING: 
+		{
+			assert( se.lineParts.size() == 1 );
+			assert( se.lineParts[0].type == PLACEHOLDER::VERBATIM );
+			return se.lineParts[0].verbatim;
+		}
+		case ARGTYPE::NUMBER: 
+		{
+			return fmt::format( "{}", se.numberValue );
+		}
+		case ARGTYPE::BOOL: 
+		{
+			return fmt::format( "{}", se.boolValue ); // TODO: think about aomething else...
+		}
+		default:
+		{
+			assert(0); // TODO: proper error reporting
+			return "";
+			break;
+		}
+	}
+}
+
 string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart>& lineParts )
 {
 	string ret;
@@ -27,7 +64,7 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart>& l
 		else
 		{
 			Placeholder ph = {lp.type, lp.verbatim};
-			ret += placeholder( ph );
+			ret += placeholderAsString( ph );
 		}
 	}
 	return ret;
@@ -47,11 +84,42 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 			{
 				StackElement se;
 				se.argtype = it.argtype;
-				LinePart part;
-				part.type = PLACEHOLDER::VERBATIM;
-				part.verbatim = resolveLinePartsToString( it.lineParts );
-				se.lineParts.push_back( part );
-				se.numberValue = it.numberValue;
+				switch ( it.argtype )
+				{
+					case ARGTYPE::STRING:
+					{
+						LinePart part;
+						part.type = PLACEHOLDER::VERBATIM;
+						part.verbatim = resolveLinePartsToString( it.lineParts );
+						se.lineParts.push_back( part );
+						break;
+					}
+					case ARGTYPE::NUMBER:
+					{
+						se.numberValue = it.numberValue;
+						break;
+					}
+					case ARGTYPE::BOOL:
+					{
+						assert(0); // TODO: support respective ExpressionElement
+						break;
+					}
+					case ARGTYPE::PLACEHOLDER:
+					{
+						// TODO: resolving placeholder should result in a stack element, not in a string!!!
+/*						LinePart part;
+						part.type = PLACEHOLDER::VERBATIM;
+						part.verbatim = placeholderAsString( it.ph );
+						se.lineParts.push_back( part );*/
+						se = placeholder( it. ph );
+						break;
+					}
+					default:
+					{
+						assert(0); // TODO: proper error reporting
+						break;
+					}
+				}
 				stack.push_back( std::move(se) );
 				break;
 			}
@@ -59,8 +127,8 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 			{
 				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
 				bool res;
-				auto arg1 = stack.begin() + stack.size() - 1;
-				auto arg2 = stack.begin() + stack.size() - 2;
+				auto arg1 = stack.begin() + stack.size() - 2;
+				auto arg2 = stack.begin() + stack.size() - 1;
 				if ( arg1->argtype == ARGTYPE::STRING && arg2->argtype == ARGTYPE::STRING )
 					res = resolveLinePartsToString( arg1->lineParts ) == resolveLinePartsToString( arg2->lineParts );
 				else if ( arg1->argtype == ARGTYPE::NUMBER && arg2->argtype == ARGTYPE::NUMBER )
@@ -83,8 +151,8 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 			{
 				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
 				bool res;
-				auto arg1 = stack.begin() + stack.size() - 1;
-				auto arg2 = stack.begin() + stack.size() - 2;
+				auto arg1 = stack.begin() + stack.size() - 2;
+				auto arg2 = stack.begin() + stack.size() - 1;
 				if ( arg1->argtype == ARGTYPE::STRING && arg2->argtype == ARGTYPE::STRING )
 					res = resolveLinePartsToString( arg1->lineParts ) != resolveLinePartsToString( arg2->lineParts );
 				else if ( arg1->argtype == ARGTYPE::NUMBER && arg2->argtype == ARGTYPE::NUMBER )
@@ -92,7 +160,7 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 				else if ( arg1->argtype == ARGTYPE::BOOL && arg2->argtype == ARGTYPE::BOOL )
 					res = arg1->boolValue != arg2->boolValue;
 				else
-					assert( 0 );
+					assert( 0 ); // TODO: think about type conversions
 
 				stack.pop_back();
 				stack.pop_back();
@@ -108,11 +176,41 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 				execBuiltinFunction( stack, it.fnCallID );
 				break;
 			}
+			case OPERATOR::ADD:
+			{
+				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
+				StackElement se;
+				auto arg1 = stack.begin() + stack.size() - 2;
+				auto arg2 = stack.begin() + stack.size() - 1;
+				if ( arg1->argtype == ARGTYPE::STRING && arg2->argtype == ARGTYPE::STRING )
+				{
+					assert( arg1->lineParts.size() == 1 );
+					assert( arg1->lineParts[0].type == PLACEHOLDER::VERBATIM );
+					assert( arg2->lineParts.size() == 1 );
+					assert( arg2->lineParts[0].type == PLACEHOLDER::VERBATIM );
+					LinePart lp;
+					lp.type = PLACEHOLDER::VERBATIM;
+					lp.verbatim = arg1->lineParts[0].verbatim + arg2->lineParts[0].verbatim;
+					se.argtype = ARGTYPE::STRING;
+					se.lineParts.push_back( lp );
+				}
+				else if ( arg1->argtype == ARGTYPE::NUMBER && arg2->argtype == ARGTYPE::NUMBER )
+				{
+					se.argtype = ARGTYPE::NUMBER;
+					se.numberValue = arg1->numberValue + arg2->numberValue;
+				}
+				else
+					assert( 0 ); // TODO: think about type conversions
+
+				stack.pop_back();
+				stack.pop_back();
+				stack.push_back( std::move(se) );
+				break;
+			}
 			case OPERATOR::GREATER:
 			case OPERATOR::LESS:
 			case OPERATOR::LEQ:
 			case OPERATOR::GEQ:
-			case OPERATOR::ADD:
 			case OPERATOR::INCREMENT:
 			case OPERATOR::SUBTR:
 			case OPERATOR::DECREMENT:
@@ -263,8 +361,8 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 				assert( 0 ); // TODO: throw
 			}
 			// store current state of resolved params and locals
-			map<string, string> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
-			map<string, string> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
+			map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
+			map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
 			// load resolved names, if any
 			for ( const auto it:node.attributes )
 				if ( it.first.id == ATTRIBUTE::PARAM )
@@ -274,18 +372,23 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 					evaluateExpression( expr1, stack1 );
 					assert( stack1.size() == 1 );
 					assert( stack1[0].argtype == ARGTYPE::STRING );
-					string resolved = stack1[0].lineParts[0].verbatim;
-					resolvedParamPlaceholders.insert( make_pair( it.first.ext, resolved ) );
+//					string resolved = stack1[0].lineParts[0].verbatim;
+//					resolvedParamPlaceholders.insert( make_pair( it.first.ext, resolved ) );
+					resolvedParamPlaceholders.insert( make_pair( it.first.ext, move(stack1[0]) ) );
 				}
 			applyNode( *tn );
 			// restore ini content of resolved params and locals
-			resolvedParamPlaceholders = map<string, string>( std::move(resolvedParamPlaceholdersIni) );
-			resolvedLocalPlaceholders = map<string, string>( std::move(resolvedLocalPlaceholdersIni) );
+			resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersIni) );
+			resolvedLocalPlaceholders = map<string, StackElement>( std::move(resolvedLocalPlaceholdersIni) );
 //			resolvedParamPlaceholders.clear();
 			break;
 		}
 		case NODE_TYPE::INCLUDE_WITH:
 		{
+if ( node.srcLineNum == 0x7e )
+{
+	node.srcLineNum = 0x7e;
+}
 			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
 			assert( attr != node.attributes.end() );
 			auto& expr = attr->second;
@@ -308,10 +411,15 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 					auto& expr1 = it.second;
 					Stack stack1;
 					evaluateExpression( expr1, stack1 );
+if ( !( stack1.size() == 1 ) )
+{
+	size_t h = stack.size();
+}
 					assert( stack1.size() == 1 );
-					assert( stack1[0].argtype == ARGTYPE::STRING );
-					string resolved = stack1[0].lineParts[0].verbatim;
-					stack[0].singleObject->resolvedParamPlaceholders.insert( make_pair( it.first.ext, resolved ) );
+//					assert( stack1[0].argtype == ARGTYPE::STRING );
+//					string resolved = stack1[0].lineParts[0].verbatim;
+//					stack[0].singleObject->resolvedParamPlaceholders.insert( make_pair( it.first.ext, resolved ) );
+					stack[0].singleObject->resolvedParamPlaceholders.insert( make_pair( it.first.ext, move(stack1[0]) ) );
 				}
 
 			TemplateNode* tn = templateSpace.getTemplate( templateName, stack[0].singleObject->context() );
@@ -336,14 +444,12 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 					Stack stack;
 					evaluateExpression( expr1, stack );
 					assert( stack.size() == 1 );
-					assert( stack[0].argtype == ARGTYPE::STRING );
-					string resolved = stack[0].lineParts[0].verbatim;
-					auto insret = resolvedLocalPlaceholders.insert( make_pair( it.first.ext, resolved ) );
-					if ( !insret.second )
-					{
-						// re-write with a new value
-						insret.first->second = resolved;
-				    }
+//					assert( stack[0].argtype == ARGTYPE::STRING );
+//					string resolved = stack[0].lineParts[0].verbatim;
+//					pair<string, StackElement> tmp = 
+					resolvedLocalPlaceholders.erase( it.first.ext );
+					auto& insret = resolvedLocalPlaceholders.insert( make_pair( it.first.ext, std::move( stack[0] ) ) );
+					assert( insret.second );
 				}
 
 			break;
@@ -375,14 +481,30 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 				assert( obj->resolvedParamPlaceholders.size() == 0 );
 				assert( obj->resolvedLocalPlaceholders.size() == 0 );
 				// NOTE: we continue with the same template and with the same  lists of resolved locals and params
-				obj->resolvedParamPlaceholders = map<string, string>( std::move(resolvedParamPlaceholders) );
-				obj->resolvedLocalPlaceholders = map<string, string>( std::move(resolvedLocalPlaceholders) );
+				obj->resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholders) );
+if ( resolvedLocalPlaceholders.size() )
+fmt::print("[1]: {} -- ", resolvedLocalPlaceholders.begin()->second.lineParts.size() );
+else
+fmt::print("[1]: none -- " );
+				obj->resolvedLocalPlaceholders = map<string, StackElement>( std::move(resolvedLocalPlaceholders) );
+if ( obj->resolvedLocalPlaceholders.size() )
+fmt::print("[2]: {}\n", obj->resolvedLocalPlaceholders.begin()->second.lineParts.size() );
+else
+fmt::print("[2]: none\n" );
 				for ( auto nodeit:node.childNodes )
 				{
 					obj->applyNode(nodeit );
+if ( obj->resolvedLocalPlaceholders.size() )
+fmt::print("[3]: {} -- \n", obj->resolvedLocalPlaceholders.begin()->second.lineParts.size() );
+else
+fmt::print("[3]: none -- \n" );
 				}
-				resolvedParamPlaceholders = map<string, string>( std::move(obj->resolvedParamPlaceholders) );
-				resolvedLocalPlaceholders = map<string, string>( std::move(obj->resolvedLocalPlaceholders) );
+				resolvedParamPlaceholders = map<string, StackElement>( std::move(obj->resolvedParamPlaceholders) );
+				resolvedLocalPlaceholders = map<string, StackElement>( std::move(obj->resolvedLocalPlaceholders) );
+if ( resolvedLocalPlaceholders.size() )
+fmt::print("[4]: {}\n", resolvedLocalPlaceholders.begin()->second.lineParts.size() );
+else
+fmt::print("[4]: none\n" );
 			}
 			break;
 		}
@@ -394,25 +516,26 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 	}
 }
 
-string TemplateInstantiator::placeholder( Placeholder ph )
+TemplateInstantiator::StackElement TemplateInstantiator::placeholder( Placeholder ph )
 {
 	if ( ph.id == PLACEHOLDER::PARAM_MINUS )
 	{
 		auto findres = resolvedParamPlaceholders.find( ph.specific );
 		if ( findres != resolvedParamPlaceholders.end() )
-			return findres->second;
+			return move(findres->second);
 	}
 	else if ( ph.id == PLACEHOLDER::LOCAL_MINUS )
 	{
 		auto findres = resolvedLocalPlaceholders.find( ph.specific );
 		if ( findres != resolvedLocalPlaceholders.end() )
-			return findres->second;
+			return move(findres->second);
 	}
 
 	fmt::print( "\n" );
 	fmt::print("error_placeholder {}\n", static_cast<int>(ph.id) );
 	assert( 0 );
-	return "";
+	StackElement se;
+	return move(se);
 }
 
 string TemplateInstantiator::context()
