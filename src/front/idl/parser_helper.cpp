@@ -993,12 +993,12 @@ YYSTYPE createSequence(YYSTYPE token, YYSTYPE type)
     YyDataType* t = yystype_cast<YyDataType*>(type);
     yy->dataType.paramType.reset(new DataType(t->dataType));
 
-    DataType::KIND k1 = t->dataType.kind;
-    if (k1 != DataType::ENUM && k1 != DataType::NAMED_TYPE && k1 != DataType::INTEGER &&
-        k1 != DataType::FIXED_POINT && k1 != DataType::FLOATING_POINT &&
-        k1 != DataType::CHARACTER && k1 != DataType::CHARACTER_STRING &&
-        k1 != DataType::BIT_STRING)
-        reportError(token->location, "SEQUENCE parameter type not allowed");
+    //DataType::KIND k1 = t->dataType.kind;
+    //if (k1 != DataType::ENUM && k1 != DataType::NAMED_TYPE && k1 != DataType::INTEGER &&
+    //    k1 != DataType::FIXED_POINT && k1 != DataType::FLOATING_POINT &&
+    //    k1 != DataType::CHARACTER && k1 != DataType::CHARACTER_STRING &&
+    //    k1 != DataType::BIT_STRING)
+    //    reportError(token->location, "SEQUENCE parameter type not allowed");
 
     return yy;
 }
@@ -1036,18 +1036,19 @@ YYSTYPE createDictionaryType(YYSTYPE token, YYSTYPE key_type, YYSTYPE value_type
     YyDataType* vt = yystype_cast<YyDataType*>(value_type);
     yy->dataType.paramType.reset(new DataType(vt->dataType));
 
-    DataType::KIND k0 = kt->dataType.kind;
-    if (k0 != DataType::ENUM && k0 != DataType::INTEGER &&
-        k0 != DataType::CHARACTER && k0 != DataType::CHARACTER_STRING &&
-        k0 != DataType::BIT_STRING)
-        reportError(token->location, "DICTIONARY key type not allowed");
+    //DataType::KIND k0 = kt->dataType.kind;
+    //if (k0 != DataType::ENUM && k0 != DataType::NAMED_TYPE && k0 != DataType::INTEGER &&
+    //    k0 != DataType::FIXED_POINT && k0 != DataType::FLOATING_POINT &&
+    //    k0 != DataType::CHARACTER && k0 != DataType::CHARACTER_STRING &&
+    //    k0 != DataType::BIT_STRING)
+    //    reportError(token->location, "DICTIONARY key type not allowed");
 
-    DataType::KIND k1 = vt->dataType.kind;
-    if (k1 != DataType::ENUM && k1 != DataType::NAMED_TYPE && k1 != DataType::INTEGER &&
-        k1 != DataType::FIXED_POINT && k1 != DataType::FLOATING_POINT &&
-        k1 != DataType::CHARACTER && k1 != DataType::CHARACTER_STRING &&
-        k1 != DataType::BIT_STRING)
-        reportError(token->location, "DICTIONARY value type not allowed");
+    //DataType::KIND k1 = vt->dataType.kind;
+    //if (k1 != DataType::ENUM && k1 != DataType::NAMED_TYPE && k1 != DataType::INTEGER &&
+    //    k1 != DataType::FIXED_POINT && k1 != DataType::FLOATING_POINT &&
+    //    k1 != DataType::CHARACTER && k1 != DataType::CHARACTER_STRING &&
+    //    k1 != DataType::BIT_STRING)
+    //    reportError(token->location, "DICTIONARY value type not allowed");
 
     return yy;
 }
