@@ -361,8 +361,9 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 				assert( 0 ); // TODO: throw
 			}
 			// store current state of resolved params and locals
-			map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
-			map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
+//			map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
+//			map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
+			map<string, StackElement> resolvedParamPlaceholdersNew;
 			// load resolved names, if any
 			for ( const auto it:node.attributes )
 				if ( it.first.id == ATTRIBUTE::PARAM )
@@ -371,11 +372,15 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 					Stack stack1;
 					evaluateExpression( expr1, stack1 );
 					assert( stack1.size() == 1 );
-					assert( stack1[0].argtype == ARGTYPE::STRING );
+//					assert( stack1[0].argtype == ARGTYPE::STRING );
 //					string resolved = stack1[0].lineParts[0].verbatim;
 //					resolvedParamPlaceholders.insert( make_pair( it.first.ext, resolved ) );
-					resolvedParamPlaceholders.insert( make_pair( it.first.ext, move(stack1[0]) ) );
+//					resolvedParamPlaceholders.insert( make_pair( it.first.ext, move(stack1[0]) ) );
+					resolvedParamPlaceholdersNew.insert( make_pair( it.first.ext, move(stack1[0]) ) );
 				}
+			map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
+			map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
+			resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersNew) );
 			applyNode( *tn );
 			// restore ini content of resolved params and locals
 			resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersIni) );
