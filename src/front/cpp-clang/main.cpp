@@ -61,17 +61,17 @@ public:
         if (it != names.end()) {
             process = true;
         }
-        else if (declaration->hasAttr<HareCXXRecordAttr>()) {
+        else if (declaration->hasAttr<HareMappingAttr>()) {
             process = true;
-            HareCXXRecordAttr* attr = declaration->getAttr<HareCXXRecordAttr>();
+//            HareCXXRecordAttr* at = declaration->getAttr<HareCXXRecordAttr>();
             //for (auto it = attr->argument_begin(); it != attr->argument_end(); ++it) {
             //    outs() << "HareCXXRecordAttr argument " << *it << "\n";
             //}
         }
         else if (declaration->hasAttr<AnnotateAttr>()) {
-            AnnotateAttr* attr = declaration->getAttr<AnnotateAttr>();
-            StringRef t = attr->getAnnotation();
-            if (t.startswith("hare::idl(")) {
+            AnnotateAttr* at = declaration->getAttr<AnnotateAttr>();
+            StringRef t = at->getAnnotation();
+            if (t == "hare::mapping") {
                 process = true;
             }
         }
@@ -94,7 +94,19 @@ public:
                 string n = current->getDeclName().getAsString();
                 QualType t = current->getType().getCanonicalType();
 
-                llvm::outs() << t.getAsString() << " " << n << ";\n";
+                if (current->hasAttr<HareEncodeAsAttr>()) {
+                    HareEncodeAsAttr* at = current->getAttr<HareEncodeAsAttr>();
+                    llvm::outs() << t.getAsString() << " " << n << " " << at->getEncoding().str() << ";\n";
+                }
+                else if (current->hasAttr<AnnotateAttr>()) {
+                    AnnotateAttr* at = current->getAttr<AnnotateAttr>();
+                    StringRef anot = at->getAnnotation();
+                    if (anot.startswith("hare::encode_as(")) {
+                        llvm::outs() << t.getAsString() << " " << n << " " << anot << ";\n";
+                    }
+                }
+                else
+                    llvm::outs() << t.getAsString() << " " << n << ";\n";
             }
             outs() << "}\n\n";
             declaration->dump();
@@ -143,7 +155,7 @@ int main(int argc, const char **argv) {
 
     ClangTool tool(optionsParser.getCompilations(), optionsParser.getSourcePathList());
 
-    set<string> names = { "foundByName" };
+    set<string> names = { "myHareSampleItem" };
 
     return tool.run(new FindNamedClassActionFactory(names));
 }

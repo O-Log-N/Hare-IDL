@@ -20,10 +20,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define HARE_IDL_H_INCLUDED
 
 #if 0
-#define HAREIDL(X) __attribute__((annotate("hare::idl(" X ")")))
+#define HAREIDL(X) __attribute__((annotate("hare::" #X )))
 #else
 #if 1
-#define HAREIDL(X) [[hare::idl( X )]]
+#define HAREIDL(X) [[hare:: X ]]
 #else 
 #define HAREIDL(X) 
 #endif

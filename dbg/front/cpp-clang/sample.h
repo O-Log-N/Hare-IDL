@@ -26,49 +26,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 using namespace std;
 
-class HAREIDL("nobugs") myharesampleItem {
+class myHareSampleItem {
 public:
     string name;
 };
 
-typedef vector<myharesampleItem> mySampleVector;
+typedef vector<myHareSampleItem> mySampleVector;
 
 
-class HAREIDL("nobugs") myharesampleCharacter {
+class HAREIDL(mapping) myharesampleCharacter {
 public:
   int character_id;
-  double x;
-  double y;
-  double z;
-  double vx;
-  double vy;
-  double vz;
+  __attribute__((annotate("hare::encode_as(\"DELTA VLQ\")"))) double x;
+  [[hare::encode_as("DELTA VLQ")]] double y;
+  HAREIDL(encode_as("DELTA VLQ")) double z;
+  HAREIDL(encode_as("DELTA VLQ")) double vx;
+  HAREIDL(encode_as("DELTA VLQ")) double vy;
+  HAREIDL(encode_as("DELTA VLQ")) double vz;
   float angle;
   enum Animation {Standing=0,Walking=1, Running=2} anim;
   int animation_frame;
-  vector<myharesampleItem> inventory;
+  vector<myHareSampleItem> inventory;
   mySampleVector other_inventory;
-};
-
-class foundByName {
-public:
-    string name;
-};
-
-class [[hare::idl]] foundByC11Attribute {
-public:
-    string name;
-};
-
-class [[hare::idl("nobugs")]] foundByC11AttributeWithArguments {
-public:
-    string name;
-};
-
-
-class __attribute__((annotate("hare::idl(nobugs)"))) foundByGCCAttribute {
-public:
-    string name;
 };
 
 #endif // SAMPLE_H_INCLUDED
