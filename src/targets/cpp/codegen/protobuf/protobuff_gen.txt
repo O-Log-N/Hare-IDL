@@ -118,7 +118,7 @@ inline bool deserialize@STRUCT-NAME@( @STRUCT-NAME@& s, IStream& i ) {
 	  {
    @@LET LOCAL-MEMCTR=0
    @@FOR-EACH-OF MEMBERS() BEGIN
-      @@INCLUDE TEMPLATE="DESERIALIZE-S-FOR-EACH-OF-MEMBERS" PARAM-NAME="s.@MEMBER-NAME@" PARAM-TYPE="@MEMBER-TYPE@" PARAM-MEMCTR=LOCAL-MEMCTR
+      @@INCLUDE TEMPLATE="DESERIALIZE-S-FOR-EACH-OF-MEMBERS" PARAM-NAME="@MEMBER-NAME@" PARAM-TYPE="@MEMBER-TYPE@" PARAM-MEMCTR=LOCAL-MEMCTR
    @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
    @@FOR-EACH-OF END
 		default:
@@ -152,7 +152,7 @@ inline bool deserialize@STRUCT-NAME@( @STRUCT-NAME@& s, IStream& i ) {
 @@IF IS-INTEGER()
 			if ( type == VARINT )
 			{
-				i.readVariantInt64( s.lineNumber );
+				i.readVariantInt64( s.@PARAM-NAME@ );
 				initFlags[@PARAM-MEMCTR@] = 1;
 			}
 @@ELIF IS-FIXED-POINT()
@@ -162,7 +162,7 @@ inline bool deserialize@STRUCT-NAME@( @STRUCT-NAME@& s, IStream& i ) {
 @@ELIF IS-CHARACTER-STRING()
 			if ( type == LENGTH_DELIMITED )
 			{
-				i.readString( s.fileName );
+				i.readString( s.@PARAM-NAME@ );
 				initFlags[@PARAM-MEMCTR@] = 1;
 			}
 @@ELIF IS-STRUCTURE()
@@ -171,7 +171,7 @@ inline bool deserialize@STRUCT-NAME@( @STRUCT-NAME@& s, IStream& i ) {
 @@ELIF IS-ENUM()
 			if ( type == VARINT )
 			{
-				i.readVariantInt64( s.lineNumber );
+				i.readVariantInt64( s.@PARAM-NAME@ );
 				initFlags[@PARAM-MEMCTR@] = 1;
 			}
 @@ELIF IS-SEQUENCE()
