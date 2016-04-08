@@ -15,10 +15,13 @@ Copyright (C) 2016  OLogN Technologies AG
 #ifndef BASELIB_H
 #define BASELIB_H
 
+#include <iostream>
 #include <memory>
 #include <vector>
 #include <assert.h>
 #include <stdio.h>
+#include <string>
+using namespace std;
 
 
 enum WIRE_TYPE
@@ -53,18 +56,18 @@ uint8_t* deserializeUnsignedVariantFromString( uint64_t& value, uint8_t* buff );
 uint8_t* serializeUnsignedFixed64ToString( int fieldNumber, uint64_t value, uint8_t* buff );
 uint8_t* serializeSignedFixed64ToString( int fieldNumber, int64_t value, uint8_t* buff );
 uint8_t* serializeDoubleToString( int fieldNumber, double value, uint8_t* buff );
-uint8_t* deserializeUnsignedFixed64FromString( int fieldNumber, uint64_t& value, uint8_t* buff );
-uint8_t* deserializeSignedFixed64FromString( int fieldNumber, int64_t& value, uint8_t* buff );
-uint8_t* deserializeDoubleFromString( int fieldNumber, double& value, uint8_t* buff );
+uint8_t* deserializeUnsignedFixed64FromString( uint64_t& value, uint8_t* buff );
+uint8_t* deserializeSignedFixed64FromString( int64_t& value, uint8_t* buff );
+uint8_t* deserializeDoubleFromString( double& value, uint8_t* buff );
 
-///////////////////////////     WIRE_TYPE::FIXED_64_BIT    ////////////////////////////////////
+///////////////////////////     WIRE_TYPE::FIXED_32_BIT    ////////////////////////////////////
 
 uint8_t* serializeUnsignedFixed32ToString( int fieldNumber, uint32_t value, uint8_t* buff );
 uint8_t* serializeSignedFixed64ToString( int fieldNumber, int32_t value, uint8_t* buff );
 uint8_t* serializeDoubleToString( int fieldNumber, float value, uint8_t* buff );
-uint8_t* deserializeUnsignedFixed32FromString( int fieldNumber, uint32_t& value, uint8_t* buff );
-uint8_t* deserializeSignedFixed32FromString( int fieldNumber, int32_t& value, uint8_t* buff );
-uint8_t* deserializeDoubleFromString( int fieldNumber, float& value, uint8_t* buff );
+uint8_t* deserializeUnsignedFixed32FromString( uint32_t& value, uint8_t* buff );
+uint8_t* deserializeSignedFixed32FromString( int32_t& value, uint8_t* buff );
+uint8_t* deserializeDoubleFromString( float& value, uint8_t* buff );
 
 ///////////////////////////     WIRE_TYPE::LENGTH_DELIMITED    ////////////////////////////////////
 
@@ -87,7 +90,7 @@ public:
 	void writeInt( int fieldNumber, int x )
 	{
 		uint8_t buff[1000];
-		uint8_t* ret = serializeUnsignedVariantToString( fieldNumber, x, buff );
+		uint8_t* ret = serializeSignedVariantToString( fieldNumber, x, buff );
 		fwrite( buff, ret - buff, 1, outstr );
 	}
 	void writeDouble( int fieldNumber, double x )
@@ -101,6 +104,128 @@ public:
 		uint8_t buff[1000];
 		uint8_t* ret = serializeLengthDelimitedToString( fieldNumber, x, buff );
 		fwrite( buff, ret - buff, 1, outstr );
+	}
+};
+
+class IStream
+{
+protected:
+	FILE* instr;
+public:
+	IStream( FILE* inStr ) : instr( inStr ) {}
+	bool readFieldTypeAndID( int& type, int& fieldNumber )
+	{
+		uint8_t buff[12];
+		memset( buff, 0, 12 );
+		int pos = 0;
+		size_t readret;
+		for (;;)
+		{
+			readret = fread( buff + pos, 1, 1, instr );
+			if ( readret == 0 )
+				return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
+			if ( ( buff[pos] & 0x80 ) == 0 )
+			{
+				deserializeHeaderFromString( fieldNumber, type, buff );
+				return true;
+			}
+			++pos;
+		}
+		return false; // TODO: think about incomplete/broken packet
+	}
+	bool readInt32( int32_t& x )
+	{
+		uint8_t buff[4];
+		size_t readret = fread( buff, 1, 4, instr );
+		if ( readret < 4 )
+			return false;
+		deserializeSignedFixed32FromString( x, buff );
+		return true;
+	}
+	bool readInt64( int64_t& x )
+	{
+		uint8_t buff[8];
+		size_t readret = fread( buff, 1, 8, instr );
+		if ( readret < 8 )
+			return false;
+		deserializeSignedFixed64FromString( x, buff );
+		return true;
+	}
+#if 0
+	bool readVariantInt32( int32_t& x )
+	{
+		uint8_t buff[4];
+		size_t readret = fread( buff, 1, 4, instr );
+		if ( readret < 4 )
+			return false;
+		deserializeSignedVariantFromString( x, buff );
+		return true;
+	}
+#endif // 0
+	bool readVariantInt64( int64_t& x )
+	{
+		uint8_t buff[12];
+		memset( buff, 0, 12 );
+		int pos = 0;
+		size_t readret;
+		uint32_t stringSz = 0;
+		for (;;)
+		{
+			readret = fread( buff + pos, 1, 1, instr );
+			if ( readret == 0 )
+				return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
+			if ( ( buff[pos] & 0x80 ) == 0 )
+			{
+				deserializeSignedVariantFromString( x, buff );
+				break;
+			}
+			++pos;
+		}
+		return true;
+	}
+#if 0
+	bool readInt64( int64_t& x )
+	{
+		uint8_t buff[1000];
+		uint8_t* ret = serializeUnsignedVariantToString( fieldNumber, x, buff );
+		fwrite( buff, ret - buff, 1, outstr );
+	}
+	bool readDouble( double& x )
+	{
+		uint8_t buff[1000];
+		uint8_t* ret = serializeDoubleToString( fieldNumber, x, buff );
+		fwrite( buff, ret - buff, 1, outstr );
+	}
+#endif
+	bool readString( std::string& x )
+	{
+		uint8_t buff[12];
+		memset( buff, 0, 12 );
+		int pos = 0;
+		size_t readret;
+		uint64_t stringSz = 0;
+		for (;;)
+		{
+			readret = fread( buff + pos, 1, 1, instr );
+			if ( readret == 0 )
+				return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
+			if ( ( buff[pos] & 0x80 ) == 0 )
+			{
+				deserializeUnsignedVariantFromString( stringSz, buff );
+				break;
+			}
+			++pos;
+		}
+
+		for ( ; stringSz; --stringSz )
+		{
+			readret = fread( buff, 1, 1, instr );
+			if ( readret == 0 )
+				return false; // incmplete or broken record
+			x.push_back( buff[0] );
+		}
+
+		return true;
 	}
 };
 

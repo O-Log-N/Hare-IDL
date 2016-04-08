@@ -19,7 +19,7 @@ void sint64ToUint64( int64_t src, uint64_t& target )
 }
 void uint64ToSint64( uint64_t src, int64_t& target )
 {
-	target = ( (src << 63) ^ (src >> 1) );
+	target = (src >> 1) ^ -(src & 1);
 }
 
 uint8_t* serializeToStringVariantUint64( uint64_t value, uint8_t* buff )
@@ -143,12 +143,12 @@ uint8_t* serializeDoubleToString( int fieldNumber, double value, uint8_t* buff )
 	return serializeToStringFixedUint64( *(uint64_t*)(&value), buff );
 }
 
-uint8_t* deserializeUnsignedFixed64FromString( int fieldNumber, uint64_t& value, uint8_t* buff )
+uint8_t* deserializeUnsignedFixed64FromString( uint64_t& value, uint8_t* buff )
 {
 	return deserializeFromStringFixedUint64( value, buff );
 }
 
-uint8_t* deserializeSignedFixed64FromString( int fieldNumber, int64_t& value, uint8_t* buff )
+uint8_t* deserializeSignedFixed64FromString( int64_t& value, uint8_t* buff )
 {
 	uint64_t tmp;
 	buff = deserializeFromStringFixedUint64( tmp, buff );
@@ -156,7 +156,7 @@ uint8_t* deserializeSignedFixed64FromString( int fieldNumber, int64_t& value, ui
 	return buff;
 }
 
-uint8_t* deserializeDoubleFromString( int fieldNumber, double& value, uint8_t* buff )
+uint8_t* deserializeDoubleFromString( double& value, uint8_t* buff )
 {
 	uint64_t tmp;
 	buff = deserializeFromStringFixedUint64( tmp, buff );
@@ -165,7 +165,7 @@ uint8_t* deserializeDoubleFromString( int fieldNumber, double& value, uint8_t* b
 }
 
 
-///////////////////////////     WIRE_TYPE::FIXED_64_BIT    ////////////////////////////////////
+///////////////////////////     WIRE_TYPE::FIXED_32_BIT    ////////////////////////////////////
 
 uint8_t* serializeToStringFixedUint32( uint32_t value, uint8_t* buff )
 {
@@ -216,12 +216,12 @@ uint8_t* serializeDoubleToString( int fieldNumber, float value, uint8_t* buff )
 	return serializeToStringFixedUint32( *(uint32_t*)(&value), buff );
 }
 
-uint8_t* deserializeUnsignedFixed32FromString( int fieldNumber, uint32_t& value, uint8_t* buff )
+uint8_t* deserializeUnsignedFixed32FromString( uint32_t& value, uint8_t* buff )
 {
 	return deserializeFromStringFixedUint32( value, buff );
 }
 
-uint8_t* deserializeSignedFixed32FromString( int fieldNumber, int32_t& value, uint8_t* buff )
+uint8_t* deserializeSignedFixed32FromString( int32_t& value, uint8_t* buff )
 {
 	uint32_t tmp;
 	buff = deserializeFromStringFixedUint32( tmp, buff );
@@ -229,7 +229,7 @@ uint8_t* deserializeSignedFixed32FromString( int fieldNumber, int32_t& value, ui
 	return buff;
 }
 
-uint8_t* deserializeDoubleFromString( int fieldNumber, float& value, uint8_t* buff )
+uint8_t* deserializeDoubleFromString( float& value, uint8_t* buff )
 {
 	uint32_t tmp;
 	buff = deserializeFromStringFixedUint32( tmp, buff );
