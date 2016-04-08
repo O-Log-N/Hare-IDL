@@ -8,10 +8,7 @@
 
 
 @@BEGIN-TEMPLATE NAME="V1" TYPE="ROOT"
-#include "common.h"
-#include "baselib.h"
-#include <vector>
-using namespace std;
+#include <protobuf/baselib.h>
 
 // structures
 
@@ -24,6 +21,10 @@ using namespace std;
 // deserialization
 
   @@INCLUDE TEMPLATE="ROOT_4"
+  
+// printing
+
+  @@INCLUDE TEMPLATE="ROOT_5"
 @@END-TEMPLATE NAME="V1"
 
 
@@ -40,6 +41,11 @@ using namespace std;
 @@BEGIN-TEMPLATE NAME="ROOT_4" TYPE="ROOT"
   @@FOR-EACH-OF PUBLISHABLE-STRUCTS() TYPE="STRUCT" TEMPLATE="DESERIALIZE-S-CALLING-ALT"
 @@END-TEMPLATE NAME="ROOT_4"
+
+
+@@BEGIN-TEMPLATE NAME="ROOT_5" TYPE="ROOT"
+  @@FOR-EACH-OF PUBLISHABLE-STRUCTS() TYPE="STRUCT" TEMPLATE="PRINT-S"
+@@END-TEMPLATE NAME="ROOT_5"
 
 
 @@BEGIN-TEMPLATE NAME="SERIALIZE-S-CALLING-ALT" TYPE="STRUCT"
@@ -183,6 +189,61 @@ inline bool deserialize@STRUCT-NAME@( @STRUCT-NAME@& s, IStream& i ) {
 			break;
 		}
 @@END-TEMPLATE NAME="DESERIALIZE-TYPE"
+
+
+
+
+
+
+
+@@BEGIN-TEMPLATE NAME="PRINT-S" TYPE="STRUCT"
+inline void print@STRUCT-NAME@( @STRUCT-NAME@& s ) {
+   @@LET LOCAL-MEMCTR=1
+   @@FOR-EACH-OF MEMBERS() BEGIN
+    cout << "@MEMBER-NAME@: " << 
+      @@INCLUDE TEMPLATE="PRINT-S-FOR-EACH-OF-MEMBERS" PARAM-NAME="@MEMBER-NAME@" PARAM-TYPE="@MEMBER-TYPE@"
+     << endl; // @LOCAL-MEMCTR@
+   @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
+   @@FOR-EACH-OF END
+}
+
+@@END-TEMPLATE NAME="PRINT-S"
+
+
+@@BEGIN-TEMPLATE NAME="PRINT-S-FOR-EACH-OF-MEMBERS" TYPE="STRUCT-MEMBER"
+@@INCLUDE-WITH MEMBER-TYPE() TEMPLATE="PRINT-TYPE" TYPE="DATATYPE" PARAM-NAME="@PARAM-NAME@"
+@@END-TEMPLATE NAME="PRINT-S-FOR-EACH-OF-MEMBERS"
+
+
+@@BEGIN-TEMPLATE NAME="PRINT-TYPE" TYPE="DATATYPE"
+@@IF IS-INTEGER()
+   s.@PARAM-NAME@ 
+@@ELIF IS-FIXED-POINT()
+   s.@PARAM-NAME@ 
+@@ELIF IS-FLOATING-POINT()
+   s.@PARAM-NAME@ 
+@@ELIF IS-CHARACTER-STRING()
+   s.@PARAM-NAME@ 
+@@ELIF IS-STRUCTURE()
+@@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@"
+@@ELIF IS-ENUM()
+   s.@PARAM-NAME@ 
+@@ELIF IS-SEQUENCE()
+   for(auto item:@PARAM-NAME@) {
+@@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@"
+   }
+@@ELIF IS-DICTIONARY()
+   for(auto item:@PARAM-NAME@) {
+@@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@"
+   }
+@@ELSE
+@@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@"
+@@ENDIF
+@@END-TEMPLATE NAME="PRINT-TYPE"
+
+
+
+
 
 
 @@BEGIN-TEMPLATE NAME="MAP-S-CALLING" TYPE="STRUCT"

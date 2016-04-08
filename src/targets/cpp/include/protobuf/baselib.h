@@ -107,6 +107,7 @@ public:
 	}
 };
 
+#if 0
 class IStream
 {
 protected:
@@ -228,6 +229,156 @@ public:
 		return true;
 	}
 };
+
+#else
+
+class IStream
+{
+protected:
+	uint8_t* instr;
+	size_t buffSz;
+	size_t readPos;
+	size_t readData( uint8_t* buff, size_t cnt )
+	{
+		if ( readPos + cnt <= buffSz )
+		{
+			memcpy( buff, instr +readPos, cnt );
+			readPos += cnt;
+			return cnt;
+		}
+		else
+		{
+			cnt = buffSz - readPos;
+			memcpy( buff, instr +readPos, cnt );
+			readPos += cnt;
+			return cnt;
+		}
+	}
+public:
+	IStream( uint8_t* inStr, size_t buffSz_ ) : instr( inStr ), buffSz( buffSz_ ) { readPos = 0; }
+	bool readFieldTypeAndID( int& type, int& fieldNumber )
+	{
+		uint8_t buff[12];
+		memset( buff, 0, 12 );
+		int pos = 0;
+		size_t readret;
+		for (;;)
+		{
+//			readret = fread( buff + pos, 1, 1, instr );
+			readret = readData( buff + pos, 1 );
+			if ( readret == 0 )
+				return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
+			if ( ( buff[pos] & 0x80 ) == 0 )
+			{
+				deserializeHeaderFromString( fieldNumber, type, buff );
+				return true;
+			}
+			++pos;
+		}
+		return false; // TODO: think about incomplete/broken packet
+	}
+	bool readInt32( int32_t& x )
+	{
+		uint8_t buff[4];
+//		size_t readret = fread( buff, 1, 4, instr );
+		size_t readret = readData( buff, 4 );
+		if ( readret < 4 )
+			return false;
+		deserializeSignedFixed32FromString( x, buff );
+		return true;
+	}
+	bool readInt64( int64_t& x )
+	{
+		uint8_t buff[8];
+//		size_t readret = fread( buff, 1, 8, instr );
+		size_t readret = readData( buff, 8 );
+		if ( readret < 8 )
+			return false;
+		deserializeSignedFixed64FromString( x, buff );
+		return true;
+	}
+#if 0
+	bool readVariantInt32( int32_t& x )
+	{
+		uint8_t buff[4];
+		size_t readret = fread( buff, 1, 4, instr );
+		if ( readret < 4 )
+			return false;
+		deserializeSignedVariantFromString( x, buff );
+		return true;
+	}
+#endif // 0
+	bool readVariantInt64( int64_t& x )
+	{
+		uint8_t buff[12];
+		memset( buff, 0, 12 );
+		int pos = 0;
+		size_t readret;
+		uint32_t stringSz = 0;
+		for (;;)
+		{
+//			readret = fread( buff + pos, 1, 1, instr );
+			readret = readData( buff + pos, 1 );
+			if ( readret == 0 )
+				return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
+			if ( ( buff[pos] & 0x80 ) == 0 )
+			{
+				deserializeSignedVariantFromString( x, buff );
+				break;
+			}
+			++pos;
+		}
+		return true;
+	}
+#if 0
+	bool readInt64( int64_t& x )
+	{
+		uint8_t buff[1000];
+		uint8_t* ret = serializeUnsignedVariantToString( fieldNumber, x, buff );
+		fwrite( buff, ret - buff, 1, outstr );
+	}
+	bool readDouble( double& x )
+	{
+		uint8_t buff[1000];
+		uint8_t* ret = serializeDoubleToString( fieldNumber, x, buff );
+		fwrite( buff, ret - buff, 1, outstr );
+	}
+#endif
+	bool readString( std::string& x )
+	{
+		uint8_t buff[12];
+		memset( buff, 0, 12 );
+		int pos = 0;
+		size_t readret;
+		uint64_t stringSz = 0;
+		for (;;)
+		{
+//			readret = fread( buff + pos, 1, 1, instr );
+			readret = readData( buff + pos, 1 );
+			if ( readret == 0 )
+				return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
+			if ( ( buff[pos] & 0x80 ) == 0 )
+			{
+				deserializeUnsignedVariantFromString( stringSz, buff );
+				break;
+			}
+			++pos;
+		}
+
+		for ( ; stringSz; --stringSz )
+		{
+//			readret = fread( buff, 1, 1, instr );
+			readret = readData( buff, 1 );
+			if ( readret == 0 )
+				return false; // incmplete or broken record
+			x.push_back( buff[0] );
+		}
+
+		return true;
+	}
+};
+
+#endif // 0
 
 #endif // BASELIB_H
 
