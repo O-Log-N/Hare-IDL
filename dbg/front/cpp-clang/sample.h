@@ -33,8 +33,13 @@ public:
 
 typedef vector<myHareSampleItem> mySampleVector;
 
+class HAREIDL(mapping("SomeName")) myHareSampleItem2 {
+public:
+    string name;
+};
 
-class HAREIDL(mapping) myharesampleCharacter {
+
+class HAREIDL(mapping) myHareSampleCharacter {
 public:
   int character_id;
   __attribute__((annotate("hare::encode_as(\"DELTA VLQ\")"))) double x;

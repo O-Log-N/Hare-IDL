@@ -19,7 +19,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "debug.h"
 #include "front-back/idl_tree.h"
-#include "front/idl/parser.h" // string locationToString(const Location& loc)
 
 using namespace std;
 

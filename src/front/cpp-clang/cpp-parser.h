@@ -15,16 +15,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#include <stdio.h>
-#include "sample.h"
+#ifndef CPP_PARSER_H_INCLUDED
+#define CPP_PARSER_H_INCLUDED
 
-// add hare build folder to path and run as:
-// hare.exe sample.cpp -- -fno-ms-compatibility
+#include "../../idlc_include.h"
+#include "../../front-back/idl_tree.h"
 
-void hareFunc() {}
 
-int main()
-{
-	printf("Hello world!\n");
-    return 0;
-}
+Root* parseCppSourceFile(const string& fileName, const set<string>& classNames);
+
+
+#endif // CPP_PARSER_H_INCLUDED

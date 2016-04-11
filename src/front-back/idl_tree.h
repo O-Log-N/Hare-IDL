@@ -199,4 +199,18 @@ public:
 	vector<unique_ptr<Structure>> structures;
 };
 
+inline
+string locationToString(const Location& loc)
+{
+    if (!loc.fileName.empty()) {
+        if (loc.lineNumber != 0)
+            return fmt::format("@{}:{}", loc.fileName, loc.lineNumber);
+        else
+            return string("@") + loc.fileName;
+    }
+    else
+        return "";
+}
+
+
 #endif // IDL_TREE_H

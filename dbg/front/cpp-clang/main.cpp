@@ -15,20 +15,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#ifndef PARSER_H_INCLUDED
-#define PARSER_H_INCLUDED "include guard"
+#include "idlc_include.h"
 
-#include "../../idlc_include.h"
-#include "../../front-back/idl_tree.h"
+#include "front-back/idl_tree.h"
+#include "front/cpp-clang/cpp-parser.h"
+#include "../../front-back/debug.h"
 
+int main()
+{
+    // don't try-catch, since this is debug only code, better to have an unhandled exception
 
-void dbgDumpLeaks();
+    Root* root =  parseCppSourceFile("..\\..\\..\\..\\Hare-IDL\\dbg\\front\\cpp-clang\\sample.h",
+        {"myHareSampleItem", "myHareSampleCharacter"});
+    HAREASSERT(root);
 
-Root* parseSourceFile(const string& fileName, bool debugDump);
+    dbgDumpTree(stdout, root, false);
 
-class ParserException :public runtime_error {
-public:
-    ParserException(const string& what_arg) :runtime_error(what_arg) {}
-};
+    return 0;
+}
 
-#endif // PARSER_H_INCLUDED

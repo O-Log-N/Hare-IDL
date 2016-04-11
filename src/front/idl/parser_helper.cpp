@@ -39,18 +39,6 @@ static bool errorFlag = false;
 
 //static const set<string> primitives = { "INT8", "INT16", "INT32", "UINT8", "UINT16", "UINT32" };
 
-string locationToString(const Location& loc)
-{
-    if (!loc.fileName.empty()) {
-        if (loc.lineNumber != 0)
-            return fmt::format("@{}:{}", loc.fileName, loc.lineNumber);
-        else
-            return string("@") + loc.fileName;
-    }
-    else
-        return "";
-}
-
 struct YyBase {
     Location location;
     YyBase() {

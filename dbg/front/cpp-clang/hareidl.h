@@ -16,17 +16,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 *******************************************************************************/
 
 
-#ifndef HARE_IDL_H_INCLUDED
-#define HARE_IDL_H_INCLUDED
+#ifndef HAREIDL_H_INCLUDED
+#define HAREIDL_H_INCLUDED
 
-#if 0
+//#define HAREIDL_USE_GCC_ANNOTATE
+//#define HAREIDL_USE_CXX11_ATTRIBUTE
+
+#ifdef HAREIDL_USE_GCC_ANNOTATE
 #define HAREIDL(X) __attribute__((annotate("hare::" #X )))
 #else
-#if 1
+
+#ifdef HAREIDL_USE_CXX11_ATTRIBUTE
 #define HAREIDL(X) [[hare:: X ]]
 #else 
 #define HAREIDL(X) 
 #endif
+
 #endif
 
-#endif // HARE_IDL_H_INCLUDED
+#endif // HAREIDL_H_INCLUDED
