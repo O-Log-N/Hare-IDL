@@ -21,9 +21,11 @@ Copyright (C) 2016 OLogN Technologies AG
 %token KW_ENUM KW_CLASS
 %token KW_MAPPING KW_ENCODING
 %token KW_NUMERIC KW_INT
-%token KW_EXTEND KW_TO KW_DEFAULT KW_FENCE
-%token KW_DISCRIMINATED_UNION KW_WHEN_DISCRIMINANT_IN KW_WHEN_DISCRIMINANT_IS
-%token KW_DISCRIMINANT
+%token KW_FENCE
+%token KW_EXTEND KW_TO KW_DEFAULT
+%token KW_FILE KW_CLASS_UPP
+%token KW_DISCRIMINATED_UNION KW_DISCRIMINANT
+%token KW_WHEN_DISCRIMINANT_IN KW_WHEN_DISCRIMINANT_IS
 
 %token IDENTIFIER
 %token STRING_LITERAL INTEGER_LITERAL CHAR_LITERAL FLOAT_LITERAL
@@ -48,6 +50,7 @@ file : { $$ = 0; }
 	| file typedef_decl { $$ = addTypedefToFile($1, $2); }
     | file publishable_struct { $$ = addToFile($1, $2); }
 	| file mapping { $$ = addToFile($1, $2); }
+	| file ext_file_mapping { $$ = processExtFileMapping($1, $2); }
 	| file encoding { $$ = addToFile($1, $2); }
     | file discriminated_union { $$ = addToFile($1, $2); }
 ;
@@ -76,6 +79,17 @@ mapping_begin
 mapping
 	: mapping_begin '}' ';' { $$ = $1; releaseYys2($2, $3); }
 ;
+
+ext_file_mapping_begin
+	: KW_MAPPING '(' arg_list ')' '{' KW_FILE STRING_LITERAL '{' { $$ = createExtFileMapping($1, $3, $7); releaseYys5($2, $4, $5, $6, $8); }
+	| ext_file_mapping_begin KW_CLASS_UPP IDENTIFIER';' { $$ = addClassMapping($1, $3); releaseYys2($2, $4); }
+;
+
+ext_file_mapping
+	: ext_file_mapping_begin '}' '}' ';' { $$ = $1; releaseYys3($2, $3, $4); }
+	| ext_file_mapping_begin '}' '}' { $$ = $1; releaseYys2($2, $3); }
+;
+
 
 encoding_begin
 	: KW_ENCODING '(' arg_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createEncoding($1, $3, $6); releaseYys4($2, $4, $5, $7); }

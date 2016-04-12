@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "../../idlc_include.h"
 
 #include "../../front-back/raiistdiofile.h"
+#include "../../../3rdparty/tiny-process-library/process.hpp"
 
 #include "parser_helper.h"
 #include "parser.h"
@@ -36,6 +37,8 @@ static vector<int> stateStack;
 static set<YyBase*> dbgLeakDetector;
 
 static bool errorFlag = false;
+
+static vector<unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)>> bufferStack;
 
 //static const set<string> primitives = { "INT8", "INT16", "INT32", "UINT8", "UINT16", "UINT32" };
 
@@ -120,6 +123,13 @@ struct YyArgumentList : public YyBase {
 
 struct YyCharacterSet : public YyBase {
     CharacterSet charSet;
+};
+
+
+struct YyExtFileMapping : public YyBase {
+    string fileName;
+    unique_ptr<YyBase> args;
+    vector<string> classNames;
 };
 
 typedef YyIdentifier YyStringLiteral;
@@ -609,6 +619,78 @@ YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
 
     return new YyPtr<Structure>(yy);
 }
+
+YYSTYPE createExtFileMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE str_file_name)
+{
+    unique_ptr<YyBase> d0(token);
+    unique_ptr<YyBase> d1(arg_list);
+    unique_ptr<YyBase> d2(str_file_name);
+
+    YyExtFileMapping* yy = new YyExtFileMapping();
+    yy->location = token->location;
+    yy->fileName = nameFromYyIdentifier(str_file_name);
+    yy->args.reset(d1.release());
+
+    return yy;
+}
+YYSTYPE addClassMapping(YYSTYPE decl, YYSTYPE id)
+{
+    unique_ptr<YyBase> d0(decl);
+    unique_ptr<YyBase> d1(id);
+
+    YyExtFileMapping* yy = yystype_cast<YyExtFileMapping*>(decl);
+
+    string name = nameFromYyIdentifier(id);
+
+    yy->classNames.emplace_back(name);
+
+    return d0.release();
+}
+
+YYSTYPE processExtFileMapping(YYSTYPE file, YYSTYPE decl)
+{
+    HAREASSERT(!file);
+    unique_ptr<YyBase> d0(decl);
+
+    YyExtFileMapping* yy = yystype_cast<YyExtFileMapping*>(decl);
+
+    map<string, Variant> args = argumentListFromYy(yy->args.get());
+    auto l = args.find("Lang");
+    if (l == args.end())
+        reportError(decl->location, "Attribute 'Lang' missing.");
+    else if (l->second.kind != Variant::STRING)
+        reportError(decl->location, "Attribute 'Lang' must be string.");
+    else {
+        string lang = l->second.stringValue;
+        if (lang == "C++") {
+            
+            string findNames;
+            for (auto each : yy->classNames)
+                findNames += fmt::format("-find-class={} ", each);
+
+            string cmdLine = fmt::format("C++2HareIDL {} {} --", findNames, yy->fileName);
+
+            string outBuffer;
+
+            Process process(cmdLine, string(), [&](const char *bytes, size_t n) {
+                outBuffer.append(bytes, n);
+            });
+
+            int result = process.get_exit_status();
+            if(result == -1)
+                reportError(decl->location, "Failed to launch external process c++2idl.");
+            else if (result != 0)
+                reportError(decl->location, "External process c++2idl finished with errors.");
+            else
+                parseStringBuffer(outBuffer, yy->fileName);
+        }
+        else
+            reportError(decl->location, fmt::format("Language '%s' not recognized.", lang));
+    }
+
+    return 0;
+}
+
 
 YYSTYPE createEncoding(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
 {
@@ -1196,8 +1278,43 @@ YYSTYPE addToCharSet(YYSTYPE list, YYSTYPE from, YYSTYPE to)
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+static
+void parseSourceFileInternal(const string& fileName)
+{
+    currentFileName = fileName;
+    yylineno = 1;
+
+    // TODO check exception safety
+    yy_switch_to_buffer(bufferStack.back().get());
+    int err = yyparse();
+    bufferStack.pop_back();
+    if(!bufferStack.empty())
+        yy_switch_to_buffer(bufferStack.back().get());
+
+    if (errorFlag | (err != 0) )
+        throw ParserException(fmt::format("Errors found while parsing file '{}'.", fileName));
+}
+
+void parseStringBuffer(const string& buffer, const string& pseudoFileName)
+{
+    bufferStack.emplace_back(yy_scan_string(buffer.c_str()), &yy_delete_buffer);
+
+    if (!bufferStack.back())
+        throw ParserException(fmt::format("Failed to allocate read buffer for pseudo file '{}'.", pseudoFileName));
+
+    parseSourceFileInternal(pseudoFileName);
+}
+
 Root* parseSourceFile(const string& fileName, bool debugDump)
 {
+    unique_ptr<Root> root(new Root());
+    rootPtr = root.get();
+
+    yydebug = static_cast<int>(debugDump);
+
+    HAREASSERT(rootPtr);
+
     if (fileName.empty())
         throw ParserException("Missing input file name");
 
@@ -1206,19 +1323,12 @@ Root* parseSourceFile(const string& fileName, bool debugDump)
     if (!file)
         throw ParserException(fmt::format("Failed to open file '{}'.", fileName));
 
-    unique_ptr<Root> root(new Root());
+    bufferStack.emplace_back(yy_create_buffer(file, FILE_BUFFER_SIZE), &yy_delete_buffer);
 
-    yyin = file;
-    yyout = stderr;
-    yylineno = 1;
-    rootPtr = root.get();
-    currentFileName = fileName;
-    yydebug = static_cast<int>(debugDump);
+    if (!bufferStack.back())
+        throw ParserException(fmt::format("Failed to allocate read buffer for file '{}'.", fileName));
 
-    int err = yyparse();
-
-    if (errorFlag | (err != 0) )
-        throw ParserException(fmt::format("Errors found while parsing file '{}'.", fileName));
+    parseSourceFileInternal(fileName);
 
     return root.release();
 }

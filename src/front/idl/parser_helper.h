@@ -68,6 +68,10 @@ YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id);
 
 YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id);
 
+YYSTYPE createExtFileMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE str_file_name);
+YYSTYPE addClassMapping(YYSTYPE decl, YYSTYPE id);
+YYSTYPE processExtFileMapping(YYSTYPE file, YYSTYPE decl);
+
 YYSTYPE createEncoding(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id);
 YYSTYPE addToEncoding(YYSTYPE decl, YYSTYPE elem);
 YYSTYPE addFenceToEncoding(YYSTYPE decl, YYSTYPE token);

@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "../../idlc_include.h"
 #include "cpp-parser.h"
+#include "../../front-back/idl_tree.h"
 
 //#include <cmath>
 
@@ -78,23 +79,40 @@ public:
         }
         
         if(process) {
+
+            unique_ptr<Structure> st(new Structure());
+            st->declType = Structure::MAPPING;
+            st->type = Structure::STRUCT;
+            st->name = name;
             //outs() << "Found declaration " << declaration->getQualifiedNameAsString();
-            //FullSourceLoc fullLocation = context->getFullLoc(declaration->getLocStart());
-            //if (fullLocation.isValid())
-            //    outs() << " at "
-            //    << fullLocation.getSpellingLineNumber() << ":"
-            //    << fullLocation.getSpellingColumnNumber();
+            FullSourceLoc fullLocation = context->getFullLoc(declaration->getLocStart());
+            if (fullLocation.isValid()) {
+                st->location.lineNumber = fullLocation.getSpellingLineNumber();
 
-            //outs() << "\n";
+            }
 
-            outs() << "MAPPING(\"TODO\") PUBLISHABLE_STRUCT " << name << " {\n";
-            
-            RecordDecl::field_range r = declaration->fields();
-            for (auto it = r.begin(); it != r.end(); ++it) {
-                FieldDecl* current = *it;
+//            RecordDecl::field_range r = ;
+//            for (auto it = r.begin(); it != r.end(); ++it) {
+//            FieldDecl* current = *it;
+            for (auto current : declaration->fields()) {
+
+                unique_ptr<DataMember> dm(new DataMember());
+
                 string n = current->getDeclName().getAsString();
-                QualType t = current->getType().getCanonicalType();
+                dm->name = n;
 
+                string t = current->getType().getCanonicalType().getAsString();
+                if (t.find('<') == string::npos) {
+                    dm->type.kind = DataType::NAMED_TYPE;
+                    dm->type.name = t;
+                }
+
+                else //if (t.substr(0, 17) == "class std::vector<") 
+                {
+                    dm->type.kind = DataType::NAMED_TYPE;
+                    dm->type.name = t;
+                }
+                /*
                 if (current->hasAttr<HareEncodeAsAttr>()) {
                     HareEncodeAsAttr* at = current->getAttr<HareEncodeAsAttr>();
                     llvm::outs() << t.getAsString() << " " << n << " " << at->getEncoding() << ";\n";
@@ -108,9 +126,11 @@ public:
                 }
                 else
                     llvm::outs() << t.getAsString() << " " << n << ";\n";
+*/
+                st->members.emplace_back(dm.release());
             }
-            outs() << "}\n\n";
-            declaration->dump();
+            root.structures.push_back(move(st));
+//            declaration->dump();
         }
 
         return true;

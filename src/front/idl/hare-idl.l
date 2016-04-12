@@ -73,6 +73,9 @@ int createToken(int token)
     "TO" { return createToken( KW_TO ); }
     "DEFAULT" { return createToken( KW_DEFAULT ); }
 
+    "FILE" { return createToken( KW_FILE ); }
+    "CLASS" { return createToken( KW_CLASS_UPP ); }
+
     "DISCRIMINATED-UNION" { return createToken( KW_DISCRIMINATED_UNION ); }
     "DISCRIMINANT" { return createToken( KW_DISCRIMINANT ); }
 

@@ -20,12 +20,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "../../idlc_include.h"
 
+const int FILE_BUFFER_SIZE = 16000;
+
 // symbols defined inside lex.yy.cpp without any header declaration
 int yyparse();
 extern int yydebug;
 extern int yylineno;
-extern FILE *yyin;
-extern FILE *yyout;
+//extern FILE *yyin;
+//extern FILE *yyout;
+
+struct yy_buffer_state; //forward
+yy_buffer_state* yy_create_buffer(FILE* file, int size);
+void yy_switch_to_buffer(yy_buffer_state* new_buffer);
+//yy_buffer_state* yy_scan_buffer(char* buffer, unsigned int size);
+yy_buffer_state* yy_scan_string(const char* yy_str);
+//yy_buffer_state* yy_scan_bytes(const char* bytes, int len);
+void yy_delete_buffer(yy_buffer_state*);
 
 
 #endif // LEX_H_INCLUDED

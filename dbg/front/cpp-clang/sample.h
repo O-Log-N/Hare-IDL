@@ -51,7 +51,7 @@ public:
   float angle;
   enum Animation {Standing=0,Walking=1, Running=2} anim;
   int animation_frame;
-  vector<myHareSampleItem> inventory;
+  vector<vector<myHareSampleItem>> inventory;
   mySampleVector other_inventory;
 };
 

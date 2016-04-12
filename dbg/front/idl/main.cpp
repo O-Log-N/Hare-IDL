@@ -5,13 +5,13 @@
 
 #include "front-back/idl_tree.h"
 #include "front/idl/parser.h"
-#include "debug.h"
+#include "../../front-back/debug.h"
 
 int main()
 {
     // don't try-catch, since this is debug only code, better to have an unhandled exception
 
-    Root* root = parseSourceFile("..\\..\\..\\Hare-IDL\\dbg\\front\\idl\\sample.idl", false);
+    Root* root = parseSourceFile("sample.idl", false);
     HAREASSERT(root);
 
     dbgDumpLeaks();

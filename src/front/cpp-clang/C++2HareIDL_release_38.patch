@@ -1,0 +1,315 @@
+From 41e12e1bb0ba5c4e2632e94a999c2db14637c860 Mon Sep 17 00:00:00 2001
+From: mb <mb@o-log-n.com>
+Date: Tue, 5 Apr 2016 17:39:39 -0300
+Subject: [PATCH] Added HareIDL attribute support. Added C++2HareIDL tool
+ project.
+
+---
+ include/clang/Basic/Attr.td       |  14 ++++
+ include/clang/Basic/AttrDocs.td   |  32 +++++++
+ lib/Sema/SemaDeclAttr.cpp         |   6 ++
+ tools/C++2HareIDL/C++2HareIDL.cpp | 172 ++++++++++++++++++++++++++++++++++++++
+ tools/C++2HareIDL/CMakeLists.txt  |  22 +++++
+ tools/CMakeLists.txt              |   2 +
+ 6 files changed, 248 insertions(+)
+ create mode 100644 tools/C++2HareIDL/C++2HareIDL.cpp
+ create mode 100644 tools/C++2HareIDL/CMakeLists.txt
+
+diff --git a/include/clang/Basic/Attr.td b/include/clang/Basic/Attr.td
+index d5ba722..34d2405 100644
+--- a/include/clang/Basic/Attr.td
++++ b/include/clang/Basic/Attr.td
+@@ -2170,3 +2170,17 @@ def InternalLinkage : InheritableAttr {
+   let Subjects = SubjectList<[Var, Function, CXXRecord]>;
+   let Documentation = [InternalLinkageDocs];
+ }
++
++def HareMapping : InheritableAttr {
++  let Spellings = [CXX11<"hare","mapping">];
++  let Args = [StringArgument<"PublishableStruct", 1>];
++  let Subjects = SubjectList<[CXXRecord]>;
++  let Documentation = [HareMappingDocs];
++}
++
++def HareEncodeAs : InheritableAttr {
++  let Spellings = [CXX11<"hare","encode_as">];
++  let Args = [StringArgument<"Encoding">];
++//  let Subjects = SubjectList<[Field]>;
++  let Documentation = [HareEncodeAsDocs];
++}
+diff --git a/include/clang/Basic/AttrDocs.td b/include/clang/Basic/AttrDocs.td
+index 2567d55..8bb5bab 100644
+--- a/include/clang/Basic/AttrDocs.td
++++ b/include/clang/Basic/AttrDocs.td
+@@ -1859,3 +1859,35 @@ Marking virtual functions as ``disable_tail_calls`` is legal.
+ 
+   }];
+ }
++
++def DocCatHare : DocumentationCategory<"Hare-IDL"> {
++  let Content = [{
++Additional attributes used to modify the encoding when used by Hare-IDL tool.
++  }];
++}
++
++def HareMappingDocs : Documentation {
++  let Category = DocCatHare;
++  let Content = [{
++A class or struct declared as with ``[[hare::mapping]]`` shall be involved in Hare-IDL interaction.
++The optional string argument can reference a PUBLISHABLE_STRUCT with different class name.
++.. code-block:: c++
++
++  class [[hare::mapping]] MyClass {
++  };
++
++  class [[hare::mapping("MyPublishableStruct")]] MyClass {
++  };
++
++  }];
++}
++
++def HareEncodeAsDocs : Documentation {
++  let Category = DocCatHare;
++  let Content = [{
++The ``[[hare::encode_as()]]`` attribute allow to pass an string with encoding specific information to Hare-IDL tool.
++.. code-block:: c++
++
++  [[hare::encode_as("DELTA VLQ")]] double value;
++  }];
++}
+diff --git a/lib/Sema/SemaDeclAttr.cpp b/lib/Sema/SemaDeclAttr.cpp
+index f94c822..2bff0c5 100644
+--- a/lib/Sema/SemaDeclAttr.cpp
++++ b/lib/Sema/SemaDeclAttr.cpp
+@@ -5466,6 +5466,12 @@ static void ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D,
+   case AttributeList::AT_TypeTagForDatatype:
+     handleTypeTagForDatatypeAttr(S, D, Attr);
+     break;
++  case AttributeList::AT_HareMapping:
++    handleAttrWithMessage<HareMappingAttr>(S, D, Attr);
++    break;
++  case AttributeList::AT_HareEncodeAs:
++    handleAttrWithMessage<HareEncodeAsAttr>(S, D, Attr);
++    break;
+   }
+ }
+ 
+diff --git a/tools/C++2HareIDL/C++2HareIDL.cpp b/tools/C++2HareIDL/C++2HareIDL.cpp
+new file mode 100644
+index 0000000..63bc2a7
+--- /dev/null
++++ b/tools/C++2HareIDL/C++2HareIDL.cpp
+@@ -0,0 +1,172 @@
++/*******************************************************************************
++Copyright (C) 2016 OLogN Technologies AG
++
++This program is free software; you can redistribute it and/or modify
++it under the terms of the GNU General Public License version 2 as
++published by the Free Software Foundation.
++
++This program is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++GNU General Public License for more details.
++
++You should have received a copy of the GNU General Public License along
++with this program; if not, write to the Free Software Foundation, Inc.,
++51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++*******************************************************************************/
++
++
++#include "clang/AST/ASTConsumer.h"
++#include "clang/AST/RecursiveASTVisitor.h"
++#include "clang/Frontend/CompilerInstance.h"
++#include "clang/Frontend/FrontendAction.h"
++#include "clang/Tooling/Tooling.h"
++#include "clang/Tooling/CommonOptionsParser.h"
++#include "llvm/Support/CommandLine.h"
++
++#include <cmath>
++
++using namespace clang;
++using namespace clang::tooling;
++using namespace llvm;
++using namespace std;
++
++// Apply a custom category to all command-line options so that they are the
++// only ones displayed.
++static cl::OptionCategory myToolCategory("C++2HareIDL options");
++
++// CommonOptionsParser declares HelpMessage with a description of the common
++// command-line options related to the compilation database and input files.
++// It's nice to have this help message in all tools.
++static cl::extrahelp CommonHelp(CommonOptionsParser::HelpMessage);
++
++// A help message for this specific tool can be added afterwards.
++static cl::extrahelp MoreHelp("\nMore help text...");
++
++//static cl::opt<bool> Help("h", cl::desc("Alias for -help"), cl::Hidden);
++
++static cl::list<std::string>
++FindClasses("find-class", cl::desc("Name a class to be processed.\n"
++                             "Multiple classes can be processed by specifying\n"
++                             "several -class-name arguments.\n"),
++           cl::cat(myToolCategory));
++
++static cl::opt<bool>
++FindByAttribute("find-by-attribute", cl::desc("Process classes with attribute [[hare::mapping]].\n"),
++         cl::cat(myToolCategory));
++
++//static cl::opt<std::string> Output("o",
++//                             cl::desc("Output file name, if specified."),
++//                             cl::cat(myToolCategory));
++
++class FindNamedClassVisitor
++    : public RecursiveASTVisitor<FindNamedClassVisitor> {
++private:
++    ASTContext *context;
++public:
++    explicit FindNamedClassVisitor(ASTContext *context)
++        : context(context) {}
++
++    bool VisitCXXRecordDecl(CXXRecordDecl *declaration) {
++
++        bool process = false;
++        string name = declaration->getQualifiedNameAsString();
++
++        auto it = find(FindClasses.begin(), FindClasses.end(), name);
++        if (it != FindClasses.end()) {
++            process = true;
++        }
++        else if (FindByAttribute) {
++          if (declaration->hasAttr<HareMappingAttr>()) {
++              process = true;
++  //            HareCXXRecordAttr* at = declaration->getAttr<HareCXXRecordAttr>();
++              //for (auto it = attr->argument_begin(); it != attr->argument_end(); ++it) {
++              //    outs() << "HareCXXRecordAttr argument " << *it << "\n";
++              //}
++          }
++          else if (declaration->hasAttr<AnnotateAttr>()) {
++              AnnotateAttr* at = declaration->getAttr<AnnotateAttr>();
++              StringRef t = at->getAnnotation();
++              if (t == "hare::mapping") {
++                  process = true;
++              }
++          }
++        }
++
++        if(process) {
++            //outs() << "Found declaration " << declaration->getQualifiedNameAsString();
++            //FullSourceLoc fullLocation = context->getFullLoc(declaration->getLocStart());
++            //if (fullLocation.isValid())
++            //    outs() << " at "
++            //    << fullLocation.getSpellingLineNumber() << ":"
++            //    << fullLocation.getSpellingColumnNumber();
++
++            //outs() << "\n";
++
++            outs() << "MAPPING(Lang=\"C++\") PUBLISHABLE-STRUCT " << name << " {\n";
++            
++            RecordDecl::field_range r = declaration->fields();
++            for (auto it = r.begin(); it != r.end(); ++it) {
++                FieldDecl* current = *it;
++                string n = current->getDeclName().getAsString();
++//                string t = current->getType().getCanonicalType().getAsString();
++                string t = current->getType().getAsString();
++/*
++                if (current->hasAttr<HareEncodeAsAttr>()) {
++                    HareEncodeAsAttr* at = current->getAttr<HareEncodeAsAttr>();
++                    llvm::outs() << t.getAsString() << " " << n << " " << at->getEncoding().str() << ";\n";
++                }
++                else if (current->hasAttr<AnnotateAttr>()) {
++                    AnnotateAttr* at = current->getAttr<AnnotateAttr>();
++                    StringRef anot = at->getAnnotation();
++                    if (anot.startswith("hare::encode_as(")) {
++                        llvm::outs() << t.getAsString() << " " << n << " " << anot << ";\n";
++                    }
++                }
++                else
++*/                    llvm::outs() << t << " " << n << ";\n";
++            }
++            outs() << "};\n\n";
++//            declaration->dump();
++        }
++
++        return true;
++    }
++};
++
++class FindNamedClassConsumer : public clang::ASTConsumer {
++private:
++    FindNamedClassVisitor visitor;
++public:
++    explicit FindNamedClassConsumer(ASTContext *context)
++        : visitor(context) {}
++
++    virtual void HandleTranslationUnit(clang::ASTContext &context) {
++        visitor.TraverseDecl(context.getTranslationUnitDecl());
++    }
++};
++
++class FindNamedClassAction : public clang::ASTFrontendAction {
++public:
++    virtual std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
++        clang::CompilerInstance &compiler, llvm::StringRef inFile) {
++        return std::unique_ptr<clang::ASTConsumer>(
++            new FindNamedClassConsumer(&compiler.getASTContext()));
++    }
++};
++
++int main(int argc, const char **argv) {
++
++    CommonOptionsParser optionsParser(argc, argv, myToolCategory);
++
++    ClangTool tool(optionsParser.getCompilations(), optionsParser.getSourcePathList());
++
++    vector<string> extraArgs = { "-fno-ms-compatibility", "-xc++", "-DHAREIDL_USE_CXX11_ATTRIBUTE" };
++
++    tool.appendArgumentsAdjuster(getInsertArgumentAdjuster(extraArgs,
++        ArgumentInsertPosition::BEGIN));
++
++//    set<string> names = { "myHareSampleItem" };
++
++    return tool.run(newFrontendActionFactory<FindNamedClassAction>().get());
++}
+diff --git a/tools/C++2HareIDL/CMakeLists.txt b/tools/C++2HareIDL/CMakeLists.txt
+new file mode 100644
+index 0000000..d484011
+--- /dev/null
++++ b/tools/C++2HareIDL/CMakeLists.txt
+@@ -0,0 +1,22 @@
++set( LLVM_LINK_COMPONENTS
++  ${LLVM_TARGETS_TO_BUILD}
++  Option
++  Support
++  )
++
++add_clang_executable(C++2HareIDL
++  C++2HareIDL.cpp
++  )
++
++target_link_libraries(C++2HareIDL
++  clangAST
++  clangBasic
++  clangDriver
++  clangFrontend
++  clangRewriteFrontend
++  clangStaticAnalyzerFrontend
++  clangTooling
++  )
++
++install(TARGETS C++2HareIDL
++  RUNTIME DESTINATION bin)
+diff --git a/tools/CMakeLists.txt b/tools/CMakeLists.txt
+index 510bc44..0b3ff3e 100644
+--- a/tools/CMakeLists.txt
++++ b/tools/CMakeLists.txt
+@@ -26,3 +26,5 @@ endif()
+ # to keep the primary Clang repository small and focused.
+ # It also may be included by LLVM_EXTERNAL_CLANG_TOOLS_EXTRA_SOURCE_DIR.
+ add_llvm_external_project(clang-tools-extra extra)
++
++add_clang_subdirectory(C++2HareIDL)
+-- 
+2.6.4.windows.1
+
