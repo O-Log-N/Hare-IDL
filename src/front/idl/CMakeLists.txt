@@ -8,3 +8,6 @@ add_library(front-idl
     parser_helper.cpp
     parser_helper.h
 )
+
+set_property(TARGET front-idl PROPERTY CXX_STANDARD 11)
+set_property(TARGET front-idl PROPERTY CXX_STANDARD_REQUIRED ON)

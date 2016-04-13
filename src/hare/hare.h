@@ -37,7 +37,7 @@ namespace hare {
         : cond(cond_), msg(msg_), file(file_), line(line_), longMessage(fmt::format( "Assertion \"{}\" failed. Reason: {} File: \"{}\", line: {}\n", cond, msg, file, line )) {
        }
 
-		virtual const char* what() const override
+		virtual const char* what() const noexcept override
 		{
 			return longMessage.c_str();
 		}

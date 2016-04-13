@@ -21,6 +21,9 @@ target_link_libraries(dbgFrontIdl
   dbg-front-back
 )
 
+set_property(TARGET dbgFrontIdl PROPERTY CXX_STANDARD 11)
+set_property(TARGET dbgFrontIdl PROPERTY CXX_STANDARD_REQUIRED ON)
+
 # file(COPY sample.idl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # install(TARGETS hare RUNTIME DESTINATION bin)

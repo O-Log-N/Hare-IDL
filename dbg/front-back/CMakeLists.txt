@@ -8,3 +8,6 @@ add_library(dbg-front-back
 
 include_directories(../../src)
 
+set_property(TARGET dbg-front-back PROPERTY CXX_STANDARD 11)
+set_property(TARGET dbg-front-back PROPERTY CXX_STANDARD_REQUIRED ON)
+
