@@ -15,21 +15,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#ifndef SAMPLE_H_INCLUDED
-#define SAMPLE_H_INCLUDED
+#ifndef SAMPLE_WITH_CPP_H_INCLUDED
+#define SAMPLE_WITH_CPP_H_INCLUDED
 
 #include <cstdint>
 #include <string>
 #include <vector>
 
-#include "hareidl.h"
+#include "hare/hareidl.h"
 
 using namespace std;
-
-class myHareSampleItem {
-public:
-    string name;
-};
 
 typedef vector<myHareSampleItem> mySampleVector;
 
@@ -55,4 +50,24 @@ public:
   mySampleVector other_inventory;
 };
 
-#endif // SAMPLE_H_INCLUDED
+class Item {
+public:
+    string name;
+};
+
+class Character {
+public:
+  int character_id;
+  double x;
+  double y;
+  double z;
+  double vx;
+  double vy;
+  double vz;
+  float angle;
+//  enum Animation {Standing=0,Walking=1, Running=2} anim;
+  int animation_frame;
+  vector<Item> inventory;
+};
+
+#endif // SAMPLE_WITH_CPP_H_INCLUDED

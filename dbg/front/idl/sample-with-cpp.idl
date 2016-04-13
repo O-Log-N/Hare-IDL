@@ -1,0 +1,90 @@
+
+
+PUBLISHABLE-STRUCT Character {
+  INTEGER[0,65536] character_id;
+  FIXED-POINT[-10000,0.01,10000] x;
+  FIXED-POINT[-10000,0.01,10000] y;
+  FIXED-POINT[-100,0.01,100] z;
+  FIXED-POINT[-10,0.01,10] vx;
+  FIXED-POINT[-10,0.01,10] vy;
+  FIXED-POINT[-10,0.01,10] vz;
+  FIXED-POINT[0,0.01,360) angle;
+  enum Animation {Standing=0,Walking=1, Running=2} anim;
+  INTEGER[0,120) animation_frame;
+  SEQUENCE<Item> inventory;
+};
+
+
+MAPPING(Lang="C++") { FILE "sample-with-cpp.h" {
+  CLASS Character;
+
+} 
+};
+
+
+MAPPING(Lang="CPP",Role="Server") PUBLISHABLE-STRUCT Character {
+  // here we're omitting all the default mappings
+  float angle;
+  class MyInventory inventory;
+    //class MyInventory will be used as a type for generated
+    //  Character.inventory
+    //To enable serialization/deserialization,
+    //  MyInventory MUST implement the following member functions:
+    // size_t idl_serialize_collection_get_size(),
+    // const Item& idl_serialize_collection_get_item(size_t idx),
+    // void idl_deserialize_collection_reserve_size(size_t),
+    // void idl_deserialize_collection_add_item(const Item&)
+};
+
+
+ENCODING(Name="MYENCODING1") PUBLISHABLE-STRUCT Character {
+  VLQ character_id;
+  DELTA {
+    FIXED_POINT(precision=0.01) x;//for rendering purposes, we need our coordinates
+                        //only with precision of 1cm
+                        //validity range is already defined in IDL
+                        //NB: given the range and precision,
+                        // 'x' has 20'000'000 possible values,
+                        // so it can be encoded with 21 bits
+    FIXED_POINT(precision=0.01) y;
+    FIXED_POINT(precision=0.01) z;
+    FIXED_POINT(precision=0.01) vx;
+    FIXED_POINT(precision=0.01) vy;
+    FIXED_POINT(precision=0.01) vz;
+  }
+  DELTA FIXED_POINT(precision=0.01) angle;//given the range specified in IDL,
+                                //  FIXED_POINT(0.01) can be encoded
+                                //  with 16 bits
+  DELTA BIT(length=2) Animation;//can be omitted, as 2-bit is default
+                         //  for 3-value enum in MYENCODING1
+  DELTA VLQ animation_frame;
+  DELTA SEQUENCE<Item> inventory;
+};
+
+
+ENCODING(Name="MYENCODING2") PUBLISHABLE-STRUCT Character {
+  VLQ character_id;
+  DELTA {
+    DEAD_RECKONING(Tolerance=0.02) {//0.02 is maximum acceptable coordinate
+                          // deviation due to dead reckoning
+      FIXED_POINT(precision=0.01) x;
+      FIXED_POINT(precision=0.01) vx;
+    }
+    DEAD_RECKONING(Tolerance=0.02) {
+      FIXED_POINT(precision=0.01) y;
+      FIXED_POINT(precision=0.01) vy;
+    }
+    DEAD_RECKONING { //by default, maximum acceptable deviation
+                     //  due to dead reckoning
+                     // is the same as for coordinate
+                     //  (0.01 in this case)
+      FIXED_POINT(precision=0.01) z;
+      FIXED_POINT(precision=0.01) vz;
+    }
+  }//DELTA
+  DELTA FIXED_POINT(precision=0.01) angle;
+  DELTA BIT(length=2) Animation;
+  DELTA VLQ animation_frame;
+  DELTA SEQUENCE<Item> inventory;
+};
+
