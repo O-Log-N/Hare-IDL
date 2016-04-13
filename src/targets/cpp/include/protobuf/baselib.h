@@ -23,6 +23,27 @@ Copyright (C) 2016  OLogN Technologies AG
 #include <string>
 using namespace std;
 
+#ifdef _MSC_VER
+#define LIKELY_BRANCH_( X ) (X)
+#else
+#define LIKELY_BRANCH_( X ) __builtin_expect( (X), 1 )
+#endif
+
+
+#if _MSC_VER
+#define ALIGN(n)      __declspec(align(n))
+#define NOINLINE      __declspec(noinline)
+#define FORCE_INLINE	__forceinline
+#elif __GNUC__
+#define NOINLINE      __attribute__ ((noinline))
+#define	FORCE_INLINE inline __attribute__((always_inline))
+#define ALIGN(n)      __attribute__ ((aligned(n))) 
+#else
+#define	FORCE_INLINE inline
+#define NOINLINE
+#define ALIGN(n)
+#warning ALIGN, FORCE_INLINE and NOINLINE may not be properly defined
+#endif
 
 enum WIRE_TYPE
 {
@@ -259,7 +280,7 @@ public:
 	bool readFieldTypeAndID( int& type, int& fieldNumber )
 	{
 		uint8_t buff[12];
-		memset( buff, 0, 12 );
+//		memset( buff, 0, 12 );
 		int pos = 0;
 		size_t readret;
 		for (;;)
@@ -274,6 +295,26 @@ public:
 				return true;
 			}
 			++pos;
+		}
+		return false; // TODO: think about incomplete/broken packet
+	}
+	bool readFieldTypeAndID( uint64_t& typeAndFieldNumber )
+	{
+		uint8_t buff[12];
+//		memset( buff, 0, 12 );
+		int pos = 0;
+		size_t readret;
+		for (pos;pos<12;++pos)
+		{
+//			readret = fread( buff + pos, 1, 1, instr );
+			readret = readData( buff + pos, 1 );
+			if ( readret == 0 )
+				return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
+			if ( ( buff[pos] & 0x80 ) == 0 )
+			{
+				deserializeFromStringVariantUint64( typeAndFieldNumber, buff );
+				return true;
+			}
 		}
 		return false; // TODO: think about incomplete/broken packet
 	}
@@ -365,6 +406,12 @@ public:
 			++pos;
 		}
 
+#if 1
+		x.resize( stringSz + 1 );
+		uint8_t* strBuff = reinterpret_cast<uint8_t*>(const_cast<char*>(x.c_str()));
+		strBuff[stringSz] = 0;
+		return readret == readData( strBuff, stringSz );
+#else
 		for ( ; stringSz; --stringSz )
 		{
 //			readret = fread( buff, 1, 1, instr );
@@ -375,6 +422,7 @@ public:
 		}
 
 		return true;
+#endif // 1/0
 	}
 };
 
