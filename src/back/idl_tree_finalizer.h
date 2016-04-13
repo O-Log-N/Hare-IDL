@@ -15,38 +15,14 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#include "idlc_back.h"
+#ifndef IDL_TREE_FINALIZER_H
+#define IDL_TREE_FINALIZER_H
+
+#include "../idlc_include.h"
 #include "back_idl_tree.h"
-#include "template_tree_builder.h"
-#include "template_instantiator_derived.h"
-#include "idl_tree_finalizer.h"
 
-using namespace std;
+void finalizeTree( BackRoot& root );
+void prevalidateTree( BackRoot& root );
 
-void idlcBackEnd( Root& root )
-{
-	BackRoot backRoot;
-	convertToBackTree( root, backRoot );
-	finalizeTree( backRoot );
-	prevalidateTree( backRoot );
 
-	TemplateNodeSpace nodeSpace;
-
-	FILE* tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/cpp/codegen/protobuf/protobuff_gen.txt", "rb" );
-//	FILE* tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template5.txt", "rb" );
-	if ( tf == NULL )
-	{
-		fmt::print( "failed to open template file\n" );
-		return;
-	}
-
-	int line = 0;
-	if ( !loadTemplates( tf, nodeSpace, line ) )
-		return;
-	fmt::print( "\n\n" );
-//	dbgPrintTree( template_root );
-	dbgPrintTemplateTrees( nodeSpace );
-	fmt::print( "\n\n" );
-
-	apply( backRoot, nodeSpace );
-}
+#endif //IDL_TREE_FINALIZER_H

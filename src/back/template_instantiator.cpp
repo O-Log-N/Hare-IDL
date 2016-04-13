@@ -390,10 +390,6 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 		}
 		case NODE_TYPE::INCLUDE_WITH:
 		{
-if ( node.srcLineNum == 0x7e )
-{
-	node.srcLineNum = 0x7e;
-}
 			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
 			assert( attr != node.attributes.end() );
 			auto& expr = attr->second;
@@ -416,10 +412,6 @@ if ( node.srcLineNum == 0x7e )
 					auto& expr1 = it.second;
 					Stack stack1;
 					evaluateExpression( expr1, stack1 );
-if ( !( stack1.size() == 1 ) )
-{
-	size_t h = stack.size();
-}
 					assert( stack1.size() == 1 );
 //					assert( stack1[0].argtype == ARGTYPE::STRING );
 //					string resolved = stack1[0].lineParts[0].verbatim;
@@ -487,29 +479,13 @@ if ( !( stack1.size() == 1 ) )
 				assert( obj->resolvedLocalPlaceholders.size() == 0 );
 				// NOTE: we continue with the same template and with the same  lists of resolved locals and params
 				obj->resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholders) );
-if ( resolvedLocalPlaceholders.size() )
-fmt::print("[1]: {} -- ", resolvedLocalPlaceholders.begin()->second.lineParts.size() );
-else
-fmt::print("[1]: none -- " );
 				obj->resolvedLocalPlaceholders = map<string, StackElement>( std::move(resolvedLocalPlaceholders) );
-if ( obj->resolvedLocalPlaceholders.size() )
-fmt::print("[2]: {}\n", obj->resolvedLocalPlaceholders.begin()->second.lineParts.size() );
-else
-fmt::print("[2]: none\n" );
 				for ( auto nodeit:node.childNodes )
 				{
 					obj->applyNode(nodeit );
-if ( obj->resolvedLocalPlaceholders.size() )
-fmt::print("[3]: {} -- \n", obj->resolvedLocalPlaceholders.begin()->second.lineParts.size() );
-else
-fmt::print("[3]: none -- \n" );
 				}
 				resolvedParamPlaceholders = map<string, StackElement>( std::move(obj->resolvedParamPlaceholders) );
 				resolvedLocalPlaceholders = map<string, StackElement>( std::move(obj->resolvedLocalPlaceholders) );
-if ( resolvedLocalPlaceholders.size() )
-fmt::print("[4]: {}\n", resolvedLocalPlaceholders.begin()->second.lineParts.size() );
-else
-fmt::print("[4]: none\n" );
 			}
 			break;
 		}

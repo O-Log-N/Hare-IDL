@@ -73,6 +73,10 @@ public:
 	Structure::DECLTYPE declType; 
 	Structure::TYPE type; 
 	string name; 
+
+	BackStructure* idlStruct = nullptr;
+	BackStructure* mappingStruct = nullptr;
+	BackStructure* encodingStruct = nullptr;
 };
 
 class BackRoot
