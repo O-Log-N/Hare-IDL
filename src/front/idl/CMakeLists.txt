@@ -9,5 +9,10 @@ add_library(front-idl
     parser_helper.h
 )
 
+target_link_libraries(front-idl
+  cppformat
+  tiny-process-library
+)
+
 set_property(TARGET front-idl PROPERTY CXX_STANDARD 11)
 set_property(TARGET front-idl PROPERTY CXX_STANDARD_REQUIRED ON)

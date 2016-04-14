@@ -16,8 +16,6 @@ include_directories(../../../src)
 
 target_link_libraries(dbgFrontIdl
   front-idl
-  cppformat
-  tiny-process-library
   dbg-front-back
 )
 

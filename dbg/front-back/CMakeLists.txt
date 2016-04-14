@@ -11,3 +11,7 @@ include_directories(../../src)
 set_property(TARGET dbg-front-back PROPERTY CXX_STANDARD 11)
 set_property(TARGET dbg-front-back PROPERTY CXX_STANDARD_REQUIRED ON)
 
+target_link_libraries(dbg-front-back
+  cppformat
+)
+
