@@ -21,7 +21,25 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "../idlc_include.h"
 #include "back_idl_tree.h"
 
-void finalizeTree( BackRoot& root );
+enum class TREE_DATA_COMPLETION_SCENARIO
+{
+	IDL_MAP_ENC, // all present and are to be just matched
+	IDL_ONLY, // idl -> mapping, idl -> encoding
+	MAP_ONLY, // map -> idl -> encoding
+	ENC_ONLY, // encoding -> idl -> mapping
+	IDL_MAP, // {idl, mapping: matching}, idl -> encoding
+	IDL_ENC, // {idl, encoding: matching}, idl -> mapping
+	MAJOR_MAP_ENC, // mapping -> idl, {idl, encoding: matching}
+	MAJOR_ENC_MAP, // encoding -> idl, {idl, mapping: matching}
+};
+
+enum class TREE_DATA_COMPLETION_OPERATION
+{
+	MATCH,
+	OVERRIDE
+};
+
+void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario );
 void prevalidateTree( BackRoot& root );
 
 

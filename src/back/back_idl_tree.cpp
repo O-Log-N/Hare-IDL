@@ -69,6 +69,17 @@ void convertToBackTree( const Root& root, BackRoot& backRoot )
 	for ( i=0; i<root.structures.size(); i++ )
 	{
 		BackStructure* ret = copyStructure( &(*(root.structures[i])) );
-		backRoot.structures.push_back( unique_ptr<BackStructure>(ret) );
+		switch ( ret->declType )
+		{
+			case Structure::DECLTYPE::IDL: backRoot.structuresIdl.push_back( unique_ptr<BackStructure>(ret) ); break;
+			case Structure::DECLTYPE::MAPPING: backRoot.structuresMapping.push_back( unique_ptr<BackStructure>(ret) ); break;
+			case Structure::DECLTYPE::ENCODING: backRoot.structuresEncoding.push_back( unique_ptr<BackStructure>(ret) ); break;
+			default:
+			{
+				// TODO: report error
+				assert( 0 );
+			}
+		}
+		
 	}
 }

@@ -28,6 +28,10 @@ class BackEncodedOrMember
 protected:
 	BackEncodedMembers* parent;
 public:
+	BackEncodedOrMember* idlRepresentation = nullptr;
+	BackEncodedOrMember* mappingRepresentation = nullptr;
+	BackEncodedOrMember* encodingRepresentation = nullptr;
+
 	BackEncodedOrMember() {parent = NULL;}
 	virtual ~BackEncodedOrMember(){} 
 	BackEncodedMembers* getParent() {return parent;}
@@ -51,7 +55,7 @@ public:
 		parent = this;
 		members.push_back( unique_ptr<BackEncodedOrMember>(child) );
 	}
-	size_t getChildCount()
+	size_t getChildCount() const
 	{
 		return members.size();
 	}
@@ -73,16 +77,14 @@ public:
 	Structure::DECLTYPE declType; 
 	Structure::TYPE type; 
 	string name; 
-
-	BackStructure* idlStruct = nullptr;
-	BackStructure* mappingStruct = nullptr;
-	BackStructure* encodingStruct = nullptr;
 };
 
 class BackRoot
 {
 public:
-	vector<unique_ptr<BackStructure>> structures;
+	vector<unique_ptr<BackStructure>> structuresIdl;
+	vector<unique_ptr<BackStructure>> structuresMapping;
+	vector<unique_ptr<BackStructure>> structuresEncoding;
 };
 
 

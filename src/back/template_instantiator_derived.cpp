@@ -37,10 +37,8 @@ void RootTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUN
 		{
 			StackElement elem;
 			elem.argtype = ARGTYPE::OBJPTR_LIST;
-			for ( auto& it:root->structures )
+			for ( auto& it:root->structuresIdl )
 			{
-				if ( it->declType != Structure::DECLTYPE::IDL )
-					continue;
 				StructTemplateInstantiator* structti = new StructTemplateInstantiator( *it, templateSpace, outstr );
 				elem.objects.push_back( unique_ptr<TemplateInstantiator>(structti) );
 			}

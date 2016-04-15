@@ -27,8 +27,8 @@ void idlcBackEnd( Root& root )
 {
 	BackRoot backRoot;
 	convertToBackTree( root, backRoot );
-	finalizeTree( backRoot );
-	prevalidateTree( backRoot );
+	TREE_DATA_COMPLETION_SCENARIO scenario = TREE_DATA_COMPLETION_SCENARIO::IDL_MAP; // TODO: must be precalculated from user input
+	finalizeTree( backRoot, scenario );
 
 	TemplateNodeSpace nodeSpace;
 
