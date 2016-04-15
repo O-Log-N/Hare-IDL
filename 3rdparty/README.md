@@ -12,3 +12,9 @@
 URL: https://github.com/cppformat/cppformat
 
 License: 2-clause BSD
+
+##### tiny-process-library
+
+URL: https://github.com/eidheim/tiny-process-library
+
+License: MIT
