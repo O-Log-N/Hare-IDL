@@ -1,17 +1,17 @@
-From 41e12e1bb0ba5c4e2632e94a999c2db14637c860 Mon Sep 17 00:00:00 2001
+From 8d60f3e862e4f98f3f0f407f8f6d8cd07deb40e1 Mon Sep 17 00:00:00 2001
 From: mb <mb@o-log-n.com>
 Date: Tue, 5 Apr 2016 17:39:39 -0300
 Subject: [PATCH] Added HareIDL attribute support. Added C++2HareIDL tool
  project.
 
 ---
- include/clang/Basic/Attr.td       |  14 ++++
+ include/clang/Basic/Attr.td       |  14 +++
  include/clang/Basic/AttrDocs.td   |  32 +++++++
  lib/Sema/SemaDeclAttr.cpp         |   6 ++
- tools/C++2HareIDL/C++2HareIDL.cpp | 172 ++++++++++++++++++++++++++++++++++++++
+ tools/C++2HareIDL/C++2HareIDL.cpp | 196 ++++++++++++++++++++++++++++++++++++++
  tools/C++2HareIDL/CMakeLists.txt  |  22 +++++
  tools/CMakeLists.txt              |   2 +
- 6 files changed, 248 insertions(+)
+ 6 files changed, 272 insertions(+)
  create mode 100644 tools/C++2HareIDL/C++2HareIDL.cpp
  create mode 100644 tools/C++2HareIDL/CMakeLists.txt
 
@@ -96,10 +96,10 @@ index f94c822..2bff0c5 100644
  
 diff --git a/tools/C++2HareIDL/C++2HareIDL.cpp b/tools/C++2HareIDL/C++2HareIDL.cpp
 new file mode 100644
-index 0000000..63bc2a7
+index 0000000..f0d043e
 --- /dev/null
 +++ b/tools/C++2HareIDL/C++2HareIDL.cpp
-@@ -0,0 +1,172 @@
+@@ -0,0 +1,196 @@
 +/*******************************************************************************
 +Copyright (C) 2016 OLogN Technologies AG
 +
@@ -204,15 +204,39 @@ index 0000000..63bc2a7
 +            //    << fullLocation.getSpellingColumnNumber();
 +
 +            //outs() << "\n";
++            raw_ostream& os = outs();
 +
-+            outs() << "MAPPING(Lang=\"C++\") PUBLISHABLE-STRUCT " << name << " {\n";
++            os << "MAPPING(Lang=\"C++\") PUBLISHABLE-STRUCT " << name << " {\n";
 +            
 +            RecordDecl::field_range r = declaration->fields();
 +            for (auto it = r.begin(); it != r.end(); ++it) {
 +                FieldDecl* current = *it;
 +                string n = current->getDeclName().getAsString();
 +//                string t = current->getType().getCanonicalType().getAsString();
-+                string t = current->getType().getAsString();
++                QualType qt = current->getType();
++                const Type* t = qt.getCanonicalType().getTypePtrOrNull();
++                //assert(t);
++                if (t->isEnumeralType()) {
++                    os << qt.getAsString() << " ";
++                    EnumDecl* ed = t->getAs<EnumType>()->getDecl();
++                    auto r = ed->enumerators();
++                    if (r.begin() != r.end()) {
++                        os << "{";
++                        for (auto it = r.begin(); it != r.end(); ++it) {
++                            if(it != r.begin())
++                                os << ",";
++
++                            os << it->getName();
++                            os << "=";
++                            os << it->getInitVal();
++                        }
++                        os << "}";
++                    }
++                    os << " " << n << ";\n";
++                }
++                else {
++                    os << qt.getAsString() << " " << n << ";\n";
++                }
 +/*
 +                if (current->hasAttr<HareEncodeAsAttr>()) {
 +                    HareEncodeAsAttr* at = current->getAttr<HareEncodeAsAttr>();
@@ -226,9 +250,9 @@ index 0000000..63bc2a7
 +                    }
 +                }
 +                else
-+*/                    llvm::outs() << t << " " << n << ";\n";
++*/
 +            }
-+            outs() << "};\n\n";
++            os << "};\n\n";
 +//            declaration->dump();
 +        }
 +
@@ -263,7 +287,7 @@ index 0000000..63bc2a7
 +
 +    ClangTool tool(optionsParser.getCompilations(), optionsParser.getSourcePathList());
 +
-+    vector<string> extraArgs = { "-fno-ms-compatibility", "-xc++", "-DHAREIDL_USE_CXX11_ATTRIBUTE" };
++    vector<string> extraArgs = { "-fno-ms-compatibility", "-DHAREIDL_USE_CXX11_ATTRIBUTE" };
 +
 +    tool.appendArgumentsAdjuster(getInsertArgumentAdjuster(extraArgs,
 +        ArgumentInsertPosition::BEGIN));
