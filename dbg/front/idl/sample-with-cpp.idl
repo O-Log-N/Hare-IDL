@@ -15,9 +15,8 @@ PUBLISHABLE-STRUCT Character {
 };
 
 
-MAPPING(Lang="C++") { FILE "sample-with-cpp.h" {
+MAPPING(Lang="C++", ClangOptions="-D_DEBUG -I..\..\..\src") { FILE "sample-with-cpp.h" {
   CLASS Character;
-
 } 
 };
 

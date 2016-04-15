@@ -59,6 +59,8 @@ YYSTYPE createFloatLiteral(const char* text, int line);
 YYSTYPE addToFile(YYSTYPE file, YYSTYPE item);
 YYSTYPE addTypedefToFile(YYSTYPE file, YYSTYPE td);
 
+void processLineDirective(YYSTYPE line_number, YYSTYPE file_name);
+
 YYSTYPE addToStruct(YYSTYPE decl, YYSTYPE attr);
 
 YYSTYPE createAttribute(YYSTYPE type, YYSTYPE id);

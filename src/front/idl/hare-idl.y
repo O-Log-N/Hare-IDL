@@ -16,6 +16,7 @@ Copyright (C) 2016 OLogN Technologies AG
 *******************************************************************************/
 
 
+%token KW_HASH_LINE
 %token KW_PUBLISHABLE_STRUCT
 %token KW_TYPEDEF
 %token KW_ENUM KW_CLASS
@@ -47,12 +48,18 @@ extern int yylex();
 %%
 
 file : { $$ = 0; }
+	| file line_directive { $$ = 0; releaseYys2($1, $2); }
 	| file typedef_decl { $$ = addTypedefToFile($1, $2); }
     | file publishable_struct { $$ = addToFile($1, $2); }
 	| file mapping { $$ = addToFile($1, $2); }
 	| file ext_file_mapping { $$ = processExtFileMapping($1, $2); }
 	| file encoding { $$ = addToFile($1, $2); }
     | file discriminated_union { $$ = addToFile($1, $2); }
+;
+
+line_directive
+	: KW_HASH_LINE INTEGER_LITERAL ';' { $$ = 0; processLineDirective($2, 0); releaseYys2($1, $3); }
+	| KW_HASH_LINE INTEGER_LITERAL STRING_LITERAL ';' { $$ = 0; processLineDirective($2, $3); releaseYys2($1, $4); }
 ;
 
 typedef_decl
@@ -72,6 +79,7 @@ publishable_struct
 
 mapping_begin
 	: KW_MAPPING '(' arg_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createMapping($1, $3, $6); releaseYys4($2, $4, $5, $7); }
+	| mapping_begin line_directive { $$ = 0; releaseYys2($1, $2); }
 	| mapping_begin data_type IDENTIFIER ';' { $$ = addToStruct($1, createAttribute($2, $3));  releaseYys($4); }
     | mapping_begin IDENTIFIER IDENTIFIER ';' { $$ = addToStruct($1, createAttribute(createIdType($2), $3));  releaseYys($4); }
 ;
@@ -93,6 +101,7 @@ ext_file_mapping
 
 encoding_begin
 	: KW_ENCODING '(' arg_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createEncoding($1, $3, $6); releaseYys4($2, $4, $5, $7); }
+	| encoding_begin line_directive { $$ = 0; releaseYys2($1, $2); }
 	| encoding_begin data_element { $$ = addToEncoding($1, $2); }
 	| encoding_begin data_group { $$ = addToEncoding($1, $2); }
     | encoding_begin KW_FENCE { $$ = addFenceToEncoding($1, $2); }

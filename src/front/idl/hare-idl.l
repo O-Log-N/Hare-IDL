@@ -61,6 +61,8 @@ int createToken(int token)
 	"/*" { jumpToState( COMMENT ) ; }
 	"//" { jumpToState( SLCOMMENT ) ; }
 
+    "#line" { return createToken( KW_HASH_LINE ); }
+
     "PUBLISHABLE-STRUCT" { return createToken( KW_PUBLISHABLE_STRUCT ); }
     "TYPEDEF" { return createToken( KW_TYPEDEF ); }
 	"enum" { return createToken( KW_ENUM ); }

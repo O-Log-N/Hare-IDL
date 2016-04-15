@@ -532,6 +532,21 @@ YYSTYPE addTypedefToFile(YYSTYPE file, YYSTYPE td)
     return 0;
 }
 
+void processLineDirective(YYSTYPE line_number, YYSTYPE file_name)
+{
+    unique_ptr<YyBase> d0(line_number);
+    unique_ptr<YyBase> d1(file_name);
+
+    YyIntegerLiteral* intLit = yystype_cast<YyIntegerLiteral*>(line_number);
+    if (intLit->value > 0 && intLit->value < INT_MAX)
+        yylineno = static_cast<int>(intLit->value);
+
+    if (file_name) {
+        YyStringLiteral* strLit = yystype_cast<YyStringLiteral*>(line_number);
+        currentFileName = strLit->text;
+    }
+}
+
 
 YYSTYPE addToStruct(YYSTYPE decl, YYSTYPE attr)
 {
@@ -663,12 +678,24 @@ YYSTYPE processExtFileMapping(YYSTYPE file, YYSTYPE decl)
     else {
         string lang = l->second.stringValue;
         if (lang == "C++") {
-            
+
             string findNames;
             for (auto each : yy->classNames)
                 findNames += fmt::format("-find-class={} ", each);
 
-            string cmdLine = fmt::format("C++2HareIDL {} {} --", findNames, yy->fileName);
+            string clangOpts = "-xc++";
+
+            auto opts = args.find("ClangOptions");
+            if (opts != args.end()) {
+                if (opts->second.kind == Variant::STRING) {
+                    clangOpts += " ";
+                    clangOpts += opts->second.stringValue;
+                }
+                else
+                    reportError(decl->location, "Attribute 'ClangOptions' must be string.");
+            }
+
+            string cmdLine = fmt::format("C++2HareIDL {} {} -- {}", findNames, yy->fileName, clangOpts);
 
             string outBuffer;
 
@@ -677,10 +704,14 @@ YYSTYPE processExtFileMapping(YYSTYPE file, YYSTYPE decl)
             });
 
             int result = process.get_exit_status();
-            if(result == -1)
-                reportError(decl->location, "Failed to launch external process c++2idl.");
-            else if (result != 0)
-                reportError(decl->location, "External process c++2idl finished with errors.");
+            if (result == -1) {
+                reportError(decl->location, "Failed to launch external process.");
+                reportError(decl->location, fmt::format("'{}'", cmdLine));
+            }
+            else if (result != 0) {
+                reportError(decl->location, fmt::format("External process finished with error code {}.", result));
+                reportError(decl->location, fmt::format("'{}'", cmdLine));
+            }
             else
                 parseStringBuffer(outBuffer, yy->fileName);
         }

@@ -26,6 +26,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 using namespace std;
 
+class myHareSampleItem {
+public:
+    string name;
+};
+
 typedef vector<myHareSampleItem> mySampleVector;
 
 class HAREIDL(mapping("SomeName")) myHareSampleItem2 {
@@ -65,7 +70,7 @@ public:
   double vy;
   double vz;
   float angle;
-//  enum Animation {Standing=0,Walking=1, Running=2} anim;
+  enum Animation {Standing=0,Walking=1, Running=2} anim;
   int animation_frame;
   vector<Item> inventory;
 };
