@@ -39,6 +39,7 @@ static set<YyBase*> dbgLeakDetector;
 static bool errorFlag = false;
 
 static vector<unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)>> bufferStack;
+static vector<pair<string, int> > fileLineStack;
 
 //static const set<string> primitives = { "INT8", "INT16", "INT32", "UINT8", "UINT16", "UINT32" };
 
@@ -538,12 +539,13 @@ void processLineDirective(YYSTYPE line_number, YYSTYPE file_name)
     unique_ptr<YyBase> d1(file_name);
 
     YyIntegerLiteral* intLit = yystype_cast<YyIntegerLiteral*>(line_number);
-    if (intLit->value > 0 && intLit->value < INT_MAX)
-        yylineno = static_cast<int>(intLit->value);
+    if (intLit->value > 0 && intLit->value < INT_MAX) {
+        yylineno = static_cast<int>(intLit->value - 1);
 
-    if (file_name) {
-        YyStringLiteral* strLit = yystype_cast<YyStringLiteral*>(line_number);
-        currentFileName = strLit->text;
+        if (file_name) {
+            YyStringLiteral* strLit = yystype_cast<YyStringLiteral*>(file_name);
+            currentFileName = strLit->text;
+        }
     }
 }
 
@@ -701,6 +703,8 @@ YYSTYPE processExtFileMapping(YYSTYPE file, YYSTYPE decl)
 
             Process process(cmdLine, string(), [&](const char *bytes, size_t n) {
                 outBuffer.append(bytes, n);
+            }, [&](const char *bytes, size_t n) {
+                fwrite(bytes, sizeof(char), n, stderr);
             });
 
             int result = process.get_exit_status();
@@ -1313,6 +1317,7 @@ YYSTYPE addToCharSet(YYSTYPE list, YYSTYPE from, YYSTYPE to)
 static
 void parseSourceFileInternal(const string& fileName)
 {
+    fileLineStack.emplace_back(currentFileName, yylineno);
     currentFileName = fileName;
     yylineno = 1;
 
@@ -1322,6 +1327,10 @@ void parseSourceFileInternal(const string& fileName)
     bufferStack.pop_back();
     if(!bufferStack.empty())
         yy_switch_to_buffer(bufferStack.back().get());
+
+    currentFileName = fileLineStack.back().first;
+    yylineno = fileLineStack.back().second;
+    fileLineStack.pop_back();
 
     if (errorFlag | (err != 0) )
         throw ParserException(fmt::format("Errors found while parsing file '{}'.", fileName));

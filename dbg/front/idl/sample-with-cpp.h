@@ -66,9 +66,23 @@ public:
   double x;
   double y;
   double z;
+  
+
+
+
   double vx;
   double vy;
   double vz;
+  
+
+
+
+
+
+
+
+
+
   float angle;
   enum Animation {Standing=0,Walking=1, Running=2} anim;
   int animation_frame;

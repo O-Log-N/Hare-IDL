@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 {
     // don't try-catch, since this is debug only code, better to have an unhandled exception
 
-    string fileName = "sample.idl";
+    string fileName = "sample-with-cpp.idl";
     if (argc == 2)
         fileName = argv[1];
 
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     HAREASSERT(root);
 
     dbgDumpLeaks();
-    dbgDumpTree(stdout, root, false);
+    dbgDumpTree(stdout, root, true);
 
     return 0;
 }

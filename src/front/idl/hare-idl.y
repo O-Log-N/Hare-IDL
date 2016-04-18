@@ -79,7 +79,7 @@ publishable_struct
 
 mapping_begin
 	: KW_MAPPING '(' arg_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createMapping($1, $3, $6); releaseYys4($2, $4, $5, $7); }
-	| mapping_begin line_directive { $$ = 0; releaseYys2($1, $2); }
+	| mapping_begin line_directive { $$ = $1; releaseYys($2); }
 	| mapping_begin data_type IDENTIFIER ';' { $$ = addToStruct($1, createAttribute($2, $3));  releaseYys($4); }
     | mapping_begin IDENTIFIER IDENTIFIER ';' { $$ = addToStruct($1, createAttribute(createIdType($2), $3));  releaseYys($4); }
 ;
@@ -101,7 +101,7 @@ ext_file_mapping
 
 encoding_begin
 	: KW_ENCODING '(' arg_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createEncoding($1, $3, $6); releaseYys4($2, $4, $5, $7); }
-	| encoding_begin line_directive { $$ = 0; releaseYys2($1, $2); }
+	| encoding_begin line_directive { $$ = $1; releaseYys($2); }
 	| encoding_begin data_element { $$ = addToEncoding($1, $2); }
 	| encoding_begin data_group { $$ = addToEncoding($1, $2); }
     | encoding_begin KW_FENCE { $$ = addFenceToEncoding($1, $2); }

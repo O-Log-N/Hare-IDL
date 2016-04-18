@@ -2481,7 +2481,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 82 "hare-idl.y"
-    { (yyval) = 0; releaseYys2((yyvsp[(1) - (2)]), (yyvsp[(2) - (2)])); ;}
+    { (yyval) = (yyvsp[(1) - (2)]); releaseYys((yyvsp[(2) - (2)])); ;}
     break;
 
   case 20:
@@ -2544,7 +2544,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 104 "hare-idl.y"
-    { (yyval) = 0; releaseYys2((yyvsp[(1) - (2)]), (yyvsp[(2) - (2)])); ;}
+    { (yyval) = (yyvsp[(1) - (2)]); releaseYys((yyvsp[(2) - (2)])); ;}
     break;
 
   case 29:

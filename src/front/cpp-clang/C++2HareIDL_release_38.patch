@@ -1,17 +1,17 @@
-From 8d60f3e862e4f98f3f0f407f8f6d8cd07deb40e1 Mon Sep 17 00:00:00 2001
+From c39ab0098843b95abcbf5875de3af82386078bcf Mon Sep 17 00:00:00 2001
 From: mb <mb@o-log-n.com>
 Date: Tue, 5 Apr 2016 17:39:39 -0300
 Subject: [PATCH] Added HareIDL attribute support. Added C++2HareIDL tool
- project.
+ project. Added #line output capability.
 
 ---
  include/clang/Basic/Attr.td       |  14 +++
- include/clang/Basic/AttrDocs.td   |  32 +++++++
+ include/clang/Basic/AttrDocs.td   |  32 ++++++
  lib/Sema/SemaDeclAttr.cpp         |   6 ++
- tools/C++2HareIDL/C++2HareIDL.cpp | 196 ++++++++++++++++++++++++++++++++++++++
- tools/C++2HareIDL/CMakeLists.txt  |  22 +++++
+ tools/C++2HareIDL/C++2HareIDL.cpp | 222 ++++++++++++++++++++++++++++++++++++++
+ tools/C++2HareIDL/CMakeLists.txt  |  22 ++++
  tools/CMakeLists.txt              |   2 +
- 6 files changed, 272 insertions(+)
+ 6 files changed, 298 insertions(+)
  create mode 100644 tools/C++2HareIDL/C++2HareIDL.cpp
  create mode 100644 tools/C++2HareIDL/CMakeLists.txt
 
@@ -96,10 +96,10 @@ index f94c822..2bff0c5 100644
  
 diff --git a/tools/C++2HareIDL/C++2HareIDL.cpp b/tools/C++2HareIDL/C++2HareIDL.cpp
 new file mode 100644
-index 0000000..f0d043e
+index 0000000..9715aec
 --- /dev/null
 +++ b/tools/C++2HareIDL/C++2HareIDL.cpp
-@@ -0,0 +1,196 @@
+@@ -0,0 +1,222 @@
 +/*******************************************************************************
 +Copyright (C) 2016 OLogN Technologies AG
 +
@@ -196,17 +196,15 @@ index 0000000..f0d043e
 +        }
 +
 +        if(process) {
-+            //outs() << "Found declaration " << declaration->getQualifiedNameAsString();
-+            //FullSourceLoc fullLocation = context->getFullLoc(declaration->getLocStart());
-+            //if (fullLocation.isValid())
-+            //    outs() << " at "
-+            //    << fullLocation.getSpellingLineNumber() << ":"
-+            //    << fullLocation.getSpellingColumnNumber();
-+
-+            //outs() << "\n";
 +            raw_ostream& os = outs();
 +
++            FullSourceLoc fullLocation = context->getFullLoc(declaration->getLocStart());
++            StringRef fn = fullLocation.getManager().getFilename(fullLocation);
++            unsigned int line = fullLocation.getSpellingLineNumber();
++            os << "#line " << line << " \"" << fn << "\";\n";
++
 +            os << "MAPPING(Lang=\"C++\") PUBLISHABLE-STRUCT " << name << " {\n";
++            ++line;
 +            
 +            RecordDecl::field_range r = declaration->fields();
 +            for (auto it = r.begin(); it != r.end(); ++it) {
@@ -215,6 +213,32 @@ index 0000000..f0d043e
 +//                string t = current->getType().getCanonicalType().getAsString();
 +                QualType qt = current->getType();
 +                const Type* t = qt.getCanonicalType().getTypePtrOrNull();
++
++                FullSourceLoc currentLoc = context->getFullLoc(current->getLocStart());
++                unsigned int currentLine = currentLoc.getSpellingLineNumber();
++                StringRef currentFn = currentLoc.getManager().getFilename(currentLoc);
++
++                if (fn != currentFn) {
++                    fn = currentFn;
++                    line = currentLine;
++                    os << "#line " << line << " \"" << fn << "\";\n";
++                }
++                else {
++
++                    if (currentLine != line) {
++                        if (currentLine > line && currentLine - line < 10) {
++                            while (currentLine != line) {
++                                os << "\n";
++                                ++line;
++                            }
++                        }
++                        else {
++                            line = currentLine;
++                            os << "#line " << line << ";\n";
++                        }
++                    }
++                }
++
 +                //assert(t);
 +                if (t->isEnumeralType()) {
 +                    os << qt.getAsString() << " ";
@@ -233,9 +257,11 @@ index 0000000..f0d043e
 +                        os << "}";
 +                    }
 +                    os << " " << n << ";\n";
++                    ++line;
 +                }
 +                else {
 +                    os << qt.getAsString() << " " << n << ";\n";
++                    ++line;
 +                }
 +/*
 +                if (current->hasAttr<HareEncodeAsAttr>()) {
