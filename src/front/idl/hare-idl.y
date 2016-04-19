@@ -36,6 +36,8 @@ Copyright (C) 2016 OLogN Technologies AG
 %token KW_SEQUENCE KW_DICTIONARY
 %token KW_PRINTABLE_ASCII_STRING KW_UNICODE_STRING
 
+%token OP_FOUR_DOTS
+
 %error-verbose
 %start file
 %destructor { releaseYys($$); } <>
@@ -221,11 +223,11 @@ dictionary_type
 ;
 
 class_ref_type
-	: KW_CLASS IDENTIFIER  { $$ = createClassReference($1, $2); }
+	: KW_CLASS qname  { $$ = createClassReference($1, $2); }
 ;
 
 inline_enum_type
-	: KW_ENUM IDENTIFIER '{' enum_values '}' { $$ = createInlineEnum($1, $2, $4); releaseYys2($3, $5); }
+	: KW_ENUM qname '{' enum_values '}' { $$ = createInlineEnum($1, $2, $4); releaseYys2($3, $5); }
 ;
 
 enum_values
@@ -258,4 +260,10 @@ character_set
 	| INTEGER_LITERAL '-' INTEGER_LITERAL { $$ = addToCharSet(0, $1, $3); releaseYys($2); }
 	| character_set ',' INTEGER_LITERAL { $$ = addToCharSet($1, $3, 0);  releaseYys($2); }
 	| character_set ',' INTEGER_LITERAL '-' INTEGER_LITERAL { $$ = addToCharSet($1, $3, $5); releaseYys2($2, $4); }
+;
+
+qname
+	: IDENTIFIER { $$ = $1; }
+	| OP_FOUR_DOTS IDENTIFIER { $$ = makeFourDotsPrefix($2); releaseYys($1); }
+	| qname OP_FOUR_DOTS IDENTIFIER { $$ = addFourDotsName($1, $3); releaseYys($2); }
 ;

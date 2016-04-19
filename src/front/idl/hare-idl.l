@@ -103,6 +103,8 @@ int createToken(int token)
 	"PRINTABLE-ASCII-STRING" { return createToken( KW_PRINTABLE_ASCII_STRING ); }
 	"UNICODE-STRING" { return createToken( KW_UNICODE_STRING ); }
 
+	"::" { return createToken( OP_FOUR_DOTS ); }
+
 	[;<>,:=&\[\]\(\)\{\}\?\.] { yylval = 0; return yytext[0];}
 	[&|!~/%\*\+\-] { return createToken( yytext[0] );}
 

@@ -112,5 +112,7 @@ YYSTYPE makeMinusFloatLit(YYSTYPE float_lit);
 
 YYSTYPE addToCharSet(YYSTYPE list, YYSTYPE from, YYSTYPE to);
 
+YYSTYPE makeFourDotsPrefix(YYSTYPE id);
+YYSTYPE addFourDotsName(YYSTYPE qname, YYSTYPE id);
 
 #endif // PARSER_HELPER_H_INCLUDED

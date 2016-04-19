@@ -29,9 +29,6 @@ using namespace std;
 static const bool dbgEnableLeakDetector = true;
 static const bool NotImplementedYet = false;
 
-static Root* rootPtr = 0;
-static string currentFileName;
-
 static vector<int> stateStack;
 
 static set<YyBase*> dbgLeakDetector;
@@ -41,7 +38,10 @@ static bool errorFlag = false;
 static vector<unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)>> bufferStack;
 static vector<pair<string, int> > fileLineStack;
 
-//static const set<string> primitives = { "INT8", "INT16", "INT32", "UINT8", "UINT16", "UINT32" };
+static yy_buffer_state* currentBufferState = 0;
+static Root* currentRoot = 0;
+static string currentFileName;
+
 
 struct YyBase {
     Location location;
@@ -516,7 +516,7 @@ YYSTYPE addToFile(YYSTYPE file, YYSTYPE item)
     unique_ptr<YyBase> d0(item);
 
     Structure* s = releasePointedFromYyPtr<Structure>(item);
-    rootPtr->structures.push_back(unique_ptr<Structure>(s));
+    currentRoot->structures.push_back(unique_ptr<Structure>(s));
 
     return 0;
 }
@@ -528,7 +528,7 @@ YYSTYPE addTypedefToFile(YYSTYPE file, YYSTYPE td)
 
     YyTypedef* dt = yystype_cast<YyTypedef*>(td);
 
-    rootPtr->typedefs.emplace_back(dt->data);
+    currentRoot->typedefs.emplace_back(dt->data);
 
     return 0;
 }
@@ -685,7 +685,7 @@ YYSTYPE processExtFileMapping(YYSTYPE file, YYSTYPE decl)
             for (auto each : yy->classNames)
                 findNames += fmt::format("-find-class={} ", each);
 
-            string clangOpts = "-xc++";
+            string clangOpts = "-xc++ -fno-ms-compatibility";
 
             auto opts = args.find("ClangOptions");
             if (opts != args.end()) {
@@ -716,8 +716,20 @@ YYSTYPE processExtFileMapping(YYSTYPE file, YYSTYPE decl)
                 reportError(decl->location, fmt::format("External process finished with error code {}.", result));
                 reportError(decl->location, fmt::format("'{}'", cmdLine));
             }
-            else
-                parseStringBuffer(outBuffer, yy->fileName);
+            else {
+                unique_ptr<Root> root(new Root());
+                parseStringBuffer(outBuffer, yy->fileName, root.get());
+
+                //Merge with current root
+                currentRoot->typedefs.insert(currentRoot->typedefs.end(), root->typedefs.begin(),
+                                             root->typedefs.end());
+
+                // copy current attributes to each struct
+                for (auto& each : root->structures) {
+                    each->encodingSpecifics.attrs.insert(args.begin(), args.end());
+                    currentRoot->structures.emplace_back(each.release());
+                }
+            }
         }
         else
             reportError(decl->location, fmt::format("Language '%s' not recognized.", lang));
@@ -1309,51 +1321,92 @@ YYSTYPE addToCharSet(YYSTYPE list, YYSTYPE from, YYSTYPE to)
     return d0.release();
 }
 
+YYSTYPE makeFourDotsPrefix(YYSTYPE id)
+{
+    unique_ptr<YyBase> d0(id);
+
+    YyIdentifier* yy = yystype_cast<YyIdentifier*>(id);
+
+    yy->text.insert(0, "::");
+
+    return d0.release();
+}
+
+YYSTYPE addFourDotsName(YYSTYPE qname, YYSTYPE id)
+{
+    unique_ptr<YyBase> d0(qname);
+    unique_ptr<YyBase> d1(id);
+
+    YyIdentifier* yy = yystype_cast<YyIdentifier*>(qname);
+
+    yy->text.append("::");
+    yy->text.append(nameFromYyIdentifier(id));
+
+    return d0.release();
+}
 
 
 //////////////////////////////////////////////////////////////////////////////
 
+class State {
+private:
+    yy_buffer_state* bufferState;
+    string fileName;
+    int lineNumber;
+    Root* root;
+public:
+    State(yy_buffer_state* nextBufferState, const string& nextFileName,
+          int nextLineNumber, Root* nextRoot) :
+        bufferState(currentBufferState),
+        fileName(currentFileName),
+        lineNumber(yylineno),
+        root(currentRoot) {
+        currentBufferState = nextBufferState;
+        currentFileName = nextFileName;
+        yylineno = nextLineNumber;
+        currentRoot = nextRoot;
+
+        yy_switch_to_buffer(currentBufferState);
+    }
+
+    ~State() {
+        currentBufferState = bufferState;
+        currentFileName = fileName;
+        yylineno = lineNumber;
+        currentRoot = root;
+
+        if (currentBufferState)
+            yy_switch_to_buffer(currentBufferState);
+    }
+
+    typedef unique_ptr<yy_buffer_state, void(*)(yy_buffer_state*)> BufferOwner;
+};
+
 
 static
-void parseSourceFileInternal(const string& fileName)
+void parseSourceFileInternal()
 {
-    fileLineStack.emplace_back(currentFileName, yylineno);
-    currentFileName = fileName;
-    yylineno = 1;
-
-    // TODO check exception safety
-    yy_switch_to_buffer(bufferStack.back().get());
     int err = yyparse();
-    bufferStack.pop_back();
-    if(!bufferStack.empty())
-        yy_switch_to_buffer(bufferStack.back().get());
-
-    currentFileName = fileLineStack.back().first;
-    yylineno = fileLineStack.back().second;
-    fileLineStack.pop_back();
 
     if (errorFlag | (err != 0) )
-        throw ParserException(fmt::format("Errors found while parsing file '{}'.", fileName));
+        throw ParserException(fmt::format("Errors found while parsing file '{}'.", currentFileName));
 }
 
-void parseStringBuffer(const string& buffer, const string& pseudoFileName)
+void parseStringBuffer(const string& buffer, const string& pseudoFileName, Root* newRoot)
 {
-    bufferStack.emplace_back(yy_scan_string(buffer.c_str()), &yy_delete_buffer);
+    State::BufferOwner buff(yy_scan_string(buffer.c_str()), &yy_delete_buffer);
 
-    if (!bufferStack.back())
+    if (!buff)
         throw ParserException(fmt::format("Failed to allocate read buffer for pseudo file '{}'.", pseudoFileName));
 
-    parseSourceFileInternal(pseudoFileName);
+    State st(buff.get(), pseudoFileName, 1, newRoot);
+
+    parseSourceFileInternal();
 }
 
 Root* parseSourceFile(const string& fileName, bool debugDump)
 {
-    unique_ptr<Root> root(new Root());
-    rootPtr = root.get();
-
     yydebug = static_cast<int>(debugDump);
-
-    HAREASSERT(rootPtr);
 
     if (fileName.empty())
         throw ParserException("Missing input file name");
@@ -1363,12 +1416,15 @@ Root* parseSourceFile(const string& fileName, bool debugDump)
     if (!file)
         throw ParserException(fmt::format("Failed to open file '{}'.", fileName));
 
-    bufferStack.emplace_back(yy_create_buffer(file, FILE_BUFFER_SIZE), &yy_delete_buffer);
+    State::BufferOwner buff(yy_create_buffer(file, FILE_BUFFER_SIZE), &yy_delete_buffer);
 
-    if (!bufferStack.back())
+    if (!buff)
         throw ParserException(fmt::format("Failed to allocate read buffer for file '{}'.", fileName));
 
-    parseSourceFileInternal(fileName);
+    unique_ptr<Root> root(new Root());
+
+    State st(buff.get(), fileName, 1, root.get());
+    parseSourceFileInternal();
 
     return root.release();
 }

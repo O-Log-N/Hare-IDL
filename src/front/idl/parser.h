@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 void dbgDumpLeaks();
 
 Root* parseSourceFile(const string& fileName, bool debugDump);
-void parseStringBuffer(const string& buffer, const string& pseudoFileName);
+void parseStringBuffer(const string& buffer, const string& pseudoFileName, Root* root);
 
 class ParserException :public runtime_error {
 public:
