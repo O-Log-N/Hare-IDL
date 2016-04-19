@@ -257,6 +257,14 @@ void fillDefaultDataWhereApplicableStructLevel( STRUCTURE_DATA_SOURCES& sources 
 BackDataMember* createMember( const BackDataMember& base, Structure::DECLTYPE baseDeclType, Structure::DECLTYPE retDeclType )
 {
 	BackDataMember* ret = new BackDataMember;
+	// experimental logic
+	// TODO: actual implementation
+	if ( baseDeclType == Structure::DECLTYPE::MAPPING )
+	{
+		assert( retDeclType == Structure::DECLTYPE::IDL );
+		ret->name = base.name;
+		ret->type = base.type;
+	}
 	return ret;
 }
 
@@ -280,6 +288,8 @@ BackStructure* doStructureDataMatchingOrOverridding( BackStructure& structBase, 
 	if ( noDefaults )
 	{
 		structOverr = new BackStructure;
+		structOverr->declType = type2;
+		structOverr->name = structBase.name;
 		if ( oper == TREE_DATA_COMPLETION_OPERATION::MATCH ) // quick jump is possible
 		{
 			if ( sz != 0 )
@@ -289,6 +299,13 @@ BackStructure* doStructureDataMatchingOrOverridding( BackStructure& structBase, 
 			return structOverr;
 		}
 	}
+	else
+	{
+		assert( structOverr->declType == type2 );
+		assert( structOverr->name == structBase.name );
+	}
+
+	assert( structOverr != nullptr );
 
 	for ( size_t i=0; i<sz; ++i )
 	{
@@ -311,13 +328,19 @@ BackStructure* doStructureDataMatchingOrOverridding( BackStructure& structBase, 
 			}
 		}
 
-		if ( otherMember = nullptr )
+		if ( otherMember == nullptr )
 		{
 			if ( oper == TREE_DATA_COMPLETION_OPERATION::MATCH ) // TODO: case of strict matching
 			{
 				// TODO: issue warning
 				otherMember = createFakeMember();
 			}
+			else
+			{
+				otherMember = createMember( *member, type1, type2 );
+			}
+			assert( otherMember != nullptr );
+			structOverr->addChild( otherMember );
 		}
 
 		// add cross-references
@@ -344,6 +367,8 @@ BackStructure* doStructureDataMatchingOrOverridding( BackStructure& structBase, 
 			}
 		}
 	}
+
+	return structOverr;
 }
 
 BackStructure* createFakeStructureNode( Structure::DECLTYPE type )
@@ -384,8 +409,8 @@ void traverseStructTreesForDataMatchingOrOverridding( vector<unique_ptr<BackStru
 			else
 			{
 				ret = doStructureDataMatchingOrOverridding( *it1, type1, nullptr, type2, oper );
-				tree2.push_back( unique_ptr<BackStructure>(ret) );
 			}
+			tree2.push_back( unique_ptr<BackStructure>(ret) );
 		}
 
 		// add cross-references
@@ -418,9 +443,13 @@ void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario )
 {
 	switch ( scenario )
 	{
-		case TREE_DATA_COMPLETION_SCENARIO::IDL_MAP_ENC: break;
+		case TREE_DATA_COMPLETION_SCENARIO::IDL_MAP_ENC:  break;
 		case TREE_DATA_COMPLETION_SCENARIO::IDL_ONLY: break;
-		case TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY: break;
+		case TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY:
+		{
+			traverseStructTreesForDataMatchingOrOverridding( root.structuresMapping, Structure::DECLTYPE::MAPPING, root.structuresIdl, Structure::DECLTYPE::IDL, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
+			break;
+		}
 		case TREE_DATA_COMPLETION_SCENARIO::ENC_ONLY: break;
 		case TREE_DATA_COMPLETION_SCENARIO::IDL_MAP: break;
 		case TREE_DATA_COMPLETION_SCENARIO::IDL_ENC: break;
