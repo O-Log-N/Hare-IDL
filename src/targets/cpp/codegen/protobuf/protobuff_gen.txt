@@ -158,7 +158,11 @@ inline bool deserialize@STRUCT-NAME@( @STRUCT-NAME@& s, IStream& i ) {
 @@ELIF IS-FIXED-POINT()
    @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@MEMBER-TYPE@"
 @@ELIF IS-FLOATING-POINT()
-   @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@MEMBER-TYPE@"
+			if ( type == FIXED_64_BIT )
+			{
+				i.deserializeDoubleFromString( s.@PARAM-NAME@ );
+				initFlags[@PARAM-MEMCTR@] = 1;
+			}
 @@ELIF IS-CHARACTER-STRING()
 			if ( type == LENGTH_DELIMITED )
 			{

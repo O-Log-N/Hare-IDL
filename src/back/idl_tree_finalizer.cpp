@@ -17,242 +17,79 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "idl_tree_finalizer.h"
 
-#if 0
-struct STRUCTURE_DATA_SOURCES
+void memberMappingTypeToKind( DataType& type )
 {
-	BackEncodedOrMember* idl;
-	BackEncodedOrMember* mapping;
-	BackEncodedOrMember* encoding;
-	bool idlExists;
-	bool mappingExists;
-	bool encodingExists;
-};
+	// NOTE: in actual implementation mapping name is expected to be at DataType::mappingName
+	// TODO: rework/update/expand implementation when FRONT is updated
+	switch ( type.kind )
+	{
+		case DataType::KIND::NAMED_TYPE:
+		{
+			if ( type.name == "uint32_t" )
+			{
+				type.kind = DataType::KIND::INTEGER;
+				type.name.clear();
+				type.lowLimit.value = 0;
+				type.lowLimit.inclusive = true;
+				type.highLimit.value = 4294967295.;
+				type.highLimit.inclusive = true;
+			}
+			else if ( type.name == "uint16_t" )
+			{
+				type.kind = DataType::KIND::INTEGER;
+				type.name.clear();
+				type.lowLimit.value = 0;
+				type.lowLimit.inclusive = true;
+				type.highLimit.value = 65535;
+				type.highLimit.inclusive = true;
+			}
+			else if ( type.name == "uint8_t" )
+			{
+				type.kind = DataType::KIND::INTEGER;
+				type.name.clear();
+				type.lowLimit.value = 0;
+				type.lowLimit.inclusive = true;
+				type.highLimit.value = 255;
+				type.highLimit.inclusive = true;
+			}
+			else if ( type.name == "double" )
+			{
+				type.kind = DataType::KIND::FLOATING_POINT;
+				type.name.clear();
+				type.floatingSignificandBits = 53;
+				type.floatingExponentBits = 11;
+			}
+			else if ( type.name == "float" )
+			{
+				type.kind = DataType::KIND::FLOATING_POINT;
+				type.name.clear();
+				type.floatingSignificandBits = 24;
+				type.floatingExponentBits = 8;
+			}
+			break;
+		}
+	}
+}
 
-void fillMappingUsingIdl( const BackStructure& idl, BackStructure& mapping )
+void structureMembersMappingTypeToKind( BackStructure& structBase )
 {
-	size_t sz = idl.getChildCount();
+	size_t sz = structBase.getChildCount();
+	assert( structBase.declType == Structure::DECLTYPE::MAPPING );
 	for ( size_t i=0; i<sz; ++i )
 	{
-		const BackEncodedOrMember* member = idl.getConstMember( i );
-	};
+		BackDataMember* member = dynamic_cast<BackDataMember*>( structBase.getMember( i ) );
+		assert( member != nullptr );
+		memberMappingTypeToKind( member->type );
+	}
 }
 
-void fillEncodingUsingIdl( const BackStructure& idl, BackStructure& mapping )
+void traverseStructTreesForStructureMembersMappingTypeToKind( vector<unique_ptr<BackStructure>>& mappingTree )
 {
-}
-
-void cleanCrossRefPtrsOfMembers( BackStructure& backstruct )
-{
-	size_t sz = backstruct.getChildCount();
-	for ( size_t i=0; i<sz; ++i )
+	for ( auto& it:mappingTree )
 	{
-		BackEncodedOrMember* member = backstruct.getMember( i );
-		member->idlRepresentation = nullptr;
-		member->mappingRepresentation = nullptr;
-		member->encodingRepresentation = nullptr;
+		structureMembersMappingTypeToKind( *it );
 	}
 }
-
-void fillDefaultDataWhereApplicableMemberLevel( STRUCTURE_DATA_SOURCES& sources ) // preliminary interface
-{
-}
-
-void findOrAddMatchesAndFillDefaults( BackStructure& structIdl, BackStructure& structMapping, BackStructure& structEncoding )
-{
-	//BackStructure& backStructBase, BackStructure& backStruct1, BackStructure& backStruct2
-	STRUCTURE_DATA_SOURCES sources;
-
-	// go through IDL members
-	size_t szIdl = structIdl.getChildCount();
-	for ( size_t i=0; i<szIdl; ++i )
-	{
-		BackDataMember* memberIdl = dynamic_cast<BackDataMember*>( structIdl.getMember( i ) );
-
-		memset( &sources, 0, sizeof(sources) );
-		sources.idlExists = true;
-		sources.idl = memberIdl;
-
-		// find or add in mapping
-		size_t szMap = structMapping.getChildCount();
-		bool found = false;
-		for ( size_t i=0; i<szMap; ++i )
-		{
-			BackDataMember* memberMap = dynamic_cast<BackDataMember*>( structMapping.getMember( i ) );
-			if ( memberMap->name == memberIdl->name )
-			{
-				assert( memberMap->idlRepresentation == nullptr );
-				if ( found )
-				{
-					// TODO: report error (repeated entry)
-					assert( 0 );
-				}
-				found = true;
-				memberIdl->mappingRepresentation = memberMap;
-				memberMap->idlRepresentation = memberIdl;
-				memberMap->mappingRepresentation = memberMap; // self
-				sources.mappingExists = true;
-				sources.mapping = memberMap;
-			}
-		}
-		if ( !found )
-		{ 
-			BackDataMember* newMap = new BackDataMember;
-			structMapping.addChild( newMap );
-			memberIdl->mappingRepresentation = newMap;
-			newMap->idlRepresentation = memberIdl;
-			newMap->mappingRepresentation = newMap; // self
-			sources.mapping = newMap;
-		}
-
-		// find or add in encoding
-		size_t szEnc = structMapping.getChildCount();
-		found = false;
-		for ( size_t i=0; i<szEnc; ++i )
-		{
-			BackDataMember* memberEnc = dynamic_cast<BackDataMember*>( structEncoding.getMember( i ) );
-			if ( memberEnc->name == memberIdl->name )
-			{
-				assert( memberEnc->idlRepresentation == nullptr );
-				if ( found )
-				{
-					// TODO: report error (repeated entry)
-					assert( 0 );
-				}
-				found = true;
-				memberIdl->mappingRepresentation = memberEnc;
-				memberEnc->idlRepresentation = memberIdl;
-				memberEnc->mappingRepresentation = memberEnc; // self
-				sources.encodingExists = true;
-				sources.encoding = memberEnc;
-			}
-		}
-		if ( !found )
-		{ 
-			BackDataMember* newEnc = new BackDataMember;
-			structEncoding.addChild( newEnc );
-			memberIdl->encodingRepresentation = newEnc;
-			newEnc->idlRepresentation = memberIdl;
-			newEnc->encodingRepresentation = newEnc; // self
-			sources.encoding = newEnc;
-		}
-
-		// fill cross-ref ptrs between mapping and encoding structs
-		memberIdl->mappingRepresentation->encodingRepresentation = memberIdl->encodingRepresentation;
-		memberIdl->encodingRepresentation->mappingRepresentation = memberIdl->mappingRepresentation;
-		memberIdl->idlRepresentation = memberIdl; // self
-
-		// fill defaults
-		fillDefaultDataWhereApplicableMemberLevel( sources );
-	}
-
-	// go through MAPPING members
-	size_t szMapping = structMapping.getChildCount();
-	for ( size_t i=0; i<szMapping; ++i )
-	{
-		BackDataMember* memberIdl = dynamic_cast<BackDataMember*>( structIdl.getMember( i ) );
-
-		memset( &sources, 0, sizeof(sources) );
-		sources.idlExists = true;
-		sources.idl = memberIdl;
-
-		// find or add in mapping
-		size_t szMap = structMapping.getChildCount();
-		bool found = false;
-		for ( size_t i=0; i<szMap; ++i )
-		{
-			BackDataMember* memberMap = dynamic_cast<BackDataMember*>( structMapping.getMember( i ) );
-			if ( memberMap->name == memberIdl->name )
-			{
-				assert( memberMap->idlRepresentation == nullptr );
-				if ( found )
-				{
-					// TODO: report error (repeated entry)
-					assert( 0 );
-				}
-				found = true;
-				memberIdl->mappingRepresentation = memberMap;
-				memberMap->idlRepresentation = memberIdl;
-				memberMap->mappingRepresentation = memberMap; // self
-				sources.mappingExists = true;
-				sources.mapping = memberMap;
-			}
-		}
-		if ( !found )
-		{ 
-			BackDataMember* newMap = new BackDataMember;
-			structMapping.addChild( newMap );
-			memberIdl->mappingRepresentation = newMap;
-			newMap->idlRepresentation = memberIdl;
-			newMap->mappingRepresentation = newMap; // self
-			sources.mapping = newMap;
-		}
-
-		// find or add in encoding
-		size_t szEnc = structMapping.getChildCount();
-		found = false;
-		for ( size_t i=0; i<szEnc; ++i )
-		{
-			BackDataMember* memberEnc = dynamic_cast<BackDataMember*>( structEncoding.getMember( i ) );
-			if ( memberEnc->name == memberIdl->name )
-			{
-				assert( memberEnc->idlRepresentation == nullptr );
-				if ( found )
-				{
-					// TODO: report error (repeated entry)
-					assert( 0 );
-				}
-				found = true;
-				memberIdl->mappingRepresentation = memberEnc;
-				memberEnc->idlRepresentation = memberIdl;
-				memberEnc->mappingRepresentation = memberEnc; // self
-				sources.encodingExists = true;
-				sources.encoding = memberEnc;
-			}
-		}
-		if ( !found )
-		{ 
-			BackDataMember* newEnc = new BackDataMember;
-			structEncoding.addChild( newEnc );
-			memberIdl->encodingRepresentation = newEnc;
-			newEnc->idlRepresentation = memberIdl;
-			newEnc->encodingRepresentation = newEnc; // self
-			sources.encoding = newEnc;
-		}
-
-		// fill cross-ref ptrs between mapping and encoding structs
-		memberIdl->mappingRepresentation->encodingRepresentation = memberIdl->encodingRepresentation;
-		memberIdl->encodingRepresentation->mappingRepresentation = memberIdl->mappingRepresentation;
-		memberIdl->idlRepresentation = memberIdl; // self
-
-		// fill defaults
-		fillDefaultDataWhereApplicableMemberLevel( sources );
-	}
-}
-
-void fillDefaultDataWhereApplicableStructLevel( STRUCTURE_DATA_SOURCES& sources ) // preliminary interface
-{
-	assert( sources.idl != nullptr && sources.mapping != nullptr && sources.encoding != nullptr ); // all obj are created
-	assert( sources.idlExists || sources.mappingExists || sources.encodingExists ); // at least one is pre-filled
-
-	// Part I: only a single object exists
-	if ( (!sources.mappingExists) && (!sources.encodingExists) ) // only IDL
-	{
-		fillMappingUsingIdl( *(dynamic_cast<BackStructure*>(sources.idl)), *(dynamic_cast<BackStructure*>(sources.idl)) );
-		fillEncodingUsingIdl( *(dynamic_cast<BackStructure*>(sources.idl)), *(dynamic_cast<BackStructure*>(sources.idl)) );
-		return;
-	}
-	if ( (!sources.idlExists) && (!sources.encodingExists) ) // only MAPPING
-	{
-		// TODO: process
-		return;
-	}
-	if ( (!sources.idlExists) && (!sources.mappingExists) ) // only ENCODING
-	{
-		// TODO: process
-		return;
-	}
-}
-#endif // 0
 
 BackDataMember* createMember( const BackDataMember& base, Structure::DECLTYPE baseDeclType, Structure::DECLTYPE retDeclType )
 {
@@ -441,6 +278,7 @@ void traverseStructTreesForDataMatchingOrOverridding( vector<unique_ptr<BackStru
 
 void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario )
 {
+	traverseStructTreesForStructureMembersMappingTypeToKind( root.structuresMapping );
 	switch ( scenario )
 	{
 		case TREE_DATA_COMPLETION_SCENARIO::IDL_MAP_ENC:  break;
@@ -456,203 +294,6 @@ void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario )
 		case TREE_DATA_COMPLETION_SCENARIO::MAJOR_MAP_ENC: break;
 		case TREE_DATA_COMPLETION_SCENARIO::MAJOR_ENC_MAP: break;
 	}
-#if 0
-	STRUCTURE_DATA_SOURCES sources;
-	// 1. go through all structures; invalidate cross-ref ptrs
-	for ( auto& it:root.structures )
-	{
-		it->idlRepresentation = nullptr;
-		it->mappingRepresentation = nullptr;
-		it->encodingRepresentation = nullptr;
-	}
-
-	// 2. go through all structures; process IDL structures
-	for ( size_t i=0; i<root.structures.size(); ++i )
-	{
-		if ( root.structures[i]->declType != Structure::DECLTYPE::IDL )
-			continue;
-		assert( root.structures[i]->mappingRepresentation == nullptr );
-		assert( root.structures[i]->encodingRepresentation == nullptr );
-
-		memset( &sources, 0, sizeof(sources) );
-		sources.idlExists = true;
-		sources.idl = &(*(root.structures[i]));
-
-		// find proper mapping
-		bool mapFound = false;
-		for ( auto& itMap:root.structures )
-			if ( itMap->declType == Structure::DECLTYPE::MAPPING && itMap->type == root.structures[i]->type && itMap->name == root.structures[i]->name ) // TODO: check whether this condition makes sense
-			{
-				assert( itMap->idlRepresentation == nullptr );
-				if ( mapFound )
-				{
-					// TODO: report error
-					assert( 0 );
-				}
-				mapFound = true;
-				root.structures[i]->mappingRepresentation = &(*itMap);
-				itMap->idlRepresentation = &(*(root.structures[i]));
-				itMap->mappingRepresentation = &(*itMap); // self
-				sources.mappingExists = true;
-				sources.mapping = &(*itMap);
-			}
-		if ( !mapFound )
-		{ 
-			BackStructure* newMap = new BackStructure;
-			newMap->declType = Structure::DECLTYPE::MAPPING;
-			root.structures.push_back( unique_ptr<BackStructure>(newMap) );
-			root.structures[i]->mappingRepresentation = &(*(root.structures.back()));
-			(root.structures.back())->idlRepresentation = &(*(root.structures[i]));
-			(root.structures.back())->mappingRepresentation = &(*(root.structures.back())); // self
-			sources.mapping = &(*(root.structures.back()));
-		}
-
-		// find proper encoding
-		bool encodingFound = false;
-		for ( auto& itEnc:root.structures )
-			if ( itEnc->declType == Structure::DECLTYPE::ENCODING && itEnc->type == root.structures[i]->type && itEnc->name == root.structures[i]->name ) // TODO: check whether this condition makes sense
-			{
-				assert( itEnc->idlRepresentation == nullptr );
-				if ( encodingFound )
-				{
-					// TODO: report error
-					assert( 0 );
-				}
-				encodingFound = true;
-				root.structures[i]->encodingRepresentation = &(*itEnc);
-				itEnc->idlRepresentation = &(*(root.structures[i]));
-				itEnc->encodingRepresentation = &(*itEnc);
-				sources.encodingExists = true;
-				sources.encoding = &(*itEnc);
-			}
-		if ( !encodingFound )
-		{ 
-			BackStructure* newEnc = new BackStructure;
-			newEnc->declType = Structure::DECLTYPE::ENCODING;
-			root.structures.push_back( unique_ptr<BackStructure>(newEnc) ); // TODO: think about very defaults
-			root.structures[i]->encodingRepresentation = &(*(root.structures.back()));
-			root.structures.back()->idlRepresentation = &(*(root.structures[i]));
-			(root.structures.back())->encodingRepresentation = &(*(root.structures.back())); // self
-			sources.encoding = &(*(root.structures.back()));
-		}
-
-		// fill cross-ref ptrs between mapping and encoding structs
-		root.structures[i]->mappingRepresentation->encodingRepresentation = root.structures[i]->encodingRepresentation;
-		root.structures[i]->encodingRepresentation->mappingRepresentation = root.structures[i]->mappingRepresentation;
-		root.structures[i]->idlRepresentation = &(*(root.structures[i])); // self
-
-		// fill defaults
-		fillDefaultDataWhereApplicable( sources );
-	}
-
-	// 3. go through all structures; process MAPPING structures (note that some of them are already processed)
-	for ( size_t i=0; i<root.structures.size(); ++i )
-	{
-		if ( root.structures[i]->declType != Structure::DECLTYPE::MAPPING )
-			continue;
-		if( root.structures[i]->idlRepresentation != nullptr || root.structures[i]->mappingRepresentation != nullptr || root.structures[i]->encodingRepresentation != nullptr )
-		{
-			assert( root.structures[i]->idlRepresentation != nullptr && root.structures[i]->mappingRepresentation != nullptr && root.structures[i]->encodingRepresentation != nullptr );
-			continue;
-		}
-
-		memset( &sources, 0, sizeof(sources) );
-		sources.mapping = &(*(root.structures[i]));
-		sources.mappingExists = true;
-
-		// find proper idl (indeed, just check that there is none)
-		for ( auto& itIdl:root.structures )
-			if ( itIdl->declType == Structure::DECLTYPE::IDL && itIdl->type == root.structures[i]->type && itIdl->name == root.structures[i]->name ) // TODO: check whether this condition makes sense
-			{
-				// TODO: report error (potential source of this error: more than a single IDL description
-				assert( 0 );
-			}
-		BackStructure* newIdl = new BackStructure;
-		newIdl->declType = Structure::DECLTYPE::IDL;
-		root.structures.push_back( unique_ptr<BackStructure>(newIdl) );
-		root.structures[i]->idlRepresentation = &(*(root.structures.back()));
-		(root.structures.back())->mappingRepresentation = &(*(root.structures[i]));
-		(root.structures.back())->idlRepresentation = &(*(root.structures.back())); // self
-		sources.idl = &(*(root.structures.back()));
-
-		// find proper encoding
-		for ( auto& itEnc:root.structures )
-			if ( itEnc->declType == Structure::DECLTYPE::ENCODING && itEnc->type == root.structures[i]->type && itEnc->name == root.structures[i]->name ) // TODO: check whether this condition makes sense
-			{
-				// TODO: report error (potential source of this error: more than a single ENCODING description
-				assert( 0 );
-			}
-		BackStructure* newEnc = new BackStructure;
-		newEnc->declType = Structure::DECLTYPE::ENCODING;
-		root.structures.push_back( unique_ptr<BackStructure>(newEnc) ); // TODO: think about very defaults
-		root.structures[i]->encodingRepresentation = &(*(root.structures.back()));
-		root.structures.back()->mappingRepresentation = &(*(root.structures[i]));
-		(root.structures.back())->encodingRepresentation = &(*(root.structures.back())); // self
-		sources.encoding = &(*(root.structures.back()));
-
-		// fill cross-ref ptrs between mapping and encoding structs
-		root.structures[i]->idlRepresentation->encodingRepresentation = root.structures[i]->encodingRepresentation;
-		root.structures[i]->encodingRepresentation->idlRepresentation = root.structures[i]->idlRepresentation;
-		root.structures[i]->mappingRepresentation = &(*(root.structures[i])); // self
-
-		// fill defaults
-		fillDefaultDataWhereApplicable( sources );
-	}
-
-	// 4. go through all structures; process ENCODING structures (note that some of them are already processed)
-	for ( size_t i=0; i<root.structures.size(); ++i )
-	{
-		if ( root.structures[i]->declType != Structure::DECLTYPE::ENCODING )
-			continue;
-		if( root.structures[i]->idlRepresentation != nullptr || root.structures[i]->mappingRepresentation != nullptr || root.structures[i]->encodingRepresentation != nullptr )
-		{
-			assert( root.structures[i]->idlRepresentation != nullptr && root.structures[i]->mappingRepresentation != nullptr && root.structures[i]->encodingRepresentation != nullptr );
-			continue;
-		}
-
-		memset( &sources, 0, sizeof(sources) );
-		sources.encoding = &(*(root.structures[i]));
-		sources.encodingExists = true;
-
-		// find proper idl (indeed, just check that there is none)
-		for ( auto& itIdl:root.structures )
-			if ( itIdl->declType == Structure::DECLTYPE::IDL && itIdl->type == root.structures[i]->type && itIdl->name == root.structures[i]->name ) // TODO: check whether this condition makes sense
-			{
-				// TODO: report error (potential source of this error: more than a single IDL description
-				assert( 0 );
-			}
-		BackStructure* newIdl = new BackStructure;
-		newIdl->declType = Structure::DECLTYPE::IDL;
-		root.structures.push_back( unique_ptr<BackStructure>(newIdl) );
-		root.structures[i]->idlRepresentation = &(*(root.structures.back()));
-		(root.structures.back())->encodingRepresentation = &(*(root.structures[i]));
-		(root.structures.back())->idlRepresentation = &(*(root.structures.back())); // self
-		sources.idl = &(*(root.structures.back()));
-
-		// find proper mapping
-		for ( auto& itEnc:root.structures )
-			if ( itEnc->declType == Structure::DECLTYPE::MAPPING && itEnc->type == root.structures[i]->type && itEnc->name == root.structures[i]->name ) // TODO: check whether this condition makes sense
-			{
-				// TODO: report error (potential source of this error: more than a single ENCODING description
-				assert( 0 );
-			}
-		BackStructure* newMap = new BackStructure;
-		newMap->declType = Structure::DECLTYPE::MAPPING;
-		root.structures.push_back( unique_ptr<BackStructure>(newMap) );
-		root.structures[i]->mappingRepresentation = &(*(root.structures.back()));
-		root.structures.back()->encodingRepresentation = &(*(root.structures[i]));
-		(root.structures.back())->mappingRepresentation = &(*(root.structures.back())); // self
-		sources.mapping = &(*(root.structures.back()));
-
-		// fill cross-ref ptrs between mapping and encoding structs
-		root.structures[i]->idlRepresentation->mappingRepresentation = root.structures[i]->mappingRepresentation;
-		root.structures[i]->mappingRepresentation->idlRepresentation = root.structures[i]->idlRepresentation;
-		root.structures[i]->encodingRepresentation = &(*(root.structures[i])); // self
-
-		// fill defaults
-		fillDefaultDataWhereApplicable( sources );
-	}
-#endif // 0
 }
 
 void prevalidateTree( BackRoot& root )
