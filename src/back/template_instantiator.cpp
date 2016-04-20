@@ -308,6 +308,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 		case NODE_TYPE::IF:
 		{
 			bool cond = calcConditionOfIfNode( node );
+			assert( node.childNodes.size() >=1 && node.childNodes.size() <= 2 );
 			if ( cond )					
 			{
 				if ( node.childNodes[0].type == NODE_TYPE::IF_TRUE_BRANCH )
@@ -317,7 +318,7 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			{
 				if ( node.childNodes[0].type == NODE_TYPE::IF_FALSE_BRANCH )
 					applyNode( node.childNodes[0] );
-				else if ( node.childNodes[1].type == NODE_TYPE::IF_FALSE_BRANCH )
+				else if ( node.childNodes.size() == 2 && node.childNodes[1].type == NODE_TYPE::IF_FALSE_BRANCH )
 					applyNode( node.childNodes[1] );
 			}
 			break;
