@@ -81,9 +81,10 @@ publishable_struct
 
 mapping_begin
 	: KW_MAPPING '(' arg_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createMapping($1, $3, $6); releaseYys4($2, $4, $5, $7); }
+	| KW_MAPPING '(' ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createMapping($1, 0, $5); releaseYys4($2, $3, $4, $6); }
 	| mapping_begin line_directive { $$ = $1; releaseYys($2); }
-	| mapping_begin data_type IDENTIFIER ';' { $$ = addToStruct($1, createAttribute($2, $3));  releaseYys($4); }
-    | mapping_begin IDENTIFIER IDENTIFIER ';' { $$ = addToStruct($1, createAttribute(createIdType($2), $3));  releaseYys($4); }
+	| mapping_begin mapping_type IDENTIFIER ';' { $$ = addToStruct($1, createAttribute($2, $3));  releaseYys($4); }
+    | mapping_begin IDENTIFIER IDENTIFIER ';' { $$ = addToStruct($1, createAttribute(createMappingType($2), $3));  releaseYys($4); }
 ;
 
 mapping
@@ -104,8 +105,8 @@ ext_file_mapping
 encoding_begin
 	: KW_ENCODING '(' arg_list ')' KW_PUBLISHABLE_STRUCT IDENTIFIER '{' { $$ = createEncoding($1, $3, $6); releaseYys4($2, $4, $5, $7); }
 	| encoding_begin line_directive { $$ = $1; releaseYys($2); }
-	| encoding_begin data_element { $$ = addToEncoding($1, $2); }
-	| encoding_begin data_group { $$ = addToEncoding($1, $2); }
+	| encoding_begin encoding_element { $$ = addToEncoding($1, $2); }
+	| encoding_begin encoding_group { $$ = addToEncoding($1, $2); }
     | encoding_begin KW_FENCE { $$ = addFenceToEncoding($1, $2); }
 ;
 
@@ -113,7 +114,7 @@ encoding
 	: encoding_begin '}' ';' { $$ = $1; releaseYys2($2, $3); }
 ;
 
-data_element
+encoding_element
 	: data_type IDENTIFIER ';' { $$ = createAttribute($1, $2); releaseYys($3); }
     | data_type IDENTIFIER KW_DEFAULT '=' expr ';' { $$ = createEncodingAttribute($1, $2, $5); releaseYys3($3, $4, $6); }
     | KW_EXTEND IDENTIFIER KW_TO data_type ';' { $$ = createExtendAttribute($2, $4); releaseYys3($1, $3, $5); }
@@ -125,31 +126,31 @@ data_element
     | KW_EXTEND IDENTIFIER KW_TO IDENTIFIER '(' arg_list ')' ';' { $$ = createExtendAttribute($2, createEncodingType($4, $6)); releaseYys5($1, $3, $5, $7, $8); }
 ;
 
-data_group_begin
+encoding_group_begin
 	: IDENTIFIER '{' { $$ = createEncodingGroup($1, 0, 0); releaseYys($2); }
 	| IDENTIFIER '(' arg_list ')' '{' { $$ = createEncodingGroup($1, $3, 0); releaseYys3($2, $4, $5); }
-	| data_group_begin data_element { $$ = addToEncodingGroup($1, $2); }
-	| data_group_begin data_group { $$ = addToEncodingGroup($1, $2); }
+	| encoding_group_begin encoding_element { $$ = addToEncodingGroup($1, $2); }
+	| encoding_group_begin encoding_group { $$ = addToEncodingGroup($1, $2); }
 ;
 
-data_group
-	: data_group_begin '}' { $$ = $1; releaseYys($2); }
-    | IDENTIFIER data_element { $$ = createEncodingGroup($1, 0, $2); }
-	| IDENTIFIER '(' arg_list ')' data_element { $$ = createEncodingGroup($1, $3, $5); releaseYys2($2, $4); }
-    | IDENTIFIER data_group { $$ = createEncodingGroup($1, 0, $2); }
-	| IDENTIFIER '(' arg_list ')'  data_group { $$ = createEncodingGroup($1, $3, $5); releaseYys2($2, $4); }
+encoding_group
+	: encoding_group_begin '}' { $$ = $1; releaseYys($2); }
+    | IDENTIFIER encoding_element { $$ = createEncodingGroup($1, 0, $2); }
+	| IDENTIFIER '(' arg_list ')' encoding_element { $$ = createEncodingGroup($1, $3, $5); releaseYys2($2, $4); }
+    | IDENTIFIER encoding_group { $$ = createEncodingGroup($1, 0, $2); }
+	| IDENTIFIER '(' arg_list ')'  encoding_group { $$ = createEncodingGroup($1, $3, $5); releaseYys2($2, $4); }
 ;
 
 discriminated_union_begin
 	: KW_DISCRIMINATED_UNION '(' KW_DISCRIMINANT '=' IDENTIFIER ')' IDENTIFIER '{' { $$ = createUnion($1, $5, $7); releaseYys5($2, $3, $4, $6, $8); }
-	| discriminated_union_begin union_data_element { $$ = addToStruct($1, $2); }
+	| discriminated_union_begin discriminated_union_element { $$ = addToStruct($1, $2); }
 ;
 
 discriminated_union
     : discriminated_union_begin '}' ';' { $$ = $1; releaseYys2($2, $3); }
 ;
 
-union_data_element
+discriminated_union_element
 	: data_type IDENTIFIER ';' { $$ = createAttribute($1, $2); releaseYys($3); }
     | data_type IDENTIFIER KW_WHEN_DISCRIMINANT_IN '{' id_list '}' ';' { $$ = createUnionAttribute($1, $2, $5); releaseYys4($3, $4, $6, $7); }
     | data_type IDENTIFIER KW_WHEN_DISCRIMINANT_IS IDENTIFIER ';' { $$ = createUnionAttribute($1, $2, addIdentifier(0, $4)); releaseYys2($3, $5); }
@@ -158,6 +159,13 @@ union_data_element
     | IDENTIFIER IDENTIFIER KW_WHEN_DISCRIMINANT_IS IDENTIFIER ';' { $$ = createUnionAttribute(createIdType($1), $2, addIdentifier(0, $4)); releaseYys2($3, $5); }
 ;
 
+/* TODO:check and improve */
+mapping_type
+	: sequence_type
+	| dictionary_type
+	| inline_enum_type
+	| class_ref_type
+;	
 
 data_type
     : integer_type

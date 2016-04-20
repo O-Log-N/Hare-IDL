@@ -154,13 +154,13 @@ private:
         {
             string attrs = dbgAttributesToString(dataType.encodingAttrs);
             return fmt::format("ENCODING_SPECIFIC {} {}",
-                               dataType.name, attrs);
+                               dataType.encodingName, attrs);
         }
         case DataType::MAPPING_SPECIFIC:
         {
             string attrs = dbgAttributesToString(dataType.mappingAttrs);
             return fmt::format("MAPPING_SPECIFIC {} {}",
-                               dataType.name, attrs);
+                               dataType.mappingName, attrs);
         }
         default:
             HAREASSERT(false);

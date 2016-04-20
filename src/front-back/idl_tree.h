@@ -84,7 +84,7 @@ public:
 
 	DataType() {}
     DataType(const DataType& other)
-        : kind(other.kind), name(other.name),
+        : kind(other.kind), name(other.name), mappingName(other.mappingName), encodingName(other.encodingName),
         keyType(other.keyType != nullptr ? new DataType(*(other.keyType)) : nullptr),
         paramType(other.paramType != nullptr ? new DataType(*(other.paramType)) : nullptr),
         lowLimit(other.lowLimit), highLimit(other.highLimit),
@@ -99,6 +99,8 @@ public:
 	{
 		kind = other.kind;
 		name = other.name;
+        mappingName = other.mappingName;
+        encodingName = other.encodingName;
         keyType.reset(other.keyType != nullptr ? new DataType(*(other.keyType)) : nullptr );
         paramType.reset(other.paramType != nullptr ? new DataType(*(other.paramType)) : nullptr);
         lowLimit = other.lowLimit;
@@ -119,7 +121,7 @@ public:
 	}
 
     DataType(DataType&& other)
-        : kind(other.kind), name(other.name),
+        : kind(other.kind), name(other.name), mappingName(other.mappingName), encodingName(other.encodingName),
         keyType(other.keyType != nullptr ? std::move(other.keyType) : nullptr),
         paramType(other.keyType != nullptr ? std::move(other.paramType) : nullptr),
         lowLimit(other.lowLimit), highLimit(other.highLimit),
@@ -134,6 +136,8 @@ public:
 	{
 		kind = other.kind;
 		name = other.name;
+        mappingName = other.mappingName;
+        encodingName = other.encodingName;
         keyType = std::move(other.keyType);
         paramType = std::move(other.paramType);
         lowLimit = other.lowLimit;

@@ -619,10 +619,10 @@ YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id)
     return new YyPtr<Structure>(yy);
 }
 
-YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
+YYSTYPE createMapping(YYSTYPE token, YYSTYPE opt_arg_list, YYSTYPE id)
 {
     unique_ptr<YyBase> d0(token);
-    unique_ptr<YyBase> d1(arg_list);
+    unique_ptr<YyBase> d1(opt_arg_list);
     unique_ptr<YyBase> d2(id);
 
     Structure* yy = new Structure();
@@ -632,7 +632,8 @@ YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
     yy->declType = Structure::MAPPING;
     yy->type = Structure::STRUCT;
 
-    yy->encodingSpecifics.attrs = argumentListFromYy(arg_list);
+    if(opt_arg_list)
+        yy->encodingSpecifics.attrs = argumentListFromYy(opt_arg_list);
 
     return new YyPtr<Structure>(yy);
 }
@@ -958,6 +959,20 @@ YYSTYPE createIdType(YYSTYPE id)
 
     return yy;
 }
+
+
+YYSTYPE createMappingType(YYSTYPE id)
+{
+    unique_ptr<YyBase> d0(id);
+
+    YyDataType* yy = new YyDataType();
+
+    yy->dataType.kind = DataType::MAPPING_SPECIFIC;
+    yy->dataType.mappingName = nameFromYyIdentifier(id);
+
+    return yy;
+}
+
 
 YYSTYPE createEncodingType(YYSTYPE id, YYSTYPE arg_list)
 {

@@ -68,7 +68,7 @@ YYSTYPE createAttribute(YYSTYPE type, YYSTYPE id);
 YYSTYPE createTypedef(YYSTYPE token, YYSTYPE type, YYSTYPE id);
 YYSTYPE createPublishableStruct(YYSTYPE token, YYSTYPE id);
 
-YYSTYPE createMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id);
+YYSTYPE createMapping(YYSTYPE token, YYSTYPE opt_arg_list, YYSTYPE id);
 
 YYSTYPE createExtFileMapping(YYSTYPE token, YYSTYPE arg_list, YYSTYPE str_file_name);
 YYSTYPE addClassMapping(YYSTYPE decl, YYSTYPE id);
@@ -88,6 +88,7 @@ YYSTYPE createUnion(YYSTYPE token, YYSTYPE discr_id, YYSTYPE id);
 YYSTYPE createUnionAttribute(YYSTYPE type, YYSTYPE id, YYSTYPE id_list);
 
 YYSTYPE createIdType(YYSTYPE id);
+YYSTYPE createMappingType(YYSTYPE id);
 YYSTYPE createEncodingType(YYSTYPE id, YYSTYPE arg_list);
 YYSTYPE createIntegerType(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE high_expr, bool high_flag);
 YYSTYPE createFixedPointType(YYSTYPE token, bool low_flag, YYSTYPE low_expr, YYSTYPE precision_expr, YYSTYPE high_expr, bool high_flag);
