@@ -134,6 +134,12 @@ StructTemplateInstantiator::StackElement StructMemberTemplateInstantiator::place
 			se.lineParts.push_back( lp );
 			return move(se);
 		}
+		case PLACEHOLDER::MEMBER_MAPPING_TYPE:
+		{
+			lp.verbatim = dynamic_cast<BackDataMember*>(member->mappingRepresentation)->type.name;
+			se.lineParts.push_back( lp );
+			return move(se);
+		}
 		default:
 		{
 			return TemplateInstantiator::placeholder( ph );
@@ -185,6 +191,12 @@ StructTemplateInstantiator::StackElement MemberTypeTemplateInstantiator::placeho
 		case PLACEHOLDER::MEMBER_TYPE:
 		{
 			lp.verbatim = dataType->name;
+			se.lineParts.push_back( lp );
+			return move(se);
+		}
+		case PLACEHOLDER::MEMBER_MAPPING_TYPE:
+		{
+			lp.verbatim = dataType->mappingRepresentation->mappingName;
 			se.lineParts.push_back( lp );
 			return move(se);
 		}

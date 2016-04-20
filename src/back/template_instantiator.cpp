@@ -234,6 +234,10 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	assert( stack.size() == 1 );
 	if ( stack[0].argtype == ARGTYPE::BOOL )
 		return stack[0].boolValue;
+	else if ( stack[0].argtype == ARGTYPE::NUMBER )
+	{
+		return stack[0].numberValue != 0;
+	}
 	else
 	{
 		// TODO: consider type conversion as a standard operation

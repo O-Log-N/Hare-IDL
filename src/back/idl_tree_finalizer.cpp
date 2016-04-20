@@ -21,48 +21,54 @@ void memberMappingTypeToKind( DataType& type )
 {
 	// NOTE: in actual implementation mapping name is expected to be at DataType::mappingName
 	// TODO: rework/update/expand implementation when FRONT is updated
+	if ( type.mappingName.size() == 0 ) // TODO: remove as soon as front puts parsed data at meppingName
+	{
+		type.mappingName = type.name;
+		type.name.clear();
+	}
 	switch ( type.kind )
 	{
 		case DataType::KIND::NAMED_TYPE:
 		{
-			if ( type.name == "uint32_t" )
+			if ( type.mappingName == "uint32_t" )
 			{
 				type.kind = DataType::KIND::INTEGER;
-				type.name.clear();
 				type.lowLimit.value = 0;
 				type.lowLimit.inclusive = true;
 				type.highLimit.value = 4294967295.;
 				type.highLimit.inclusive = true;
 			}
-			else if ( type.name == "uint16_t" )
+			else if ( type.mappingName == "uint16_t" )
 			{
 				type.kind = DataType::KIND::INTEGER;
-				type.name.clear();
 				type.lowLimit.value = 0;
 				type.lowLimit.inclusive = true;
 				type.highLimit.value = 65535;
 				type.highLimit.inclusive = true;
 			}
-			else if ( type.name == "uint8_t" )
+			else if ( type.mappingName == "uint8_t" )
 			{
 				type.kind = DataType::KIND::INTEGER;
-				type.name.clear();
 				type.lowLimit.value = 0;
 				type.lowLimit.inclusive = true;
 				type.highLimit.value = 255;
 				type.highLimit.inclusive = true;
 			}
-			else if ( type.name == "double" )
+			else if ( type.mappingName == "double" )
 			{
 				type.kind = DataType::KIND::FLOATING_POINT;
-				type.name.clear();
 				type.floatingSignificandBits = 53;
 				type.floatingExponentBits = 11;
 			}
-			else if ( type.name == "float" )
+			else if ( type.mappingName == "float" )
 			{
 				type.kind = DataType::KIND::FLOATING_POINT;
-				type.name.clear();
+				type.floatingSignificandBits = 24;
+				type.floatingExponentBits = 8;
+			}
+			else if ( type.mappingName == "string" )
+			{
+				type.kind = DataType::KIND::CHARACTER_STRING;
 				type.floatingSignificandBits = 24;
 				type.floatingExponentBits = 8;
 			}
@@ -91,7 +97,7 @@ void traverseStructTreesForStructureMembersMappingTypeToKind( vector<unique_ptr<
 	}
 }
 
-BackDataMember* createMember( const BackDataMember& base, Structure::DECLTYPE baseDeclType, Structure::DECLTYPE retDeclType )
+BackDataMember* createMember( BackDataMember& base, Structure::DECLTYPE baseDeclType, Structure::DECLTYPE retDeclType )
 {
 	BackDataMember* ret = new BackDataMember;
 	// experimental logic
@@ -100,7 +106,9 @@ BackDataMember* createMember( const BackDataMember& base, Structure::DECLTYPE ba
 	{
 		assert( retDeclType == Structure::DECLTYPE::IDL );
 		ret->name = base.name;
-		ret->type = base.type;
+		ret->type = base.type; // TODO: actual implementation
+		base.type.idlRepresentation = &( ret->type );
+		ret->type.mappingRepresentation = &( base.type );
 	}
 	return ret;
 }
