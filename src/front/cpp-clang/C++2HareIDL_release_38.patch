@@ -1,22 +1,22 @@
-From c39ab0098843b95abcbf5875de3af82386078bcf Mon Sep 17 00:00:00 2001
+From c1de70297bdf99f0557c876487e495f9ae6b9df9 Mon Sep 17 00:00:00 2001
 From: mb <mb@o-log-n.com>
 Date: Tue, 5 Apr 2016 17:39:39 -0300
 Subject: [PATCH] Added HareIDL attribute support. Added C++2HareIDL tool
- project. Added #line output capability.
+ project. Added #line output capability. Added Primitive types mapping.
 
 ---
- include/clang/Basic/Attr.td       |  14 +++
- include/clang/Basic/AttrDocs.td   |  32 ++++++
- lib/Sema/SemaDeclAttr.cpp         |   6 ++
- tools/C++2HareIDL/C++2HareIDL.cpp | 222 ++++++++++++++++++++++++++++++++++++++
+ include/clang/Basic/Attr.td       |  14 ++
+ include/clang/Basic/AttrDocs.td   |  32 +++++
+ lib/Sema/SemaDeclAttr.cpp         |   6 +
+ tools/C++2HareIDL/C++2HareIDL.cpp | 263 ++++++++++++++++++++++++++++++++++++++
  tools/C++2HareIDL/CMakeLists.txt  |  22 ++++
  tools/CMakeLists.txt              |   2 +
- 6 files changed, 298 insertions(+)
+ 6 files changed, 339 insertions(+)
  create mode 100644 tools/C++2HareIDL/C++2HareIDL.cpp
  create mode 100644 tools/C++2HareIDL/CMakeLists.txt
 
 diff --git a/include/clang/Basic/Attr.td b/include/clang/Basic/Attr.td
-index d5ba722..34d2405 100644
+index d5ba722..4c8700d 100644
 --- a/include/clang/Basic/Attr.td
 +++ b/include/clang/Basic/Attr.td
 @@ -2170,3 +2170,17 @@ def InternalLinkage : InheritableAttr {
@@ -26,7 +26,7 @@ index d5ba722..34d2405 100644
 +
 +def HareMapping : InheritableAttr {
 +  let Spellings = [CXX11<"hare","mapping">];
-+  let Args = [StringArgument<"PublishableStruct", 1>];
++  let Args = [StringArgument<"Argument", 1>];
 +  let Subjects = SubjectList<[CXXRecord]>;
 +  let Documentation = [HareMappingDocs];
 +}
@@ -38,7 +38,7 @@ index d5ba722..34d2405 100644
 +  let Documentation = [HareEncodeAsDocs];
 +}
 diff --git a/include/clang/Basic/AttrDocs.td b/include/clang/Basic/AttrDocs.td
-index 2567d55..8bb5bab 100644
+index 2567d55..c6279d8 100644
 --- a/include/clang/Basic/AttrDocs.td
 +++ b/include/clang/Basic/AttrDocs.td
 @@ -1859,3 +1859,35 @@ Marking virtual functions as ``disable_tail_calls`` is legal.
@@ -56,7 +56,7 @@ index 2567d55..8bb5bab 100644
 +  let Category = DocCatHare;
 +  let Content = [{
 +A class or struct declared as with ``[[hare::mapping]]`` shall be involved in Hare-IDL interaction.
-+The optional string argument can reference a PUBLISHABLE_STRUCT with different class name.
++The optional string argument will be added as attribute to the MAPPING structure.
 +.. code-block:: c++
 +
 +  class [[hare::mapping]] MyClass {
@@ -96,10 +96,10 @@ index f94c822..2bff0c5 100644
  
 diff --git a/tools/C++2HareIDL/C++2HareIDL.cpp b/tools/C++2HareIDL/C++2HareIDL.cpp
 new file mode 100644
-index 0000000..9715aec
+index 0000000..0fc4451
 --- /dev/null
 +++ b/tools/C++2HareIDL/C++2HareIDL.cpp
-@@ -0,0 +1,222 @@
+@@ -0,0 +1,263 @@
 +/*******************************************************************************
 +Copyright (C) 2016 OLogN Technologies AG
 +
@@ -165,45 +165,64 @@ index 0000000..9715aec
 +    : public RecursiveASTVisitor<FindNamedClassVisitor> {
 +private:
 +    ASTContext *context;
++    map<const Type*, string> typeMapping;
++
 +public:
 +    explicit FindNamedClassVisitor(ASTContext *context)
 +        : context(context) {}
 +
++    bool VisitTypedefNameDecl(TypedefNameDecl* declaration) {
++
++        StringRef name = declaration->getName();
++        if (name.substr(0, 5) == "hare_") {
++            string n = declaration->getDeclName().getAsString().substr(5);
++            //                string t = current->getType().getCanonicalType().getAsString();
++            QualType qt = declaration->getUnderlyingType();
++            const Type* t = qt.getCanonicalType().getTypePtrOrNull();
++
++            typeMapping[t] = n;
++//            declaration->dump();
++        }
++        return true;
++    }
++
 +    bool VisitCXXRecordDecl(CXXRecordDecl *declaration) {
 +
 +        bool process = false;
-+        string name = declaration->getQualifiedNameAsString();
++        StringRef name = declaration->getName();
 +
-+        auto it = find(FindClasses.begin(), FindClasses.end(), name);
++        string mappingArgs;
++        auto it = find(FindClasses.begin(), FindClasses.end(), name.str());
 +        if (it != FindClasses.end()) {
 +            process = true;
 +        }
-+        else if (FindByAttribute) {
-+          if (declaration->hasAttr<HareMappingAttr>()) {
-+              process = true;
-+  //            HareCXXRecordAttr* at = declaration->getAttr<HareCXXRecordAttr>();
-+              //for (auto it = attr->argument_begin(); it != attr->argument_end(); ++it) {
-+              //    outs() << "HareCXXRecordAttr argument " << *it << "\n";
-+              //}
-+          }
-+          else if (declaration->hasAttr<AnnotateAttr>()) {
-+              AnnotateAttr* at = declaration->getAttr<AnnotateAttr>();
-+              StringRef t = at->getAnnotation();
-+              if (t == "hare::mapping") {
-+                  process = true;
-+              }
-+          }
++        else if (declaration->hasAttr<HareMappingAttr>()) {
++            process = FindByAttribute;
++            HareMappingAttr* at = declaration->getAttr<HareMappingAttr>();
++            StringRef ma = at->getArgument();
++            if (!ma.empty()) {
++                mappingArgs += ", Attribute=\"";
++                mappingArgs += ma;
++                mappingArgs += "\" ";
++            }
++        }
++        else if (declaration->hasAttr<AnnotateAttr>()) {
++            AnnotateAttr* at = declaration->getAttr<AnnotateAttr>();
++            StringRef t = at->getAnnotation();
++            if (t == "hare::mapping") {
++                process = true;
++            }
 +        }
 +
 +        if(process) {
 +            raw_ostream& os = outs();
 +
 +            FullSourceLoc fullLocation = context->getFullLoc(declaration->getLocStart());
-+            StringRef fn = fullLocation.getManager().getFilename(fullLocation);
++            string fn = fullLocation.getManager().getFilename(fullLocation).str();
 +            unsigned int line = fullLocation.getSpellingLineNumber();
 +            os << "#line " << line << " \"" << fn << "\";\n";
 +
-+            os << "MAPPING(Lang=\"C++\") PUBLISHABLE-STRUCT " << name << " {\n";
++            os << "MAPPING( FrontEnd=\"0.0.1\"" << mappingArgs << ") PUBLISHABLE-STRUCT " << name << " {\n";
 +            ++line;
 +            
 +            RecordDecl::field_range r = declaration->fields();
@@ -212,36 +231,33 @@ index 0000000..9715aec
 +                string n = current->getDeclName().getAsString();
 +//                string t = current->getType().getCanonicalType().getAsString();
 +                QualType qt = current->getType();
++
++                if (qt.hasQualifiers()) {
++                    //TODO report error?
++                    qt = qt.getUnqualifiedType();
++                }
++
 +                const Type* t = qt.getCanonicalType().getTypePtrOrNull();
++                auto mapIt = typeMapping.find(t);
++                string typeName = mapIt != typeMapping.end() ? mapIt->second : qt.getAsString();
++
++                //string dbgNames = "/* getDeclName=";
++                //dbgNames += qt.getAsString();
++                //dbgNames += " getUnqualifiedType=";
++                //dbgNames += qt.getUnqualifiedType().getAsString();
++                //dbgNames += " getSingleStepDesugaredType=";
++                //dbgNames += qt.getSingleStepDesugaredType(*context).getAsString();
++                //dbgNames += " getCanonicalType=";
++                //dbgNames += qt.getCanonicalType().getAsString();
++                //dbgNames += " */";
++                
 +
 +                FullSourceLoc currentLoc = context->getFullLoc(current->getLocStart());
-+                unsigned int currentLine = currentLoc.getSpellingLineNumber();
-+                StringRef currentFn = currentLoc.getManager().getFilename(currentLoc);
++                fixLineNumber(os, fn, line, currentLoc);
 +
-+                if (fn != currentFn) {
-+                    fn = currentFn;
-+                    line = currentLine;
-+                    os << "#line " << line << " \"" << fn << "\";\n";
-+                }
-+                else {
-+
-+                    if (currentLine != line) {
-+                        if (currentLine > line && currentLine - line < 10) {
-+                            while (currentLine != line) {
-+                                os << "\n";
-+                                ++line;
-+                            }
-+                        }
-+                        else {
-+                            line = currentLine;
-+                            os << "#line " << line << ";\n";
-+                        }
-+                    }
-+                }
-+
++                os << typeName << " ";
 +                //assert(t);
 +                if (t->isEnumeralType()) {
-+                    os << qt.getAsString() << " ";
 +                    EnumDecl* ed = t->getAs<EnumType>()->getDecl();
 +                    auto r = ed->enumerators();
 +                    if (r.begin() != r.end()) {
@@ -254,16 +270,13 @@ index 0000000..9715aec
 +                            os << "=";
 +                            os << it->getInitVal();
 +                        }
-+                        os << "}";
++                        os << "} ";
 +                    }
-+                    os << " " << n << ";\n";
-+                    ++line;
 +                }
-+                else {
-+                    os << qt.getAsString() << " " << n << ";\n";
-+                    ++line;
-+                }
-+/*
++
++                os << current->getDeclName().getAsString() << ";\n";
++                ++line;
++                /*
 +                if (current->hasAttr<HareEncodeAsAttr>()) {
 +                    HareEncodeAsAttr* at = current->getAttr<HareEncodeAsAttr>();
 +                    llvm::outs() << t.getAsString() << " " << n << " " << at->getEncoding().str() << ";\n";
@@ -283,6 +296,34 @@ index 0000000..9715aec
 +        }
 +
 +        return true;
++    }
++
++private:
++    void fixLineNumber(raw_ostream& os, string& fileName, unsigned int& line, FullSourceLoc location) {
++        unsigned int currentLine = location.getSpellingLineNumber();
++        StringRef currentFileName = location.getManager().getFilename(location);
++
++        if (fileName != currentFileName) {
++            fileName = currentFileName;
++            line = currentLine;
++            os << "#line " << line << " \"" << fileName << "\";\n";
++        }
++        else {
++
++            if (currentLine != line) {
++                if (currentLine > line && currentLine - line < 10) {
++                    while (currentLine != line) {
++                        os << "\n";
++                        ++line;
++                    }
++                }
++                else {
++                    line = currentLine;
++                    os << "#line " << line << ";\n";
++                }
++            }
++        }
++
 +    }
 +};
 +
@@ -313,7 +354,7 @@ index 0000000..9715aec
 +
 +    ClangTool tool(optionsParser.getCompilations(), optionsParser.getSourcePathList());
 +
-+    vector<string> extraArgs = { "-fno-ms-compatibility", "-DHAREIDL_USE_CXX11_ATTRIBUTE" };
++    vector<string> extraArgs = { "-DHAREIDL_USE_CXX11_ATTRIBUTE" };
 +
 +    tool.appendArgumentsAdjuster(getInsertArgumentAdjuster(extraArgs,
 +        ArgumentInsertPosition::BEGIN));

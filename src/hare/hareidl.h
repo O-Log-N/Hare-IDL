@@ -34,4 +34,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #endif
 
+typedef uint8_t hare_uint8_t;
+typedef int8_t hare_int8_t;
+typedef uint16_t hare_uint16_t;
+typedef int16_t hare_int16_t;
+typedef uint32_t hare_uint32_t;
+typedef int32_t hare_int32_t;
+
+
 #endif // HAREIDL_H_INCLUDED

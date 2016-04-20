@@ -60,9 +60,11 @@ public:
     string name;
 };
 
+typedef int32_t my_type;
+
 class Character {
 public:
-  int character_id;
+  my_type character_id;
   double x;
   double y;
   double z;
@@ -75,32 +77,5 @@ public:
   vector<Item> inventory;
 };
 
-typedef uint8_t my_type;
-typedef my_type my_type2;
-
-
-class TestTypes {
-public:
-  int character_id;
-  long character_id2;
-  unsigned long x;
-
-  int8_t y;
-  uint8_t z;
-  char vx;
-  uint32_t vy;
-  double vz;
-  float angle;
-  enum Animation {Standing=0,Walking=1, Running=2} anim;
-  int animation_frame;
-  vector<Item> inventory;
-
-  my_type2 my_thing;
-
-  const long a_const;
-  volatile short a_volatile;
-  const char* a_const_char_ptr;
-  const int8_t* const a_const_char_ptr2;
-};
 
 #endif // SAMPLE_WITH_CPP_H_INCLUDED
