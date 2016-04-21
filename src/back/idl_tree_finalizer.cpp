@@ -81,7 +81,8 @@ string getMappingTypeFromIdl( DataType& type )
 {
 	switch ( type.kind )
 	{
-	case DataType::KIND::NAMED_TYPE:
+		case DataType::KIND::NAMED_TYPE:
+		case DataType::KIND::ENUM:
 		{
 			return type.name;
 		}
@@ -136,10 +137,6 @@ string getMappingTypeFromIdl( DataType& type )
 		case DataType::KIND::FIXED_POINT:
 		{
 			return "double"; // TODO: something smarter
-		}
-		case DataType::KIND::ENUM:
-		{
-			return "enum";
 		}
 		case DataType::KIND::SEQUENCE:
 		{
