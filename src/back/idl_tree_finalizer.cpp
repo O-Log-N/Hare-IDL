@@ -88,15 +88,18 @@ string getMappingTypeFromIdl( DataType& type )
 		}
 		case DataType::KIND::INTEGER:
 		{
-			if ( type.lowLimit.value >= 0 ) // signed
+			Limit tmpLow, tmpHigh; // this is just to not think about type of Limit::value
+			tmpLow.value = type.lowLimit.inclusive ? type.lowLimit.value : type.lowLimit.value + 1;
+			tmpHigh.value = type.highLimit.inclusive ? type.highLimit.value : type.highLimit.value - 1 ;
+			if ( tmpLow.value >= 0 ) // signed
 			{
-				if ( type.highLimit.value < 256 )
+				if ( tmpHigh.value < 256 )
 					return "uint8_t";
-				else if ( type.highLimit.value < 65536 )
+				else if ( tmpHigh.value < 65536 )
 					return "uint16_t";
-				else if ( type.highLimit.value < 4294967296. )
+				else if ( tmpHigh.value < 4294967296. )
 					return "uint32_t";
-				else if ( type.highLimit.value < 4294967296. * 4294967296. ) // TODO: unsafe! - fix
+				else if ( tmpHigh.value < 4294967296. * 4294967296. ) // TODO: unsafe! - fix
 					return "uint64_t";
 				else
 				{
@@ -105,17 +108,13 @@ string getMappingTypeFromIdl( DataType& type )
 			}
 			else // signed
 			{
-				Limit tmp; // this is just to not think about type of Limit::value
-				tmp.value = -type.lowLimit.value;
-				if ( tmp.value < type.highLimit.value )
-					tmp.value = type.highLimit.value;
-				if ( type.lowLimit.value >= -128 && type.highLimit.value < 128 )
+				if ( tmpLow.value >= -128 && tmpHigh.value < 128 )
 					return "int8_t";
-				else if ( type.lowLimit.value >= -32768 && type.highLimit.value < 32768 )
+				else if ( tmpLow.value >= -32768 && tmpHigh.value < 32768 )
 					return "int16_t";
-				else if ( type.lowLimit.value >= -2147483648. && type.highLimit.value < 2147483648. )
+				else if ( tmpLow.value >= -2147483648. && tmpHigh.value < 2147483648. )
 					return "int32_t";
-				else if ( type.lowLimit.value >= 4294967296. * (-2147483648.) && type.highLimit.value < 4294967296. * 2147483648. ) // TODO: unsafe! - fix
+				else if ( tmpLow.value >= 4294967296. * (-2147483648.) && tmpHigh.value < 4294967296. * 2147483648. ) // TODO: unsafe! - fix
 					return "int64_t";
 				else
 				{
