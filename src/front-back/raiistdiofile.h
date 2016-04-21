@@ -18,23 +18,23 @@ Copyright (C) 2016 OLogN Technologies AG
 #include <stdio.h>
 
 class RaiiStdioFile {
-  FILE* f;
-  
-  public:
-  RaiiStdioFile(FILE* f_)
-  : f(f_) {
-  }
-  ~RaiiStdioFile() {
-    if(f)
-      fclose(f);
-  }
-  
-  RaiiStdioFile(const RaiiStdioFile&) = delete;
-  RaiiStdioFile& operator =(const RaiiStdioFile&) = delete;
-  
-  operator FILE*() {
-    return f;
-  }
+    FILE* f;
+
+public:
+    RaiiStdioFile(FILE* f_)
+        : f(f_) {
+    }
+    ~RaiiStdioFile() {
+        if(f)
+            fclose(f);
+    }
+
+    RaiiStdioFile(const RaiiStdioFile&) = delete;
+    RaiiStdioFile& operator =(const RaiiStdioFile&) = delete;
+
+    operator FILE*() {
+        return f;
+    }
 };
 
 #endif //RAIISTDIOFILE_H_INCLUDED

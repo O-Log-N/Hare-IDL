@@ -28,8 +28,8 @@ struct Limit {
 };
 
 struct Location {
-	string fileName;
-	int lineNumber = 0;
+    string fileName;
+    int lineNumber = 0;
 };
 
 class CharacterRange {
@@ -58,11 +58,12 @@ class DataType
 {
 public:
     enum KIND { ENUM, NAMED_TYPE, SEQUENCE, ENCODING_SPECIFIC, MAPPING_SPECIFIC,
-        INTEGER, FIXED_POINT, FLOATING_POINT, CHARACTER, CHARACTER_STRING, BIT_STRING, DICTIONARY};
+                INTEGER, FIXED_POINT, FLOATING_POINT, CHARACTER, CHARACTER_STRING, BIT_STRING, DICTIONARY
+              };
     KIND kind = NAMED_TYPE;
-	string name;
-	string mappingName; // used for mapping only
-	string encodingName; // used for encoding only
+    string name;
+    string mappingName; // used for mapping only
+    string encodingName; // used for encoding only
     unique_ptr<DataType> keyType;
     unique_ptr<DataType> paramType;
     Limit lowLimit;
@@ -76,24 +77,24 @@ public:
 
     map<string,Variant> encodingAttrs;
     map<string,Variant> mappingAttrs;
-	map<string, uint32_t> enumValues;
+    map<string, uint32_t> enumValues;
 
-	DataType* idlRepresentation = nullptr;
-	DataType* mappingRepresentation = nullptr;
-	DataType* encodingRepresentation = nullptr;
+    DataType* idlRepresentation = nullptr;
+    DataType* mappingRepresentation = nullptr;
+    DataType* encodingRepresentation = nullptr;
 
-	DataType() = default;
+    DataType() = default;
     DataType(const DataType& other)
         : kind(other.kind), name(other.name), mappingName(other.mappingName), encodingName(other.encodingName),
-        keyType(other.keyType != nullptr ? new DataType(*(other.keyType)) : nullptr),
-        paramType(other.paramType != nullptr ? new DataType(*(other.paramType)) : nullptr),
-        lowLimit(other.lowLimit), highLimit(other.highLimit),
-        fixedPrecision(other.fixedPrecision), floatingSignificandBits(other.floatingSignificandBits),
-        floatingExponentBits(other.floatingExponentBits), characterSet(other.characterSet),
-        stringMinSize(other.stringMinSize), stringMaxSize(other.stringMaxSize),
-        encodingAttrs(other.encodingAttrs), mappingAttrs(other.mappingAttrs),
-        enumValues(other.enumValues) ,
-	    idlRepresentation( other.idlRepresentation ), mappingRepresentation( other.mappingRepresentation ), encodingRepresentation( other.encodingRepresentation ) {}
+          keyType(other.keyType != nullptr ? new DataType(*(other.keyType)) : nullptr),
+          paramType(other.paramType != nullptr ? new DataType(*(other.paramType)) : nullptr),
+          lowLimit(other.lowLimit), highLimit(other.highLimit),
+          fixedPrecision(other.fixedPrecision), floatingSignificandBits(other.floatingSignificandBits),
+          floatingExponentBits(other.floatingExponentBits), characterSet(other.characterSet),
+          stringMinSize(other.stringMinSize), stringMaxSize(other.stringMaxSize),
+          encodingAttrs(other.encodingAttrs), mappingAttrs(other.mappingAttrs),
+          enumValues(other.enumValues) ,
+          idlRepresentation( other.idlRepresentation ), mappingRepresentation( other.mappingRepresentation ), encodingRepresentation( other.encodingRepresentation ) {}
 
     DataType& operator = ( const DataType& other )
     {
@@ -110,25 +111,25 @@ public:
 class EncodingSpecifics
 {
 public:
-	string name;
-	map<string, Variant> attrs;
+    string name;
+    map<string, Variant> attrs;
 };
 
 
 class EncodedOrMember
 {
 public:
-	Location location;
-	virtual ~EncodedOrMember(){}
+    Location location;
+    virtual ~EncodedOrMember() {}
 };
 
 class DataMember : public EncodedOrMember
 {
 public:
-	DataType type;
-	string name;
-	bool extendTo = false;
-	Variant defaultValue;
+    DataType type;
+    string name;
+    bool extendTo = false;
+    Variant defaultValue;
     vector<string> whenDiscriminant;
 };
 
@@ -136,19 +137,19 @@ class EncodedMembers : public EncodedOrMember
 {
 public:
     EncodingSpecifics encodingSpecifics;
-	vector<unique_ptr<EncodedOrMember>> members;
+    vector<unique_ptr<EncodedOrMember>> members;
 };
 
 
 class Structure : public EncodedMembers
 {
 public:
-	enum DECLTYPE{ IDL, MAPPING, ENCODING };
-	enum TYPE{ STRUCT, RPC, DISCRIMINATED_UNION };
-	DECLTYPE declType = IDL;
-	TYPE type = STRUCT;
-	string name;
-    string discriminant;    
+    enum DECLTYPE { IDL, MAPPING, ENCODING };
+    enum TYPE { STRUCT, RPC, DISCRIMINATED_UNION };
+    DECLTYPE declType = IDL;
+    TYPE type = STRUCT;
+    string name;
+    string discriminant;
 };
 
 class Typedef {
@@ -162,7 +163,7 @@ class Root
 {
 public:
     vector<Typedef> typedefs;
-	vector<unique_ptr<Structure>> structures;
+    vector<unique_ptr<Structure>> structures;
 };
 
 inline

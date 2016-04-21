@@ -22,26 +22,26 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "../../3rdparty/cppformat/cppformat/format.h"
 
 namespace hare {
-    class AssertException : public std::exception {
-        const char* cond;
-        const char* msg;
-        const char* file;
-        int line;
-		std::string longMessage;
-        
-        public:
-        AssertException(const char* cond_, const char* file_, int line_)
-        : cond(cond_), msg(nullptr), file(file_), line(line_), longMessage(fmt::format( "Assertion \"{}\" failed. File: \"{}\", line: {}\n", cond, file, line )) {			
-        }
-        AssertException(const char* cond_, const char* msg_, const char* file_, int line_)
-        : cond(cond_), msg(msg_), file(file_), line(line_), longMessage(fmt::format( "Assertion \"{}\" failed. Reason: {} File: \"{}\", line: {}\n", cond, msg, file, line )) {
-       }
+class AssertException : public std::exception {
+    const char* cond;
+    const char* msg;
+    const char* file;
+    int line;
+    std::string longMessage;
 
-		virtual const char* what() const noexcept override
-		{
-			return longMessage.c_str();
-		}
-    };
+public:
+    AssertException(const char* cond_, const char* file_, int line_)
+        : cond(cond_), msg(nullptr), file(file_), line(line_), longMessage(fmt::format( "Assertion \"{}\" failed. File: \"{}\", line: {}\n", cond, file, line )) {
+    }
+    AssertException(const char* cond_, const char* msg_, const char* file_, int line_)
+        : cond(cond_), msg(msg_), file(file_), line(line_), longMessage(fmt::format( "Assertion \"{}\" failed. Reason: {} File: \"{}\", line: {}\n", cond, msg, file, line )) {
+    }
+
+    virtual const char* what() const noexcept override
+    {
+        return longMessage.c_str();
+    }
+};
 };
 
 //#defining things within namespace is misleading,

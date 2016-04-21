@@ -28,8 +28,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #ifdef HAREIDL_USE_CXX11_ATTRIBUTE
 #define HAREIDL(X) [[hare:: X ]]
-#else 
-#define HAREIDL(X) 
+#else
+#define HAREIDL(X)
 #endif
 
 #endif
