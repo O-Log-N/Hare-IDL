@@ -82,7 +82,7 @@ public:
 	DataType* mappingRepresentation = nullptr;
 	DataType* encodingRepresentation = nullptr;
 
-	DataType() {}
+	DataType() = default;
     DataType(const DataType& other)
         : kind(other.kind), name(other.name), mappingName(other.mappingName), encodingName(other.encodingName),
         keyType(other.keyType != nullptr ? new DataType(*(other.keyType)) : nullptr),
@@ -95,68 +95,16 @@ public:
         enumValues(other.enumValues) ,
 	    idlRepresentation( other.idlRepresentation ), mappingRepresentation( other.mappingRepresentation ), encodingRepresentation( other.encodingRepresentation ) {}
 
-	DataType& operator = ( const DataType& other )
-	{
-		kind = other.kind;
-		name = other.name;
-        mappingName = other.mappingName;
-        encodingName = other.encodingName;
-        keyType.reset(other.keyType != nullptr ? new DataType(*(other.keyType)) : nullptr );
-        paramType.reset(other.paramType != nullptr ? new DataType(*(other.paramType)) : nullptr);
-        lowLimit = other.lowLimit;
-		highLimit = other.highLimit;
-        fixedPrecision = other.fixedPrecision;
-        floatingSignificandBits = other.floatingSignificandBits;
-        floatingExponentBits = other.floatingExponentBits;
-        characterSet = other.characterSet;
-        stringMinSize = other.stringMinSize;
-        stringMaxSize = other.stringMaxSize;
-		encodingAttrs = other.encodingAttrs;
-		mappingAttrs = other.mappingAttrs;
-		enumValues = other.enumValues;
-		idlRepresentation = other.idlRepresentation;
-		mappingRepresentation = other.mappingRepresentation;
-		encodingRepresentation = other.encodingRepresentation;
-		return *this;
-	}
+    DataType& operator = ( const DataType& other )
+    {
+        if(this != &other)
+            *this = std::move(DataType(other));
 
-    DataType(DataType&& other)
-        : kind(other.kind), name(other.name), mappingName(other.mappingName), encodingName(other.encodingName),
-        keyType(other.keyType != nullptr ? std::move(other.keyType) : nullptr),
-        paramType(other.keyType != nullptr ? std::move(other.paramType) : nullptr),
-        lowLimit(other.lowLimit), highLimit(other.highLimit),
-        fixedPrecision(other.fixedPrecision), floatingSignificandBits(other.floatingSignificandBits),
-        floatingExponentBits(other.floatingExponentBits), characterSet(other.characterSet),
-        stringMinSize(other.stringMinSize), stringMaxSize(other.stringMaxSize),
-        encodingAttrs(other.encodingAttrs), mappingAttrs(other.mappingAttrs),
-        enumValues(other.enumValues),
-	    idlRepresentation( other.idlRepresentation ), mappingRepresentation( other.mappingRepresentation ), encodingRepresentation( other.encodingRepresentation ) {}
+        return *this;
+    }
 
-    DataType& operator = (DataType&& other)
-	{
-		kind = other.kind;
-		name = other.name;
-        mappingName = other.mappingName;
-        encodingName = other.encodingName;
-        keyType = std::move(other.keyType);
-        paramType = std::move(other.paramType);
-        lowLimit = other.lowLimit;
-		highLimit = other.highLimit;
-        fixedPrecision = other.fixedPrecision;
-        floatingSignificandBits = other.floatingSignificandBits;
-        floatingExponentBits = other.floatingExponentBits;
-        characterSet = other.characterSet;
-        stringMinSize = other.stringMinSize;
-        stringMaxSize = other.stringMaxSize;
-		encodingAttrs = other.encodingAttrs;
-		mappingAttrs = other.mappingAttrs;
-		enumValues = other.enumValues;
-		idlRepresentation = other.idlRepresentation;
-		mappingRepresentation = other.mappingRepresentation;
-		encodingRepresentation = other.encodingRepresentation;
-		return *this;
-	}
-
+    DataType(DataType&& other) = default;
+    DataType& operator = (DataType&& other) = default;
 };
 
 class EncodingSpecifics
