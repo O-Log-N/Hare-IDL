@@ -207,6 +207,44 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 				stack.push_back( std::move(se) );
 				break;
 			}
+			case OPERATOR::OR:
+			{
+				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
+				StackElement se;
+				auto arg1 = stack.begin() + stack.size() - 2;
+				auto arg2 = stack.begin() + stack.size() - 1;
+				if ( arg1->argtype == ARGTYPE::BOOL && arg2->argtype == ARGTYPE::BOOL )
+				{
+					se.argtype = ARGTYPE::BOOL;
+					se.boolValue = arg1->boolValue || arg2->boolValue;
+				}
+				else
+					assert( 0 ); // TODO: think about type conversions
+
+				stack.pop_back();
+				stack.pop_back();
+				stack.push_back( std::move(se) );
+				break;
+			}
+			case OPERATOR::AND:
+			{
+				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
+				StackElement se;
+				auto arg1 = stack.begin() + stack.size() - 2;
+				auto arg2 = stack.begin() + stack.size() - 1;
+				if ( arg1->argtype == ARGTYPE::BOOL && arg2->argtype == ARGTYPE::BOOL )
+				{
+					se.argtype = ARGTYPE::BOOL;
+					se.boolValue = arg1->boolValue && arg2->boolValue;
+				}
+				else
+					assert( 0 ); // TODO: think about type conversions
+
+				stack.pop_back();
+				stack.pop_back();
+				stack.push_back( std::move(se) );
+				break;
+			}
 			case OPERATOR::GREATER:
 			case OPERATOR::LESS:
 			case OPERATOR::LEQ:
@@ -215,8 +253,6 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 			case OPERATOR::SUBTR:
 			case OPERATOR::DECREMENT:
 			case OPERATOR::NOT:
-			case OPERATOR::AND:
-			case OPERATOR::OR:
 				assert( 0); // TODO: implement
 		}
 	}

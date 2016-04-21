@@ -69,10 +69,85 @@ void memberMappingTypeToKind( DataType& type )
 			else if ( type.mappingName == "string" )
 			{
 				type.kind = DataType::KIND::CHARACTER_STRING;
-				type.floatingSignificandBits = 24;
-				type.floatingExponentBits = 8;
+				type.stringMinSize = 0;
+				type.stringMaxSize = 65536; // TODO: what is a limit??
 			}
 			break;
+		}
+	}
+}
+
+string getMappingTypeFromIdl( DataType& type )
+{
+	switch ( type.kind )
+	{
+	case DataType::KIND::NAMED_TYPE:
+		{
+			return type.name;
+		}
+		case DataType::KIND::INTEGER:
+		{
+			if ( type.lowLimit.value >= 0 ) // signed
+			{
+				if ( type.highLimit.value < 256 )
+					return "uint8_t";
+				else if ( type.highLimit.value < 65536 )
+					return "uint16_t";
+				else if ( type.highLimit.value < 4294967296. )
+					return "uint32_t";
+				else if ( type.highLimit.value < 4294967296. * 4294967296. ) // TODO: unsafe! - fix
+					return "uint64_t";
+				else
+				{
+					assert( 0 ); // TODO: address!
+				}
+			}
+			else // signed
+			{
+				Limit tmp; // this is just to not think about type of Limit::value
+				tmp.value = -type.lowLimit.value;
+				if ( tmp.value < type.highLimit.value )
+					tmp.value = type.highLimit.value;
+				if ( type.lowLimit.value >= -128 && type.highLimit.value < 128 )
+					return "int8_t";
+				else if ( type.lowLimit.value >= -32768 && type.highLimit.value < 32768 )
+					return "int16_t";
+				else if ( type.lowLimit.value >= -2147483648. && type.highLimit.value < 2147483648. )
+					return "int32_t";
+				else if ( type.lowLimit.value >= 4294967296. * (-2147483648.) && type.highLimit.value < 4294967296. * 2147483648. ) // TODO: unsafe! - fix
+					return "int64_t";
+				else
+				{
+					assert( 0 ); // TODO: address!
+				}
+			}
+		}
+		case DataType::KIND::FLOATING_POINT:
+		{
+			if ( type.floatingExponentBits <= 8 && type.floatingSignificandBits <= 24 )
+				return "float";
+			else if ( type.floatingExponentBits <= 11 && type.floatingSignificandBits <= 53 )
+				return "double";
+			else
+			{
+				assert( 0 ); // TODO: address!
+			}
+		}
+		case DataType::KIND::FIXED_POINT:
+		{
+			return "double"; // TODO: something smarter
+		}
+		case DataType::KIND::ENUM:
+		{
+			return "enum";
+		}
+		case DataType::KIND::SEQUENCE:
+		{
+			return "vector";
+		}
+		default:
+		{
+			assert( 0 ); // TODO: address!
 		}
 	}
 }
@@ -97,6 +172,37 @@ void traverseStructTreesForStructureMembersMappingTypeToKind( vector<unique_ptr<
 	}
 }
 
+void initDataType( DataType& srcType, DataType& targetType, Structure::DECLTYPE baseDeclType, Structure::DECLTYPE retDeclType )
+{
+	if ( baseDeclType == Structure::DECLTYPE::MAPPING )
+	{
+		assert( retDeclType == Structure::DECLTYPE::IDL );
+		// TODO: other steps [...]
+		srcType.idlRepresentation = &targetType;
+		targetType.mappingRepresentation = &srcType;
+		targetType.idlRepresentation = &targetType; // self
+	}
+	else if ( baseDeclType == Structure::DECLTYPE::IDL )
+	{
+		assert( retDeclType != Structure::DECLTYPE::IDL );
+		if ( retDeclType == Structure::DECLTYPE::MAPPING )
+		{
+			targetType.mappingName = getMappingTypeFromIdl( srcType );
+			if ( srcType.keyType != nullptr )
+				initDataType( *(srcType.keyType), *(targetType.keyType), baseDeclType, retDeclType );
+			if ( srcType.paramType != nullptr )
+				initDataType( *(srcType.paramType), *(targetType.paramType), baseDeclType, retDeclType );
+			srcType.mappingRepresentation = &targetType;
+			targetType.idlRepresentation = &srcType;
+			targetType.mappingRepresentation = &targetType; // self
+		}
+		else
+		{
+			assert( 0 ); // TODO: implement
+		}
+	}
+}
+
 BackDataMember* createMember( BackDataMember& base, Structure::DECLTYPE baseDeclType, Structure::DECLTYPE retDeclType )
 {
 	BackDataMember* ret = new BackDataMember;
@@ -107,8 +213,21 @@ BackDataMember* createMember( BackDataMember& base, Structure::DECLTYPE baseDecl
 		assert( retDeclType == Structure::DECLTYPE::IDL );
 		ret->name = base.name;
 		ret->type = base.type; // TODO: actual implementation
-		base.type.idlRepresentation = &( ret->type );
-		ret->type.mappingRepresentation = &( base.type );
+		initDataType( base.type, ret->type, baseDeclType, retDeclType );
+	}
+	else if ( baseDeclType == Structure::DECLTYPE::IDL )
+	{
+		assert( retDeclType != Structure::DECLTYPE::IDL );
+		ret->name = base.name;
+		if ( retDeclType == Structure::DECLTYPE::MAPPING )
+		{
+			ret->type = base.type;
+			initDataType( base.type, ret->type, baseDeclType, retDeclType );
+		}
+		else
+		{
+			assert( 0 ); // TODO: implement
+		}
 	}
 	return ret;
 }
@@ -290,7 +409,11 @@ void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario )
 	switch ( scenario )
 	{
 		case TREE_DATA_COMPLETION_SCENARIO::IDL_MAP_ENC:  break;
-		case TREE_DATA_COMPLETION_SCENARIO::IDL_ONLY: break;
+		case TREE_DATA_COMPLETION_SCENARIO::IDL_ONLY:
+		{
+			traverseStructTreesForDataMatchingOrOverridding( root.structuresIdl, Structure::DECLTYPE::IDL, root.structuresMapping, Structure::DECLTYPE::MAPPING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
+			break;
+		}
 		case TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY:
 		{
 			traverseStructTreesForDataMatchingOrOverridding( root.structuresMapping, Structure::DECLTYPE::MAPPING, root.structuresIdl, Structure::DECLTYPE::IDL, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
