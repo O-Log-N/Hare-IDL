@@ -64,23 +64,28 @@ inline void serialize@STRUCT-NAME@( @STRUCT-NAME@& s, OStream& o ) {
 
 
 @@BEGIN-TEMPLATE NAME="SERIALIZE-TYPE" TYPE="DATATYPE"
-@@IF IS-INTEGER()
-   o.writeInt32(@PARAM-NAME@);
-@@ELIF IS-FIXED-POINT()
-   o.writeDouble(@PARAM-NAME@);
-@@ELIF IS-FLOATING-POINT()
-   o.writeDouble(@PARAM-NAME@);
+@@IF IS-INTEGER() || IS-FIXED-POINT() || IS-FLOATING-POINT()
+   o.write_@ENCODING-MEMBER-TYPE@(@PARAM-NAME@);
 @@ELIF IS-CHARACTER-STRING()
-   o.writeString(@PARAM-NAME@);
+   o.write_string(@PARAM-NAME@);
 @@ELIF IS-STRUCTURE()
    serialize@MEMBER-TYPE@(@PARAM-NAME@, o);
 @@ELIF IS-ENUM()
-   o.writeInt32(@PARAM-NAME@);
+      switch ( s.anim )
+	  {
+   @@LET LOCAL-ENCODING-MEMBER-TYPE="@ENCODING-MEMBER-TYPE@"
+   @@FOR-EACH-OF ENUM-VALUES() BEGIN
+      @@INCLUDE TEMPLATE="SERIALIZE-ENUM-VALUE" PARAM-NAME="@PARAM-NAME@" PARAM-TYPE=LOCAL-ENCODING-MEMBER-TYPE
+   @@FOR-EACH-OF END
+        default: assert( 0 );
+	  }
 @@ELIF IS-SEQUENCE()
+   o.write_uint32_t(@PARAM-NAME@.size());
    for(auto item:@PARAM-NAME@) {
 @@INCLUDE-WITH COLLECTION-TYPE() TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item" TYPE="DATATYPE"
    }
 @@ELIF IS-DICTIONARY()
+   o.write_uint32_t(@PARAM-NAME@.size());
    for(auto item:@PARAM-NAME@) {
 @@INCLUDE-WITH COLLECTION-TYPE2() TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item.first" TYPE="DATATYPE"
 @@INCLUDE-WITH COLLECTION-TYPE() TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item.second" TYPE="DATATYPE"
@@ -89,6 +94,11 @@ inline void serialize@STRUCT-NAME@( @STRUCT-NAME@& s, OStream& o ) {
 @@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@, type=@MEMBER-TYPE@"
 @@ENDIF
 @@END-TEMPLATE NAME="SERIALIZE-TYPE"
+
+
+@@BEGIN-TEMPLATE NAME="SERIALIZE-ENUM-VALUE" TYPE="ENUMVALUE"
+        case s.@ENUM-VALUE-NAME@: o.write_@PARAM-TYPE@( @ENUM-VALUE-VALUE@ ); break;
+@@END-TEMPLATE NAME="SERIALIZE-ENUM-VALUE"
 
 
 
@@ -113,31 +123,50 @@ inline bool deserialize@STRUCT-NAME@( @STRUCT-NAME@& s, IStream& i ) {
 
 
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-TYPE" TYPE="DATATYPE"
-@@IF IS-INTEGER()
-   i.readUint32(@PARAM-NAME@);
-@@ELIF IS-FIXED-POINT()
-   i.readDouble(@PARAM-NAME@);
-@@ELIF IS-FLOATING-POINT()
-   i.readDouble(@PARAM-NAME@);
+@@IF IS-INTEGER() || IS-FIXED-POINT() || IS-FLOATING-POINT()
+   i.read_@ENCODING-MEMBER-TYPE@(@PARAM-NAME@);
 @@ELIF IS-CHARACTER-STRING()
-   i.readString(@PARAM-NAME@);
+   i.read_string(@PARAM-NAME@);
 @@ELIF IS-STRUCTURE()
    deserialize@MEMBER-TYPE@(@PARAM-NAME@, i);
 @@ELIF IS-ENUM()
-   i.readUint32(@PARAM-NAME@);
+   {
+       uint8_t tmp;
+       i.read_uint8_t(tmp);
+       switch ( tmp )
+       {
+   @@FOR-EACH-OF ENUM-VALUES() BEGIN
+      @@INCLUDE TEMPLATE="DESERIALIZE-ENUM-VALUE" PARAM-NAME="@PARAM-NAME@"
+   @@FOR-EACH-OF END
+          default: assert(0);
+       }
+   }
+ 
 @@ELIF IS-SEQUENCE()
-   for(auto item:@PARAM-NAME@) {
-@@INCLUDE-WITH COLLECTION-TYPE() TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item" TYPE="DATATYPE"
+   {
+     uint32_t size;
+	 i.read_uint32_t(size);
+     for(uint32_t k=0; k<size; ++k) {
+@@INCLUDE-WITH COLLECTION-TYPE() TEMPLATE="MAP-TYPE"
+      item;
+@@INCLUDE-WITH COLLECTION-TYPE() TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="item" TYPE="DATATYPE"
+	   @PARAM-NAME@.push_back( item );
+     }
    }
 @@ELIF IS-DICTIONARY()
    for(auto item:@PARAM-NAME@) {
-@@INCLUDE-WITH COLLECTION-TYPE2() TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item.first" TYPE="DATATYPE"
-@@INCLUDE-WITH COLLECTION-TYPE() TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item.second" TYPE="DATATYPE"
+@@INCLUDE-WITH COLLECTION-TYPE2() TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="item.first" TYPE="DATATYPE"
+@@INCLUDE-WITH COLLECTION-TYPE() TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="item.second" TYPE="DATATYPE"
    }
 @@ELSE
 @@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@, type=@MEMBER-TYPE@"
 @@ENDIF
 @@END-TEMPLATE NAME="DESERIALIZE-TYPE"
+
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-ENUM-VALUE" TYPE="ENUMVALUE"
+	      case @ENUM-VALUE-VALUE@: @PARAM-NAME@ = s.@ENUM-VALUE-NAME@; break;
+@@END-TEMPLATE NAME="DESERIALIZE-ENUM-VALUE"
 
 
 
@@ -166,16 +195,16 @@ inline void print@STRUCT-NAME@( @STRUCT-NAME@& s ) {
 @@IF IS-INTEGER() || IS-FIXED-POINT() || IS-FLOATING-POINT() || IS-CHARACTER-STRING()
    cout << s.@PARAM-NAME@;
 @@ELIF IS-STRUCTURE()
-//@@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@"
+   print@MAPPING-MEMBER-TYPE@( @PARAM-NAME@ );
 @@ELIF IS-ENUM()
    cout << s.@PARAM-NAME@;
 @@ELIF IS-SEQUENCE()
    for(auto item:s.@PARAM-NAME@) {
-@@INCLUDE-WITH MEMBER-TYPE() TEMPLATE="PRINT-TYPE" TYPE="DATATYPE" PARAM-NAME="@PARAM-NAME@"
+@@INCLUDE-WITH COLLECTION-TYPE() TEMPLATE="PRINT-TYPE" TYPE="DATATYPE" PARAM-NAME="item"
    }
 @@ELIF IS-DICTIONARY()
    for(auto item:@PARAM-NAME@) {
-//@@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@"
+//@@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@", kind: DICTIONARY
    }
 @@ELSE
 @@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@"

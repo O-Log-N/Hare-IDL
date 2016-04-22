@@ -33,8 +33,8 @@ void idlcBackEnd( Root& root )
 
 	TemplateNodeSpace nodeSpace;
 
-	FILE* tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/cpp/codegen/protobuf/protobuff_gen.txt", "rb" );
-//	FILE* tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template5.txt", "rb" );
+//	FILE* tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/cpp/codegen/protobuf/protobuff_gen.txt", "rb" );
+	FILE* tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template5.txt", "rb" );
 	if ( tf == NULL )
 	{
 		fmt::print( "failed to open template file\n" );

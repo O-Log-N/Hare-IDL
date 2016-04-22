@@ -77,12 +77,41 @@ void memberMappingTypeToKind( DataType& type )
 	}
 }
 
-string getMappingTypeFromIdl( DataType& type )
+string getTypeFromIdl( DataType& type, Structure::DECLTYPE declType )
 {
 	switch ( type.kind )
 	{
-		case DataType::KIND::NAMED_TYPE:
 		case DataType::KIND::ENUM:
+		{
+			if ( declType == Structure::DECLTYPE::MAPPING )
+				return type.name;
+			else
+			{
+				assert( declType == Structure::DECLTYPE::ENCODING );
+				assert( type.enumValues.size() != 0 ); // TODO: what?
+				// TODO: think about a proper way of getting independency on value type of enumValues
+				uint32_t val = 0;
+				for ( auto& it:type.enumValues )
+				{
+					it.second = val++;
+				}
+				uint32_t size = type.enumValues.size();
+				assert( val == size );
+				if ( size < 256 )
+					return "uint8_t";
+				else if ( size < 65536 )
+					return "uint16_t";
+				else if ( size < 4294967296. )
+					return "uint32_t";
+				else if ( size < 4294967296. * 4294967296. ) // TODO: unsafe! - fix
+					return "uint64_t";
+				else
+				{
+					assert( 0 ); // TODO: address!
+				}
+			}
+		}
+		case DataType::KIND::NAMED_TYPE:
 		{
 			return type.name;
 		}
@@ -183,7 +212,7 @@ void initDataType( DataType& srcType, DataType& targetType, Structure::DECLTYPE 
 		assert( retDeclType != Structure::DECLTYPE::IDL );
 		if ( retDeclType == Structure::DECLTYPE::MAPPING )
 		{
-			targetType.mappingName = getMappingTypeFromIdl( srcType );
+			targetType.mappingName = getTypeFromIdl( srcType, Structure::DECLTYPE::MAPPING );
 			if ( srcType.keyType != nullptr )
 				initDataType( *(srcType.keyType), *(targetType.keyType), baseDeclType, retDeclType );
 			if ( srcType.paramType != nullptr )
@@ -194,7 +223,14 @@ void initDataType( DataType& srcType, DataType& targetType, Structure::DECLTYPE 
 		}
 		else
 		{
-			assert( 0 ); // TODO: implement
+			targetType.encodingName = getTypeFromIdl( srcType, Structure::DECLTYPE::ENCODING );
+			if ( srcType.keyType != nullptr )
+				initDataType( *(srcType.keyType), *(targetType.keyType), baseDeclType, retDeclType );
+			if ( srcType.paramType != nullptr )
+				initDataType( *(srcType.paramType), *(targetType.paramType), baseDeclType, retDeclType );
+			srcType.encodingRepresentation = &targetType;
+			targetType.idlRepresentation = &srcType;
+			targetType.encodingRepresentation = &targetType; // self
 		}
 	}
 }
@@ -222,7 +258,8 @@ BackDataMember* createMember( BackDataMember& base, Structure::DECLTYPE baseDecl
 		}
 		else
 		{
-			assert( 0 ); // TODO: implement
+			ret->type = base.type;
+			initDataType( base.type, ret->type, baseDeclType, retDeclType );
 		}
 	}
 	return ret;
@@ -408,6 +445,7 @@ void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario )
 		case TREE_DATA_COMPLETION_SCENARIO::IDL_ONLY:
 		{
 			traverseStructTreesForDataMatchingOrOverridding( root.structuresIdl, Structure::DECLTYPE::IDL, root.structuresMapping, Structure::DECLTYPE::MAPPING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
+			traverseStructTreesForDataMatchingOrOverridding( root.structuresIdl, Structure::DECLTYPE::IDL, root.structuresEncoding, Structure::DECLTYPE::ENCODING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
 			break;
 		}
 		case TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY:
