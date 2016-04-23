@@ -45,6 +45,8 @@ Copyright (C) 2016 OLogN Technologies AG
 #define PARAM_STRING_NAME "NAME"
 #define PARAM_STRING_FILENAME "FILENAME"
 #define PARAM_STRING_MSG "MSG"
+#define PARAM_STRING_POST_PROCESS "POST-PROCESS"
+#define PARAM_STRING_POST_PROCESS_SEPARATOR "POST-PROCESS-SEPARATOR"
 
 // placeholders (note: inline usage merkers @...@ must be processed outside)
 #define PLACEHOLDER_STRING_STRUCTNAME "STRUCT-NAME"
@@ -90,6 +92,11 @@ Copyright (C) 2016 OLogN Technologies AG
 #define FUNCTION_STRING_IS_CHARACTER "IS-CHARACTER"
 #define FUNCTION_STRING_IS_CHARACTER_STRING "IS-CHARACTER-STRING"
 #define FUNCTION_STRING_IS_BIT_STRING "IS-BIT-STRING"
+#define FUNCTION_STRING_SEQUENCE_SIZE "_sequence_size"
+#define FUNCTION_STRING_SERILAIZE_SEQUENCE_BEGIN "_serilaize_sequence_begin"
+#define FUNCTION_STRING_SERILAIZE_IS_SEQUENCE_END "_serilaize_is_sequence_end"
+#define FUNCTION_STRING_SERILAIZE_SEQUENCE_NEXT "_serilaize_sequence_next"
+#define FUNCTION_STRING_DESERILAIZE_SEQUENCE_ADD_NEXT "_deserilaize_sequence_add_next"
 
 // operators
 #define OPERATOR_STRING_EQ "=="
@@ -211,6 +218,8 @@ const ParameterWord params[] =
 	{PARAM_STRING_PARAM, sizeof(PARAM_STRING_PARAM)-1, ATTRIBUTE::PARAM},
 	{PARAM_STRING_LOCAL, sizeof(PARAM_STRING_LOCAL)-1, ATTRIBUTE::LOCAL},
 	{PARAM_STRING_MSG, sizeof(PARAM_STRING_MSG)-1, ATTRIBUTE::MSG},
+	{PARAM_STRING_POST_PROCESS_SEPARATOR, sizeof(PARAM_STRING_POST_PROCESS_SEPARATOR)-1, ATTRIBUTE::POST_PROCESS_SEPARATOR},
+	{PARAM_STRING_POST_PROCESS, sizeof(PARAM_STRING_POST_PROCESS)-1, ATTRIBUTE::POST_PROCESS},
 	{NULL, 0, ATTRIBUTE::NONE},
 };
 
@@ -237,6 +246,11 @@ const PredefinedFunctionDetails functions[]
 	{FUNCTION_STRING_IS_CHARACTER_STRING, sizeof(FUNCTION_STRING_IS_CHARACTER_STRING)-1, PREDEFINED_FUNCTION::IS_CHARACTER_STRING, 0},
 	{FUNCTION_STRING_IS_CHARACTER, sizeof(FUNCTION_STRING_IS_CHARACTER)-1, PREDEFINED_FUNCTION::IS_CHARACTER, 0},
 	{FUNCTION_STRING_IS_BIT_STRING, sizeof(FUNCTION_STRING_IS_BIT_STRING)-1, PREDEFINED_FUNCTION::IS_BIT_STRING, 0},
+	{FUNCTION_STRING_SEQUENCE_SIZE, sizeof(FUNCTION_STRING_SEQUENCE_SIZE)-1, PREDEFINED_FUNCTION::SEQUENCE_SIZE, 1},
+	{FUNCTION_STRING_SERILAIZE_SEQUENCE_BEGIN, sizeof(FUNCTION_STRING_SERILAIZE_SEQUENCE_BEGIN)-1, PREDEFINED_FUNCTION::SERILAIZE_SEQUENCE_BEGIN, 2},
+	{FUNCTION_STRING_SERILAIZE_IS_SEQUENCE_END, sizeof(FUNCTION_STRING_SERILAIZE_IS_SEQUENCE_END)-1, PREDEFINED_FUNCTION::SERILAIZE_IS_SEQUENCE_END, 2},
+	{FUNCTION_STRING_SERILAIZE_SEQUENCE_NEXT, sizeof(FUNCTION_STRING_SERILAIZE_SEQUENCE_NEXT)-1, PREDEFINED_FUNCTION::SERILAIZE_SEQUENCE_NEXT, 2},
+	{FUNCTION_STRING_DESERILAIZE_SEQUENCE_ADD_NEXT, sizeof(FUNCTION_STRING_DESERILAIZE_SEQUENCE_ADD_NEXT)-1, PREDEFINED_FUNCTION::DESERILAIZE_SEQUENCE_ADD_NEXT, 2},
 	{NULL, 0, PREDEFINED_FUNCTION::NOT_A_FUNCTION, 0},
 };
 
@@ -266,7 +280,8 @@ string readIdentifier( const string& line, size_t& contentStart )
 {
 	string ret;
 	if ( ( line[contentStart] >= 'a' && line[contentStart] <= 'z' ) || 
-			( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ))
+			( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ) ||
+			  line[contentStart] == '_' )
 	{
 		ret.push_back( line[contentStart] );
 		++contentStart;
@@ -274,7 +289,8 @@ string readIdentifier( const string& line, size_t& contentStart )
 	while ( ( line[contentStart] >= 'a' && line[contentStart] <= 'z' ) || 
 			( line[contentStart] >= 'A' && line[contentStart] <= 'Z' ) || 
 			( line[contentStart] >= '0' && line[contentStart] <= '9' ) ||
-			line[contentStart] == '-' )
+			  line[contentStart] == '-' ||
+			  line[contentStart] == '_'  )
 	{
 		ret.push_back( line[contentStart] );
 		++contentStart;

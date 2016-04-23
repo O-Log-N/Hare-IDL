@@ -80,6 +80,8 @@ inline void serialize@STRUCT-NAME@( @STRUCT-NAME@& s, OStream& o ) {
         default: assert( 0 );
 	  }
 @@ELIF IS-SEQUENCE()
+@@LET LOCAL-SEQ-SIZE = _sequence_size( "@PARAM-NAME@" )
+   o.write_uint32_t( @LOCAL-SEQ-SIZE@ );
    o.write_uint32_t(@PARAM-NAME@.size());
    for(auto item:@PARAM-NAME@) {
 @@INCLUDE-WITH COLLECTION-TYPE() TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item" TYPE="DATATYPE"

@@ -89,14 +89,7 @@ string getTypeFromIdl( DataType& type, Structure::DECLTYPE declType )
 			{
 				assert( declType == Structure::DECLTYPE::ENCODING );
 				assert( type.enumValues.size() != 0 ); // TODO: what?
-				// TODO: think about a proper way of getting independency on value type of enumValues
-				uint32_t val = 0;
-				for ( auto& it:type.enumValues )
-				{
-					it.second = val++;
-				}
 				uint32_t size = type.enumValues.size();
-				assert( val == size );
 				if ( size < 256 )
 					return "uint8_t";
 				else if ( size < 65536 )
@@ -213,6 +206,51 @@ void initDataType( DataType& srcType, DataType& targetType, Structure::DECLTYPE 
 		if ( retDeclType == Structure::DECLTYPE::MAPPING )
 		{
 			targetType.mappingName = getTypeFromIdl( srcType, Structure::DECLTYPE::MAPPING );
+			switch ( srcType.kind )
+			{
+				case DataType::KIND::SEQUENCE:
+				{
+					string key_sequence_size = "_sequence_size";
+					string key_serilaize_sequence_begin = "_serilaize_sequence_begin";
+					string key_serilaize_is_sequence_end = "_serilaize_is_sequence_end";
+					string key_serilaize_sequence_next = "_serilaize_sequence_next";
+					string key_deserilaize_sequence_add_next = "_deserilaize_sequence_add_next";
+
+					Variant value_sequence_size;
+					Variant value_serilaize_sequence_begin;
+					Variant value_serilaize_is_sequence_end;
+					Variant value_serilaize_sequence_next;
+					Variant value_deserilaize_sequence_add_next;
+
+					value_sequence_size.kind = Variant::KIND::STRING;
+					value_serilaize_sequence_begin.kind = Variant::KIND::STRING;
+					value_serilaize_is_sequence_end.kind = Variant::KIND::STRING;
+					value_serilaize_sequence_next.kind = Variant::KIND::STRING;
+					value_deserilaize_sequence_add_next.kind = Variant::KIND::STRING;
+
+					if ( targetType.mappingName == "vector" || targetType.mappingName == "list" )
+					{
+						value_sequence_size.stringValue = "%1.size()";
+						value_serilaize_sequence_begin.stringValue = "auto& %2 = %1.begin()";
+						value_serilaize_is_sequence_end.stringValue = "%2 == %1.end()";
+						value_serilaize_sequence_next.stringValue = "++%2";
+						value_deserilaize_sequence_add_next.stringValue = "%1.push_back( %2 )";
+					}
+					else
+					{
+						value_sequence_size.stringValue = "%1._sequence_size()";
+						value_serilaize_sequence_begin.stringValue = "auto& %2 = %1._serilaize_sequence_begin()";
+						value_serilaize_is_sequence_end.stringValue = "%1._serilaize_is_sequence_end( %2 )";
+						value_serilaize_sequence_next.stringValue = "%2 = %1._serilaize_sequence_next( %2 )";
+						value_deserilaize_sequence_add_next.stringValue = "%1._deserilaize_sequence_add_next( %2 )";
+					}
+					targetType.mappingAttrs.insert( make_pair( key_sequence_size, value_sequence_size ) );
+					targetType.mappingAttrs.insert( make_pair( key_serilaize_sequence_begin, value_serilaize_sequence_begin ) );
+					targetType.mappingAttrs.insert( make_pair( key_serilaize_is_sequence_end, value_serilaize_is_sequence_end ) );
+					targetType.mappingAttrs.insert( make_pair( key_serilaize_sequence_next, value_serilaize_sequence_next ) );
+					targetType.mappingAttrs.insert( make_pair( key_deserilaize_sequence_add_next, value_deserilaize_sequence_add_next ) );
+				}
+			}
 			if ( srcType.keyType != nullptr )
 				initDataType( *(srcType.keyType), *(targetType.keyType), baseDeclType, retDeclType );
 			if ( srcType.paramType != nullptr )
@@ -223,7 +261,19 @@ void initDataType( DataType& srcType, DataType& targetType, Structure::DECLTYPE 
 		}
 		else
 		{
+			assert( retDeclType == Structure::DECLTYPE::ENCODING );
 			targetType.encodingName = getTypeFromIdl( srcType, Structure::DECLTYPE::ENCODING );
+			switch ( srcType.kind )
+			{
+				case DataType::KIND::ENUM:
+				{
+					assert( srcType.enumValues.size() != 0 ); // TODO: what?
+					// TODO: think about a proper way of getting independency on value type of enumValues
+					uint32_t val = 0;
+					for ( auto& it:targetType.enumValues )
+						it.second = val++;
+				}
+			}
 			if ( srcType.keyType != nullptr )
 				initDataType( *(srcType.keyType), *(targetType.keyType), baseDeclType, retDeclType );
 			if ( srcType.paramType != nullptr )

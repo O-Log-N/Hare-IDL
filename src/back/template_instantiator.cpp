@@ -19,14 +19,6 @@ Copyright (C) 2016 OLogN Technologies AG
 
 string TemplateInstantiator::placeholderAsString( Placeholder ph )
 {
-/*
-static int cnt = 0;
-cnt++;
-fmt::print( "   ===  cnt = {}  ===\n", cnt );
-if ( cnt == 2 )
-{
-	cnt = cnt;
-}*/
 	StackElement& se = placeholder( ph );
 	// TODO: here we may need to perform type convergence
 	switch ( se.argtype )
@@ -72,6 +64,8 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart>& l
 
 void TemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID )
 {
+	// TODO: report an error
+	assert( 0 );
 }
 
 void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack )

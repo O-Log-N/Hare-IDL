@@ -179,7 +179,8 @@ currentLineNum = currentLineNum;
 			//TODO: THINK ABOUT ADDING FLOATING POINT
 		}
 		else if ( ( line[currentPos] >= 'a' && line[currentPos] <= 'z' ) || 
-			      ( line[currentPos] >= 'A' && line[currentPos] <= 'Z' ) )
+			      ( line[currentPos] >= 'A' && line[currentPos] <= 'Z' ) ||
+			        line[currentPos] == '_' )
 		{
 			// we expect a predefined function or a PARAM- or LOCAL- placeholder here
 			PredefindedFunction fn = parsePredefinedFunction( line, currentPos );
@@ -355,7 +356,6 @@ void readAttributeValue( const string& line, size_t& currentPos, vector<Expressi
 
 void readNextParam( const string& line, size_t& pos, TemplateLine& tl, int currentLineNum )
 {
-	if ( currentLineNum  == 76 )
 		currentLineNum = currentLineNum;
 	size_t sz = line.size();
 	AttributeName attrName;
