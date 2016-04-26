@@ -199,6 +199,7 @@ void initDataType( DataType& srcType, DataType& targetType, Structure::DECLTYPE 
 		srcType.idlRepresentation = &targetType;
 		targetType.mappingRepresentation = &srcType;
 		targetType.idlRepresentation = &targetType; // self
+		srcType.mappingRepresentation = &srcType; // self
 	}
 	else if ( baseDeclType == Structure::DECLTYPE::IDL )
 	{
@@ -237,6 +238,13 @@ void initDataType( DataType& srcType, DataType& targetType, Structure::DECLTYPE 
 			targetType.idlRepresentation = &srcType;
 			targetType.encodingRepresentation = &targetType; // self
 		}
+		srcType.idlRepresentation = &srcType; // self
+	}
+	else
+	{
+		assert( retDeclType == Structure::DECLTYPE::ENCODING );
+		// TODO: implement
+		assert( 0 ); // until implemented
 	}
 }
 

@@ -103,14 +103,16 @@ class EnumValueTemplateInstantiator : public TemplateInstantiator
 {
 protected:
 	string name;
-	int value;
+	uint32_t idlValue;
+	uint32_t mappingValue;
+	uint32_t encodingValue;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
 	virtual StackElement placeholder( Placeholder ph );
 	virtual string context() override {return "ENUMVALUE"; }
 
 public:
-	EnumValueTemplateInstantiator( const string& currentName, int currentValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), name( currentName ), value( currentValue ) {}
+	EnumValueTemplateInstantiator( const string& currentName, uint32_t currentIdlValue, uint32_t currentMappingValue, uint32_t currentEncodingValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), name( currentName ), idlValue( currentIdlValue ), mappingValue( currentMappingValue ), encodingValue( currentEncodingValue ) {}
 
 	void apply( TemplateNode& node )
 	{

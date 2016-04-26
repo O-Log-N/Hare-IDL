@@ -249,7 +249,17 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			elem.argtype = ARGTYPE::OBJPTR_LIST;
 			for ( auto it:dataType->enumValues )
 			{
-				EnumValueTemplateInstantiator* evti = new EnumValueTemplateInstantiator( it.first, it.second, templateSpace, outstr );
+				string enumValName = it.first;
+				assert( dataType->idlRepresentation != nullptr );
+				assert( dataType->mappingRepresentation != nullptr );
+				assert( dataType->encodingRepresentation != nullptr );
+				auto& idlEnumVal = dataType->idlRepresentation->enumValues.find( enumValName );
+				assert( idlEnumVal != dataType->idlRepresentation->enumValues.end() );
+				auto& mappingEnumVal = dataType->mappingRepresentation->enumValues.find( enumValName );
+				assert( mappingEnumVal != dataType->mappingRepresentation->enumValues.end() );
+				auto& encodingEnumVal = dataType->encodingRepresentation->enumValues.find( enumValName );
+				assert( encodingEnumVal != dataType->encodingRepresentation->enumValues.end() );
+				EnumValueTemplateInstantiator* evti = new EnumValueTemplateInstantiator( enumValName, idlEnumVal->second, mappingEnumVal->second, encodingEnumVal->second, templateSpace, outstr );
 				elem.objects.push_back( unique_ptr<TemplateInstantiator>(evti) );
 			}
 			stack.push_back( std::move(elem) );
@@ -446,9 +456,15 @@ StructTemplateInstantiator::StackElement EnumValueTemplateInstantiator::placehol
 			se.lineParts.push_back( lp );
 			return move(se);
 		}
-		case PLACEHOLDER::ENUM_VALUE_VALUE:
+		case PLACEHOLDER::MAPPING_ENUM_VALUE_VALUE:
 		{
-			lp.verbatim = fmt::format( "{}", value );
+			lp.verbatim = fmt::format( "{}", mappingValue );
+			se.lineParts.push_back( lp );
+			return move(se);
+		}
+		case PLACEHOLDER::ENCODING_ENUM_VALUE_VALUE:
+		{
+			lp.verbatim = fmt::format( "{}", encodingValue );
 			se.lineParts.push_back( lp );
 			return move(se);
 		}
