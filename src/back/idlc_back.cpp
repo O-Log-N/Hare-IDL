@@ -34,18 +34,48 @@ void idlcBackEnd( Root& root )
 	TemplateNodeSpace nodeSpace;
 
 //	FILE* tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/cpp/codegen/protobuf/protobuff_gen.txt", "rb" );
-	FILE* tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template5.txt", "rb" );
+//	FILE* tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template5.txt", "rb" );
+
+	// NOTE: our target goal is a possibility to specify multiple files; for a while we imitate it manually
+	//       exact details are to be developed
+	// TODO: implement
+
+	int line = 0; // TODO: switch to File/Line addressing for error reporting
+	FILE* tf;
+
+	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template6/main.txt", "rb" );
 	if ( tf == NULL )
 	{
 		fmt::print( "failed to open template file\n" );
 		return;
 	}
+	if ( !loadTemplates( tf, nodeSpace, line ) )
+		return;
+//	fmt::print( "\n\n" );
+//	dbgPrintTemplateTrees( nodeSpace );
+//	fmt::print( "\n\n" );
 
-	int line = 0;
+	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template6/mapping.txt", "rb" );
+	if ( tf == NULL )
+	{
+		fmt::print( "failed to open template file\n" );
+		return;
+	}
+	if ( !loadTemplates( tf, nodeSpace, line ) )
+		return;
+//	fmt::print( "\n\n" );
+//	dbgPrintTemplateTrees( nodeSpace );
+//	fmt::print( "\n\n" );
+
+	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template6/encoding.txt", "rb" );
+	if ( tf == NULL )
+	{
+		fmt::print( "failed to open template file\n" );
+		return;
+	}
 	if ( !loadTemplates( tf, nodeSpace, line ) )
 		return;
 	fmt::print( "\n\n" );
-//	dbgPrintTree( template_root );
 	dbgPrintTemplateTrees( nodeSpace );
 	fmt::print( "\n\n" );
 
