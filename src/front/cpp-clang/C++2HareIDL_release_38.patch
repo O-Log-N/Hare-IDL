@@ -1,4 +1,4 @@
-From 2ccb59607d709ee4d38a95463771e928da094432 Mon Sep 17 00:00:00 2001
+From dbd21793bd2ee192de9dea8643fcd1a004402b12 Mon Sep 17 00:00:00 2001
 From: mb <mb@o-log-n.com>
 Date: Tue, 5 Apr 2016 17:39:39 -0300
 Subject: [PATCH] Added HareIDL attribute support. Added C++2HareIDL tool
@@ -9,10 +9,10 @@ Subject: [PATCH] Added HareIDL attribute support. Added C++2HareIDL tool
  include/clang/Basic/Attr.td       |  14 ++
  include/clang/Basic/AttrDocs.td   |  32 +++++
  lib/Sema/SemaDeclAttr.cpp         |   6 +
- tools/C++2HareIDL/C++2HareIDL.cpp | 267 ++++++++++++++++++++++++++++++++++++++
+ tools/C++2HareIDL/C++2HareIDL.cpp | 266 ++++++++++++++++++++++++++++++++++++++
  tools/C++2HareIDL/CMakeLists.txt  |  22 ++++
  tools/CMakeLists.txt              |   2 +
- 6 files changed, 343 insertions(+)
+ 6 files changed, 342 insertions(+)
  create mode 100644 tools/C++2HareIDL/C++2HareIDL.cpp
  create mode 100644 tools/C++2HareIDL/CMakeLists.txt
 
@@ -97,10 +97,10 @@ index f94c822..2bff0c5 100644
  
 diff --git a/tools/C++2HareIDL/C++2HareIDL.cpp b/tools/C++2HareIDL/C++2HareIDL.cpp
 new file mode 100644
-index 0000000..1d755ff
+index 0000000..53b1a60
 --- /dev/null
 +++ b/tools/C++2HareIDL/C++2HareIDL.cpp
-@@ -0,0 +1,267 @@
+@@ -0,0 +1,266 @@
 +/*******************************************************************************
 +Copyright (C) 2016 OLogN Technologies AG
 +
@@ -224,7 +224,7 @@ index 0000000..1d755ff
 +
 +            os << "MAPPING( FrontEnd=\"0.0.1\"" << mappingArgs << ") PUBLISHABLE-STRUCT " << name << " {\n";
 +            ++line;
-+            
++
 +            RecordDecl::field_range r = declaration->fields();
 +            for (auto it = r.begin(); it != r.end(); ++it) {
 +                FieldDecl* current = *it;
@@ -250,7 +250,6 @@ index 0000000..1d755ff
 +                //dbgNames += " getCanonicalType=";
 +                //dbgNames += qt.getCanonicalType().getAsString();
 +                //dbgNames += " */";
-+                
 +
 +                FullSourceLoc currentLoc = context->getFullLoc(current->getLocStart());
 +                fixLineNumber(os, fn, line, currentLoc);
