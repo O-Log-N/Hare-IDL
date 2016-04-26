@@ -356,7 +356,6 @@ void readAttributeValue( const string& line, size_t& currentPos, vector<Expressi
 
 void readNextParam( const string& line, size_t& pos, TemplateLine& tl, int currentLineNum )
 {
-		currentLineNum = currentLineNum;
 	size_t sz = line.size();
 	AttributeName attrName;
 	readAttributeName( line, pos, attrName, currentLineNum );
