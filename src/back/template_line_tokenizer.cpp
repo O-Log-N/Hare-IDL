@@ -126,7 +126,8 @@ currentLineNum = currentLineNum;
 				assert( 0 ); // TODO: throw
 			}
 			++currentPos; // for terminating '"'
-			if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+//			if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+			if ( expression.size() && postfixOperations.size() == 0 ) // PUSH command to non-empty stack without an operator of fn call
 			{
 				currentPos = prevPos;
 				return;
@@ -143,7 +144,15 @@ currentLineNum = currentLineNum;
 		{
 			++currentPos;
 			skipSpaces( line, currentPos );
-			parseExpression( line, currentPos, expression, currentLineNum );
+			vector<ExpressionElement> expression2;
+			parseExpression( line, currentPos, expression2, currentLineNum );
+			if ( expression2.size() == 0 )
+			{
+				fmt::print( "line {}:  expression expected after '('\n", currentLineNum );
+				assert( 0 ); // TODO: throw
+			}
+			for ( auto eit:expression2 )
+				expression.push_back( eit );
 			if ( line[currentPos] != ')' )
 			{
 				fmt::print( "line {}: error: ')' expected\n", currentLineNum );
@@ -164,7 +173,8 @@ currentLineNum = currentLineNum;
 			elem.argtype = ARGTYPE::NUMBER;
 			string num = readIntegralNumericalLiteral( line, currentPos );
 			elem.numberValue = atoi( num.c_str() );
-			if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+//			if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+			if ( expression.size() && postfixOperations.size() == 0 ) // PUSH command to non-empty stack without an operator of fn call
 			{
 				currentPos = prevPos;
 				return;
@@ -193,7 +203,8 @@ currentLineNum = currentLineNum;
 					elem.oper = OPERATOR::PUSH;
 					elem.argtype = ARGTYPE::PLACEHOLDER;
 					elem.ph = ph;
-					if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+//					if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+					if ( expression.size() && postfixOperations.size() == 0 ) // PUSH command to non-empty stack without an operator of fn call
 					{
 						currentPos = prevPos;
 						return;
@@ -213,7 +224,8 @@ currentLineNum = currentLineNum;
 					elem.oper = OPERATOR::PUSH;
 					elem.argtype = ARGTYPE::PLACEHOLDER;
 					elem.ph = ph;
-					if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+//					if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+					if ( expression.size() && postfixOperations.size() == 0 ) // PUSH command to non-empty stack without an operator of fn call
 					{
 						currentPos = prevPos;
 						return;
