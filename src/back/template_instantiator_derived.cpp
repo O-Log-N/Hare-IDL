@@ -122,9 +122,23 @@ StructTemplateInstantiator::StackElement StructMemberTemplateInstantiator::place
 	lp.type = PLACEHOLDER::VERBATIM;
 	switch( ph.id )
 	{
-		case PLACEHOLDER::MEMBER_NAME:
+/*		case PLACEHOLDER::IDL_MEMBER_NAME:
 		{
 			lp.verbatim = member->name;
+			se.lineParts.push_back( lp );
+			return move(se);
+		}*/
+		case PLACEHOLDER::MAPPING_MEMBER_NAME:
+		{
+			assert( member->mappingRepresentation != nullptr );
+			lp.verbatim = dynamic_cast<BackDataMember*>(member->mappingRepresentation)->name;
+			se.lineParts.push_back( lp );
+			return move(se);
+		}
+		case PLACEHOLDER::ENCODING_MEMBER_NAME:
+		{
+			assert( member->encodingRepresentation != nullptr );
+			lp.verbatim = dynamic_cast<BackDataMember*>(member->encodingRepresentation)->name;
 			se.lineParts.push_back( lp );
 			return move(se);
 		}
