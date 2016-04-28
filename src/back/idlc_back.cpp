@@ -49,8 +49,11 @@ void idlcBackEnd( Root& root )
 		fmt::print( "failed to open template file\n" );
 		return;
 	}
+	line = 0;
+	fmt::print( "Processing {}...", "main.txt" );
 	if ( !loadTemplates( tf, nodeSpace, line ) )
 		return;
+	fmt::print( "  done\n" );
 //	fmt::print( "\n\n" );
 //	dbgPrintTemplateTrees( nodeSpace );
 //	fmt::print( "\n\n" );
@@ -61,8 +64,11 @@ void idlcBackEnd( Root& root )
 		fmt::print( "failed to open template file\n" );
 		return;
 	}
+	line = 0;
+	fmt::print( "Processing {}...", "mapping.txt" );
 	if ( !loadTemplates( tf, nodeSpace, line ) )
 		return;
+	fmt::print( "  done\n" );
 //	fmt::print( "\n\n" );
 //	dbgPrintTemplateTrees( nodeSpace );
 //	fmt::print( "\n\n" );
@@ -73,8 +79,11 @@ void idlcBackEnd( Root& root )
 		fmt::print( "failed to open template file\n" );
 		return;
 	}
+	line = 0;
+	fmt::print( "Processing {}...", "encoding.txt" );
 	if ( !loadTemplates( tf, nodeSpace, line ) )
 		return;
+	fmt::print( "  done\n" );
 	fmt::print( "\n\n" );
 	dbgPrintTemplateTrees( nodeSpace );
 	fmt::print( "\n\n" );

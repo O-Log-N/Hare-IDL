@@ -110,6 +110,7 @@ currentLineNum = currentLineNum;
 	size_t sz = line.size();
 	vector<ExpressionElement> postfixOperations;
 	size_t prevPos;
+	OPERATOR lastOperator = OPERATOR::INVALID;
 	for ( ; currentPos<sz; )
 	{
 		prevPos = currentPos;
@@ -318,6 +319,12 @@ currentLineNum = currentLineNum;
 
 			ExpressionElement opercall;
 			opercall.oper = oper.id;
+			if ( lastOperator != OPERATOR::INVALID && lastOperator != opercall.oper )
+			{
+				fmt::print( "line {}: '(' and ')' must be used to void issues with operator precedence\n", currentLineNum );
+				assert( 0 ); // TODO: throw
+			}
+			lastOperator = opercall.oper;
 			postfixOperations.push_back( opercall );
 			skipSpaces( line, currentPos );
 		}
