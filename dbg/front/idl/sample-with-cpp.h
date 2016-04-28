@@ -55,7 +55,7 @@ public:
   mySampleVector other_inventory;
 };
 
-class Item {
+struct Item {
 public:
     string name;
 };
@@ -77,5 +77,11 @@ public:
   vector<Item> inventory;
 };
 
+
+typedef struct _Some {int i;} Some;
+
+typedef struct {int i;} AnonSome;
+
+typedef Character MyCharacter;
 
 #endif // SAMPLE_WITH_CPP_H_INCLUDED
