@@ -29,6 +29,7 @@ void memberMappingTypeToKind( DataType& type )
 	switch ( type.kind )
 	{
 		case DataType::KIND::NAMED_TYPE:
+		case DataType::KIND::MAPPING_SPECIFIC:
 		{
 			if ( type.mappingName == "uint32_t" )
 			{
@@ -194,12 +195,20 @@ void initDataType( DataType& srcType, DataType& targetType, Structure::DECLTYPE 
 {
 	if ( baseDeclType == Structure::DECLTYPE::MAPPING )
 	{
+		// NOTE: mapping could be a base for only IDL
 		assert( retDeclType == Structure::DECLTYPE::IDL );
+		memberMappingTypeToKind( targetType );
 		// TODO: other steps [...]
 		srcType.idlRepresentation = &targetType;
 		targetType.mappingRepresentation = &srcType;
 		targetType.idlRepresentation = &targetType; // self
 		srcType.mappingRepresentation = &srcType; // self
+			if ( srcType.encodingRepresentation != nullptr )
+			{
+				assert( srcType.encodingRepresentation->encodingRepresentation = srcType.encodingRepresentation );
+				srcType.encodingRepresentation->idlRepresentation = &targetType;
+				targetType.encodingRepresentation = srcType.encodingRepresentation;
+			}
 	}
 	else if ( baseDeclType == Structure::DECLTYPE::IDL )
 	{
@@ -207,13 +216,15 @@ void initDataType( DataType& srcType, DataType& targetType, Structure::DECLTYPE 
 		if ( retDeclType == Structure::DECLTYPE::MAPPING )
 		{
 			targetType.mappingName = getTypeFromIdl( srcType, Structure::DECLTYPE::MAPPING );
-			if ( srcType.keyType != nullptr )
-				initDataType( *(srcType.keyType), *(targetType.keyType), baseDeclType, retDeclType );
-			if ( srcType.paramType != nullptr )
-				initDataType( *(srcType.paramType), *(targetType.paramType), baseDeclType, retDeclType );
 			srcType.mappingRepresentation = &targetType;
 			targetType.idlRepresentation = &srcType;
 			targetType.mappingRepresentation = &targetType; // self
+			if ( srcType.encodingRepresentation != nullptr )
+			{
+				assert( srcType.encodingRepresentation->encodingRepresentation = srcType.encodingRepresentation );
+				srcType.encodingRepresentation->mappingRepresentation = &targetType;
+				targetType.encodingRepresentation = srcType.encodingRepresentation;
+			}
 		}
 		else
 		{
@@ -230,13 +241,15 @@ void initDataType( DataType& srcType, DataType& targetType, Structure::DECLTYPE 
 						it.second = val++;
 				}
 			}
-			if ( srcType.keyType != nullptr )
-				initDataType( *(srcType.keyType), *(targetType.keyType), baseDeclType, retDeclType );
-			if ( srcType.paramType != nullptr )
-				initDataType( *(srcType.paramType), *(targetType.paramType), baseDeclType, retDeclType );
-			srcType.encodingRepresentation = &targetType;
+			// set cross-ref ptrs
 			targetType.idlRepresentation = &srcType;
 			targetType.encodingRepresentation = &targetType; // self
+			if ( srcType.mappingRepresentation != nullptr )
+			{
+				assert( srcType.mappingRepresentation->mappingRepresentation = srcType.mappingRepresentation );
+				srcType.mappingRepresentation->encodingRepresentation = &targetType;
+				targetType.mappingRepresentation = srcType.mappingRepresentation;
+			}
 		}
 		srcType.idlRepresentation = &srcType; // self
 	}
@@ -246,6 +259,13 @@ void initDataType( DataType& srcType, DataType& targetType, Structure::DECLTYPE 
 		// TODO: implement
 		assert( 0 ); // until implemented
 	}
+
+	// go in depth
+	if ( srcType.keyType != nullptr )
+		initDataType( *(srcType.keyType), *(targetType.keyType), baseDeclType, retDeclType );
+	if ( srcType.paramType != nullptr )
+		initDataType( *(srcType.paramType), *(targetType.paramType), baseDeclType, retDeclType );
+	srcType.encodingRepresentation = &targetType;
 }
 
 BackDataMember* createMember( BackDataMember& base, Structure::DECLTYPE baseDeclType, Structure::DECLTYPE retDeclType )
@@ -274,6 +294,11 @@ BackDataMember* createMember( BackDataMember& base, Structure::DECLTYPE baseDecl
 			ret->type = base.type;
 			initDataType( base.type, ret->type, baseDeclType, retDeclType );
 		}
+	}
+	else
+	{
+		assert( baseDeclType == Structure::DECLTYPE::ENCODING );
+		assert( 0 ); // until implemented
 	}
 	return ret;
 }
@@ -464,6 +489,7 @@ void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario )
 		case TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY:
 		{
 			traverseStructTreesForDataMatchingOrOverridding( root.structuresMapping, Structure::DECLTYPE::MAPPING, root.structuresIdl, Structure::DECLTYPE::IDL, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
+			traverseStructTreesForDataMatchingOrOverridding( root.structuresIdl, Structure::DECLTYPE::IDL, root.structuresEncoding, Structure::DECLTYPE::ENCODING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
 			break;
 		}
 		case TREE_DATA_COMPLETION_SCENARIO::ENC_ONLY: break;
