@@ -82,9 +82,8 @@ MAPPING(Lang="CPP",Role="Client") PUBLISHABLE-STRUCT Character {
   UINT8 animation_frame;//can be omitted, as
                         //  UINT8 is a default mapping for INT[0,120)
 
-//  vector<Item> inventory;//can be also omitted,
-                         //  as default mapping for SEQUENCE<Item>
-                         //  is vector<Item>
+  vector<class Item> inventory;
+  vector<struct Item> other_inventory;
 };
 
 

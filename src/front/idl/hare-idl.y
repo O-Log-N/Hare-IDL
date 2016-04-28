@@ -19,7 +19,7 @@ Copyright (C) 2016 OLogN Technologies AG
 %token KW_HASH_LINE
 %token KW_PUBLISHABLE_STRUCT
 %token KW_TYPEDEF
-%token KW_ENUM KW_CLASS
+%token KW_ENUM KW_CLASS KW_STRUCT
 %token KW_MAPPING KW_ENCODING
 %token KW_NUMERIC KW_INT
 %token KW_FENCE
@@ -232,6 +232,7 @@ dictionary_type
 
 class_ref_type
 	: KW_CLASS qname  { $$ = createClassReference($1, $2); }
+	| KW_STRUCT qname  { $$ = createClassReference($1, $2); }
 ;
 
 inline_enum_type

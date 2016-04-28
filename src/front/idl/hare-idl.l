@@ -67,6 +67,7 @@ int createToken(int token)
     "TYPEDEF" { return createToken( KW_TYPEDEF ); }
 	"enum" { return createToken( KW_ENUM ); }
 	"class" { return createToken( KW_CLASS ); }
+	"struct" { return createToken( KW_STRUCT ); }
 
 	"MAPPING" { return createToken( KW_MAPPING ); }
 	"ENCODING" { return createToken( KW_ENCODING ); }
