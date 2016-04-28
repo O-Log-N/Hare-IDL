@@ -76,6 +76,11 @@ void memberMappingTypeToKind( DataType& type )
 			break;
 		}
 	}
+	// go in depth
+	if ( type.keyType != nullptr )
+		memberMappingTypeToKind( *(type.keyType) );
+	if ( type.paramType != nullptr )
+		memberMappingTypeToKind( *(type.paramType) );
 }
 
 string getTypeFromIdl( DataType& type, Structure::DECLTYPE declType )
@@ -203,12 +208,12 @@ void initDataType( DataType& srcType, DataType& targetType, Structure::DECLTYPE 
 		targetType.mappingRepresentation = &srcType;
 		targetType.idlRepresentation = &targetType; // self
 		srcType.mappingRepresentation = &srcType; // self
-			if ( srcType.encodingRepresentation != nullptr )
-			{
-				assert( srcType.encodingRepresentation->encodingRepresentation = srcType.encodingRepresentation );
-				srcType.encodingRepresentation->idlRepresentation = &targetType;
-				targetType.encodingRepresentation = srcType.encodingRepresentation;
-			}
+		if ( srcType.encodingRepresentation != nullptr )
+		{
+			assert( srcType.encodingRepresentation->encodingRepresentation = srcType.encodingRepresentation );
+			srcType.encodingRepresentation->idlRepresentation = &targetType;
+			targetType.encodingRepresentation = srcType.encodingRepresentation;
+		}
 	}
 	else if ( baseDeclType == Structure::DECLTYPE::IDL )
 	{
