@@ -105,8 +105,6 @@ void readLineParts( const string& line, size_t& currentPos, vector<LinePart>& pa
 
 void parseExpression( const string& line, size_t& currentPos, vector<ExpressionElement>& expression, int currentLineNum )
 {
-if ( currentLineNum == 75 )
-currentLineNum = currentLineNum;
 	size_t sz = line.size();
 	vector<ExpressionElement> postfixOperations;
 	size_t prevPos;
