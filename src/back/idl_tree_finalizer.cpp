@@ -26,6 +26,10 @@ void memberMappingTypeToKind( DataType& type )
 		type.mappingName = type.name;
 		type.name.clear();
 	}
+	if ( type.name.size() == 0 ) // TODO: could it be non-empty in a real case (see remark above)?
+	{
+		type.name = type.mappingName;
+	}
 	switch ( type.kind )
 	{
 		case DataType::KIND::NAMED_TYPE:

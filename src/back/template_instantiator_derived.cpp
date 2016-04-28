@@ -319,8 +319,8 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			StackElement elem;
 			elem.argtype = ARGTYPE::BOOL;
 			elem.boolValue = dataType->kind == DataType::KIND::INTEGER;
-			if ( elem.boolValue )
-				assert( dataType->name.size() == 0 );
+//			if ( elem.boolValue )
+//				assert( dataType->name.size() == 0 );
 			stack.push_back( std::move(elem) );
 			break;
 		}
@@ -329,8 +329,8 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			StackElement elem;
 			elem.argtype = ARGTYPE::BOOL;
 			elem.boolValue = dataType->kind == DataType::KIND::FLOATING_POINT;
-			if ( elem.boolValue )
-				assert( dataType->name.size() == 0 );
+//			if ( elem.boolValue )
+//				assert( dataType->name.size() == 0 );
 			stack.push_back( std::move(elem) );
 			break;
 		}
@@ -339,8 +339,8 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			StackElement elem;
 			elem.argtype = ARGTYPE::BOOL;
 			elem.boolValue = dataType->kind == DataType::KIND::FIXED_POINT;
-			if ( elem.boolValue )
-				assert( dataType->name.size() == 0 );
+//			if ( elem.boolValue )
+//				assert( dataType->name.size() == 0 );
 			stack.push_back( std::move(elem) );
 			break;
 		}
@@ -430,8 +430,8 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			StackElement elem;
 			elem.argtype = ARGTYPE::BOOL;
 			elem.boolValue = dataType->kind == DataType::KIND::CHARACTER;
-			if ( elem.boolValue )
-				assert( dataType->name.size() == 0 );
+//			if ( elem.boolValue )
+//				assert( dataType->name.size() == 0 );
 			stack.push_back( std::move(elem) );
 			break;
 		}
@@ -440,8 +440,8 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			StackElement elem;
 			elem.argtype = ARGTYPE::BOOL;
 			elem.boolValue = dataType->kind == DataType::KIND::BIT_STRING;
-			if ( elem.boolValue )
-				assert( dataType->name.size() == 0 );
+//			if ( elem.boolValue )
+//				assert( dataType->name.size() == 0 );
 			stack.push_back( std::move(elem) );
 			break;
 		}
