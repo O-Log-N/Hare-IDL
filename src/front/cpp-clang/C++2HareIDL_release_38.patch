@@ -1,19 +1,19 @@
-From 628f96f3b74aaa068e480c74a6880706b860e030 Mon Sep 17 00:00:00 2001
+From dce47b0da4ea633e1279dc3865d92c11e087ca38 Mon Sep 17 00:00:00 2001
 From: mb <mb@o-log-n.com>
 Date: Tue, 5 Apr 2016 17:39:39 -0300
 Subject: [PATCH] Added HareIDL attribute support. Added C++2HareIDL tool
  project. Added #line output capability. Added Primitive types mapping. Added
  x86 target for MS inline assembly parser. Follow typedef of -find-class, and
- also inline typedef struct (C style).
+ also inline typedef struct (C style). Output file option, default stdout.
 
 ---
  include/clang/Basic/Attr.td       |  14 ++
  include/clang/Basic/AttrDocs.td   |  32 +++++
  lib/Sema/SemaDeclAttr.cpp         |   6 +
- tools/C++2HareIDL/C++2HareIDL.cpp | 273 ++++++++++++++++++++++++++++++++++++++
+ tools/C++2HareIDL/C++2HareIDL.cpp | 293 ++++++++++++++++++++++++++++++++++++++
  tools/C++2HareIDL/CMakeLists.txt  |  22 +++
  tools/CMakeLists.txt              |   2 +
- 6 files changed, 349 insertions(+)
+ 6 files changed, 369 insertions(+)
  create mode 100644 tools/C++2HareIDL/C++2HareIDL.cpp
  create mode 100644 tools/C++2HareIDL/CMakeLists.txt
 
@@ -98,10 +98,10 @@ index f94c822..2bff0c5 100644
  
 diff --git a/tools/C++2HareIDL/C++2HareIDL.cpp b/tools/C++2HareIDL/C++2HareIDL.cpp
 new file mode 100644
-index 0000000..315e729
+index 0000000..2ee9ac2
 --- /dev/null
 +++ b/tools/C++2HareIDL/C++2HareIDL.cpp
-@@ -0,0 +1,273 @@
+@@ -0,0 +1,293 @@
 +/*******************************************************************************
 +Copyright (C) 2016 OLogN Technologies AG
 +
@@ -158,19 +158,20 @@ index 0000000..315e729
 +FindByAttribute("find-by-attribute", cl::desc("Process classes with attribute [[hare::mapping]].\n"),
 +         cl::cat(myToolCategory));
 +
-+//static cl::opt<std::string> Output("o",
-+//                             cl::desc("Output file name, if specified."),
-+//                             cl::cat(myToolCategory));
++static cl::opt<std::string>
++OutputFilename("o", cl::desc("Output filename"), cl::value_desc("filename"), cl::cat(myToolCategory));
++
 +
 +class FindNamedClassVisitor
 +    : public RecursiveASTVisitor<FindNamedClassVisitor> {
 +private:
 +    ASTContext *context;
++    raw_ostream& os;
 +    map<const Type*, string> typeMapping;
 +
 +public:
-+    explicit FindNamedClassVisitor(ASTContext *context)
-+        : context(context) {}
++    explicit FindNamedClassVisitor(ASTContext *context, raw_ostream& os)
++        : context(context), os(os) {}
 +
 +    bool VisitTypedefNameDecl(TypedefNameDecl* declaration) {
 +
@@ -226,8 +227,7 @@ index 0000000..315e729
 +private:
 +    void addMapping(CXXRecordDecl *declaration, const string& name) const {
 +
-+        declaration->dump();
-+        raw_ostream& os = outs();
++//        declaration->dump();
 +
 +        FullSourceLoc fullLocation = context->getFullLoc(declaration->getLocStart());
 +        string fn = fullLocation.getManager().getFilename(fullLocation).str();
@@ -334,25 +334,34 @@ index 0000000..315e729
 +    }
 +};
 +
-+class FindNamedClassConsumer : public clang::ASTConsumer {
++class FindNamedClassConsumer : public ASTConsumer {
 +private:
 +    FindNamedClassVisitor visitor;
 +public:
-+    explicit FindNamedClassConsumer(ASTContext *context)
-+        : visitor(context) {}
++    explicit FindNamedClassConsumer(ASTContext *context, raw_ostream& os)
++        : visitor(context, os) {}
 +
-+    virtual void HandleTranslationUnit(clang::ASTContext &context) {
++    virtual void HandleTranslationUnit(ASTContext &context) {
 +        visitor.TraverseDecl(context.getTranslationUnitDecl());
 +    }
 +};
 +
-+class FindNamedClassAction : public clang::ASTFrontendAction {
++class FindNamedClassAction : public ASTFrontendAction {
++private:
++    raw_ostream& os;
 +public:
-+    virtual std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
-+        clang::CompilerInstance &compiler, llvm::StringRef inFile) {
-+        return std::unique_ptr<clang::ASTConsumer>(
-+            new FindNamedClassConsumer(&compiler.getASTContext()));
++    FindNamedClassAction(raw_ostream& os) :os(os) {}
++    virtual unique_ptr<ASTConsumer> CreateASTConsumer(CompilerInstance &compiler, StringRef inFile) {
++        return unique_ptr<ASTConsumer>(new FindNamedClassConsumer(&compiler.getASTContext(), os));
 +    }
++};
++
++class FindNamedClassActionFactory : public FrontendActionFactory {
++private:
++    raw_ostream& os;
++public:
++    FindNamedClassActionFactory(raw_ostream& os) :os(os) {}
++    FrontendAction *create() override { return new FindNamedClassAction(os); }
 +};
 +
 +int main(int argc, const char **argv) {
@@ -373,7 +382,18 @@ index 0000000..315e729
 +
 +//    set<string> names = { "myHareSampleItem" };
 +
-+    return tool.run(newFrontendActionFactory<FindNamedClassAction>().get());
++    StringRef fname = !OutputFilename.empty() ? OutputFilename.c_str() : "-";
++
++    std::error_code EC;
++    raw_fd_ostream OS(fname, EC, sys::fs::F_None);
++
++    if (EC) {
++        errs() << "Failed to open output file '" << fname << "'\n"
++            << EC.message() << "\n";
++        return 1;
++    }
++
++    return tool.run(new FindNamedClassActionFactory(OS));
 +}
 diff --git a/tools/C++2HareIDL/CMakeLists.txt b/tools/C++2HareIDL/CMakeLists.txt
 new file mode 100644
