@@ -241,7 +241,8 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 		{
 			StackElement elem;
 			elem.argtype = ARGTYPE::OBJPTR;
-			assert( dataType->kind == DataType::KIND::SEQUENCE || dataType->kind == DataType::KIND::DICTIONARY );
+//			assert( dataType->kind == DataType::KIND::SEQUENCE || dataType->kind == DataType::KIND::DICTIONARY );
+			assert( dataType->kind == DataType::KIND::SEQUENCE || dataType->kind == DataType::KIND::DICTIONARY || dataType->kind == DataType::KIND::DISCRIMINATED_UNION ); // TEMPORARY; TODO: go back as soon as proper processing of DISCRIMINATED_UNION is implemented
 			MemberTypeTemplateInstantiator* mtti = new MemberTypeTemplateInstantiator( *(dataType->paramType), templateSpace, outstr );
 			elem.singleObject = unique_ptr<TemplateInstantiator>(mtti);
 			stack.push_back( std::move(elem) );
@@ -440,6 +441,16 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			StackElement elem;
 			elem.argtype = ARGTYPE::BOOL;
 			elem.boolValue = dataType->kind == DataType::KIND::BIT_STRING;
+//			if ( elem.boolValue )
+//				assert( dataType->name.size() == 0 );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::IS_DISCRIMINATED_UNION:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::BOOL;
+			elem.boolValue = dataType->kind == DataType::KIND::DISCRIMINATED_UNION;
 //			if ( elem.boolValue )
 //				assert( dataType->name.size() == 0 );
 			stack.push_back( std::move(elem) );

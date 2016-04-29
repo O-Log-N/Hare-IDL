@@ -32,6 +32,15 @@ void memberMappingTypeToKind( DataType& type )
 	}
 	switch ( type.kind )
 	{
+		case DataType::KIND::SEQUENCE:
+		{
+			 // NOTE: temporary code!!!
+			if ( type.mappingName == "unique_ptr" ) // NOTE: temporary code!!!
+			{
+				type.kind = DataType::KIND::DISCRIMINATED_UNION;
+			}
+			break;
+		}
 		case DataType::KIND::NAMED_TYPE:
 		case DataType::KIND::MAPPING_SPECIFIC:
 		{
@@ -76,6 +85,10 @@ void memberMappingTypeToKind( DataType& type )
 				type.kind = DataType::KIND::CHARACTER_STRING;
 				type.stringMinSize = 0;
 				type.stringMaxSize = 65536; // TODO: what is a limit??
+			}
+			else if ( type.mappingName == "unique_ptr" ) // NOTE: temporary code!!!
+			{
+				type.kind = DataType::KIND::DISCRIMINATED_UNION;
 			}
 			break;
 		}
@@ -172,6 +185,11 @@ string getTypeFromIdl( DataType& type, Structure::DECLTYPE declType )
 		case DataType::KIND::SEQUENCE:
 		{
 			return "vector";
+		}
+		case DataType::KIND::DISCRIMINATED_UNION:
+		{
+			// NOTE: temporary code!!!
+			return type.name;
 		}
 		default:
 		{
