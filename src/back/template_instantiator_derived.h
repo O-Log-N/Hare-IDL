@@ -121,6 +121,50 @@ public:
 };
 
 
+class DiscriminatedUnionTemplateInstantiator : public TemplateInstantiator
+{
+protected:
+	BackStructure* structure;
+
+	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
+	virtual StackElement placeholder( Placeholder ph );
+	virtual string context() override {return "DISCRIMINATED-UNION"; }
+
+public:
+	DiscriminatedUnionTemplateInstantiator( BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), structure( &currentStruct ) {}
+
+	void apply( TemplateNode& node )
+	{
+		applyNode( node );
+	}
+};
+
+
+class DiscriminatedUnionOptionTemplateInstantiator : public TemplateInstantiator
+{
+protected:
+	vector<BackDataMember*> usedMembers;
+	BackDataMember* baseEnum;
+	string enumValueName;
+	uint32_t idlValue;
+	uint32_t mappingValue;
+	uint32_t encodingValue;
+
+	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
+	virtual StackElement placeholder( Placeholder ph );
+	virtual string context() override {return "DISCRIMINATED-UNION-OPTION"; }
+
+public:
+	DiscriminatedUnionOptionTemplateInstantiator( BackDataMember& currentBaseEnum, vector<BackDataMember*>& currentUsedMembers, const string& currentEnumValueName, uint32_t currentIdlValue/*, uint32_t currentMappingValue, uint32_t currentEncodingValue*/, TemplateNodeSpace& templateSpace_, FILE* outStr ) : 
+		TemplateInstantiator( templateSpace_, outStr ), usedMembers( currentUsedMembers ), baseEnum( &currentBaseEnum ), enumValueName( currentEnumValueName ), idlValue( currentIdlValue )/*, mappingValue( currentMappingValue ), encodingValue( currentEncodingValue )*/ {}
+
+	void apply( TemplateNode& node )
+	{
+		applyNode( node );
+	}
+};
+
+
 void apply( BackRoot& structure, TemplateNodeSpace& templateSpace );
 
 

@@ -39,8 +39,26 @@ void RootTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUN
 			elem.argtype = ARGTYPE::OBJPTR_LIST;
 			for ( auto& it:root->structuresIdl )
 			{
-				StructTemplateInstantiator* structti = new StructTemplateInstantiator( *it, templateSpace, outstr );
-				elem.objects.push_back( unique_ptr<TemplateInstantiator>(structti) );
+				if ( it->type == Structure::TYPE::STRUCT )
+				{
+					StructTemplateInstantiator* structti = new StructTemplateInstantiator( *it, templateSpace, outstr );
+					elem.objects.push_back( unique_ptr<TemplateInstantiator>(structti) );
+				}
+			}
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::PUBLISHABLE_DISCRIMINATED_UNIONS:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::OBJPTR_LIST;
+			for ( auto& it:root->structuresIdl )
+			{
+				if ( it->type == Structure::TYPE::DISCRIMINATED_UNION )
+				{
+					DiscriminatedUnionTemplateInstantiator* structti = new DiscriminatedUnionTemplateInstantiator( *it, templateSpace, outstr );
+					elem.objects.push_back( unique_ptr<TemplateInstantiator>(structti) );
+				}
 			}
 			stack.push_back( std::move(elem) );
 			break;
@@ -504,6 +522,146 @@ void EnumValueTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINE
 {
 	switch ( fnID )
 	{
+		default:
+		{
+			TemplateInstantiator::execBuiltinFunction( stack, fnID );
+			break;
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+
+StructTemplateInstantiator::StackElement DiscriminatedUnionTemplateInstantiator::placeholder( Placeholder ph )
+{
+	StackElement se;
+	se.argtype = ARGTYPE::STRING;
+	LinePart lp;
+	lp.type = PLACEHOLDER::VERBATIM;
+	switch( ph.id )
+	{
+		case PLACEHOLDER::STRUCT_NAME:
+		{
+			lp.verbatim = structure->name;
+			se.lineParts.push_back( lp );
+			return move(se);
+		}
+		case PLACEHOLDER::MAPPING_DISCRIMINATOR_NAME:
+		{
+			lp.verbatim = structure->discriminant;
+			se.lineParts.push_back( lp );
+			return move(se);
+		}
+		default:
+		{
+			return TemplateInstantiator::placeholder( ph );
+		}
+	}
+}
+
+void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID )
+{
+	switch ( fnID )
+	{
+		case PREDEFINED_FUNCTION::DISCRIMINATED_UNION_OPTIONS:
+		{
+			size_t memberCnt = structure->getChildCount();
+			size_t j;
+			BackDataMember* enumMember = nullptr;
+			for ( j=0; j<memberCnt; j++ )
+			{
+				enumMember = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
+				if ( enumMember != NULL && enumMember->type.kind == DataType::KIND::ENUM && enumMember->name == structure->discriminant )
+					break;
+			}
+			assert( enumMember != nullptr ); // TODO: report error
+
+			StackElement elem;
+			elem.argtype = ARGTYPE::OBJPTR_LIST;
+
+			for ( auto itv:enumMember->type.enumValues )
+			{
+				// we go through discriminating enum values and we add objects if there are members allowed by a respective value
+				vector<BackDataMember*> usedMembers;
+				for ( j=0; j<memberCnt; j++ )
+				{
+					BackDataMember* member = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
+					if ( member != NULL && member != enumMember )
+					{
+						for ( auto& itIfVal:member->whenDiscriminant )
+							if ( itIfVal == itv.first )
+							{
+								usedMembers.push_back( member );
+								break;
+							}
+					}
+				}
+				if ( usedMembers.size() )
+				{
+					DiscriminatedUnionOptionTemplateInstantiator* duoti = new DiscriminatedUnionOptionTemplateInstantiator( *enumMember, usedMembers, itv.first, itv.second/*, enumMember->mappingRepresentation*/, templateSpace, outstr );
+					elem.objects.push_back( unique_ptr<TemplateInstantiator>(duoti) );
+				}
+			}
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		default:
+		{
+			TemplateInstantiator::execBuiltinFunction( stack, fnID );
+			break;
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+
+StructTemplateInstantiator::StackElement DiscriminatedUnionOptionTemplateInstantiator::placeholder( Placeholder ph )
+{
+	StackElement se;
+	se.argtype = ARGTYPE::STRING;
+	LinePart lp;
+	lp.type = PLACEHOLDER::VERBATIM;
+	switch( ph.id )
+	{
+/*		case PLACEHOLDER::MAPPING_ENUM_VALUE_VALUE:
+		{
+			lp.verbatim = fmt::format( "{}", mappingValue );
+			se.lineParts.push_back( lp );
+			return move(se);
+		}*/
+		case PLACEHOLDER::ENCODING_DISCRIMINATED_UNION_OPTION_VALUE:
+		{
+//			lp.verbatim = fmt::format( "{}", encodingValue );
+			lp.verbatim = fmt::format( "{}", idlValue );
+			se.lineParts.push_back( lp );
+			return move(se);
+		}
+		default:
+		{
+			return TemplateInstantiator::placeholder( ph );
+		}
+	}
+}
+
+void DiscriminatedUnionOptionTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID )
+{
+	switch ( fnID )
+	{
+		case PREDEFINED_FUNCTION::MEMBERS:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::OBJPTR_LIST;
+			for ( auto& it:usedMembers )
+			{
+				assert( it != NULL );
+				StructMemberTemplateInstantiator* smti = new StructMemberTemplateInstantiator( *it, templateSpace, outstr );
+				elem.objects.push_back( unique_ptr<TemplateInstantiator>(smti) );
+			}
+			stack.push_back( std::move(elem) );
+			break;
+		}
 		default:
 		{
 			TemplateInstantiator::execBuiltinFunction( stack, fnID );

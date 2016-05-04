@@ -35,10 +35,10 @@ void memberMappingTypeToKind( DataType& type )
 		case DataType::KIND::SEQUENCE:
 		{
 			 // NOTE: temporary code!!!
-			if ( type.mappingName == "unique_ptr" ) // NOTE: temporary code!!!
+/*			if ( type.mappingName == "unique_ptr" ) // NOTE: temporary code!!!
 			{
 				type.kind = DataType::KIND::DISCRIMINATED_UNION;
-			}
+			}*/
 			break;
 		}
 		case DataType::KIND::NAMED_TYPE:
@@ -88,7 +88,8 @@ void memberMappingTypeToKind( DataType& type )
 			}
 			else if ( type.mappingName == "unique_ptr" ) // NOTE: temporary code!!!
 			{
-				type.kind = DataType::KIND::DISCRIMINATED_UNION;
+//				type.kind = DataType::KIND::DISCRIMINATED_UNION;
+				type.kind = DataType::KIND::SEQUENCE;
 			}
 			break;
 		}
@@ -186,11 +187,11 @@ string getTypeFromIdl( DataType& type, Structure::DECLTYPE declType )
 		{
 			return "vector";
 		}
-		case DataType::KIND::DISCRIMINATED_UNION:
+/*		case DataType::KIND::DISCRIMINATED_UNION:
 		{
 			// NOTE: temporary code!!!
 			return type.name;
-		}
+		}*/
 		default:
 		{
 			assert( 0 ); // TODO: address!
@@ -352,6 +353,8 @@ BackStructure* doStructureDataMatchingOrOverridding( BackStructure& structBase, 
 		structOverr = new BackStructure;
 		structOverr->declType = type2;
 		structOverr->name = structBase.name;
+		structOverr->type = structBase.type;
+		structOverr->discriminant = structBase.discriminant;
 		if ( oper == TREE_DATA_COMPLETION_OPERATION::MATCH ) // quick jump is possible
 		{
 			if ( sz != 0 )

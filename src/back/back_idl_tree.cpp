@@ -22,6 +22,10 @@ BackDataMember* copyMember( const DataMember* src )
 	BackDataMember* ret = new BackDataMember;
 	ret->name = src->name;
 	ret->type = src->type;
+	ret->extendTo = src->extendTo;
+	ret->defaultValue = src->defaultValue;
+	for ( auto& it:src->whenDiscriminant )
+		ret->whenDiscriminant.push_back( it );
 	return ret;
 }
 
@@ -54,6 +58,7 @@ BackStructure* copyStructure( const Structure* src )
 	ret->declType = src->declType;
 	ret->type = src->type;
 	ret->name = src->name;
+	ret->discriminant = src->discriminant;
 	size_t i;
 	for ( i=0; i<src->members.size(); i++ )
 	{

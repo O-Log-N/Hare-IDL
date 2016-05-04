@@ -43,6 +43,9 @@ class BackDataMember : public BackEncodedOrMember
 public:
 	DataType type; 
 	string name; 
+    bool extendTo = false;
+    Variant defaultValue;
+    vector<string> whenDiscriminant;
 };
 
 class BackEncodedMembers : public BackEncodedOrMember 
@@ -77,6 +80,7 @@ public:
 	Structure::DECLTYPE declType; 
 	Structure::TYPE type; 
 	string name; 
+    string discriminant; // used with type == Structure::TYPE::DISCRIMINATED_UNION
 };
 
 class BackRoot
