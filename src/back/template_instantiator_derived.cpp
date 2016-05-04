@@ -564,6 +564,28 @@ void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, 
 {
 	switch ( fnID )
 	{
+		case PREDEFINED_FUNCTION::MEMBERS:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::OBJPTR_LIST;
+			size_t memberCnt = structure->getChildCount();
+			for ( size_t j=0; j<memberCnt; j++ )
+			{
+				BackDataMember* member = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
+				if ( member != NULL )
+				{
+					StructMemberTemplateInstantiator* smti = new StructMemberTemplateInstantiator( *member, templateSpace, outstr );
+					elem.objects.push_back( unique_ptr<TemplateInstantiator>(smti) );
+				}
+				else
+				{
+					// TODO: this case requires additional analysis
+					assert( 0 );
+				}
+			}
+			stack.push_back( std::move(elem) );
+			break;
+		}
 		case PREDEFINED_FUNCTION::DISCRIMINATED_UNION_OPTIONS:
 		{
 			size_t memberCnt = structure->getChildCount();
@@ -576,6 +598,9 @@ void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, 
 					break;
 			}
 			assert( enumMember != nullptr ); // TODO: report error
+			assert( enumMember->idlRepresentation != nullptr );
+			assert( enumMember->mappingRepresentation != nullptr );
+			assert( enumMember->encodingRepresentation != nullptr );
 
 			StackElement elem;
 			elem.argtype = ARGTYPE::OBJPTR_LIST;
@@ -599,7 +624,14 @@ void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, 
 				}
 				if ( usedMembers.size() )
 				{
-					DiscriminatedUnionOptionTemplateInstantiator* duoti = new DiscriminatedUnionOptionTemplateInstantiator( *enumMember, usedMembers, itv.first, itv.second/*, enumMember->mappingRepresentation*/, templateSpace, outstr );
+					string enumValName = itv.first;
+					auto& idlEnumVal = enumMember->type.idlRepresentation->enumValues.find( enumValName );
+					assert( idlEnumVal != enumMember->type.idlRepresentation->enumValues.end() );
+					auto& mappingEnumVal = enumMember->type.mappingRepresentation->enumValues.find( enumValName );
+					assert( mappingEnumVal != enumMember->type.mappingRepresentation->enumValues.end() );
+					auto& encodingEnumVal = enumMember->type.encodingRepresentation->enumValues.find( enumValName );
+					assert( encodingEnumVal != enumMember->type.encodingRepresentation->enumValues.end() );
+					DiscriminatedUnionOptionTemplateInstantiator* duoti = new DiscriminatedUnionOptionTemplateInstantiator( *enumMember, usedMembers, enumValName, idlEnumVal->second, mappingEnumVal->second, encodingEnumVal->second, templateSpace, outstr );
 					elem.objects.push_back( unique_ptr<TemplateInstantiator>(duoti) );
 				}
 			}
@@ -645,16 +677,21 @@ StructTemplateInstantiator::StackElement DiscriminatedUnionOptionTemplateInstant
 	lp.type = PLACEHOLDER::VERBATIM;
 	switch( ph.id )
 	{
-/*		case PLACEHOLDER::MAPPING_ENUM_VALUE_VALUE:
+		case PLACEHOLDER::ENCODING_DISCRIMINATED_UNION_OPTION_NAME:
 		{
-			lp.verbatim = fmt::format( "{}", mappingValue );
+			lp.verbatim = fmt::format( "{}", enumValueName ); // TODO: revise!!!
 			se.lineParts.push_back( lp );
 			return move(se);
-		}*/
+		}
+		case PLACEHOLDER::MAPPING_DISCRIMINATED_UNION_OPTION_VALUE:
+		{
+			lp.verbatim = fmt::format( "{}", mappingValue ); // TODO: revise!!!
+			se.lineParts.push_back( lp );
+			return move(se);
+		}
 		case PLACEHOLDER::ENCODING_DISCRIMINATED_UNION_OPTION_VALUE:
 		{
-//			lp.verbatim = fmt::format( "{}", encodingValue );
-			lp.verbatim = fmt::format( "{}", idlValue );
+			lp.verbatim = fmt::format( "{}", encodingValue );
 			se.lineParts.push_back( lp );
 			return move(se);
 		}

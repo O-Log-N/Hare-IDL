@@ -155,8 +155,8 @@ protected:
 	virtual string context() override {return "DISCRIMINATED-UNION-OPTION"; }
 
 public:
-	DiscriminatedUnionOptionTemplateInstantiator( BackDataMember& currentBaseEnum, vector<BackDataMember*>& currentUsedMembers, const string& currentEnumValueName, uint32_t currentIdlValue/*, uint32_t currentMappingValue, uint32_t currentEncodingValue*/, TemplateNodeSpace& templateSpace_, FILE* outStr ) : 
-		TemplateInstantiator( templateSpace_, outStr ), usedMembers( currentUsedMembers ), baseEnum( &currentBaseEnum ), enumValueName( currentEnumValueName ), idlValue( currentIdlValue )/*, mappingValue( currentMappingValue ), encodingValue( currentEncodingValue )*/ {}
+	DiscriminatedUnionOptionTemplateInstantiator( BackDataMember& currentBaseEnum, vector<BackDataMember*>& currentUsedMembers, const string& currentEnumValueName, uint32_t currentIdlValue, uint32_t currentMappingValue, uint32_t currentEncodingValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : 
+		TemplateInstantiator( templateSpace_, outStr ), usedMembers( currentUsedMembers ), baseEnum( &currentBaseEnum ), enumValueName( currentEnumValueName ), idlValue( currentIdlValue ), mappingValue( currentMappingValue ), encodingValue( currentEncodingValue ) {}
 
 	void apply( TemplateNode& node )
 	{
