@@ -606,6 +606,26 @@ void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, 
 			stack.push_back( std::move(elem) );
 			break;
 		}
+		case PREDEFINED_FUNCTION::DISCRIMINATED_UNION_DISCRIMINATOR:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::OBJPTR;
+			BackDataMember* enumMember = nullptr;
+			size_t memberCnt = structure->getChildCount();
+			size_t j;
+			for ( j=0; j<memberCnt; j++ )
+			{
+				enumMember = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
+				if ( enumMember != NULL && enumMember->type.kind == DataType::KIND::ENUM && enumMember->name == structure->discriminant )
+					break;
+			}
+			assert( enumMember != nullptr ); // TODO: report error
+
+			StructMemberTemplateInstantiator* smti = new StructMemberTemplateInstantiator( *enumMember, templateSpace, outstr );
+			elem.singleObject = unique_ptr<TemplateInstantiator>(smti);
+			stack.push_back( std::move(elem) );
+			break;
+		}
 		default:
 		{
 			TemplateInstantiator::execBuiltinFunction( stack, fnID );
