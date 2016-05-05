@@ -420,7 +420,7 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 {
 	bool startFound = false;
 
-	for( ;;) // through all nodes, find template beginning
+	for( ;;)
 	{
 //		fmt::print( "line {}\n", currentLineNum );
 		string line;
@@ -431,10 +431,13 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 
 		size_t pos = 0;
 		KeyWordProps props = getLineType( line, pos );
-//		tl.type = getLineType( line, pos );
 		tl.type = props.id;
 
-		if ( tl.type == TemplateLine::LINE_TYPE::CONTENT )
+		if ( tl.type == TemplateLine::LINE_TYPE::COMMENTED_LINE )
+		{
+			continue;
+		}
+		else if ( tl.type == TemplateLine::LINE_TYPE::CONTENT )
 		{
 			if ( !startFound )
 			{
