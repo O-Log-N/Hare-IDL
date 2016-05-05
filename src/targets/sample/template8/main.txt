@@ -4,7 +4,7 @@
 
 @@BEGIN-TEMPLATE NAME="MAIN" TYPE="ROOT"
 @@OPEN-OUTPUT-FILE FILENAME="output.h"
-#include "simple_lib.h"
+#include <simple_lib.h>
 
 // structures
 
