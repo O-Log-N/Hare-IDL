@@ -18,9 +18,9 @@ DISCLAIMER:
 	compilable and, in general, working. All other requirements (such as
 	performance, for instance, or perfectness of interfaces) have been left
 	out of consideration. Therefore -
-	Please do not blame for quality of this library;
+	Please do not blame us for quality of this library; and
 	if you need anything practical, please check our repository or write your
-	own perfect one :)
+	own perfect library :)
 *******************************************************************************/
 
 #ifndef SIMPLE_LIB_H
@@ -33,6 +33,8 @@ DISCLAIMER:
 #include <stdio.h>
 #include <string>
 using namespace std;
+
+// classes below are used for support of discriminated unions
 
 template <class discriminant_type> class DiscriminatedUnionDescriptorEntry
 {
@@ -47,6 +49,7 @@ public:
 };
 
 
+// (De)serialization
 
 class OStream
 {

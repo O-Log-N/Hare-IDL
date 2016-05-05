@@ -72,6 +72,7 @@ enum @MAPPING-MEMBER-TYPE@ {
 
 
 
+@@-----------  processing SEQUENCEs (detailed list )  -----------------
 
 
 @@BEGIN-TEMPLATE NAME="SEQUENCE-SIZE" TYPE="DATATYPE"
@@ -154,4 +155,49 @@ enum @MAPPING-MEMBER-TYPE@ {
         @PARAM-NAME@._add_item(&@PARAM-TMP-OBJECT@);
 @@ENDIF
 @@END-TEMPLATE NAME="DESERILAIZE_SEQUENCE_ADD_NEXT"
+
+
+
+
+@@-----------  processing SEQUENCEs (shortcuts )  -----------------
+
+
+@@BEGIN-TEMPLATE NAME="SERILAIZE_SEQUENCE_ITERATION_BEGIN" TYPE="DATATYPE"
+@@IF (MAPPING-MEMBER-TYPE == "vector") || (MAPPING-MEMBER-TYPE == "list")
+        for( auto& @PARAM-OBJECT@ : @PARAM-NAME@ )
+		{ 
+@@ELIF MAPPING-MEMBER-TYPE == "unique_ptr"
+        if ( @PARAM-NAME@ != nullptr )
+		{
+		   auto& @PARAM-OBJECT@ = *@PARAM-NAME@;
+@@ELSE
+        for( auto& iter_@PARAM-OBJECT@ = @PARAM-NAME@._begin_sequence(); !@PARAM-NAME@._is_sequence_end(iter_@PARAM-OBJECT@); @PARAM-NAME@._sequence_next(iter_@PARAM-OBJECT@))
+		{
+		   auto& @PARAM-OBJECT@ = *iter_@PARAM-OBJECT@;
+@@ENDIF
+@@END-TEMPLATE NAME="SERILAIZE_SEQUENCE_ITERATION_BEGIN"
+
+
+@@BEGIN-TEMPLATE NAME="SERILAIZE_SEQUENCE_ITERATION_END" TYPE="DATATYPE"
+@@IF (MAPPING-MEMBER-TYPE == "vector") || (MAPPING-MEMBER-TYPE == "list")
+        } 
+@@ELIF MAPPING-MEMBER-TYPE == "unique_ptr"
+        } 
+@@ELSE
+        } 
+@@ENDIF
+@@END-TEMPLATE NAME="SERILAIZE_SEQUENCE_ITERATION_END"
+
+
+
+
+@@-----------  processing DISCRIMINATED-UNIONs  -----------------
+
+
+@@BEGIN-TEMPLATE NAME="MAPPING-DISCRIMINATOR-NAME" TYPE="DISCRIMINATED-UNION"
+@@-- we may want to have different option for different mapping types (say, unique_ptr, etc)
+      @MAPPING-DISCRIMINATOR-NAME@ 
+@@END-TEMPLATE NAME="MAPPING-DISCRIMINATOR-NAME"
+
+
 
