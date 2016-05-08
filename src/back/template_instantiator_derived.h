@@ -24,14 +24,14 @@ Copyright (C) 2016 OLogN Technologies AG
 class RootTemplateInstantiator : public TemplateInstantiator
 {
 protected:
-	BackRoot* root;
+	const BackRoot* root;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
 	virtual StackElement placeholder( Placeholder ph );
 	virtual string context() override {return "ROOT"; }
 
 public:
-	RootTemplateInstantiator( BackRoot& structRoot, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), root( &structRoot ) {}
+	RootTemplateInstantiator( const BackRoot& structRoot, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), root( &structRoot ) {}
 
 	void apply()
 	{
@@ -41,18 +41,31 @@ public:
 	}
 };
 
+class RootTemplateInstantiatorFactory : public TemplateInstantiatorFactory
+{
+protected:
+	const BackRoot* root;
+public:
+	RootTemplateInstantiatorFactory( const RootTemplateInstantiatorFactory& other ) = default;
+	RootTemplateInstantiatorFactory( const BackRoot& structRoot, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiatorFactory( templateSpace_, outStr ), root( &structRoot ) {}
+	virtual TemplateInstantiator* create() const 	{return new RootTemplateInstantiator( *root, templateSpace, outstr );}
+	virtual RootTemplateInstantiatorFactory* clone() const {return new RootTemplateInstantiatorFactory( *this );}
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 class StructTemplateInstantiator : public TemplateInstantiator
 {
 protected:
-	BackStructure* structure;
+	const BackStructure* structure;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
 	virtual StackElement placeholder( Placeholder ph );
 	virtual string context() override {return "STRUCT"; }
 
 public:
-	StructTemplateInstantiator( BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), structure( &currentStruct ) {}
+	StructTemplateInstantiator( const BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), structure( &currentStruct ) {}
 
 	void apply( TemplateNode& node )
 	{
@@ -60,18 +73,31 @@ public:
 	}
 };
 
+class  StructTemplateInstantiatorFactory : public TemplateInstantiatorFactory
+{
+protected:
+	const BackStructure* structure;
+public:
+	StructTemplateInstantiatorFactory( const StructTemplateInstantiatorFactory& other ) = default;
+	StructTemplateInstantiatorFactory( BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiatorFactory( templateSpace_, outStr ), structure( &currentStruct ) {}
+	virtual TemplateInstantiator* create() const 	{return new  StructTemplateInstantiator( *structure, templateSpace, outstr );}
+	virtual StructTemplateInstantiatorFactory* clone() const {return new StructTemplateInstantiatorFactory( *this );}
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 class StructMemberTemplateInstantiator : public TemplateInstantiator
 {
 protected:
-	BackDataMember* member;
+	const BackDataMember* member;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
 	virtual StackElement placeholder( Placeholder ph );
 	virtual string context() override {return "STRUCT-MEMBER"; }
 
 public:
-	StructMemberTemplateInstantiator( BackDataMember& currentMember, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), member( &currentMember ) {}
+	StructMemberTemplateInstantiator( const BackDataMember& currentMember, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), member( &currentMember ) {}
 
 	void apply( TemplateNode& node )
 	{
@@ -79,24 +105,50 @@ public:
 	}
 };
 
+class  StructMemberTemplateInstantiatorFactory : public TemplateInstantiatorFactory
+{
+protected:
+	const BackDataMember* member;
+public:
+	StructMemberTemplateInstantiatorFactory( const StructMemberTemplateInstantiatorFactory& other ) = default;
+	StructMemberTemplateInstantiatorFactory( const BackDataMember& currentMember, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiatorFactory( templateSpace_, outStr ), member( &currentMember ) {}
+	virtual TemplateInstantiator* create() const 	{return new  StructMemberTemplateInstantiator( *member, templateSpace, outstr );}
+	virtual StructMemberTemplateInstantiatorFactory* clone() const {return new StructMemberTemplateInstantiatorFactory( *this );}
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 class MemberTypeTemplateInstantiator : public TemplateInstantiator
 {
 protected:
-	DataType* dataType;
+	const DataType* dataType;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
 	virtual StackElement placeholder( Placeholder ph );
 	virtual string context() override {return "DATATYPE"; }
 
 public:
-	MemberTypeTemplateInstantiator( DataType& currentDataType, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), dataType( &currentDataType ) {}
+	MemberTypeTemplateInstantiator( const DataType& currentDataType, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), dataType( &currentDataType ) {}
 
 	void apply( TemplateNode& node )
 	{
 		applyNode( node );
 	}
 };
+
+class  MemberTypeTemplateInstantiatorFactory : public TemplateInstantiatorFactory
+{
+protected:
+	const DataType* dataType;
+public:
+	MemberTypeTemplateInstantiatorFactory( const MemberTypeTemplateInstantiatorFactory& other ) = default;
+	MemberTypeTemplateInstantiatorFactory( DataType& currentDataType, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiatorFactory( templateSpace_, outStr ), dataType( &currentDataType ) {}
+	virtual TemplateInstantiator* create() const 	{return new  MemberTypeTemplateInstantiator( *dataType, templateSpace, outstr );}
+	virtual MemberTypeTemplateInstantiatorFactory* clone() const {return new MemberTypeTemplateInstantiatorFactory( *this );}
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 class EnumValueTemplateInstantiator : public TemplateInstantiator
@@ -112,7 +164,8 @@ protected:
 	virtual string context() override {return "ENUMVALUE"; }
 
 public:
-	EnumValueTemplateInstantiator( const string& currentName, uint32_t currentIdlValue, uint32_t currentMappingValue, uint32_t currentEncodingValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), name( currentName ), idlValue( currentIdlValue ), mappingValue( currentMappingValue ), encodingValue( currentEncodingValue ) {}
+	EnumValueTemplateInstantiator( const string& currentName, uint32_t currentIdlValue, uint32_t currentMappingValue, uint32_t currentEncodingValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : 
+		TemplateInstantiator( templateSpace_, outStr ), name( currentName ), idlValue( currentIdlValue ), mappingValue( currentMappingValue ), encodingValue( currentEncodingValue ) {}
 
 	void apply( TemplateNode& node )
 	{
@@ -120,18 +173,35 @@ public:
 	}
 };
 
+class  EnumValueTemplateInstantiatorFactory : public TemplateInstantiatorFactory
+{
+protected:
+	string name;
+	uint32_t idlValue;
+	uint32_t mappingValue;
+	uint32_t encodingValue;
+public:
+	EnumValueTemplateInstantiatorFactory( const EnumValueTemplateInstantiatorFactory& other ) = default;
+	EnumValueTemplateInstantiatorFactory( const string& currentName, uint32_t currentIdlValue, uint32_t currentMappingValue, uint32_t currentEncodingValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : 
+		TemplateInstantiatorFactory( templateSpace_, outStr ), name( currentName ), idlValue( currentIdlValue ), mappingValue( currentMappingValue ), encodingValue( currentEncodingValue ) {}
+	virtual TemplateInstantiator* create() const 	{return new  EnumValueTemplateInstantiator( name, idlValue, mappingValue, encodingValue, templateSpace, outstr );}
+	virtual EnumValueTemplateInstantiatorFactory* clone() const {return new EnumValueTemplateInstantiatorFactory( *this );}
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 class DiscriminatedUnionTemplateInstantiator : public TemplateInstantiator
 {
 protected:
-	BackStructure* structure;
+	const BackStructure* structure;
 
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
 	virtual StackElement placeholder( Placeholder ph );
 	virtual string context() override {return "DISCRIMINATED-UNION"; }
 
 public:
-	DiscriminatedUnionTemplateInstantiator( BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), structure( &currentStruct ) {}
+	DiscriminatedUnionTemplateInstantiator( const BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), structure( &currentStruct ) {}
 
 	void apply( TemplateNode& node )
 	{
@@ -139,12 +209,25 @@ public:
 	}
 };
 
+class  DiscriminatedUnionTemplateInstantiatorFactory : public TemplateInstantiatorFactory
+{
+protected:
+	BackStructure* structure;
+public:
+	DiscriminatedUnionTemplateInstantiatorFactory( const DiscriminatedUnionTemplateInstantiatorFactory& other ) = default;
+	DiscriminatedUnionTemplateInstantiatorFactory( BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiatorFactory( templateSpace_, outStr ), structure( &currentStruct ) {}
+	virtual TemplateInstantiator* create() const 	{return new  DiscriminatedUnionTemplateInstantiator( *structure, templateSpace, outstr );}
+	virtual DiscriminatedUnionTemplateInstantiatorFactory* clone() const {return new DiscriminatedUnionTemplateInstantiatorFactory( *this );}
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 class DiscriminatedUnionOptionTemplateInstantiator : public TemplateInstantiator
 {
 protected:
-	vector<BackDataMember*> usedMembers;
-	BackDataMember* baseEnum;
+	vector<const BackDataMember*> usedMembers;
+	const BackDataMember* baseEnum;
 	string enumValueName;
 	uint32_t idlValue;
 	uint32_t mappingValue;
@@ -155,7 +238,7 @@ protected:
 	virtual string context() override {return "DISCRIMINATED-UNION-OPTION"; }
 
 public:
-	DiscriminatedUnionOptionTemplateInstantiator( BackDataMember& currentBaseEnum, vector<BackDataMember*>& currentUsedMembers, const string& currentEnumValueName, uint32_t currentIdlValue, uint32_t currentMappingValue, uint32_t currentEncodingValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : 
+	DiscriminatedUnionOptionTemplateInstantiator( const BackDataMember& currentBaseEnum, const vector<const BackDataMember*>& currentUsedMembers, const string& currentEnumValueName, uint32_t currentIdlValue, uint32_t currentMappingValue, uint32_t currentEncodingValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : 
 		TemplateInstantiator( templateSpace_, outStr ), usedMembers( currentUsedMembers ), baseEnum( &currentBaseEnum ), enumValueName( currentEnumValueName ), idlValue( currentIdlValue ), mappingValue( currentMappingValue ), encodingValue( currentEncodingValue ) {}
 
 	void apply( TemplateNode& node )
@@ -163,6 +246,25 @@ public:
 		applyNode( node );
 	}
 };
+
+class  DiscriminatedUnionOptionTemplateInstantiatorFactory : public TemplateInstantiatorFactory
+{
+protected:
+	vector<const BackDataMember*> usedMembers;
+	const BackDataMember* baseEnum;
+	string enumValueName;
+	uint32_t idlValue;
+	uint32_t mappingValue;
+	uint32_t encodingValue;
+public:
+	DiscriminatedUnionOptionTemplateInstantiatorFactory( const DiscriminatedUnionOptionTemplateInstantiatorFactory& other ) = default;
+	DiscriminatedUnionOptionTemplateInstantiatorFactory( const BackDataMember& currentBaseEnum, vector<const BackDataMember*>& currentUsedMembers, const string& currentEnumValueName, uint32_t currentIdlValue, uint32_t currentMappingValue, uint32_t currentEncodingValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : 
+		TemplateInstantiatorFactory( templateSpace_, outStr ),usedMembers( currentUsedMembers ), baseEnum( &currentBaseEnum ), enumValueName( currentEnumValueName ), idlValue( currentIdlValue ), mappingValue( currentMappingValue ), encodingValue( currentEncodingValue ) {}
+	virtual TemplateInstantiator* create() const 	{return new  DiscriminatedUnionOptionTemplateInstantiator( *baseEnum, usedMembers, enumValueName, idlValue, mappingValue, encodingValue, templateSpace, outstr );}
+	virtual DiscriminatedUnionOptionTemplateInstantiatorFactory* clone() const {return new DiscriminatedUnionOptionTemplateInstantiatorFactory( *this );}
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 void apply( BackRoot& structure, TemplateNodeSpace& templateSpace );

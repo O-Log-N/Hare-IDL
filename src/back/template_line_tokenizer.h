@@ -138,6 +138,9 @@ enum class PREDEFINED_FUNCTION
 	IS_CHARACTER,
 	IS_BIT_STRING,
 	IS_DISCRIMINATED_UNION,
+	CREATE_MAP,
+	INSERT_TO_MAP,
+	FIND_IN_MAP,
 };
 
 struct PredefindedFunction
@@ -162,6 +165,7 @@ enum class ARGTYPE
 	// internal
 	OBJPTR,
 	OBJPTR_LIST,
+	ANY_MAP,
 };
 
 struct ExpressionElement

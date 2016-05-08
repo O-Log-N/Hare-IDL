@@ -41,8 +41,8 @@ void RootTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUN
 			{
 				if ( it->type == Structure::TYPE::STRUCT )
 				{
-					StructTemplateInstantiator* structti = new StructTemplateInstantiator( *it, templateSpace, outstr );
-					elem.objects.push_back( unique_ptr<TemplateInstantiator>(structti) );
+					StructTemplateInstantiatorFactory* structti = new StructTemplateInstantiatorFactory( *it, templateSpace, outstr );
+					elem.objects.push_back( unique_ptr<TemplateInstantiatorFactory>(structti) );
 				}
 			}
 			stack.push_back( std::move(elem) );
@@ -56,8 +56,8 @@ void RootTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUN
 			{
 				if ( it->type == Structure::TYPE::DISCRIMINATED_UNION )
 				{
-					DiscriminatedUnionTemplateInstantiator* structti = new DiscriminatedUnionTemplateInstantiator( *it, templateSpace, outstr );
-					elem.objects.push_back( unique_ptr<TemplateInstantiator>(structti) );
+					DiscriminatedUnionTemplateInstantiatorFactory* structti = new DiscriminatedUnionTemplateInstantiatorFactory( *it, templateSpace, outstr );
+					elem.objects.push_back( unique_ptr<TemplateInstantiatorFactory>(structti) );
 				}
 			}
 			stack.push_back( std::move(elem) );
@@ -106,11 +106,11 @@ void StructTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_F
 			size_t memberCnt = structure->getChildCount();
 			for ( size_t j=0; j<memberCnt; j++ )
 			{
-				BackDataMember* member = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
+				const BackDataMember* member = dynamic_cast<const BackDataMember*>( structure->getConstMember( j ) );
 				if ( member != NULL )
 				{
-					StructMemberTemplateInstantiator* smti = new StructMemberTemplateInstantiator( *member, templateSpace, outstr );
-					elem.objects.push_back( unique_ptr<TemplateInstantiator>(smti) );
+					StructMemberTemplateInstantiatorFactory* smti = new StructMemberTemplateInstantiatorFactory( *member, templateSpace, outstr );
+					elem.objects.push_back( unique_ptr<TemplateInstantiatorFactory>(smti) );
 				}
 				else
 				{
@@ -196,8 +196,8 @@ void StructMemberTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEF
 			DataType* memberType = new DataType( member->type );
 			if ( memberType != NULL )
 			{
-				MemberTypeTemplateInstantiator* mtti = new MemberTypeTemplateInstantiator( *memberType, templateSpace, outstr );
-				elem.singleObject = unique_ptr<TemplateInstantiator>(mtti);
+				MemberTypeTemplateInstantiatorFactory* mtti = new MemberTypeTemplateInstantiatorFactory( *memberType, templateSpace, outstr );
+				elem.singleObject = unique_ptr<TemplateInstantiatorFactory>(mtti);
 			}
 			else
 			{
@@ -261,8 +261,8 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			elem.argtype = ARGTYPE::OBJPTR;
 //			assert( dataType->kind == DataType::KIND::SEQUENCE || dataType->kind == DataType::KIND::DICTIONARY );
 			assert( dataType->kind == DataType::KIND::SEQUENCE || dataType->kind == DataType::KIND::DICTIONARY || dataType->kind == DataType::KIND::DISCRIMINATED_UNION ); // TEMPORARY; TODO: go back as soon as proper processing of DISCRIMINATED_UNION is implemented
-			MemberTypeTemplateInstantiator* mtti = new MemberTypeTemplateInstantiator( *(dataType->paramType), templateSpace, outstr );
-			elem.singleObject = unique_ptr<TemplateInstantiator>(mtti);
+			MemberTypeTemplateInstantiatorFactory* mtti = new MemberTypeTemplateInstantiatorFactory( *(dataType->paramType), templateSpace, outstr );
+			elem.singleObject = unique_ptr<TemplateInstantiatorFactory>(mtti);
 			stack.push_back( std::move(elem) );
 			break;
 		}
@@ -271,8 +271,8 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 			StackElement elem;
 			elem.argtype = ARGTYPE::OBJPTR;
 			assert( dataType->kind == DataType::KIND::DICTIONARY );
-			MemberTypeTemplateInstantiator* mtti = new MemberTypeTemplateInstantiator( *(dataType->keyType), templateSpace, outstr );
-			elem.singleObject = unique_ptr<TemplateInstantiator>(mtti);
+			MemberTypeTemplateInstantiatorFactory* mtti = new MemberTypeTemplateInstantiatorFactory( *(dataType->keyType), templateSpace, outstr );
+			elem.singleObject = unique_ptr<TemplateInstantiatorFactory>(mtti);
 			stack.push_back( std::move(elem) );
 			break;
 		}
@@ -292,8 +292,8 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFIN
 				assert( mappingEnumVal != dataType->mappingRepresentation->enumValues.end() );
 				auto& encodingEnumVal = dataType->encodingRepresentation->enumValues.find( enumValName );
 				assert( encodingEnumVal != dataType->encodingRepresentation->enumValues.end() );
-				EnumValueTemplateInstantiator* evti = new EnumValueTemplateInstantiator( enumValName, idlEnumVal->second, mappingEnumVal->second, encodingEnumVal->second, templateSpace, outstr );
-				elem.objects.push_back( unique_ptr<TemplateInstantiator>(evti) );
+				EnumValueTemplateInstantiatorFactory* evti = new EnumValueTemplateInstantiatorFactory( enumValName, idlEnumVal->second, mappingEnumVal->second, encodingEnumVal->second, templateSpace, outstr );
+				elem.objects.push_back( unique_ptr<TemplateInstantiatorFactory>(evti) );
 			}
 			stack.push_back( std::move(elem) );
 			break;
@@ -571,11 +571,11 @@ void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, 
 			size_t memberCnt = structure->getChildCount();
 			for ( size_t j=0; j<memberCnt; j++ )
 			{
-				BackDataMember* member = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
+				const BackDataMember* member = dynamic_cast<const BackDataMember*>( structure->getConstMember( j ) );
 				if ( member != NULL )
 				{
-					StructMemberTemplateInstantiator* smti = new StructMemberTemplateInstantiator( *member, templateSpace, outstr );
-					elem.objects.push_back( unique_ptr<TemplateInstantiator>(smti) );
+					StructMemberTemplateInstantiatorFactory* smti = new StructMemberTemplateInstantiatorFactory( *member, templateSpace, outstr );
+					elem.objects.push_back( unique_ptr<TemplateInstantiatorFactory>(smti) );
 				}
 				else
 				{
@@ -590,13 +590,13 @@ void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, 
 		{
 			size_t memberCnt = structure->getChildCount();
 			size_t j;
-			BackDataMember* enumMember = nullptr;
 			for ( j=0; j<memberCnt; j++ )
 			{
-				enumMember = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
+				const BackDataMember* enumMember = dynamic_cast<const BackDataMember*>( structure->getConstMember( j ) );
 				if ( enumMember != NULL && enumMember->type.kind == DataType::KIND::ENUM && enumMember->name == structure->discriminant )
 					break;
 			}
+			const BackDataMember* enumMember = nullptr;
 			assert( enumMember != nullptr ); // TODO: report error
 			assert( enumMember->idlRepresentation != nullptr );
 			assert( enumMember->mappingRepresentation != nullptr );
@@ -608,10 +608,10 @@ void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, 
 			for ( auto itv:enumMember->type.enumValues )
 			{
 				// we go through discriminating enum values and we add objects if there are members allowed by a respective value
-				vector<BackDataMember*> usedMembers;
+				vector<const BackDataMember*> usedMembers;
 				for ( j=0; j<memberCnt; j++ )
 				{
-					BackDataMember* member = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
+					const BackDataMember* member = dynamic_cast<const BackDataMember*>( structure->getConstMember( j ) );
 					if ( member != NULL && member != enumMember )
 					{
 						for ( auto& itIfVal:member->whenDiscriminant )
@@ -631,8 +631,8 @@ void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, 
 					assert( mappingEnumVal != enumMember->type.mappingRepresentation->enumValues.end() );
 					auto& encodingEnumVal = enumMember->type.encodingRepresentation->enumValues.find( enumValName );
 					assert( encodingEnumVal != enumMember->type.encodingRepresentation->enumValues.end() );
-					DiscriminatedUnionOptionTemplateInstantiator* duoti = new DiscriminatedUnionOptionTemplateInstantiator( *enumMember, usedMembers, enumValName, idlEnumVal->second, mappingEnumVal->second, encodingEnumVal->second, templateSpace, outstr );
-					elem.objects.push_back( unique_ptr<TemplateInstantiator>(duoti) );
+					DiscriminatedUnionOptionTemplateInstantiatorFactory* duoti = new DiscriminatedUnionOptionTemplateInstantiatorFactory( *enumMember, usedMembers, enumValName, idlEnumVal->second, mappingEnumVal->second, encodingEnumVal->second, templateSpace, outstr );
+					elem.objects.push_back( unique_ptr<TemplateInstantiatorFactory>(duoti) );
 				}
 			}
 			stack.push_back( std::move(elem) );
@@ -642,19 +642,19 @@ void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, 
 		{
 			StackElement elem;
 			elem.argtype = ARGTYPE::OBJPTR;
-			BackDataMember* enumMember = nullptr;
 			size_t memberCnt = structure->getChildCount();
 			size_t j;
 			for ( j=0; j<memberCnt; j++ )
 			{
-				enumMember = dynamic_cast<BackDataMember*>( structure->getMember( j ) );
+				const BackDataMember* enumMember = dynamic_cast<const BackDataMember*>( structure->getConstMember( j ) );
 				if ( enumMember != NULL && enumMember->type.kind == DataType::KIND::ENUM && enumMember->name == structure->discriminant )
 					break;
 			}
+			const BackDataMember* enumMember = dynamic_cast<const BackDataMember*>( structure->getConstMember( j ) );
 			assert( enumMember != nullptr ); // TODO: report error
 
-			StructMemberTemplateInstantiator* smti = new StructMemberTemplateInstantiator( *enumMember, templateSpace, outstr );
-			elem.singleObject = unique_ptr<TemplateInstantiator>(smti);
+			StructMemberTemplateInstantiatorFactory* smti = new StructMemberTemplateInstantiatorFactory( *enumMember, templateSpace, outstr );
+			elem.singleObject = unique_ptr<TemplateInstantiatorFactory>(smti);
 			stack.push_back( std::move(elem) );
 			break;
 		}
@@ -713,8 +713,8 @@ void DiscriminatedUnionOptionTemplateInstantiator::execBuiltinFunction( Stack& s
 			for ( auto& it:usedMembers )
 			{
 				assert( it != NULL );
-				StructMemberTemplateInstantiator* smti = new StructMemberTemplateInstantiator( *it, templateSpace, outstr );
-				elem.objects.push_back( unique_ptr<TemplateInstantiator>(smti) );
+				StructMemberTemplateInstantiatorFactory* smti = new StructMemberTemplateInstantiatorFactory( *it, templateSpace, outstr );
+				elem.objects.push_back( unique_ptr<TemplateInstantiatorFactory>(smti) );
 			}
 			stack.push_back( std::move(elem) );
 			break;
