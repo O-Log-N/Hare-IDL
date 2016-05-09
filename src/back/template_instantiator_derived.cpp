@@ -590,13 +590,13 @@ void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, 
 		{
 			size_t memberCnt = structure->getChildCount();
 			size_t j;
+			const BackDataMember* enumMember = nullptr;
 			for ( j=0; j<memberCnt; j++ )
 			{
-				const BackDataMember* enumMember = dynamic_cast<const BackDataMember*>( structure->getConstMember( j ) );
+				enumMember = dynamic_cast<const BackDataMember*>( structure->getConstMember( j ) );
 				if ( enumMember != NULL && enumMember->type.kind == DataType::KIND::ENUM && enumMember->name == structure->discriminant )
 					break;
 			}
-			const BackDataMember* enumMember = nullptr;
 			assert( enumMember != nullptr ); // TODO: report error
 			assert( enumMember->idlRepresentation != nullptr );
 			assert( enumMember->mappingRepresentation != nullptr );
@@ -644,13 +644,16 @@ void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, 
 			elem.argtype = ARGTYPE::OBJPTR;
 			size_t memberCnt = structure->getChildCount();
 			size_t j;
+			const BackDataMember* enumMember = nullptr;
 			for ( j=0; j<memberCnt; j++ )
 			{
-				const BackDataMember* enumMember = dynamic_cast<const BackDataMember*>( structure->getConstMember( j ) );
-				if ( enumMember != NULL && enumMember->type.kind == DataType::KIND::ENUM && enumMember->name == structure->discriminant )
+				const BackDataMember* enumMember1 = dynamic_cast<const BackDataMember*>( structure->getConstMember( j ) );
+				if ( enumMember1 != NULL && enumMember1->type.kind == DataType::KIND::ENUM && enumMember1->name == structure->discriminant )
+				{
+					enumMember = enumMember1;
 					break;
+				}
 			}
-			const BackDataMember* enumMember = dynamic_cast<const BackDataMember*>( structure->getConstMember( j ) );
 			assert( enumMember != nullptr ); // TODO: report error
 
 			StructMemberTemplateInstantiatorFactory* smti = new StructMemberTemplateInstantiatorFactory( *enumMember, templateSpace, outstr );

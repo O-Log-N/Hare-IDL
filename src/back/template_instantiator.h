@@ -49,11 +49,9 @@ protected:
 		vector<LinePart> lineParts; // used for ARGTYPE::STRING
 		vector<unique_ptr<TemplateInstantiatorFactory>> objects; // used for ARGTYPE::OBJPTR_LIST
 		unique_ptr<TemplateInstantiatorFactory> singleObject = nullptr; // used for ARGTYPE::OBJPTR
-//		vector<pair<StackElementBase, StackElementBase>> anyMap; // used for ARGTYPE::ANY_MAP
 		vector<pair<StackElement, StackElement>> anyMap; // used for ARGTYPE::ANY_MAP
 
 		StackElement() {}
-//		StackElement ( StackElement & other ) = delete; 
 		StackElement ( const StackElement & other ) :
 			argtype( other.argtype ), numberValue( other.numberValue ), boolValue( other.boolValue ), lineParts( (other.lineParts) ), 
 			singleObject( other.singleObject != nullptr ? (*other.singleObject).clone() : nullptr )
@@ -92,15 +90,32 @@ protected:
 			if ( argtype != other.argtype ) return false;
 			switch ( argtype )
 			{
-				// TODO: implement!
 				case ARGTYPE::NO_ARGTYPE: return true;
 				case ARGTYPE::NUMBER: return numberValue == other.numberValue; 
-				case ARGTYPE::STRING: return false; 
-				case ARGTYPE::BOOL: return false; 
-				case ARGTYPE::PLACEHOLDER: return false; 
+				case ARGTYPE::BOOL: return boolValue == other.boolValue; 
+				case ARGTYPE::STRING:
+				{
+					// NOTE: we implement here a strict approach
+					size_t sz = lineParts.size();
+					if ( sz != other.lineParts.size() )
+						return false;
+					for ( size_t i=0; i<sz; ++i )
+						if ( !( lineParts[i].type == other.lineParts[i].type && lineParts[i].verbatim == other.lineParts[i].verbatim ) )
+							return false;
+					return true;
+				}
+				case ARGTYPE::PLACEHOLDER:
+				{
+					assert( 0 ); // TODO: report internal error: unexpected type
+					return false; 
+				}
 				case ARGTYPE::OBJPTR: return false; 
 				case ARGTYPE::OBJPTR_LIST: return false; 
 				case ARGTYPE::ANY_MAP: return false; 
+				{
+					assert( 0 == "Error: unsupported type" ); // TODO: report detailed error
+					return false; 
+				}
 				default:
 				{
 					assert(0);

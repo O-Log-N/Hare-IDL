@@ -70,7 +70,7 @@ void TemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTIO
 		{
 			StackElement elem;
 			elem.argtype = ARGTYPE::ANY_MAP;
-			stack.push_back( std::move(elem) );
+			stack.push_back( elem );
 			break;
 		}
 		case PREDEFINED_FUNCTION::INSERT_TO_MAP:
@@ -97,7 +97,7 @@ void TemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTIO
 			arg1->findInMap( *arg2, elem );
 			stack.pop_back();
 			stack.pop_back();
-			stack.push_back( std::move(elem) );
+			stack.push_back( elem );
 			break;
 		}
 		default:
@@ -589,13 +589,15 @@ TemplateInstantiator::StackElement TemplateInstantiator::placeholder( Placeholde
 	{
 		auto findres = resolvedParamPlaceholders.find( ph.specific );
 		if ( findres != resolvedParamPlaceholders.end() )
-			return move(findres->second);
+//			return move(findres->second);
+			return findres->second;
 	}
 	else if ( ph.id == PLACEHOLDER::LOCAL_MINUS )
 	{
 		auto findres = resolvedLocalPlaceholders.find( ph.specific );
 		if ( findres != resolvedLocalPlaceholders.end() )
-			return move(findres->second);
+//			return move(findres->second);
+			return findres->second;
 	}
 
 	fmt::print( "\n" );
