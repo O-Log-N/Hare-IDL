@@ -538,14 +538,16 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			Stack stack;
 			evaluateExpression( node.expression, stack );
 			assert( stack.size() == 1 );
-			assert( stack[0].argtype == ARGTYPE::OBJPTR_LIST );
+//			assert( stack[0].argtype == ARGTYPE::OBJPTR_LIST );
+			assert( stack[0].argtype == ARGTYPE::ANY_LIST );
 			assert( node.childNodes.size() == 1 );
 			assert( node.childNodes[0].type == NODE_TYPE::INCLUDE );
-			for ( auto &obj:stack[0].objects )
+//			for ( auto &obj:stack[0].objects )
+			for ( auto &obj:stack[0].anyList )
 			{
 				// NOTE: this object has empty lists of resolved locals and params;
 				// As a (single) child node is of type INCLUDE, those lists will be populated as necessary
-				TemplateInstantiator* instantiator = obj->create();
+				TemplateInstantiator* instantiator = obj.singleObject->create();
 				instantiator->applyNode( node.childNodes[0] );
 				delete instantiator; // TODO: think about wrapping it in unique_ptr instead
 			}
@@ -556,10 +558,12 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			Stack stack;
 			evaluateExpression( node.expression, stack );
 			assert( stack.size() == 1 );
-			assert( stack[0].argtype == ARGTYPE::OBJPTR_LIST );
-			for ( auto &obj:stack[0].objects )
+//			assert( stack[0].argtype == ARGTYPE::OBJPTR_LIST );
+			assert( stack[0].argtype == ARGTYPE::ANY_LIST );
+//			for ( auto &obj:stack[0].objects )
+			for ( auto &obj:stack[0].anyList )
 			{
-				TemplateInstantiator* instantiator = obj->create();
+				TemplateInstantiator* instantiator = obj.singleObject->create();
 				assert( instantiator->resolvedParamPlaceholders.size() == 0 );
 				assert( instantiator->resolvedLocalPlaceholders.size() == 0 );
 				// NOTE: we continue with the same template and with the same  lists of resolved locals and params

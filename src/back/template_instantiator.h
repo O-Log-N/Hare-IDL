@@ -47,18 +47,19 @@ protected:
 		double numberValue = 0; // argtype: ARGTYPE::NUMBER
 		bool boolValue = false; // argtype: ARGTYPE::BOOL
 		vector<LinePart> lineParts; // used for ARGTYPE::STRING
-		vector<unique_ptr<TemplateInstantiatorFactory>> objects; // used for ARGTYPE::OBJPTR_LIST
+//		vector<unique_ptr<TemplateInstantiatorFactory>> objects; // used for ARGTYPE::OBJPTR_LIST
 		unique_ptr<TemplateInstantiatorFactory> singleObject = nullptr; // used for ARGTYPE::OBJPTR
 		vector<pair<StackElement, StackElement>> anyMap; // used for ARGTYPE::ANY_MAP
+		vector<StackElement> anyList; // used for ARGTYPE::ANY_LIST
 
 		StackElement() {}
 		StackElement ( const StackElement & other ) :
 			argtype( other.argtype ), numberValue( other.numberValue ), boolValue( other.boolValue ), lineParts( (other.lineParts) ), 
-			singleObject( other.singleObject != nullptr ? (*other.singleObject).clone() : nullptr ), anyMap( other.anyMap )
+			singleObject( other.singleObject != nullptr ? (*other.singleObject).clone() : nullptr ), anyMap( other.anyMap ), anyList( other.anyList )
 		{
-			for ( const auto& it:other.objects )
+/*			for ( const auto& it:other.objects )
 				if ( it != nullptr )
-					objects.push_back( unique_ptr<TemplateInstantiatorFactory>( it->clone() ) );
+					objects.push_back( unique_ptr<TemplateInstantiatorFactory>( it->clone() ) );*/
 		}
 		StackElement& operator = ( const StackElement & other )
 		{
@@ -66,27 +67,31 @@ protected:
 			numberValue = other.numberValue;
 			boolValue = other.boolValue;
 			lineParts = other.lineParts;
-			objects.clear();
+/*			objects.clear();
 			for ( const auto& it:other.objects )
 				if ( it != nullptr )
-					objects.push_back( unique_ptr<TemplateInstantiatorFactory>( it->clone() ) );
+					objects.push_back( unique_ptr<TemplateInstantiatorFactory>( it->clone() ) );*/
 			singleObject.reset( other.singleObject != nullptr ? (*other.singleObject).clone() : nullptr ); 
 			anyMap.clear();
 			for ( const auto& itm:other.anyMap )
 				anyMap.push_back( itm );
+			anyList.clear();
+			for ( const auto& itl:other.anyList )
+				anyList.push_back( itl );
 			return *this;
 		}
 		StackElement ( StackElement && other ) : 
 			argtype( other.argtype ), numberValue( other.numberValue ), boolValue( other.boolValue ), lineParts( (other.lineParts) ), 
-			objects( std::move(other.objects) ), singleObject( std::move(other.singleObject) ), anyMap( std::move(other.anyMap ) ) {}
+			/*objects( std::move(other.objects) ), */singleObject( std::move(other.singleObject) ), anyMap( std::move(other.anyMap ) ), anyList( std::move(other.anyList ) ) {}
 		StackElement& operator = ( StackElement && other ) {
 			argtype = other.argtype;
 			numberValue = other.numberValue;
 			boolValue = other.boolValue;
 			lineParts = (other.lineParts );
-			objects = std::move(other.objects); 
+//			objects = std::move(other.objects); 
 			singleObject = std::move(other.singleObject); 
 			anyMap = std::move(other.anyMap); 
+			anyList = std::move(other.anyList); 
 			return *this;
 		}
 		// map operations
@@ -114,9 +119,9 @@ protected:
 					assert( 0 ); // TODO: report internal error: unexpected type
 					return false; 
 				}
-				case ARGTYPE::OBJPTR: return false; 
-				case ARGTYPE::OBJPTR_LIST: return false; 
-				case ARGTYPE::ANY_MAP: return false; 
+				case ARGTYPE::OBJPTR:
+//				case ARGTYPE::OBJPTR_LIST: return false; 
+				case ARGTYPE::ANY_MAP:
 				{
 					assert( 0 == "Error: unsupported type" ); // TODO: report detailed error
 					return false; 
