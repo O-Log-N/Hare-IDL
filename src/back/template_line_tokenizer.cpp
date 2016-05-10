@@ -103,12 +103,164 @@ void readLineParts( const string& line, size_t& currentPos, vector<LinePart>& pa
 	}
 }
 
+void parseExpression( const string& line, size_t& currentPos, vector<ExpressionElement>& expression, int currentLineNum );
+bool parseIdentifier( const string& line, size_t& currentPos, vector<ExpressionElement>& expression, int currentLineNum, vector<ExpressionElement>& postfixOperations, size_t prevPos, bool memberFnCallExpected )
+{
+		if ( ( line[currentPos] >= 'a' && line[currentPos] <= 'z' ) || 
+			      ( line[currentPos] >= 'A' && line[currentPos] <= 'Z' ) ||
+			        line[currentPos] == '_' )
+		{
+			// we expect a predefined function or a PARAM- or LOCAL- placeholder here
+			PredefindedFunction fn = parsePredefinedFunction( line, currentPos );
+			if ( fn.id == PREDEFINED_FUNCTION::NOT_A_FUNCTION )
+			{
+				if ( memberFnCallExpected )
+				{
+					fmt::print( "line {}: function call expected\n", currentLineNum );
+					assert( 0 ); // TODO: throw
+				}
+				Placeholder ph =parsePlaceholder( line, currentPos );
+				if ( ph.id == PLACEHOLDER::PARAM_MINUS || ph.id == PLACEHOLDER::LOCAL_MINUS )
+				{
+					ExpressionElement elem;
+					elem.oper = OPERATOR::PUSH;
+					elem.argtype = ARGTYPE::PLACEHOLDER;
+					elem.ph = ph;
+//					if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+					if ( expression.size() && postfixOperations.size() == 0 ) // PUSH command to non-empty stack without an operator of fn call
+					{
+						currentPos = prevPos;
+						return false;
+					}
+					expression.push_back( elem );
+					while ( postfixOperations.size() )
+					{
+						expression.push_back( postfixOperations.back() );
+						postfixOperations.pop_back();
+					}
+					skipSpaces( line, currentPos );
+				}
+				else if ( ph.id != PLACEHOLDER::VERBATIM )
+				{
+					// TODO: is it good to do the same with all placeholders?
+					ExpressionElement elem;
+					elem.oper = OPERATOR::PUSH;
+					elem.argtype = ARGTYPE::PLACEHOLDER;
+					elem.ph = ph;
+//					if ( expression.size() && expression.back().oper == OPERATOR::PUSH && postfixOperations.size() == 0 ) // two elements to push without an operator in between
+					if ( expression.size() && postfixOperations.size() == 0 ) // PUSH command to non-empty stack without an operator of fn call
+					{
+						currentPos = prevPos;
+						return false;
+					}
+					expression.push_back( elem );
+					while ( postfixOperations.size() )
+					{
+						expression.push_back( postfixOperations.back() );
+						postfixOperations.pop_back();
+					}
+					skipSpaces( line, currentPos );
+				}
+				else
+				{
+	/*				string unknown = readIdentifier( line, currentPos );
+					fmt::print( "line {}:  unexpected token {}\n", currentLineNum, unknown );
+					assert( 0 ); // TODO: throw*/
+					return false;
+				}
+			}
+			else
+			{
+				if ( memberFnCallExpected )
+				{
+					if ( !fn.isMember )
+					{
+						fmt::print( "line {}: function {} cannot be called with respect to an object\n", currentLineNum, functionNameToString( fn.id ) );
+						assert( 0 ); // TODO: throw
+						return false;
+					}
+				}
+				else
+				{
+					if ( fn.isMember )
+					{
+						fmt::print( "line {}: function {} can be called with respect to an object only\n", currentLineNum, functionNameToString( fn.id ) );
+						assert( 0 ); // TODO: throw
+						return false;
+					}
+				}
+				skipSpaces( line, currentPos );
+				if ( line[currentPos] != '(' )
+				{
+					fmt::print( "line {}:  expected '('\n", currentLineNum );
+					assert( 0 ); // TODO: throw
+				}
+				++currentPos; // for opening '('
+				ExpressionElement fncall;
+				fncall.oper = OPERATOR::CALL;
+				fncall.fnCallID = fn.id;
+				postfixOperations.push_back( fncall );
+				skipSpaces( line, currentPos );
+				int argCnt = 0;
+				size_t iniExprSz;
+				char terminator;
+				bool afterComma = false;
+				do
+				{
+					skipSpaces( line, currentPos );
+					iniExprSz = expression.size();
+					vector<ExpressionElement> expression2;
+					parseExpression( line, currentPos, expression2, currentLineNum );
+					if ( expression2.size() == 0 && afterComma )
+					{
+						fmt::print( "line {}:  expression expected after ','\n", currentLineNum );
+						assert( 0 ); // TODO: throw
+					}
+					for ( auto eit:expression2 )
+						expression.push_back( eit );
+					skipSpaces( line, currentPos );
+					if ( expression.size() > iniExprSz )
+						++argCnt;
+					terminator = line[currentPos++];
+					afterComma = true;
+				}
+				while ( terminator == ',' );
+				if ( terminator != ')' )
+				{
+					fmt::print( "line {}: error: ')' expected\n", currentLineNum );
+					assert( 0 ); // TODO: throw
+				}
+				skipSpaces( line, currentPos );
+				// quick sanity check for arg'less function
+				// TODO: indeed, we can calculate a number of actually supplied args
+				if ( fn.argC != argCnt )
+				{
+					fmt::print( "line {}: function {} takes {} arguments ({} actually supplied)\n", currentLineNum, functionNameToString( fn.id ), fn.argC, argCnt );
+					assert( 0 ); // TODO: throw
+				}
+				skipSpaces( line, currentPos );
+				while ( postfixOperations.size() )
+				{
+					expression.push_back( postfixOperations.back() );
+					postfixOperations.pop_back();
+				}
+			}
+		}
+		else
+		{
+			assert( 0 == "Identifier is expected" );
+		}
+
+		return true;
+}
+
 void parseExpression( const string& line, size_t& currentPos, vector<ExpressionElement>& expression, int currentLineNum )
 {
 	size_t sz = line.size();
 	vector<ExpressionElement> postfixOperations;
 	size_t prevPos;
 	OPERATOR lastOperator = OPERATOR::INVALID;
+	bool memberFnCallExpected = false;
 	for ( ; currentPos<sz; )
 	{
 		prevPos = currentPos;
@@ -138,6 +290,18 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 				expression.push_back( postfixOperations.back() );
 				postfixOperations.pop_back();
 			}
+		}
+		else if ( line[currentPos] == '.' )
+		{
+			if ( expression.size() == 0 )
+			{
+				fmt::print( "line {}: error: operator \'.\' can follow an object or an expression that can be evaluated to an object only\n", currentLineNum );
+				assert( 0 ); // TODO: throw
+			}
+			++currentPos;
+			skipSpaces( line, currentPos );
+			if ( !parseIdentifier( line, currentPos, expression, currentLineNum, postfixOperations, prevPos, true ) )
+				return;
 		}
 		else if ( line[currentPos] == '(' )
 		{
@@ -191,6 +355,7 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 			      ( line[currentPos] >= 'A' && line[currentPos] <= 'Z' ) ||
 			        line[currentPos] == '_' )
 		{
+#if 0
 			// we expect a predefined function or a PARAM- or LOCAL- placeholder here
 			PredefindedFunction fn = parsePredefinedFunction( line, currentPos );
 			if ( fn.id == PREDEFINED_FUNCTION::NOT_A_FUNCTION )
@@ -303,6 +468,10 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 					postfixOperations.pop_back();
 				}
 			}
+#else
+			if ( !parseIdentifier( line, currentPos, expression, currentLineNum, postfixOperations, prevPos, false ) )
+				return;
+#endif // 0
 		}
 		else
 		{

@@ -147,6 +147,7 @@ struct PredefindedFunction
 {
 	PREDEFINED_FUNCTION id;
 	size_t argC;
+	bool isMember;
 };
 
 struct PredefindedOperator
