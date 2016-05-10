@@ -265,6 +265,7 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 				bool afterComma = false;
 				do
 				{
+					skipSpaces( line, currentPos );
 					iniExprSz = expression.size();
 					vector<ExpressionElement> expression2;
 					parseExpression( line, currentPos, expression2, currentLineNum );

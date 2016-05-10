@@ -54,7 +54,7 @@ protected:
 		StackElement() {}
 		StackElement ( const StackElement & other ) :
 			argtype( other.argtype ), numberValue( other.numberValue ), boolValue( other.boolValue ), lineParts( (other.lineParts) ), 
-			singleObject( other.singleObject != nullptr ? (*other.singleObject).clone() : nullptr )
+			singleObject( other.singleObject != nullptr ? (*other.singleObject).clone() : nullptr ), anyMap( other.anyMap )
 		{
 			for ( const auto& it:other.objects )
 				if ( it != nullptr )
@@ -66,15 +66,19 @@ protected:
 			numberValue = other.numberValue;
 			boolValue = other.boolValue;
 			lineParts = other.lineParts;
+			objects.clear();
 			for ( const auto& it:other.objects )
 				if ( it != nullptr )
 					objects.push_back( unique_ptr<TemplateInstantiatorFactory>( it->clone() ) );
 			singleObject.reset( other.singleObject != nullptr ? (*other.singleObject).clone() : nullptr ); 
+			anyMap.clear();
+			for ( const auto& itm:other.anyMap )
+				anyMap.push_back( itm );
 			return *this;
 		}
 		StackElement ( StackElement && other ) : 
 			argtype( other.argtype ), numberValue( other.numberValue ), boolValue( other.boolValue ), lineParts( (other.lineParts) ), 
-			objects( std::move(other.objects) ), singleObject( std::move(other.singleObject) ) {}
+			objects( std::move(other.objects) ), singleObject( std::move(other.singleObject) ), anyMap( std::move(other.anyMap ) ) {}
 		StackElement& operator = ( StackElement && other ) {
 			argtype = other.argtype;
 			numberValue = other.numberValue;
@@ -82,6 +86,7 @@ protected:
 			lineParts = (other.lineParts );
 			objects = std::move(other.objects); 
 			singleObject = std::move(other.singleObject); 
+			anyMap = std::move(other.anyMap); 
 			return *this;
 		}
 		// map operations
