@@ -165,7 +165,6 @@ enum class ARGTYPE
 	PLACEHOLDER,
 	// internal
 	OBJPTR,
-//	OBJPTR_LIST,
 	ANY_MAP,
 	ANY_LIST,
 };
