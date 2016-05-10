@@ -198,6 +198,7 @@ struct TemplateLine
 	enum LINE_TYPE {
 		CONTENT = 0,
 		COMMENTED_LINE,
+		CONTINUED_LINE,
 		BEGIN_TEMPLATE,
 		END_TEMPLATE,
 		IF,

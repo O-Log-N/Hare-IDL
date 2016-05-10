@@ -421,14 +421,42 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 {
 	bool startFound = false;
 
+	string line, nextLine;
+	bool useNext = false;
 	for( ;;)
 	{
-//		fmt::print( "line {}\n", currentLineNum );
-		string line;
 		TemplateLine tl;
 		tl.srcLineNum = currentLineNum;
-		if ( !readLine( tf, line, currentLineNum ) )
-			return false; // no more lines
+
+		line.clear();
+		if ( useNext )			
+		{
+			line.swap( nextLine );
+			useNext = false;
+		}
+		else
+		{
+			if ( !readLine( tf, line, currentLineNum ) )
+				return false; // no more lines
+		}
+		for (;;)
+		{
+			bool readOK = readLine( tf, nextLine, currentLineNum );
+			if ( !readOK )
+				break;
+			size_t pos = 0;
+			KeyWordProps props = getLineType( nextLine, pos );
+			if ( props.id == TemplateLine::LINE_TYPE::CONTINUED_LINE )
+			{
+				line.append( nextLine.substr( pos ) );
+				nextLine.clear();
+			}
+			else
+			{
+				useNext = true;
+				break;
+			}
+		}
 
 		size_t pos = 0;
 		KeyWordProps props = getLineType( line, pos );
