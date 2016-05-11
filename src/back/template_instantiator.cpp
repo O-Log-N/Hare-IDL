@@ -551,14 +551,9 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 					Stack stack1;
 					evaluateExpression( expr1, stack1 );
 					assert( stack1.size() == 1 );
-//					assert( stack1[0].argtype == ARGTYPE::STRING );
-//					string resolved = stack1[0].lineParts[0].verbatim;
-//					stack[0].singleObject->resolvedParamPlaceholders.insert( make_pair( it.first.ext, resolved ) );
-//					stack[0].singleObject->resolvedParamPlaceholders.insert( make_pair( it.first.ext, move(stack1[0]) ) );
 					instantiator->resolvedParamPlaceholders.insert( make_pair( it.first.ext, move(stack1[0]) ) );
 				}
 
-//			TemplateNode* tn = templateSpace.getTemplate( templateName, stack[0].singleObject->context() );
 			TemplateNode* tn = templateSpace.getTemplate( templateName, instantiator->context() );
 			if ( tn == nullptr )
 			{
@@ -566,10 +561,9 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 			}
 			for ( auto nodeit:tn->childNodes )
 			{
-//				stack[0].singleObject->applyNode( nodeit );
 				instantiator->applyNode( nodeit );
 			}
-//			resolvedParamPlaceholders.clear();
+
 			delete instantiator; // TODO: think about wrapping it in unique_ptr instead
 
 			break;
@@ -582,9 +576,9 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 				// We expect here a returning template that assumes no output
 				// we need to check that it's a real case
 				// TODO: generalization required!!!
-				int currPos = fseek( outstr, 0, SEEK_CUR );
+				int currPos = ftell( outstr );
 				applyIncludeNode( node, true );
-				int newPos = fseek( outstr, 0, SEEK_CUR );
+				int newPos = ftell( outstr );
 				assert( currPos == newPos );
 			}
 

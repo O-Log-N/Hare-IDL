@@ -114,15 +114,14 @@ void dbgPrintNode_( TemplateNode& node, int depth )
 		dbgPrintNode_( node.childNodes[i], depth + 1 );
 }
 
-void dbgVerifyReturningNodeDoesNoOutput( TemplateNode& node )
+void postProcessReturningTemplate( TemplateNode& node )
 {
 	assert( node.type != NODE_TYPE::CONTENT );
-//	assert( node.isReturning );
+	node.isReturning = true;
 	for ( size_t i=0; i<node.childNodes.size(); i++ )
-		dbgVerifyReturningNodeDoesNoOutput( node.childNodes[i] );
+		postProcessReturningTemplate( node.childNodes[i] );
 }
 
-	
 bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t& flidx, bool& isReturning )
 {
 	for ( ; flidx<lines.size(); )
@@ -397,7 +396,8 @@ bool loadTemplates( FILE* tf, TemplateNodeSpace& nodeSpace, int& currentLineNum 
 			break;
 		size_t flidx = 0;
 		ret = buildTemplateTree( rootNode, templateLines, flidx, rootNode.isReturning );
-		rootNode.childNodes[0].isReturning = rootNode.isReturning;
+		if ( rootNode.isReturning )
+			postProcessReturningTemplate( rootNode );
 		nodeSpace.templates.push_back( rootNode.childNodes[0] );
 	}
 	return true;
