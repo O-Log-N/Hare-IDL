@@ -319,11 +319,13 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 
 bool TemplateInstantiator::applyIncludeNode( TemplateNode& node, bool isReturning )
 {
+	map<string, StackElement> resolvedParamPlaceholdersNew;
+#if 0
+	Stack stack;
 	assert( node.type == NODE_TYPE::INCLUDE || node.type == NODE_TYPE::LET );
 	auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
 	assert( attr != node.attributes.end() );
 	auto& expr = attr->second;
-	Stack stack;
 	evaluateExpression( expr, stack );
 	assert( stack.size() == 1 );
 	assert( stack[0].argtype == ARGTYPE::STRING );
@@ -339,8 +341,6 @@ bool TemplateInstantiator::applyIncludeNode( TemplateNode& node, bool isReturnin
 	{
 		assert( 0 ); // TODO: throw
 	}
-	// store current state of resolved params and locals
-	map<string, StackElement> resolvedParamPlaceholdersNew;
 	// load resolved names, if any
 	for ( const auto it:node.attributes )
 		if ( it.first.id == ATTRIBUTE::PARAM )
@@ -351,6 +351,9 @@ bool TemplateInstantiator::applyIncludeNode( TemplateNode& node, bool isReturnin
 			assert( stack1.size() == 1 );
 			resolvedParamPlaceholdersNew.insert( make_pair( it.first.ext, move(stack1[0]) ) );
 		}
+#else
+	TemplateNode* tn = prepareDataForTemplateInclusion( this, resolvedParamPlaceholdersNew, node, isReturning );
+#endif
 	map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
 	map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
 	resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersNew) );
@@ -360,6 +363,41 @@ bool TemplateInstantiator::applyIncludeNode( TemplateNode& node, bool isReturnin
 	resolvedLocalPlaceholders = map<string, StackElement>( std::move(resolvedLocalPlaceholdersIni) );
 
 	return true;
+}
+
+TemplateNode* TemplateInstantiator::prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isReturning )
+{
+	Stack stack;
+	auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
+	assert( attr != node.attributes.end() );
+	auto& expr = attr->second;
+	evaluateExpression( expr, stack );
+	assert( stack.size() == 1 );
+	assert( stack[0].argtype == ARGTYPE::STRING );
+	string templateName = stack[0].lineParts[0].verbatim;
+
+	string tContext = instantiator->context();
+	TemplateNode* tn = templateSpace.getTemplate( templateName, tContext );
+	if ( tn == nullptr )
+	{
+		assert( 0 ); // TODO: throw
+	}
+	if ( tn->isReturning != isReturning )
+	{
+		assert( 0 ); // TODO: throw
+	}
+
+	// load resolved names, if any
+	for ( const auto it:node.attributes )
+		if ( it.first.id == ATTRIBUTE::PARAM )
+		{
+			auto& expr1 = it.second;
+			Stack stack1;
+			evaluateExpression( expr1, stack1 );
+			assert( stack1.size() == 1 );
+			resolvedParamPlaceholdersToUse.insert( make_pair( it.first.ext, move(stack1[0]) ) );
+		}
+	return tn;
 }
 
 
@@ -484,10 +522,10 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 		case NODE_TYPE::INCLUDE:
 		{
 #if 0
+			Stack stack;
 			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
 			assert( attr != node.attributes.end() );
 			auto& expr = attr->second;
-			Stack stack;
 			evaluateExpression( expr, stack );
 			assert( stack.size() == 1 );
 			assert( stack[0].argtype == ARGTYPE::STRING );
@@ -526,22 +564,30 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 		}
 		case NODE_TYPE::INCLUDE_WITH:
 		{
-			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
-			assert( attr != node.attributes.end() );
-			auto& expr = attr->second;
 			Stack stack;
-			evaluateExpression( expr, stack );
-			assert( stack.size() == 1 );
-			assert( stack[0].argtype == ARGTYPE::STRING );
-			string templateName = stack[0].lineParts[0].verbatim;
 
-			stack.clear();
 			evaluateExpression( node.expression, stack );
 			assert( stack.size() == 1 );
 			assert( stack[0].argtype == ARGTYPE::OBJPTR );
 //			assert( stack[0].singleObject->resolvedParamPlaceholders.size() == 0 );
 			TemplateInstantiator* instantiator = stack[0].singleObject->create();
 			assert( instantiator->resolvedParamPlaceholders.size() == 0 );
+			stack.clear();
+#if 0
+			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
+			assert( attr != node.attributes.end() );
+			auto& expr = attr->second;
+			evaluateExpression( expr, stack );
+			assert( stack.size() == 1 );
+			assert( stack[0].argtype == ARGTYPE::STRING );
+			string templateName = stack[0].lineParts[0].verbatim;
+
+			string tContext = instantiator->context();
+			TemplateNode* tn = templateSpace.getTemplate( templateName, tContext );
+			if ( tn == nullptr )
+			{
+				assert( 0 ); // TODO: throw
+			}
 
 			// load resolved params, if any
 			for ( const auto it:node.attributes )
@@ -553,12 +599,10 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 					assert( stack1.size() == 1 );
 					instantiator->resolvedParamPlaceholders.insert( make_pair( it.first.ext, move(stack1[0]) ) );
 				}
+#else
+	TemplateNode* tn = prepareDataForTemplateInclusion( instantiator, instantiator->resolvedParamPlaceholders, node, node.isReturning );
+#endif
 
-			TemplateNode* tn = templateSpace.getTemplate( templateName, instantiator->context() );
-			if ( tn == nullptr )
-			{
-				assert( 0 ); // TODO: throw
-			}
 			for ( auto nodeit:tn->childNodes )
 			{
 				instantiator->applyNode( nodeit );

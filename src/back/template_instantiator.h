@@ -150,6 +150,7 @@ protected:
 	void evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack );
 	bool applyNode( TemplateNode& node );
 	bool applyIncludeNode( TemplateNode& node, bool isReturning );
+	TemplateNode* prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isReturning );
 	virtual string context();
 	string resolveLinePartsToString( const vector<LinePart>& lineParts );
 	string placeholderAsString( Placeholder ph );
