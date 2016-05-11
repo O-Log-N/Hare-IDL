@@ -66,11 +66,6 @@ protected:
 
 public:
 	StructTemplateInstantiator( const BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), structure( &currentStruct ) {}
-
-	void apply( TemplateNode& node )
-	{
-		applyNode( node );
-	}
 };
 
 class  StructTemplateInstantiatorFactory : public TemplateInstantiatorFactory
@@ -98,11 +93,6 @@ protected:
 
 public:
 	StructMemberTemplateInstantiator( const BackDataMember& currentMember, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), member( &currentMember ) {}
-
-	void apply( TemplateNode& node )
-	{
-		applyNode( node );
-	}
 };
 
 class  StructMemberTemplateInstantiatorFactory : public TemplateInstantiatorFactory
@@ -130,11 +120,6 @@ protected:
 
 public:
 	MemberTypeTemplateInstantiator( const DataType& currentDataType, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), dataType( &currentDataType ) {}
-
-	void apply( TemplateNode& node )
-	{
-		applyNode( node );
-	}
 };
 
 class  MemberTypeTemplateInstantiatorFactory : public TemplateInstantiatorFactory
@@ -166,11 +151,6 @@ protected:
 public:
 	EnumValueTemplateInstantiator( const string& currentName, uint32_t currentIdlValue, uint32_t currentMappingValue, uint32_t currentEncodingValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : 
 		TemplateInstantiator( templateSpace_, outStr ), name( currentName ), idlValue( currentIdlValue ), mappingValue( currentMappingValue ), encodingValue( currentEncodingValue ) {}
-
-	void apply( TemplateNode& node )
-	{
-		applyNode( node );
-	}
 };
 
 class  EnumValueTemplateInstantiatorFactory : public TemplateInstantiatorFactory
@@ -202,11 +182,6 @@ protected:
 
 public:
 	DiscriminatedUnionTemplateInstantiator( const BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), structure( &currentStruct ) {}
-
-	void apply( TemplateNode& node )
-	{
-		applyNode( node );
-	}
 };
 
 class  DiscriminatedUnionTemplateInstantiatorFactory : public TemplateInstantiatorFactory
@@ -240,11 +215,6 @@ protected:
 public:
 	DiscriminatedUnionOptionTemplateInstantiator( const BackDataMember& currentBaseEnum, const vector<const BackDataMember*>& currentUsedMembers, const string& currentEnumValueName, uint32_t currentIdlValue, uint32_t currentMappingValue, uint32_t currentEncodingValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : 
 		TemplateInstantiator( templateSpace_, outStr ), usedMembers( currentUsedMembers ), baseEnum( &currentBaseEnum ), enumValueName( currentEnumValueName ), idlValue( currentIdlValue ), mappingValue( currentMappingValue ), encodingValue( currentEncodingValue ) {}
-
-	void apply( TemplateNode& node )
-	{
-		applyNode( node );
-	}
 };
 
 class  DiscriminatedUnionOptionTemplateInstantiatorFactory : public TemplateInstantiatorFactory

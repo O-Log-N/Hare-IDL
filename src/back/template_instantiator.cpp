@@ -317,14 +317,65 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	}
 }
 
-void TemplateInstantiator::applyNode( TemplateNode& node )
+bool TemplateInstantiator::applyIncludeNode( TemplateNode& node, bool isReturning )
+{
+	assert( node.type == NODE_TYPE::INCLUDE || node.type == NODE_TYPE::LET );
+	auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
+	assert( attr != node.attributes.end() );
+	auto& expr = attr->second;
+	Stack stack;
+	evaluateExpression( expr, stack );
+	assert( stack.size() == 1 );
+	assert( stack[0].argtype == ARGTYPE::STRING );
+	string templateName = stack[0].lineParts[0].verbatim;
+
+	string tContext = context();
+	TemplateNode* tn = templateSpace.getTemplate( templateName, tContext );
+	if ( tn == nullptr )
+	{
+		assert( 0 ); // TODO: throw
+	}
+	if ( tn->isReturning != isReturning )
+	{
+		assert( 0 ); // TODO: throw
+	}
+	// store current state of resolved params and locals
+	map<string, StackElement> resolvedParamPlaceholdersNew;
+	// load resolved names, if any
+	for ( const auto it:node.attributes )
+		if ( it.first.id == ATTRIBUTE::PARAM )
+		{
+			auto& expr1 = it.second;
+			Stack stack1;
+			evaluateExpression( expr1, stack1 );
+			assert( stack1.size() == 1 );
+			resolvedParamPlaceholdersNew.insert( make_pair( it.first.ext, move(stack1[0]) ) );
+		}
+	map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
+	map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
+	resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersNew) );
+	applyNode( *tn );
+	// restore ini content of resolved params and locals
+	resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersIni) );
+	resolvedLocalPlaceholders = map<string, StackElement>( std::move(resolvedLocalPlaceholdersIni) );
+
+	return true;
+}
+
+
+bool TemplateInstantiator::applyNode( TemplateNode& node )
 {
 	switch ( node.type )
 	{
 		case NODE_TYPE::FULL_TEMPLATE:
 		{
 			for ( auto& nodeIt: node.childNodes )
-				applyNode( nodeIt );
+//				applyNode( nodeIt );
+				if ( !applyNode( nodeIt ) )
+				{
+					assert( node.isReturning );
+					return false;
+				}
 			break;
 		}
 		case NODE_TYPE::CONTENT:
@@ -349,7 +400,9 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 		case NODE_TYPE::IF_FALSE_BRANCH:
 		{
 			for ( auto& nodeIt: node.childNodes )
-				applyNode( nodeIt );
+//				applyNode( nodeIt );
+				if ( !applyNode( nodeIt ) )
+					return false;
 			break;
 		}
 		case NODE_TYPE::OPEN_OUTPUT_FILE:
@@ -371,7 +424,9 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			FILE* tf = fopen( fileName.c_str(), "wb" );
 			outstr = tf;
 			for ( auto& nodeIt: node.childNodes )
-				applyNode( nodeIt );
+//				applyNode( nodeIt );
+				if ( !applyNode( nodeIt ) )
+					return false;
 			outstr = nullptr;
 			break;
 		}
@@ -418,8 +473,17 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			}
 			break;
 		}
+		case NODE_TYPE::RETURN:
+		{
+			Stack stack;
+			evaluateExpression( node.expression, stack );
+			assert( stack.size() == 1 );
+			fromTemplate = stack[0];
+			return false;
+		}
 		case NODE_TYPE::INCLUDE:
 		{
+#if 0
 			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
 			assert( attr != node.attributes.end() );
 			auto& expr = attr->second;
@@ -436,8 +500,6 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 				assert( 0 ); // TODO: throw
 			}
 			// store current state of resolved params and locals
-//			map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
-//			map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
 			map<string, StackElement> resolvedParamPlaceholdersNew;
 			// load resolved names, if any
 			for ( const auto it:node.attributes )
@@ -447,10 +509,6 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 					Stack stack1;
 					evaluateExpression( expr1, stack1 );
 					assert( stack1.size() == 1 );
-//					assert( stack1[0].argtype == ARGTYPE::STRING );
-//					string resolved = stack1[0].lineParts[0].verbatim;
-//					resolvedParamPlaceholders.insert( make_pair( it.first.ext, resolved ) );
-//					resolvedParamPlaceholders.insert( make_pair( it.first.ext, move(stack1[0]) ) );
 					resolvedParamPlaceholdersNew.insert( make_pair( it.first.ext, move(stack1[0]) ) );
 				}
 			map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
@@ -460,7 +518,10 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			// restore ini content of resolved params and locals
 			resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersIni) );
 			resolvedLocalPlaceholders = map<string, StackElement>( std::move(resolvedLocalPlaceholdersIni) );
-//			resolvedParamPlaceholders.clear();
+#else
+			if ( !applyIncludeNode( node, false ) )
+				return false;
+#endif // 0
 			break;
 		}
 		case NODE_TYPE::INCLUDE_WITH:
@@ -515,6 +576,10 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 		}
 		case NODE_TYPE::LET:
 		{
+			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
+			if( attr != node.attributes.end() )
+				applyIncludeNode( node, true );
+
 			// load resolved names, if any
 			for ( const auto it:node.attributes )
 				if ( it.first.id == ATTRIBUTE::LOCAL )
@@ -523,9 +588,6 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 					Stack stack;
 					evaluateExpression( expr1, stack );
 					assert( stack.size() == 1 );
-//					assert( stack[0].argtype == ARGTYPE::STRING );
-//					string resolved = stack[0].lineParts[0].verbatim;
-//					pair<string, StackElement> tmp = 
 					resolvedLocalPlaceholders.erase( it.first.ext );
 					auto& insret = resolvedLocalPlaceholders.insert( make_pair( it.first.ext, std::move( stack[0] ) ) );
 					assert( insret.second );
@@ -583,6 +645,8 @@ void TemplateInstantiator::applyNode( TemplateNode& node )
 			assert( 0 == "ERROR: UNEXPECTED" );
 		}
 	}
+
+	return true;
 }
 
 TemplateInstantiator::StackElement TemplateInstantiator::placeholder( Placeholder ph )
@@ -600,6 +664,10 @@ TemplateInstantiator::StackElement TemplateInstantiator::placeholder( Placeholde
 		if ( findres != resolvedLocalPlaceholders.end() )
 //			return move(findres->second);
 			return findres->second;
+	}
+	else if ( ph.id == PLACEHOLDER::FROM_TEMPLATE )
+	{
+		return fromTemplate;
 	}
 
 	fmt::print( "\n" );

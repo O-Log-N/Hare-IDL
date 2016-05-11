@@ -148,7 +148,8 @@ protected:
 	virtual void execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID );
 	bool calcConditionOfIfNode( TemplateNode& ifNode );
 	void evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack );
-	void applyNode( TemplateNode& node );
+	bool applyNode( TemplateNode& node );
+	bool applyIncludeNode( TemplateNode& node, bool isReturning );
 	virtual string context();
 	string resolveLinePartsToString( const vector<LinePart>& lineParts );
 	string placeholderAsString( Placeholder ph );
@@ -157,6 +158,7 @@ protected:
 	TemplateNodeSpace& templateSpace;
 	map<string, StackElement> resolvedParamPlaceholders; // those starting from "@PARAM-"
 	map<string, StackElement> resolvedLocalPlaceholders; // those starting from "@LOCAL-"
+	StackElement fromTemplate;
 
 public:
 	TemplateInstantiator( TemplateNodeSpace& templateSpace_, FILE* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}

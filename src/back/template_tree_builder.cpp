@@ -114,8 +114,16 @@ void dbgPrintNode_( TemplateNode& node, int depth )
 		dbgPrintNode_( node.childNodes[i], depth + 1 );
 }
 
+void dbgVerifyReturningNodeDoesNoOutput( TemplateNode& node )
+{
+	assert( node.type != NODE_TYPE::CONTENT );
+//	assert( node.isReturning );
+	for ( size_t i=0; i<node.childNodes.size(); i++ )
+		dbgVerifyReturningNodeDoesNoOutput( node.childNodes[i] );
+}
+
 	
-bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t& flidx )
+bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t& flidx, bool& isReturning )
 {
 	for ( ; flidx<lines.size(); )
 	{
@@ -143,7 +151,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				TemplateNode nodeTrueBranch;
 				nodeTrueBranch.type = NODE_TYPE::IF_TRUE_BRANCH;
 				nodeTrueBranch.srcLineNum = lines[flidx].srcLineNum;
-				if ( !buildTemplateTree( nodeTrueBranch, lines, flidx ) )
+				if ( !buildTemplateTree( nodeTrueBranch, lines, flidx, isReturning ) )
 					return false;
 				node.childNodes.push_back( nodeTrueBranch );
 				// TODO: think about internal while( ELIF )
@@ -154,7 +162,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 					nodeFalseBranch.type = NODE_TYPE::IF_FALSE_BRANCH;
 					nodeFalseBranch.srcLineNum = lines[flidx].srcLineNum;
 					// no changes to flidx; we will repeat processing on the next level
-					if ( !buildTemplateTree( nodeFalseBranch, lines, flidx ) )
+					if ( !buildTemplateTree( nodeFalseBranch, lines, flidx, isReturning ) )
 						return false;
 					node.childNodes.push_back( nodeFalseBranch );
 				}
@@ -164,7 +172,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 					nodeFalseBranch.type = NODE_TYPE::IF_FALSE_BRANCH;
 					nodeFalseBranch.srcLineNum = lines[flidx].srcLineNum;
 					++flidx;
-					if ( !buildTemplateTree( nodeFalseBranch, lines, flidx ) )
+					if ( !buildTemplateTree( nodeFalseBranch, lines, flidx, isReturning ) )
 						return false;
 					node.childNodes.push_back( nodeFalseBranch );
 				}
@@ -212,6 +220,19 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				++flidx;
 				break;
 			}
+			case TemplateLine::LINE_TYPE::RETURN:
+			{
+				TemplateNode node;
+				node.type = NODE_TYPE::RETURN;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				node.expression = lines[flidx].expression;
+				node.isReturning = true;
+				isReturning = true;
+				assert( lines[flidx].attributes.size() == 0 ); // TODO: proper error reporting
+				root.childNodes.push_back( node );
+				++flidx;
+				break;
+			}
 			case TemplateLine::LINE_TYPE::LET:
 			{
 				TemplateNode node;
@@ -230,7 +251,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				node.srcLineNum = lines[flidx].srcLineNum;
 				node.attributes = lines[flidx].attributes;
 				++flidx;
-				if ( !buildTemplateTree( node, lines, flidx ) )
+				if ( !buildTemplateTree( node, lines, flidx, isReturning ) )
 					return false;
 				if ( lines[flidx].type != TemplateLine::LINE_TYPE::CLOSE_OUTPUT_FILE )
 				{
@@ -263,7 +284,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 						return false;
 					}
 					++flidx;
-					if ( !buildTemplateTree( node, lines, flidx ) )
+					if ( !buildTemplateTree( node, lines, flidx, isReturning ) )
 						return false;
 					bool isBegin1 = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} ) != lines[flidx].attributes.end();
 					bool isEnd1 = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
@@ -317,7 +338,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				node.srcLineNum = lines[flidx].srcLineNum;
 				node.attributes = lines[flidx].attributes;
 				++flidx;
-				if ( !buildTemplateTree( node, lines, flidx ) )
+				if ( !buildTemplateTree( node, lines, flidx, isReturning ) )
 					return false;
 				root.childNodes.push_back( node );
 				if ( lines[flidx].type != TemplateLine::LINE_TYPE::END_TEMPLATE )
@@ -375,7 +396,8 @@ bool loadTemplates( FILE* tf, TemplateNodeSpace& nodeSpace, int& currentLineNum 
 		if ( !ret )
 			break;
 		size_t flidx = 0;
-		ret = buildTemplateTree( rootNode, templateLines, flidx );
+		ret = buildTemplateTree( rootNode, templateLines, flidx, rootNode.isReturning );
+		rootNode.childNodes[0].isReturning = rootNode.isReturning;
 		nodeSpace.templates.push_back( rootNode.childNodes[0] );
 	}
 	return true;
