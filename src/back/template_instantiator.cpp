@@ -578,7 +578,15 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 		{
 			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
 			if( attr != node.attributes.end() )
+			{
+				// We expect here a returning template that assumes no output
+				// we need to check that it's a real case
+				// TODO: generalization required!!!
+				int currPos = fseek( outstr, 0, SEEK_CUR );
 				applyIncludeNode( node, true );
+				int newPos = fseek( outstr, 0, SEEK_CUR );
+				assert( currPos == newPos );
+			}
 
 			// load resolved names, if any
 			for ( const auto it:node.attributes )
