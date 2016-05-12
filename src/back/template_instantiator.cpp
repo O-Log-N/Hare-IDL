@@ -562,7 +562,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 #endif // 0
 			break;
 		}
-		case NODE_TYPE::INCLUDE_WITH:
+		case NODE_TYPE::FOR_SINGLE_INCLUDE_TEMPLATE:
 		{
 			Stack stack;
 
@@ -600,7 +600,8 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 					instantiator->resolvedParamPlaceholders.insert( make_pair( it.first.ext, move(stack1[0]) ) );
 				}
 #else
-	TemplateNode* tn = prepareDataForTemplateInclusion( instantiator, instantiator->resolvedParamPlaceholders, node, node.isReturning );
+			assert( node.childNodes.size() == 1 );
+			TemplateNode* tn = prepareDataForTemplateInclusion( instantiator, instantiator->resolvedParamPlaceholders, node.childNodes[0], node.isReturning );
 #endif
 
 			for ( auto nodeit:tn->childNodes )
@@ -608,6 +609,48 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 				instantiator->applyNode( nodeit );
 			}
 
+			delete instantiator; // TODO: think about wrapping it in unique_ptr instead
+
+			break;
+		}
+		case NODE_TYPE::FOR_SINGLE_ENTER_BLOCK:
+		{
+/*			Stack stack;
+
+			evaluateExpression( node.expression, stack );
+			assert( stack.size() == 1 );
+			assert( stack[0].argtype == ARGTYPE::OBJPTR );
+//			assert( stack[0].singleObject->resolvedParamPlaceholders.size() == 0 );
+			TemplateInstantiator* instantiator = stack[0].singleObject->create();
+			assert( instantiator->resolvedParamPlaceholders.size() == 0 );
+			stack.clear();
+			assert( node.childNodes.size() == 1 );
+			TemplateNode* tn = prepareDataForTemplateInclusion( instantiator, instantiator->resolvedParamPlaceholders, node.childNodes[0], node.isReturning );
+
+			for ( auto nodeit:tn->childNodes )
+			{
+				instantiator->applyNode( nodeit );
+			}
+
+			delete instantiator; // TODO: think about wrapping it in unique_ptr instead
+
+			break;*/
+			Stack stack;
+			evaluateExpression( node.expression, stack );
+			assert( stack.size() == 1 );
+			assert( stack[0].argtype == ARGTYPE::OBJPTR );
+			TemplateInstantiator* instantiator = stack[0].singleObject->create();
+			stack.clear();
+
+			// NOTE: we continue with the same template and with the same  lists of resolved locals and params
+			instantiator->resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholders) );
+			instantiator->resolvedLocalPlaceholders = map<string, StackElement>( std::move(resolvedLocalPlaceholders) );
+			for ( auto nodeit:node.childNodes )
+			{
+				instantiator->applyNode(nodeit );
+			}
+			resolvedParamPlaceholders = map<string, StackElement>( std::move(instantiator->resolvedParamPlaceholders) );
+			resolvedLocalPlaceholders = map<string, StackElement>( std::move(instantiator->resolvedLocalPlaceholders) );
 			delete instantiator; // TODO: think about wrapping it in unique_ptr instead
 
 			break;

@@ -197,17 +197,6 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				++flidx;
 				break;
 			}
-			case TemplateLine::LINE_TYPE::INCLUDE_WITH:
-			{
-				TemplateNode node;
-				node.type = NODE_TYPE::INCLUDE_WITH;
-				node.srcLineNum = lines[flidx].srcLineNum;
-				node.attributes = lines[flidx].attributes;
-				node.expression = lines[flidx].expression;
-				root.childNodes.push_back( node );
-				++flidx;
-				break;
-			}
 			case TemplateLine::LINE_TYPE::ASSERT:
 			{
 				TemplateNode node;
@@ -261,24 +250,42 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				root.childNodes.push_back( node );
 				break;
 			}
+			case TemplateLine::LINE_TYPE::FOR_SINGLE:
+/*			{
+				TemplateNode node;
+				node.type = NODE_TYPE::FOR_SINGLE_INCLUDE_TEMPLATE;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				node.attributes = lines[flidx].attributes;
+				node.expression = lines[flidx].expression;
+				root.childNodes.push_back( node );
+				++flidx;
+				break;
+			}*/
 			case TemplateLine::LINE_TYPE::FOR_EACH_OF:
 			{
+				assert( ltype == TemplateLine::LINE_TYPE::FOR_SINGLE || ltype == TemplateLine::LINE_TYPE::FOR_EACH_OF ); // just to make sure that we have not added anything else
 				bool isEnd = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
 				if ( isEnd )
 					return true; // it's upper level end or bullshit
 				TemplateNode node;
 				node.srcLineNum = lines[flidx].srcLineNum;
-				node.attributes = lines[flidx].attributes;
+//				node.attributes = lines[flidx].attributes;
 				node.expression = lines[flidx].expression;
 				// we may have include statement here, let's check
 				auto beginBlock = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} );
 				if ( beginBlock != lines[flidx].attributes.end() )
 				{
-					node.type = NODE_TYPE::FOR_EACH_OF_ENTER_BLOCK;
+					if ( lines[flidx].attributes.size() != 1 )
+					{
+						fmt::print( "line {}: error: {} BEGIN cannot be used with other parameters\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+						assert( 0 );
+						return false;
+					}
+					node.type = ltype == TemplateLine::LINE_TYPE::FOR_EACH_OF ? NODE_TYPE::FOR_EACH_OF_ENTER_BLOCK : NODE_TYPE::FOR_SINGLE_ENTER_BLOCK;
 					bool isBegin = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} ) != lines[flidx].attributes.end();
 					if ( !isBegin )
 					{
-						fmt::print( "line {}: error: FOR_EACH_OF has unexpected parameter set\n", lines[flidx].srcLineNum );
+						fmt::print( "line {}: error: {} has unexpected parameter set\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
 						assert( isBegin );
 						return false;
 					}
@@ -289,7 +296,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 					bool isEnd1 = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
 					if ( !isEnd1 )
 					{
-						fmt::print( "line {}: error: FOR_EACH_OF END expected\n", lines[flidx].srcLineNum );
+						fmt::print( "line {}: error: {} END expected\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
 						assert( isBegin1 );
 						return false;
 					}
@@ -298,11 +305,18 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				else
 				{
 					auto includeTemplate = lines[flidx].attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
-					node.type = NODE_TYPE::FOR_EACH_OF_INCLUDE_TEMPLATE;
+					if ( includeTemplate == lines[flidx].attributes.end() )
+					{
+						fmt::print( "line {}: error: {} assumes BEGIN or TEMPLATE parameter\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+						assert( 0 );
+						return false;
+					}
+					node.type = ltype == TemplateLine::LINE_TYPE::FOR_EACH_OF ? NODE_TYPE::FOR_EACH_OF_INCLUDE_TEMPLATE : NODE_TYPE::FOR_SINGLE_INCLUDE_TEMPLATE;
 					TemplateNode nodeIncludeTemplate;
 					nodeIncludeTemplate.type = NODE_TYPE::INCLUDE;
 					nodeIncludeTemplate.srcLineNum = lines[flidx].srcLineNum;
-					nodeIncludeTemplate.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEMPLATE, ""), includeTemplate->second ) );
+//					nodeIncludeTemplate.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEMPLATE, ""), includeTemplate->second ) );
+					nodeIncludeTemplate.attributes = lines[flidx].attributes;
 					node.childNodes.push_back( nodeIncludeTemplate );
 					++flidx;
 				}
