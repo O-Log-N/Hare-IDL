@@ -653,6 +653,59 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 			templateLines.push_back( tl );
 			continue;
 		}
+		else if ( tl.type == TemplateLine::LINE_TYPE::FOR_EACH )
+		{
+			if ( !startFound )
+			{
+				fmt::print( "line {}: error: unexpected tokens beyond templates\n", currentLineNum );
+				assert( 0 ); // TODO: throw
+			}
+			skipSpaces( line, pos );
+
+			size_t sz = line.size();
+			AttributeName attrName;
+			readAttributeName( line, pos, attrName, currentLineNum );
+			skipSpaces( line, pos );
+			if ( attrName.id == ATTRIBUTE::END )
+			{
+				if ( pos != sz )
+				{
+					fmt::print( "line {}: error: unexpected tokens following {}\n", currentLineNum, attributeNameToString( ATTRIBUTE::END ) );
+					assert( 0 ); // TODO: throw
+				}
+				continue;
+			}
+			if ( attrName.id != ATTRIBUTE::LOCAL )
+			{
+				fmt::print( "line {}: error: name of variable is expected\n", currentLineNum );
+				assert( 0 ); // TODO: throw
+			}
+			skipSpaces( line, pos );
+			if ( pos == sz )
+			{
+				fmt::print( "line {}: error: IN <expression> is expected\n", currentLineNum );
+				assert( 0 ); // TODO: throw
+			}
+
+			AttributeName nameIN = parseParam( line, pos );
+			if ( nameIN.id != ATTRIBUTE::IN )
+			{
+				fmt::print( "line {}: error: IN <expression> is expected\n", currentLineNum );
+				assert( 0 ); // TODO: throw
+			}
+			skipSpaces( line, pos );
+			if ( pos != sz )
+			{
+				fmt::print( "line {}: error: unexpected tokens following following expression\n", currentLineNum );
+				assert( 0 ); // TODO: throw
+			}
+
+			vector<ExpressionElement> expression;
+			readAttributeValue( line, pos, expression, currentLineNum );
+			tl.attributes.insert( make_pair(nameIN, expression ) );
+
+			continue;
+		}
 		else
 		{
 			if ( tl.type == TemplateLine::LINE_TYPE::BEGIN_TEMPLATE )

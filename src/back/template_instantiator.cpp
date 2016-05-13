@@ -684,6 +684,24 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 
 			break;
 		}
+		case NODE_TYPE::FOR_EACH:
+		{
+			Stack stack;
+			evaluateExpression( node.expression, stack );
+			assert( stack.size() == 1 ); // TODO: error reporting
+			assert( stack[0].argtype == ARGTYPE::ANY_LIST ); // TODO: error reporting
+			assert( node.attributes.size() == 1 );
+			auto& attr = node.attributes.begin();
+			assert( attr->first.id == ATTRIBUTE::LOCAL );
+			for ( auto& it:stack[0].anyList )
+			{
+				resolvedLocalPlaceholders.erase( attr->first.ext );
+				auto& insret = resolvedLocalPlaceholders.insert( make_pair( attr->first.ext, it ) );
+				for ( auto nodeit:node.childNodes )
+					applyNode( nodeit );
+			}
+			break;
+		}
 		case NODE_TYPE::FOR_EACH_OF_INCLUDE_TEMPLATE:
 		{
 			Stack stack;

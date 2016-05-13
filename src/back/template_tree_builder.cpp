@@ -250,17 +250,62 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				root.childNodes.push_back( node );
 				break;
 			}
-			case TemplateLine::LINE_TYPE::FOR_SINGLE:
-/*			{
+			case TemplateLine::LINE_TYPE::FOR_EACH:
+			{
+				bool isEnd = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
+				if ( isEnd )
+					return true; // it's upper level end or bullshit
+
+				if ( lines[flidx].expression.size() == 0 )
+				{
+					fmt::print( "line {}: error: {} expression expected\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+					assert( 0 );
+					return false;
+				}
+
 				TemplateNode node;
-				node.type = NODE_TYPE::FOR_SINGLE_INCLUDE_TEMPLATE;
+				node.type = NODE_TYPE::FOR_EACH;
 				node.srcLineNum = lines[flidx].srcLineNum;
-				node.attributes = lines[flidx].attributes;
 				node.expression = lines[flidx].expression;
-				root.childNodes.push_back( node );
+				int varCnt = 0;
+				for ( const auto it:lines[flidx].attributes )
+				{
+					if ( it.first.id == ATTRIBUTE::LOCAL )
+					{
+						if ( varCnt )
+						{
+							fmt::print( "line {}: error: {} assumes only a single iterator variable\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+							assert( 0 );
+							return false;
+						}
+						node.attributes.insert( it );
+						++varCnt;
+					}
+				}
+
+				if ( varCnt == 0 )
+				{
+					fmt::print( "line {}: error: {} requires an iterator variable to be specified\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+					assert( 0 );
+					return false;
+				}
+
 				++flidx;
+				if ( !buildTemplateTree( node, lines, flidx, isReturning ) )
+					return false;
+
+				bool isEnd1 = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
+				if ( !isEnd1 )
+				{
+					fmt::print( "line {}: error: {} END expected\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+					assert( 0 );
+					return false;
+				}
+				++flidx;
+
 				break;
-			}*/
+			}
+			case TemplateLine::LINE_TYPE::FOR_SINGLE:
 			case TemplateLine::LINE_TYPE::FOR_EACH_OF:
 			{
 				assert( ltype == TemplateLine::LINE_TYPE::FOR_SINGLE || ltype == TemplateLine::LINE_TYPE::FOR_EACH_OF ); // just to make sure that we have not added anything else
