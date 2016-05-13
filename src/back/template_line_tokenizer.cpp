@@ -673,6 +673,9 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 					fmt::print( "line {}: error: unexpected tokens following {}\n", currentLineNum, attributeNameToString( ATTRIBUTE::END ) );
 					assert( 0 ); // TODO: throw
 				}
+				vector<ExpressionElement> expr;
+				tl.attributes.insert( make_pair(attrName, expr ) );
+				templateLines.push_back( tl );
 				continue;
 			}
 			if ( attrName.id != ATTRIBUTE::LOCAL )
@@ -680,6 +683,8 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 				fmt::print( "line {}: error: name of variable is expected\n", currentLineNum );
 				assert( 0 ); // TODO: throw
 			}
+			vector<ExpressionElement> expr;
+			tl.attributes.insert( make_pair(attrName, expr ) );
 			skipSpaces( line, pos );
 			if ( pos == sz )
 			{
@@ -693,6 +698,8 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 				fmt::print( "line {}: error: IN <expression> is expected\n", currentLineNum );
 				assert( 0 ); // TODO: throw
 			}
+
+			readAttributeValue( line, pos, tl.expression, currentLineNum );
 			skipSpaces( line, pos );
 			if ( pos != sz )
 			{
@@ -700,10 +707,7 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 				assert( 0 ); // TODO: throw
 			}
 
-			vector<ExpressionElement> expression;
-			readAttributeValue( line, pos, expression, currentLineNum );
-			tl.attributes.insert( make_pair(nameIN, expression ) );
-
+			templateLines.push_back( tl );
 			continue;
 		}
 		else

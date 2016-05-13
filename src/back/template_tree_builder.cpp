@@ -302,6 +302,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 					return false;
 				}
 				++flidx;
+				root.childNodes.push_back( node );
 
 				break;
 			}
