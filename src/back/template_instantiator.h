@@ -121,6 +121,8 @@ protected:
 				}
 			}
 		}
+
+		// MAP FUNCTIONS
 		void insertToMap( const StackElement& key, const StackElement& value )
 		{
 			for ( auto& it:anyMap )
@@ -141,6 +143,12 @@ protected:
 				}
 			value.argtype = ARGTYPE::NO_ARGTYPE;
 		}
+		void appendToList( const StackElement& value )
+		{
+			anyList.push_back( value );
+		}
+
+		// LIST FUNCTIONS
 	};
 	typedef vector<StackElement> Stack;
 

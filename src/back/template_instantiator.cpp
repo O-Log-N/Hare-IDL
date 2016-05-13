@@ -100,6 +100,25 @@ void TemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTIO
 			stack.push_back( elem );
 			break;
 		}
+		case PREDEFINED_FUNCTION::CREATE_LIST:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::ANY_LIST;
+			stack.push_back( elem );
+			break;
+		}
+		case PREDEFINED_FUNCTION::APPEND_TO_LIST:
+		{
+			assert( stack.size() >= 3 ); // TODO: it's a common check. Think about generalization
+			bool res;
+			auto arg1 = stack.begin() + stack.size() - 2;
+			auto arg2 = stack.begin() + stack.size() - 1;
+			assert( arg1->argtype == ARGTYPE::ANY_LIST ); // TODO: report an error
+			arg1->appendToList( *arg2 );
+			stack.pop_back();
+			stack.pop_back();
+			break;
+		}
 		default:
 		{
 			// TODO: report an error
