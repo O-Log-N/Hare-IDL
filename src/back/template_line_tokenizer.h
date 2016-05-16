@@ -115,6 +115,8 @@ struct LinePart
 enum class PREDEFINED_FUNCTION
 {
 	NOT_A_FUNCTION,
+	STRUCT_NAME,
+	MAPPING_MEMBER_NAME,
 	MEMBERS,
 	PUBLISHABLE_STRUCTS,
 	MEMBER_TYPE,
@@ -155,6 +157,7 @@ struct PredefindedFunction
 	PREDEFINED_FUNCTION id;
 	size_t argC;
 	bool isMember;
+	bool isContextSpecific;
 };
 
 struct PredefindedOperator
@@ -183,7 +186,7 @@ struct ExpressionElement
 	// values below are used in case of PUSH operation
     double numberValue = 0; // argtype: ARGTYPE::NUMBER
 	vector<LinePart> lineParts; // used for ARGTYPE::STRING
-	PREDEFINED_FUNCTION fnCallID; // used for OPERATION::CALL
+	PredefindedFunction fn; // used for OPERATION::CALL
 	Placeholder ph; // used for OPERATION::PUSH, ARGTYPE::PLACEHOLDER
 };
 

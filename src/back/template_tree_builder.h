@@ -73,6 +73,9 @@ public:
 
 			if ( attrT->second[0].lineParts[0].verbatim == name && typeT->second[0].lineParts[0].verbatim == expectedType )
 				return &node;
+
+			if ( attrT->second[0].lineParts[0].verbatim == name && expectedType == "" )
+				return &node;
 		}
 		return nullptr;
 	}

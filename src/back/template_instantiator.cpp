@@ -16,6 +16,129 @@ Copyright (C) 2016 OLogN Technologies AG
 *******************************************************************************/
 
 #include "template_instantiator.h"
+#include "template_instantiator_derived.h"
+
+#if 1
+
+void TemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
+{
+	assert( 0 );
+/*	assert( stack.size() >= fn.argC );
+	if ( fn.isContextSpecific )
+	{
+		auto argContext = stack.begin() + stack.size() - fn.argC;
+		assert( argContext->argtype == ARGTYPE::OBJPTR );
+		Stack args( stack.begin() + stack.size() - fn.argC + 1, stack.end() );
+		argContext->singleObject->execBuiltinFunction( args, fn );
+	}
+	else
+	{
+		switch ( fn.id )
+		{
+			case PREDEFINED_FUNCTION::CREATE_MAP:
+			{
+				StackElement elem;
+				elem.argtype = ARGTYPE::ANY_MAP;
+				stack.push_back( elem );
+				break;
+			}
+			case PREDEFINED_FUNCTION::INSERT_TO_MAP:
+			{
+				assert( stack.size() >= 3 ); // TODO: it's a common check. Think about generalization
+				bool res;
+				auto arg1 = stack.begin() + stack.size() - 3;
+				auto arg2 = stack.begin() + stack.size() - 2;
+				auto arg3 = stack.begin() + stack.size() - 1;
+				assert( arg1->argtype == ARGTYPE::ANY_MAP ); // TODO: report an error
+				arg1->insertToMap( *arg2, *arg3 );
+				stack.pop_back();
+				stack.pop_back();
+				break;
+			}
+			case PREDEFINED_FUNCTION::FIND_IN_MAP:
+			{
+				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
+				bool res;
+				auto arg1 = stack.begin() + stack.size() - 2;
+				auto arg2 = stack.begin() + stack.size() - 1;
+				assert( arg1->argtype == ARGTYPE::ANY_MAP ); // TODO: report an error
+				StackElement elem;
+				arg1->findInMap( *arg2, elem );
+				stack.pop_back();
+				stack.pop_back();
+				stack.push_back( elem );
+				break;
+			}
+			case PREDEFINED_FUNCTION::CREATE_LIST:
+			{
+				StackElement elem;
+				elem.argtype = ARGTYPE::ANY_LIST;
+				stack.push_back( elem );
+				break;
+			}
+			case PREDEFINED_FUNCTION::APPEND_TO_LIST:
+			{
+				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
+				bool res;
+				auto arg1 = stack.begin() + stack.size() - 2;
+				auto arg2 = stack.begin() + stack.size() - 1;
+				assert( arg1->argtype == ARGTYPE::ANY_LIST ); // TODO: report an error
+				arg1->appendToList( *arg2 );
+				stack.pop_back();
+				break;
+			}
+			default:
+			{
+				// TODO: report an error
+				assert( 0 );
+			}
+		}
+	}*/
+}
+
+TemplateInstantiatorFactory::StackElement TemplateInstantiatorFactory::placeholder( Placeholder ph )
+{
+#if 0
+	if ( ph.id == PLACEHOLDER::PARAM_MINUS )
+	{
+		auto findres = resolvedParamPlaceholders.find( ph.specific );
+		if ( findres != resolvedParamPlaceholders.end() )
+//			return move(findres->second);
+			return findres->second;
+	}
+	else if ( ph.id == PLACEHOLDER::LOCAL_MINUS )
+	{
+		auto findres = resolvedLocalPlaceholders.find( ph.specific );
+		if ( findres != resolvedLocalPlaceholders.end() )
+//			return move(findres->second);
+			return findres->second;
+	}
+	else if ( ph.id == PLACEHOLDER::FROM_TEMPLATE )
+	{
+		return fromTemplate;
+	}
+#endif
+
+	fmt::print( "\n" );
+	fmt::print("error_placeholder {}\n", static_cast<int>(ph.id) );
+	assert( 0 );
+	StackElement se;
+	return move(se);
+}
+
+string TemplateInstantiatorFactory::context()
+{
+	fmt::print( "\n" );
+	fmt::print("error: context() available\n" );
+	assert( 0 );
+	return "";
+}
+
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 string TemplateInstantiator::placeholderAsString( Placeholder ph )
 {
@@ -62,66 +185,80 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart>& l
 	return ret;
 }
 
-void TemplateInstantiator::execBuiltinFunction( Stack& stack, PREDEFINED_FUNCTION fnID )
+void TemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
-	switch ( fnID )
+	assert( stack.size() >= fn.argC );
+	if ( fn.isContextSpecific )
 	{
-		case PREDEFINED_FUNCTION::CREATE_MAP:
+		auto argContext = stack.begin() + stack.size() - fn.argC - 1;
+		assert( argContext->argtype == ARGTYPE::OBJPTR );
+		Stack args( stack.begin() + stack.size() - fn.argC, stack.end() );
+		argContext->singleObject->execBuiltinFunction( args, fn );
+		stack.erase( stack.begin() + stack.size() - fn.argC - 1, stack.end() );
+		for ( auto it:args )
+			stack.push_back( it );
+	}
+	else
+	{
+		switch ( fn.id )
 		{
-			StackElement elem;
-			elem.argtype = ARGTYPE::ANY_MAP;
-			stack.push_back( elem );
-			break;
-		}
-		case PREDEFINED_FUNCTION::INSERT_TO_MAP:
-		{
-			assert( stack.size() >= 3 ); // TODO: it's a common check. Think about generalization
-			bool res;
-			auto arg1 = stack.begin() + stack.size() - 3;
-			auto arg2 = stack.begin() + stack.size() - 2;
-			auto arg3 = stack.begin() + stack.size() - 1;
-			assert( arg1->argtype == ARGTYPE::ANY_MAP ); // TODO: report an error
-			arg1->insertToMap( *arg2, *arg3 );
-			stack.pop_back();
-			stack.pop_back();
-			break;
-		}
-		case PREDEFINED_FUNCTION::FIND_IN_MAP:
-		{
-			assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
-			bool res;
-			auto arg1 = stack.begin() + stack.size() - 2;
-			auto arg2 = stack.begin() + stack.size() - 1;
-			assert( arg1->argtype == ARGTYPE::ANY_MAP ); // TODO: report an error
-			StackElement elem;
-			arg1->findInMap( *arg2, elem );
-			stack.pop_back();
-			stack.pop_back();
-			stack.push_back( elem );
-			break;
-		}
-		case PREDEFINED_FUNCTION::CREATE_LIST:
-		{
-			StackElement elem;
-			elem.argtype = ARGTYPE::ANY_LIST;
-			stack.push_back( elem );
-			break;
-		}
-		case PREDEFINED_FUNCTION::APPEND_TO_LIST:
-		{
-			assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
-			bool res;
-			auto arg1 = stack.begin() + stack.size() - 2;
-			auto arg2 = stack.begin() + stack.size() - 1;
-			assert( arg1->argtype == ARGTYPE::ANY_LIST ); // TODO: report an error
-			arg1->appendToList( *arg2 );
-			stack.pop_back();
-			break;
-		}
-		default:
-		{
-			// TODO: report an error
-			assert( 0 );
+			case PREDEFINED_FUNCTION::CREATE_MAP:
+			{
+				StackElement elem;
+				elem.argtype = ARGTYPE::ANY_MAP;
+				stack.push_back( elem );
+				break;
+			}
+			case PREDEFINED_FUNCTION::INSERT_TO_MAP:
+			{
+				assert( stack.size() >= 3 ); // TODO: it's a common check. Think about generalization
+				bool res;
+				auto arg1 = stack.begin() + stack.size() - 3;
+				auto arg2 = stack.begin() + stack.size() - 2;
+				auto arg3 = stack.begin() + stack.size() - 1;
+				assert( arg1->argtype == ARGTYPE::ANY_MAP ); // TODO: report an error
+				arg1->insertToMap( *arg2, *arg3 );
+				stack.pop_back();
+				stack.pop_back();
+				break;
+			}
+			case PREDEFINED_FUNCTION::FIND_IN_MAP:
+			{
+				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
+				bool res;
+				auto arg1 = stack.begin() + stack.size() - 2;
+				auto arg2 = stack.begin() + stack.size() - 1;
+				assert( arg1->argtype == ARGTYPE::ANY_MAP ); // TODO: report an error
+				StackElement elem;
+				arg1->findInMap( *arg2, elem );
+				stack.pop_back();
+				stack.pop_back();
+				stack.push_back( elem );
+				break;
+			}
+			case PREDEFINED_FUNCTION::CREATE_LIST:
+			{
+				StackElement elem;
+				elem.argtype = ARGTYPE::ANY_LIST;
+				stack.push_back( elem );
+				break;
+			}
+			case PREDEFINED_FUNCTION::APPEND_TO_LIST:
+			{
+				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
+				bool res;
+				auto arg1 = stack.begin() + stack.size() - 2;
+				auto arg2 = stack.begin() + stack.size() - 1;
+				assert( arg1->argtype == ARGTYPE::ANY_LIST ); // TODO: report an error
+				arg1->appendToList( *arg2 );
+				stack.pop_back();
+				break;
+			}
+			default:
+			{
+				// TODO: report an error
+				assert( 0 );
+			}
 		}
 	}
 }
@@ -225,7 +362,7 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 			}
 			case OPERATOR::CALL: 
 			{
-				execBuiltinFunction( stack, it.fnCallID );
+				execBuiltinFunction( stack, it.fn );
 				break;
 			}
 			case OPERATOR::ADD:
@@ -804,9 +941,27 @@ TemplateInstantiator::StackElement TemplateInstantiator::placeholder( Placeholde
 
 string TemplateInstantiator::context()
 {
-	fmt::print( "\n" );
-	fmt::print("error: context() available\n" );
-	assert( 0 );
+//	fmt::print( "\n" );
+//	fmt::print("error: context() available\n" );
+//	assert( 0 );
 	return "";
 }
 
+
+/////////////////////////////////////////////////////////////////////////
+
+
+void processStructures( BackRoot& structure, TemplateNodeSpace& templateSpace )
+{
+	TemplateInstantiator ti( templateSpace, nullptr );
+	TemplateNode* mainT = templateSpace.getTemplate( "MAIN", "ROOT" );
+	if ( mainT != nullptr )
+	{
+		RootTemplateInstantiatorFactory rtif( structure, templateSpace, nullptr );
+		TemplateInstantiator::StackElement se;
+		se.argtype = ARGTYPE::OBJPTR;
+		se.singleObject.reset( rtif.clone() );
+		ti.resolvedParamPlaceholders.insert( make_pair( "ROOT", se ) );
+		ti.applyNode( *mainT );
+	}
+}

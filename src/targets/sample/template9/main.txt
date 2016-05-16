@@ -1,0 +1,44 @@
+
+@@BEGIN-TEMPLATE NAME="MAIN" TYPE="ROOT"
+@@----- here in MAIN we magically have PARAM-ROOT defined
+@@OPEN-OUTPUT-FILE FILENAME="output.h"
+#include <simple_lib.h>
+
+// structures
+  @@------ we're about to call a new template; since instantiator is the same, we just pass a value of PARAM-ROOT there
+  @@INCLUDE TEMPLATE="SMART-DECLARING" PARAM-ROOT=PARAM-ROOT
+
+@@CLOSE-OUTPUT-FILE
+@@END-TEMPLATE NAME="MAIN"
+
+
+
+@@BEGIN-TEMPLATE NAME="SMART-DECLARING" TYPE="ROOT"
+@@----- here we have PARAM-ROOT supplied by caller
+@@----- PARAM-ROOT brings with itself (1) supplied PARAM-XXX's, and (2) a factory of a proper type. Also is a storage for all LOCAL-YYY's declared in this template
+
+@@----- the call below (.PUBLISHABLE-STRUCTS()) is processed as follows: PARAM-ROOT.MY-FACTORY.execBuiltinFunction( FN.ID = PUBLISHABLE-STRUCTS )
+@@----- this call is specific as MY-FACTORY (unlike PARAM-ROOT object) is of a specific type
+@@LET LOCAL-PUB-STRUCTS=PARAM-ROOT.PUBLISHABLE-STRUCTS()
+  
+  @@FOR-EACH LOCAL-PS-IT IN LOCAL-PUB-STRUCTS
+     @@------- new instantiator, and a new value is passed
+     @@INCLUDE TEMPLATE="MAP-S-CALLING" TYPE="STRUCT" PARAM-STRUCT=LOCAL-PS-IT PARAM-WHATEVER="param-whatever"
+  @@FOR-EACH END
+  
+@@END-TEMPLATE NAME="SMART-DECLARING"
+
+
+@@BEGIN-TEMPLATE NAME="MAP-S-CALLING" TYPE="STRUCT"
+@@----- here we have PARAM-ROOT supplied by caller
+@@----- also PARAM-WHATEVER with its value "param-whatever" is stored in the root object of this template
+@@LET LOCAL-STRUCT-NAME=PARAM-STRUCT.STRUCTURE-NAME()
+struct @LOCAL-STRUCT-NAME@ {
+@@FOR-EACH LOCAL-MEMBER-IT IN PARAM-STRUCT.MEMBERS()
+   @@--FOR-SINGLE LOCAL-MEMBER-IT.MEMBER-TYPE() TEMPLATE="MAP-TYPE" TYPE="DATATYPE"
+   @@LET LOCAL-MAPPING-MEMBER-NAME=LOCAL-MEMBER-IT.MAPPING-MEMBER-NAME()
+   @LOCAL-MAPPING-MEMBER-NAME@;
+@@FOR-EACH END
+};
+
+@@END-TEMPLATE NAME="MAP-S-CALLING"

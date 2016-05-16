@@ -71,7 +71,7 @@ void dbgPrintExpression( vector<ExpressionElement>& expression )
 		}
 		else if ( expression[i].oper == OPERATOR::CALL )
 		{
-			fmt::print( "{}() ", functionNameToString( expression[i].fnCallID ).c_str() );
+			fmt::print( "{}() ", functionNameToString( expression[i].fn.id ).c_str() );
 		}
 		else
 		{

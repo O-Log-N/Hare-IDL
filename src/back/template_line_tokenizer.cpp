@@ -198,7 +198,7 @@ bool parseIdentifier( const string& line, size_t& currentPos, vector<ExpressionE
 				++currentPos; // for opening '('
 				ExpressionElement fncall;
 				fncall.oper = OPERATOR::CALL;
-				fncall.fnCallID = fn.id;
+				fncall.fn = fn;
 				postfixOperations.push_back( fncall );
 				skipSpaces( line, currentPos );
 				int argCnt = 0;

@@ -45,7 +45,8 @@ void idlcBackEnd( Root& root )
 
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template6/main.txt", "rb" );
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template7/main.txt", "rb" );
-	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template8/main.txt", "rb" );
+//	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template8/main.txt", "rb" );
+	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template9/main.txt", "rb" );
 	if ( tf == NULL )
 	{
 		fmt::print( "failed to open template file\n" );
@@ -62,7 +63,8 @@ void idlcBackEnd( Root& root )
 
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template6/mapping.txt", "rb" );
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template7/mapping.txt", "rb" );
-	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template8/mapping.txt", "rb" );
+//	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template8/mapping.txt", "rb" );
+//	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template9/mapping.txt", "rb" );
 	if ( tf == NULL )
 	{
 		fmt::print( "failed to open template file\n" );
@@ -79,7 +81,8 @@ void idlcBackEnd( Root& root )
 
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template6/encoding.txt", "rb" );
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template7/encoding.txt", "rb" );
-	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template8/encoding.txt", "rb" );
+//	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template8/encoding.txt", "rb" );
+//	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template9/encoding.txt", "rb" );
 	if ( tf == NULL )
 	{
 		fmt::print( "failed to open template file\n" );
@@ -94,5 +97,6 @@ void idlcBackEnd( Root& root )
 	dbgPrintTemplateTrees( nodeSpace );
 	fmt::print( "\n\n" );
 
-	apply( backRoot, nodeSpace );
+//	apply( backRoot, nodeSpace );
+	processStructures( backRoot, nodeSpace );
 }
