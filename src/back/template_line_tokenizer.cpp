@@ -46,12 +46,15 @@ bool readLine( FILE* tf, string& line, int& currentLineNum )
 	return somethingFound;
 }
 
-void readLineParts( const string& line, size_t& currentPos, vector<LinePart>& parts, string terminator = "" )
+void parseExpression( const string& line, size_t& currentPos, vector<ExpressionElement>& expression, int currentLineNum );
+
+void readLineParts( const string& line, size_t& currentPos, vector<LinePart2>& parts, int currentLineNum, string terminator = "" )
 {
 	// we have to go char by char; if '@' is found, make sure it's not a placeholder, or replace it accordingly
-	LinePart part;
+	LinePart2 part;
 	size_t sz = line.size();
-	part.type = PLACEHOLDER::VERBATIM;
+//	part.type = PLACEHOLDER::VERBATIM;
+	part.isVerbatim = true;
 	do
 	{
 		if ( terminator.size() )
@@ -70,6 +73,7 @@ void readLineParts( const string& line, size_t& currentPos, vector<LinePart>& pa
 		else
 		{
 			++currentPos;
+#if 0
 			Placeholder placehldr = parsePlaceholder( line, currentPos );
 			if ( placehldr.id == PLACEHOLDER::VERBATIM )
 			{
@@ -92,18 +96,36 @@ void readLineParts( const string& line, size_t& currentPos, vector<LinePart>& pa
 			{
 				part.verbatim.push_back( '@' ); 
 			}
+#else
+			assert( part.isVerbatim );
+			if ( part.verbatim.size() )
+				parts.push_back( part ); 
+			part.verbatim.clear(); 
+			part.isVerbatim = false;
+			parseExpression( line, currentPos, part.expr, currentLineNum );
+			skipSpaces( line, currentPos );
+			if ( line[ currentPos ] != '@' )
+			{
+				fmt::print( "line {}: cannot parse embedded expression\n", currentLineNum );
+				assert( 0 ); // TODO: throw
+			}
+			++currentPos; //for terminating @
+			parts.push_back( part ); 
+			part.isVerbatim = true; // restore
+			part.expr.clear(); 
+#endif // 0
 		}
 	}
 	while ( currentPos < sz );
 
 	if ( part.verbatim.size() )
 	{
-		assert( part.type == PLACEHOLDER::VERBATIM );
+//		assert( part.type == PLACEHOLDER::VERBATIM );
+		assert( part.isVerbatim );
 		parts.push_back( part ); 
 	}
 }
 
-void parseExpression( const string& line, size_t& currentPos, vector<ExpressionElement>& expression, int currentLineNum );
 bool parseIdentifier( const string& line, size_t& currentPos, vector<ExpressionElement>& expression, int currentLineNum, vector<ExpressionElement>& postfixOperations, size_t prevPos, bool memberFnCallExpected )
 {
 		if ( ( line[currentPos] >= 'a' && line[currentPos] <= 'z' ) || 
@@ -270,7 +292,7 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 			ExpressionElement elem;
 			elem.oper = OPERATOR::PUSH;
 			elem.argtype = ARGTYPE::STRING;
-			readLineParts( line, currentPos, elem.lineParts, "\"" );
+			readLineParts( line, currentPos, elem.lineParts, currentLineNum, "\"" );
 			if ( line[currentPos] != '\"' )
 			{
 				fmt::print( "line {}: error: string runs away (lost terminating '\"')\n", currentLineNum );
@@ -508,7 +530,7 @@ void formVerbatimLine( const string& line, TemplateLine& tl, int currentLineNum 
 	ExpressionElement arg;
 	arg.oper = OPERATOR::PUSH;
 	arg.argtype = ARGTYPE::STRING;
-	readLineParts( line, currentPos, arg.lineParts );
+	readLineParts( line, currentPos, arg.lineParts, currentLineNum );
 	vector<ExpressionElement> expression;
 	expression.push_back( arg );
 	

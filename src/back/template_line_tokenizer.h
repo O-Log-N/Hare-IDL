@@ -105,13 +105,13 @@ struct Placeholder
 	PLACEHOLDER id;
 	string specific;
 };
-
+/*
 struct LinePart
 {
 	PLACEHOLDER type;
 	string verbatim;
 };
-
+*/
 enum class PREDEFINED_FUNCTION
 {
 	NOT_A_FUNCTION,
@@ -179,13 +179,22 @@ enum class ARGTYPE
 	ANY_LIST,
 };
 
+struct ExpressionElement;
+struct LinePart2
+{
+	bool isVerbatim;
+	string verbatim;
+	vector<ExpressionElement> expr;
+};
+
 struct ExpressionElement
 {
 	OPERATOR oper;
     ARGTYPE argtype = ARGTYPE::NO_ARGTYPE; // for operation PUSH: any but NONE
 	// values below are used in case of PUSH operation
     double numberValue = 0; // argtype: ARGTYPE::NUMBER
-	vector<LinePart> lineParts; // used for ARGTYPE::STRING
+//	vector<LinePart> lineParts; // used for ARGTYPE::STRING
+	vector<LinePart2> lineParts; // used for ARGTYPE::STRING
 	PredefindedFunction fn; // used for OPERATION::CALL
 	Placeholder ph; // used for OPERATION::PUSH, ARGTYPE::PLACEHOLDER
 };

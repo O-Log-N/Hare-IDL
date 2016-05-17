@@ -149,7 +149,7 @@ string TemplateInstantiator::placeholderAsString( Placeholder ph )
 		case ARGTYPE::STRING: 
 		{
 			assert( se.lineParts.size() == 1 );
-			assert( se.lineParts[0].type == PLACEHOLDER::VERBATIM );
+			assert( se.lineParts[0].isVerbatim );
 			return se.lineParts[0].verbatim;
 		}
 		case ARGTYPE::NUMBER: 
@@ -169,17 +169,30 @@ string TemplateInstantiator::placeholderAsString( Placeholder ph )
 	}
 }
 
-string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart>& lineParts )
+string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart2>& lineParts )
 {
 	string ret;
 	for ( auto lp:lineParts )
 	{
-		if ( lp.type == PLACEHOLDER::VERBATIM )
+		if ( lp.isVerbatim )
 			ret += lp.verbatim;
 		else
 		{
+#if 0
 			Placeholder ph = {lp.type, lp.verbatim};
 			ret += placeholderAsString( ph );
+#else
+			Stack stack;
+			evaluateExpression( lp.expr, stack );
+			assert( stack.size() == 1 );
+			if ( stack[0].argtype == ARGTYPE::STRING )
+			{
+				if ( stack[0].lineParts.size() == 1 && stack[0].lineParts[0].isVerbatim )
+					ret += stack[0].lineParts[0].verbatim;
+				else
+					ret += resolveLinePartsToString( stack[0].lineParts );
+			}
+#endif
 		}
 	}
 	return ret;
@@ -277,8 +290,8 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 				{
 					case ARGTYPE::STRING:
 					{
-						LinePart part;
-						part.type = PLACEHOLDER::VERBATIM;
+						LinePart2 part;
+						part.isVerbatim = true;
 						part.verbatim = resolveLinePartsToString( it.lineParts );
 						se.lineParts.push_back( part );
 						break;
@@ -374,11 +387,11 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 				if ( arg1->argtype == ARGTYPE::STRING && arg2->argtype == ARGTYPE::STRING )
 				{
 					assert( arg1->lineParts.size() == 1 );
-					assert( arg1->lineParts[0].type == PLACEHOLDER::VERBATIM );
+					assert( arg1->lineParts[0].isVerbatim );
 					assert( arg2->lineParts.size() == 1 );
-					assert( arg2->lineParts[0].type == PLACEHOLDER::VERBATIM );
-					LinePart lp;
-					lp.type = PLACEHOLDER::VERBATIM;
+					assert( arg2->lineParts[0].isVerbatim );
+					LinePart2 lp;
+					lp.isVerbatim = true;
 					lp.verbatim = arg1->lineParts[0].verbatim + arg2->lineParts[0].verbatim;
 					se.argtype = ARGTYPE::STRING;
 					se.lineParts.push_back( lp );

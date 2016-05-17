@@ -33,7 +33,7 @@ public:
 		ARGTYPE argtype = ARGTYPE::NO_ARGTYPE; // for operation PUSH: any but NONE
 		double numberValue = 0; // argtype: ARGTYPE::NUMBER
 		bool boolValue = false; // argtype: ARGTYPE::BOOL
-		vector<LinePart> lineParts; // used for ARGTYPE::STRING
+		vector<LinePart2> lineParts; // used for ARGTYPE::STRING
 		unique_ptr<TemplateInstantiatorFactory> singleObject = nullptr; // used for ARGTYPE::OBJPTR
 		vector<pair<StackElement, StackElement>> anyMap; // used for ARGTYPE::ANY_MAP
 		vector<StackElement> anyList; // used for ARGTYPE::ANY_LIST
@@ -81,12 +81,12 @@ public:
 				case ARGTYPE::BOOL: return boolValue == other.boolValue; 
 				case ARGTYPE::STRING:
 				{
-					// NOTE: we implement here a strict approach
+					// NOTE: we implement here a strict approach when all expressions inside a string are already calculated
 					size_t sz = lineParts.size();
 					if ( sz != other.lineParts.size() )
 						return false;
 					for ( size_t i=0; i<sz; ++i )
-						if ( !( lineParts[i].type == other.lineParts[i].type && lineParts[i].verbatim == other.lineParts[i].verbatim ) )
+						if ( !( lineParts[i].isVerbatim && other.lineParts[i].isVerbatim && lineParts[i].verbatim == other.lineParts[i].verbatim ) )
 							return false;
 					return true;
 				}
@@ -298,7 +298,7 @@ protected:
 	bool applyNode( TemplateNode& node );
 	bool applyIncludeNode( TemplateNode& node, bool isReturning );
 	TemplateNode* prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, TemplateInstantiatorFactory::StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isReturning );
-	string resolveLinePartsToString( const vector<LinePart>& lineParts );
+	string resolveLinePartsToString( const vector<LinePart2>& lineParts );
 	string placeholderAsString( Placeholder ph );
 #endif // 0
 	virtual string context();

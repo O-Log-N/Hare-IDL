@@ -26,9 +26,10 @@ void dbgPrintIndent( int depth )
 		fmt::print( " . " );
 }
 
-void dbgPrintLineParts( vector<LinePart>& parts )
+void dbgPrintLineParts( vector<LinePart2>& parts )
 {
 	size_t i;
+#if 0
 	for ( i=0; i<parts.size(); i++ )
 	{
 		if ( parts[i].type == PLACEHOLDER::VERBATIM )
@@ -40,6 +41,7 @@ void dbgPrintLineParts( vector<LinePart>& parts )
 			fmt::print( "@{}@", placeholderStr.c_str() );
 		}
 	}
+#endif
 }
 
 void dbgPrintExpression( vector<ExpressionElement>& expression )
@@ -382,7 +384,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 					if ( nameOK )
 						nameOK = expr[0].lineParts.size() == 1;
 					if ( nameOK )
-						nameOK = expr[0].lineParts[0].type == PLACEHOLDER::VERBATIM;
+						nameOK = expr[0].lineParts[0].isVerbatim;
 					if ( nameOK )
 						templateName = expr[0].lineParts[0].verbatim;
 					if ( !nameOK )
@@ -415,7 +417,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 					if ( nameOK )
 						nameOK = expr[0].lineParts.size() == 1;
 					if ( nameOK )
-						nameOK = expr[0].lineParts[0].type == PLACEHOLDER::VERBATIM;
+						nameOK = expr[0].lineParts[0].isVerbatim;
 					if ( nameOK )
 						closingTemplateName = expr[0].lineParts[0].verbatim;
 

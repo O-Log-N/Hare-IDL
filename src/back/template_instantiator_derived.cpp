@@ -84,10 +84,11 @@ void RootTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Predefi
 
 StructTemplateInstantiatorFactory::StackElement StructTemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
+#if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
-	LinePart lp;
-	lp.type = PLACEHOLDER::VERBATIM;
+	LinePart2 lp;
+	lp.isVerbatim = true;
 	switch( ph.id )
 	{
 		case PLACEHOLDER::STRUCT_NAME:
@@ -101,6 +102,10 @@ StructTemplateInstantiatorFactory::StackElement StructTemplateInstantiatorFactor
 			return TemplateInstantiatorFactory::placeholder( ph );
 		}
 	}
+#else
+	StackElement se;
+	return se;
+#endif // 0
 }
 
 void StructTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
@@ -109,8 +114,8 @@ void StructTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Prede
 	{
 		case PREDEFINED_FUNCTION::STRUCT_NAME:
 		{
-			LinePart lp;
-			lp.type = PLACEHOLDER::VERBATIM;
+			LinePart2 lp;
+			lp.isVerbatim = true;
 			lp.verbatim = structure->name;
 			StackElement elem;
 			elem.argtype = ARGTYPE::STRING;
@@ -156,6 +161,7 @@ void StructTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Prede
 
 StructTemplateInstantiatorFactory::StackElement StructMemberTemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
+#if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
 	LinePart lp;
@@ -205,6 +211,10 @@ StructTemplateInstantiatorFactory::StackElement StructMemberTemplateInstantiator
 			return TemplateInstantiatorFactory::placeholder( ph );
 		}
 	}
+#else
+	StackElement se;
+	return se;
+#endif // 0
 }
 
 void StructMemberTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
@@ -214,8 +224,8 @@ void StructMemberTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack,
 		case PREDEFINED_FUNCTION::MAPPING_MEMBER_NAME:
 		{
 			assert( member->mappingRepresentation != nullptr );
-			LinePart lp;
-			lp.type = PLACEHOLDER::VERBATIM;
+			LinePart2 lp;
+			lp.isVerbatim = true;
 			lp.verbatim = dynamic_cast<BackDataMember*>(member->mappingRepresentation)->name;
 			StackElement elem;
 			elem.argtype = ARGTYPE::STRING;
@@ -254,6 +264,7 @@ void StructMemberTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack,
 
 StructTemplateInstantiatorFactory::StackElement MemberTypeTemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
+#if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
 	LinePart lp;
@@ -283,6 +294,10 @@ StructTemplateInstantiatorFactory::StackElement MemberTypeTemplateInstantiatorFa
 			return TemplateInstantiatorFactory::placeholder( ph );
 		}
 	}
+#else
+	StackElement se;
+	return se;
+#endif // 0
 }
 
 void MemberTypeTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
@@ -524,6 +539,7 @@ void MemberTypeTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, P
 
 StructTemplateInstantiatorFactory::StackElement EnumValueTemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
+#if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
 	LinePart lp;
@@ -553,6 +569,10 @@ StructTemplateInstantiatorFactory::StackElement EnumValueTemplateInstantiatorFac
 			return TemplateInstantiatorFactory::placeholder( ph );
 		}
 	}
+#else
+	StackElement se;
+	return se;
+#endif // 0
 }
 
 void EnumValueTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
@@ -572,6 +592,7 @@ void EnumValueTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Pr
 
 StructTemplateInstantiatorFactory::StackElement DiscriminatedUnionTemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
+#if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
 	LinePart lp;
@@ -595,6 +616,10 @@ StructTemplateInstantiatorFactory::StackElement DiscriminatedUnionTemplateInstan
 			return TemplateInstantiatorFactory::placeholder( ph );
 		}
 	}
+#else
+	StackElement se;
+	return se;
+#endif // 0
 }
 
 void DiscriminatedUnionTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
@@ -717,6 +742,7 @@ void DiscriminatedUnionTemplateInstantiatorFactory::execBuiltinFunction( Stack& 
 
 StructTemplateInstantiatorFactory::StackElement DiscriminatedUnionOptionTemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
+#if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
 	LinePart lp;
@@ -746,6 +772,10 @@ StructTemplateInstantiatorFactory::StackElement DiscriminatedUnionOptionTemplate
 			return TemplateInstantiatorFactory::placeholder( ph );
 		}
 	}
+#else
+	StackElement se;
+	return se;
+#endif // 0
 }
 
 void DiscriminatedUnionOptionTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
@@ -845,6 +875,7 @@ void RootTemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFun
 
 StructTemplateInstantiator::StackElement StructTemplateInstantiator::placeholder( Placeholder ph )
 {
+#if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
 	LinePart lp;
@@ -862,6 +893,10 @@ StructTemplateInstantiator::StackElement StructTemplateInstantiator::placeholder
 			return TemplateInstantiator::placeholder( ph );
 		}
 	}
+#else
+	StackElement se;
+	return se;
+#endif // 0
 }
 
 void StructTemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
@@ -906,6 +941,7 @@ void StructTemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedF
 
 StructTemplateInstantiator::StackElement StructMemberTemplateInstantiator::placeholder( Placeholder ph )
 {
+#if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
 	LinePart lp;
@@ -955,6 +991,10 @@ StructTemplateInstantiator::StackElement StructMemberTemplateInstantiator::place
 			return TemplateInstantiator::placeholder( ph );
 		}
 	}
+#else
+	StackElement se;
+	return se;
+#endif // 0
 }
 
 void StructMemberTemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
@@ -992,6 +1032,7 @@ void StructMemberTemplateInstantiator::execBuiltinFunction( Stack& stack, Predef
 
 StructTemplateInstantiator::StackElement MemberTypeTemplateInstantiator::placeholder( Placeholder ph )
 {
+#if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
 	LinePart lp;
@@ -1021,6 +1062,10 @@ StructTemplateInstantiator::StackElement MemberTypeTemplateInstantiator::placeho
 			return TemplateInstantiator::placeholder( ph );
 		}
 	}
+#else
+	StackElement se;
+	return se;
+#endif // 0
 }
 
 void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
@@ -1262,6 +1307,7 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, Predefin
 
 StructTemplateInstantiator::StackElement EnumValueTemplateInstantiator::placeholder( Placeholder ph )
 {
+#if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
 	LinePart lp;
@@ -1291,6 +1337,10 @@ StructTemplateInstantiator::StackElement EnumValueTemplateInstantiator::placehol
 			return TemplateInstantiator::placeholder( ph );
 		}
 	}
+#else
+	StackElement se;
+	return se;
+#endif // 0
 }
 
 void EnumValueTemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
@@ -1310,6 +1360,7 @@ void EnumValueTemplateInstantiator::execBuiltinFunction( Stack& stack, Predefind
 
 StructTemplateInstantiator::StackElement DiscriminatedUnionTemplateInstantiator::placeholder( Placeholder ph )
 {
+#if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
 	LinePart lp;
@@ -1333,6 +1384,10 @@ StructTemplateInstantiator::StackElement DiscriminatedUnionTemplateInstantiator:
 			return TemplateInstantiator::placeholder( ph );
 		}
 	}
+#else
+	StackElement se;
+	return se;
+#endif // 0
 }
 
 void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
@@ -1455,6 +1510,7 @@ void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, 
 
 StructTemplateInstantiator::StackElement DiscriminatedUnionOptionTemplateInstantiator::placeholder( Placeholder ph )
 {
+#if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
 	LinePart lp;
@@ -1484,6 +1540,10 @@ StructTemplateInstantiator::StackElement DiscriminatedUnionOptionTemplateInstant
 			return TemplateInstantiator::placeholder( ph );
 		}
 	}
+#else
+	StackElement se;
+	return se;
+#endif // 0
 }
 
 void DiscriminatedUnionOptionTemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunction fn )

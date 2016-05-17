@@ -60,7 +60,7 @@ public:
 			assert( attrT->second[0].oper == OPERATOR::PUSH );
 			assert( attrT->second[0].argtype == ARGTYPE::STRING );
 			assert( attrT->second[0].lineParts.size() == 1 );
-			assert( attrT->second[0].lineParts[0].type == PLACEHOLDER::VERBATIM );
+			assert( attrT->second[0].lineParts[0].isVerbatim );
 
 			auto typeT = node.attributes.find( {ATTRIBUTE::TYPE, ""} );
 			assert( typeT != node.attributes.end() );
@@ -69,7 +69,7 @@ public:
 			assert( typeT->second[0].argtype == ARGTYPE::STRING );
 			assert( typeT->second[0].lineParts.size() == 1 );
 			assert( typeT->second[0].lineParts.size() == 1 );
-			assert( typeT->second[0].lineParts[0].type == PLACEHOLDER::VERBATIM );
+			assert( typeT->second[0].lineParts[0].isVerbatim);
 
 			if ( attrT->second[0].lineParts[0].verbatim == name && typeT->second[0].lineParts[0].verbatim == expectedType )
 				return &node;
