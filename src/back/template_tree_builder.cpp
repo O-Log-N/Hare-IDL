@@ -26,22 +26,27 @@ void dbgPrintIndent( int depth )
 		fmt::print( " . " );
 }
 
+void dbgPrintExpression( vector<ExpressionElement>& expression );
 void dbgPrintLineParts( vector<LinePart2>& parts )
 {
 	size_t i;
-#if 0
 	for ( i=0; i<parts.size(); i++ )
 	{
-		if ( parts[i].type == PLACEHOLDER::VERBATIM )
+		if ( parts[i].isVerbatim )
 			fmt::print( "{}", parts[i].verbatim.c_str() );
 		else
 		{
+#if 0
 			Placeholder ph = {parts[i].type, parts[i].verbatim};
 			string placeholderStr = placeholderToString( ph );
 			fmt::print( "@{}@", placeholderStr.c_str() );
+#else
+			fmt::print( "@" );
+			dbgPrintExpression( parts[i].expr );
+			fmt::print( "@" );
+#endif
 		}
 	}
-#endif
 }
 
 void dbgPrintExpression( vector<ExpressionElement>& expression )
