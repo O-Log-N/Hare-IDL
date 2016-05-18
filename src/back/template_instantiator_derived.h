@@ -20,7 +20,7 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "template_instantiator.h"
 
-
+#if 0
 class RootTemplateInstantiator : public TemplateInstantiator
 {
 protected:
@@ -40,6 +40,7 @@ public:
 			applyNode( *mainT );
 	}
 };
+#endif
 
 class RootTemplateInstantiatorFactory : public TemplateInstantiatorFactory
 {
@@ -60,6 +61,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+#if 0
 class StructTemplateInstantiator : public TemplateInstantiator
 {
 protected:
@@ -72,6 +74,7 @@ protected:
 public:
 	StructTemplateInstantiator( const BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), structure( &currentStruct ) {}
 };
+#endif
 
 class  StructTemplateInstantiatorFactory : public TemplateInstantiatorFactory
 {
@@ -92,6 +95,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+#if 0
 class StructMemberTemplateInstantiator : public TemplateInstantiator
 {
 protected:
@@ -104,6 +108,7 @@ protected:
 public:
 	StructMemberTemplateInstantiator( const BackDataMember& currentMember, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), member( &currentMember ) {}
 };
+#endif
 
 class  StructMemberTemplateInstantiatorFactory : public TemplateInstantiatorFactory
 {
@@ -124,6 +129,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+#if 0
 class MemberTypeTemplateInstantiator : public TemplateInstantiator
 {
 protected:
@@ -136,6 +142,7 @@ protected:
 public:
 	MemberTypeTemplateInstantiator( const DataType& currentDataType, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), dataType( &currentDataType ) {}
 };
+#endif
 
 class  MemberTypeTemplateInstantiatorFactory : public TemplateInstantiatorFactory
 {
@@ -156,6 +163,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+#if 0
 class EnumValueTemplateInstantiator : public TemplateInstantiator
 {
 protected:
@@ -172,6 +180,7 @@ public:
 	EnumValueTemplateInstantiator( const string& currentName, uint32_t currentIdlValue, uint32_t currentMappingValue, uint32_t currentEncodingValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : 
 		TemplateInstantiator( templateSpace_, outStr ), name( currentName ), idlValue( currentIdlValue ), mappingValue( currentMappingValue ), encodingValue( currentEncodingValue ) {}
 };
+#endif
 
 class  EnumValueTemplateInstantiatorFactory : public TemplateInstantiatorFactory
 {
@@ -196,6 +205,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+#if 0
 class DiscriminatedUnionTemplateInstantiator : public TemplateInstantiator
 {
 protected:
@@ -208,6 +218,7 @@ protected:
 public:
 	DiscriminatedUnionTemplateInstantiator( const BackStructure& currentStruct, TemplateNodeSpace& templateSpace_, FILE* outStr ) : TemplateInstantiator( templateSpace_, outStr ), structure( &currentStruct ) {}
 };
+#endif
 
 class  DiscriminatedUnionTemplateInstantiatorFactory : public TemplateInstantiatorFactory
 {
@@ -227,7 +238,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+#if 0
 class DiscriminatedUnionOptionTemplateInstantiator : public TemplateInstantiator
 {
 protected:
@@ -246,6 +257,7 @@ public:
 	DiscriminatedUnionOptionTemplateInstantiator( const BackDataMember& currentBaseEnum, const vector<const BackDataMember*>& currentUsedMembers, const string& currentEnumValueName, uint32_t currentIdlValue, uint32_t currentMappingValue, uint32_t currentEncodingValue, TemplateNodeSpace& templateSpace_, FILE* outStr ) : 
 		TemplateInstantiator( templateSpace_, outStr ), usedMembers( currentUsedMembers ), baseEnum( &currentBaseEnum ), enumValueName( currentEnumValueName ), idlValue( currentIdlValue ), mappingValue( currentMappingValue ), encodingValue( currentEncodingValue ) {}
 };
+#endif
 
 class  DiscriminatedUnionOptionTemplateInstantiatorFactory : public TemplateInstantiatorFactory
 {

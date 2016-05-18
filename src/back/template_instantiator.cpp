@@ -18,107 +18,13 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_instantiator.h"
 #include "template_instantiator_derived.h"
 
-#if 1
-
 void TemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
 	assert( 0 );
-/*	assert( stack.size() >= fn.argC );
-	if ( fn.isContextSpecific )
-	{
-		auto argContext = stack.begin() + stack.size() - fn.argC;
-		assert( argContext->argtype == ARGTYPE::OBJPTR );
-		Stack args( stack.begin() + stack.size() - fn.argC + 1, stack.end() );
-		argContext->singleObject->execBuiltinFunction( args, fn );
-	}
-	else
-	{
-		switch ( fn.id )
-		{
-			case PREDEFINED_FUNCTION::CREATE_MAP:
-			{
-				StackElement elem;
-				elem.argtype = ARGTYPE::ANY_MAP;
-				stack.push_back( elem );
-				break;
-			}
-			case PREDEFINED_FUNCTION::INSERT_TO_MAP:
-			{
-				assert( stack.size() >= 3 ); // TODO: it's a common check. Think about generalization
-				bool res;
-				auto arg1 = stack.begin() + stack.size() - 3;
-				auto arg2 = stack.begin() + stack.size() - 2;
-				auto arg3 = stack.begin() + stack.size() - 1;
-				assert( arg1->argtype == ARGTYPE::ANY_MAP ); // TODO: report an error
-				arg1->insertToMap( *arg2, *arg3 );
-				stack.pop_back();
-				stack.pop_back();
-				break;
-			}
-			case PREDEFINED_FUNCTION::FIND_IN_MAP:
-			{
-				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
-				bool res;
-				auto arg1 = stack.begin() + stack.size() - 2;
-				auto arg2 = stack.begin() + stack.size() - 1;
-				assert( arg1->argtype == ARGTYPE::ANY_MAP ); // TODO: report an error
-				StackElement elem;
-				arg1->findInMap( *arg2, elem );
-				stack.pop_back();
-				stack.pop_back();
-				stack.push_back( elem );
-				break;
-			}
-			case PREDEFINED_FUNCTION::CREATE_LIST:
-			{
-				StackElement elem;
-				elem.argtype = ARGTYPE::ANY_LIST;
-				stack.push_back( elem );
-				break;
-			}
-			case PREDEFINED_FUNCTION::APPEND_TO_LIST:
-			{
-				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
-				bool res;
-				auto arg1 = stack.begin() + stack.size() - 2;
-				auto arg2 = stack.begin() + stack.size() - 1;
-				assert( arg1->argtype == ARGTYPE::ANY_LIST ); // TODO: report an error
-				arg1->appendToList( *arg2 );
-				stack.pop_back();
-				break;
-			}
-			default:
-			{
-				// TODO: report an error
-				assert( 0 );
-			}
-		}
-	}*/
 }
 
 TemplateInstantiatorFactory::StackElement TemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
-#if 0
-	if ( ph.id == PLACEHOLDER::PARAM_MINUS )
-	{
-		auto findres = resolvedParamPlaceholders.find( ph.specific );
-		if ( findres != resolvedParamPlaceholders.end() )
-//			return move(findres->second);
-			return findres->second;
-	}
-	else if ( ph.id == PLACEHOLDER::LOCAL_MINUS )
-	{
-		auto findres = resolvedLocalPlaceholders.find( ph.specific );
-		if ( findres != resolvedLocalPlaceholders.end() )
-//			return move(findres->second);
-			return findres->second;
-	}
-	else if ( ph.id == PLACEHOLDER::FROM_TEMPLATE )
-	{
-		return fromTemplate;
-	}
-#endif
-
 	fmt::print( "\n" );
 	fmt::print("error_placeholder {}\n", static_cast<int>(ph.id) );
 	assert( 0 );
@@ -133,8 +39,6 @@ string TemplateInstantiatorFactory::context()
 	assert( 0 );
 	return "";
 }
-
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -178,10 +82,6 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart2>& 
 			ret += lp.verbatim;
 		else
 		{
-#if 0
-			Placeholder ph = {lp.type, lp.verbatim};
-			ret += placeholderAsString( ph );
-#else
 			Stack stack;
 			evaluateExpression( lp.expr, stack );
 			assert( stack.size() == 1 );
@@ -192,7 +92,6 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart2>& 
 				else
 					ret += resolveLinePartsToString( stack[0].lineParts );
 			}
-#endif
 		}
 	}
 	return ret;
@@ -488,40 +387,7 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 bool TemplateInstantiator::applyIncludeNode( TemplateNode& node, bool isReturning )
 {
 	map<string, StackElement> resolvedParamPlaceholdersNew;
-#if 0
-	Stack stack;
-	assert( node.type == NODE_TYPE::INCLUDE || node.type == NODE_TYPE::LET );
-	auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
-	assert( attr != node.attributes.end() );
-	auto& expr = attr->second;
-	evaluateExpression( expr, stack );
-	assert( stack.size() == 1 );
-	assert( stack[0].argtype == ARGTYPE::STRING );
-	string templateName = stack[0].lineParts[0].verbatim;
-
-	string tContext = context();
-	TemplateNode* tn = templateSpace.getTemplate( templateName, tContext );
-	if ( tn == nullptr )
-	{
-		assert( 0 ); // TODO: throw
-	}
-	if ( tn->isReturning != isReturning )
-	{
-		assert( 0 ); // TODO: throw
-	}
-	// load resolved names, if any
-	for ( const auto it:node.attributes )
-		if ( it.first.id == ATTRIBUTE::PARAM )
-		{
-			auto& expr1 = it.second;
-			Stack stack1;
-			evaluateExpression( expr1, stack1 );
-			assert( stack1.size() == 1 );
-			resolvedParamPlaceholdersNew.insert( make_pair( it.first.ext, move(stack1[0]) ) );
-		}
-#else
 	TemplateNode* tn = prepareDataForTemplateInclusion( this, resolvedParamPlaceholdersNew, node, isReturning );
-#endif
 	map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
 	map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
 	resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersNew) );
@@ -689,45 +555,8 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 		}
 		case NODE_TYPE::INCLUDE:
 		{
-#if 0
-			Stack stack;
-			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
-			assert( attr != node.attributes.end() );
-			auto& expr = attr->second;
-			evaluateExpression( expr, stack );
-			assert( stack.size() == 1 );
-			assert( stack[0].argtype == ARGTYPE::STRING );
-			string templateName = stack[0].lineParts[0].verbatim;
-
-			string tContext = context();
-			TemplateNode* tn = templateSpace.getTemplate( templateName, tContext );
-			if ( tn == nullptr )
-			{
-				assert( 0 ); // TODO: throw
-			}
-			// store current state of resolved params and locals
-			map<string, StackElement> resolvedParamPlaceholdersNew;
-			// load resolved names, if any
-			for ( const auto it:node.attributes )
-				if ( it.first.id == ATTRIBUTE::PARAM )
-				{
-					auto& expr1 = it.second;
-					Stack stack1;
-					evaluateExpression( expr1, stack1 );
-					assert( stack1.size() == 1 );
-					resolvedParamPlaceholdersNew.insert( make_pair( it.first.ext, move(stack1[0]) ) );
-				}
-			map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
-			map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
-			resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersNew) );
-			applyNode( *tn );
-			// restore ini content of resolved params and locals
-			resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersIni) );
-			resolvedLocalPlaceholders = map<string, StackElement>( std::move(resolvedLocalPlaceholdersIni) );
-#else
 			if ( !applyIncludeNode( node, false ) )
 				return false;
-#endif // 0
 			break;
 		}
 		case NODE_TYPE::FOR_SINGLE_INCLUDE_TEMPLATE:
@@ -741,36 +570,8 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 			TemplateInstantiator* instantiator = stack[0].singleObject->create();
 			assert( instantiator->resolvedParamPlaceholders.size() == 0 );
 			stack.clear();
-#if 0
-			auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
-			assert( attr != node.attributes.end() );
-			auto& expr = attr->second;
-			evaluateExpression( expr, stack );
-			assert( stack.size() == 1 );
-			assert( stack[0].argtype == ARGTYPE::STRING );
-			string templateName = stack[0].lineParts[0].verbatim;
-
-			string tContext = instantiator->context();
-			TemplateNode* tn = templateSpace.getTemplate( templateName, tContext );
-			if ( tn == nullptr )
-			{
-				assert( 0 ); // TODO: throw
-			}
-
-			// load resolved params, if any
-			for ( const auto it:node.attributes )
-				if ( it.first.id == ATTRIBUTE::PARAM )
-				{
-					auto& expr1 = it.second;
-					Stack stack1;
-					evaluateExpression( expr1, stack1 );
-					assert( stack1.size() == 1 );
-					instantiator->resolvedParamPlaceholders.insert( make_pair( it.first.ext, move(stack1[0]) ) );
-				}
-#else
 			assert( node.childNodes.size() == 1 );
 			TemplateNode* tn = prepareDataForTemplateInclusion( instantiator, instantiator->resolvedParamPlaceholders, node.childNodes[0], node.isReturning );
-#endif
 
 			for ( auto nodeit:tn->childNodes )
 			{
@@ -783,26 +584,6 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 		}
 		case NODE_TYPE::FOR_SINGLE_ENTER_BLOCK:
 		{
-/*			Stack stack;
-
-			evaluateExpression( node.expression, stack );
-			assert( stack.size() == 1 );
-			assert( stack[0].argtype == ARGTYPE::OBJPTR );
-//			assert( stack[0].singleObject->resolvedParamPlaceholders.size() == 0 );
-			TemplateInstantiator* instantiator = stack[0].singleObject->create();
-			assert( instantiator->resolvedParamPlaceholders.size() == 0 );
-			stack.clear();
-			assert( node.childNodes.size() == 1 );
-			TemplateNode* tn = prepareDataForTemplateInclusion( instantiator, instantiator->resolvedParamPlaceholders, node.childNodes[0], node.isReturning );
-
-			for ( auto nodeit:tn->childNodes )
-			{
-				instantiator->applyNode( nodeit );
-			}
-
-			delete instantiator; // TODO: think about wrapping it in unique_ptr instead
-
-			break;*/
 			Stack stack;
 			evaluateExpression( node.expression, stack );
 			assert( stack.size() == 1 );

@@ -46,7 +46,6 @@ enum class NODE_TYPE {
 	CONTENT,
 	IF,
 	INCLUDE,
-//	INCLUDE_FOR_TYPE, // necessity is yet to be proven (think about variation of INCLUDE instead)
 	ASSERT,
 	IF_TRUE_BRANCH,
 	IF_FALSE_BRANCH,
@@ -65,20 +64,6 @@ enum class PLACEHOLDER {
 	PARAM_MINUS,
 	LOCAL_MINUS,
 	FROM_TEMPLATE,
-/*	STRUCT_NAME, // used ONLY within STRUCT or down the tree
-	IDL_MEMBER_TYPE, // used ONLY within STRUCT-MEMBER
-	MAPPING_MEMBER_TYPE,
-	ENCODING_MEMBER_TYPE,
-	MAPPING_DISCRIMINATOR_NAME, // used ONLY with discriminated unions
-	IDL_MEMBER_NAME, // used ONLY within STRUCT-MEMBER
-	MAPPING_MEMBER_NAME, // used ONLY within STRUCT-MEMBER
-	ENCODING_MEMBER_NAME, // used ONLY within STRUCT-MEMBER
-	ENUM_VALUE_NAME,
-	ENCODING_ENUM_VALUE_VALUE,
-	MAPPING_ENUM_VALUE_VALUE,
-	ENCODING_DISCRIMINATED_UNION_OPTION_NAME,
-	MAPPING_DISCRIMINATED_UNION_OPTION_VALUE,
-	ENCODING_DISCRIMINATED_UNION_OPTION_VALUE,*/
 };
 
 enum class OPERATOR { 
@@ -105,13 +90,7 @@ struct Placeholder
 	PLACEHOLDER id;
 	string specific;
 };
-/*
-struct LinePart
-{
-	PLACEHOLDER type;
-	string verbatim;
-};
-*/
+
 enum class PREDEFINED_FUNCTION
 {
 	NOT_A_FUNCTION,
@@ -210,7 +189,6 @@ struct ExpressionElement
     ARGTYPE argtype = ARGTYPE::NO_ARGTYPE; // for operation PUSH: any but NONE
 	// values below are used in case of PUSH operation
     double numberValue = 0; // argtype: ARGTYPE::NUMBER
-//	vector<LinePart> lineParts; // used for ARGTYPE::STRING
 	vector<LinePart2> lineParts; // used for ARGTYPE::STRING
 	PredefindedFunction fn; // used for OPERATION::CALL
 	Placeholder ph; // used for OPERATION::PUSH, ARGTYPE::PLACEHOLDER
