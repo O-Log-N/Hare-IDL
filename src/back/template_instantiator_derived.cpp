@@ -22,6 +22,7 @@ Copyright (C) 2016 OLogN Technologies AG
 
 StructTemplateInstantiatorFactory::StackElement RootTemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
+	assert( 0 );
 	switch( ph.id )
 	{
 		default:
@@ -84,6 +85,7 @@ void RootTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Predefi
 
 StructTemplateInstantiatorFactory::StackElement StructTemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
+	assert( 0 );
 #if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
@@ -161,6 +163,7 @@ void StructTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Prede
 
 StructTemplateInstantiatorFactory::StackElement StructMemberTemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
+	assert( 0 );
 #if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
@@ -233,6 +236,41 @@ void StructMemberTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack,
 			stack.push_back( std::move(elem) );
 			break;
 		}
+		case PREDEFINED_FUNCTION::ENCODING_MEMBER_NAME:
+		{
+			assert( member->encodingRepresentation != nullptr );
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = dynamic_cast<BackDataMember*>(member->encodingRepresentation)->name;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::MAPPING_MEMBER_TYPE:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = dynamic_cast<BackDataMember*>(member->mappingRepresentation)->type.name;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::ENCODING_MEMBER_TYPE:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = dynamic_cast<BackDataMember*>(member->encodingRepresentation)->type.name;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+
 		case PREDEFINED_FUNCTION::MEMBER_TYPE:
 		{
 			StackElement elem;
@@ -264,6 +302,7 @@ void StructMemberTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack,
 
 StructTemplateInstantiatorFactory::StackElement MemberTypeTemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
+	assert( 0 );
 #if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
@@ -304,6 +343,29 @@ void MemberTypeTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, P
 {
 	switch ( fn.id )
 	{
+		case PREDEFINED_FUNCTION::MAPPING_MEMBER_TYPE:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = dataType->mappingRepresentation->mappingName;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::ENCODING_MEMBER_TYPE:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = dataType->encodingRepresentation->encodingName;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+
 		case PREDEFINED_FUNCTION::COLLECTION_TYPE:
 		{
 			StackElement elem;
@@ -539,6 +601,7 @@ void MemberTypeTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, P
 
 StructTemplateInstantiatorFactory::StackElement EnumValueTemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
+	assert( 0 );
 #if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
@@ -579,6 +642,39 @@ void EnumValueTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Pr
 {
 	switch ( fn.id )
 	{
+		case PREDEFINED_FUNCTION::ENUM_VALUE_NAME:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = name;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::MAPPING_ENUM_VALUE_VALUE:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = fmt::format( "{}", mappingValue );
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::ENCODING_ENUM_VALUE_VALUE:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = fmt::format( "{}", encodingValue );
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
 		default:
 		{
 			TemplateInstantiatorFactory::execBuiltinFunction( stack, fn );
@@ -592,6 +688,7 @@ void EnumValueTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Pr
 
 StructTemplateInstantiatorFactory::StackElement DiscriminatedUnionTemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
+	assert( 0 );
 #if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
@@ -626,6 +723,29 @@ void DiscriminatedUnionTemplateInstantiatorFactory::execBuiltinFunction( Stack& 
 {
 	switch ( fn.id )
 	{
+		case PREDEFINED_FUNCTION::STRUCT_NAME:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = structure->name;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::MAPPING_DISCRIMINATOR_NAME:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = structure->discriminant;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+
 		case PREDEFINED_FUNCTION::MEMBERS:
 		{
 			StackElement elem;
@@ -742,6 +862,7 @@ void DiscriminatedUnionTemplateInstantiatorFactory::execBuiltinFunction( Stack& 
 
 StructTemplateInstantiatorFactory::StackElement DiscriminatedUnionOptionTemplateInstantiatorFactory::placeholder( Placeholder ph )
 {
+	assert( 0 );
 #if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
@@ -782,6 +903,40 @@ void DiscriminatedUnionOptionTemplateInstantiatorFactory::execBuiltinFunction( S
 {
 	switch ( fn.id )
 	{
+		case PREDEFINED_FUNCTION::ENCODING_DISCRIMINATED_UNION_OPTION_NAME:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = fmt::format( "{}", enumValueName ); // TODO: revise!!!
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::MAPPING_DISCRIMINATED_UNION_OPTION_VALUE:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = fmt::format( "{}", mappingValue ); // TODO: revise!!!
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::ENCODING_DISCRIMINATED_UNION_OPTION_VALUE:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = fmt::format( "{}", encodingValue );
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+
 		case PREDEFINED_FUNCTION::MEMBERS:
 		{
 			StackElement elem;
@@ -813,6 +968,7 @@ void DiscriminatedUnionOptionTemplateInstantiatorFactory::execBuiltinFunction( S
 
 StructTemplateInstantiator::StackElement RootTemplateInstantiator::placeholder( Placeholder ph )
 {
+	assert( 0 );
 	switch( ph.id )
 	{
 		default:
@@ -875,6 +1031,7 @@ void RootTemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFun
 
 StructTemplateInstantiator::StackElement StructTemplateInstantiator::placeholder( Placeholder ph )
 {
+	assert( 0 );
 #if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
@@ -941,6 +1098,7 @@ void StructTemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedF
 
 StructTemplateInstantiator::StackElement StructMemberTemplateInstantiator::placeholder( Placeholder ph )
 {
+	assert( 0 );
 #if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
@@ -1032,6 +1190,7 @@ void StructMemberTemplateInstantiator::execBuiltinFunction( Stack& stack, Predef
 
 StructTemplateInstantiator::StackElement MemberTypeTemplateInstantiator::placeholder( Placeholder ph )
 {
+	assert( 0 );
 #if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
@@ -1307,6 +1466,7 @@ void MemberTypeTemplateInstantiator::execBuiltinFunction( Stack& stack, Predefin
 
 StructTemplateInstantiator::StackElement EnumValueTemplateInstantiator::placeholder( Placeholder ph )
 {
+	assert( 0 );
 #if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
@@ -1360,6 +1520,7 @@ void EnumValueTemplateInstantiator::execBuiltinFunction( Stack& stack, Predefind
 
 StructTemplateInstantiator::StackElement DiscriminatedUnionTemplateInstantiator::placeholder( Placeholder ph )
 {
+	assert( 0 );
 #if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
@@ -1510,6 +1671,7 @@ void DiscriminatedUnionTemplateInstantiator::execBuiltinFunction( Stack& stack, 
 
 StructTemplateInstantiator::StackElement DiscriminatedUnionOptionTemplateInstantiator::placeholder( Placeholder ph )
 {
+	assert( 0 );
 #if 0
 	StackElement se;
 	se.argtype = ARGTYPE::STRING;
