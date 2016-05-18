@@ -17,19 +17,6 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "template_instantiator_derived.h"
 
-
-StructTemplateInstantiatorFactory::StackElement RootTemplateInstantiatorFactory::placeholder( Placeholder ph )
-{
-	assert( 0 );
-	switch( ph.id )
-	{
-		default:
-		{
-			return TemplateInstantiatorFactory::placeholder( ph );
-		}
-	}
-}
-
 void RootTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
 	switch ( fn.id )
@@ -81,13 +68,6 @@ void RootTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Predefi
 /////////////////////////////////////////////////////////////////////////
 
 
-StructTemplateInstantiatorFactory::StackElement StructTemplateInstantiatorFactory::placeholder( Placeholder ph )
-{
-	assert( 0 );
-	StackElement se;
-	return se;
-}
-
 void StructTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
 	switch ( fn.id )
@@ -138,13 +118,6 @@ void StructTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Prede
 
 /////////////////////////////////////////////////////////////////////////
 
-
-StructTemplateInstantiatorFactory::StackElement StructMemberTemplateInstantiatorFactory::placeholder( Placeholder ph )
-{
-	assert( 0 );
-	StackElement se;
-	return se;
-}
 
 void StructMemberTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
@@ -225,13 +198,6 @@ void StructMemberTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack,
 
 /////////////////////////////////////////////////////////////////////////
 
-
-StructTemplateInstantiatorFactory::StackElement MemberTypeTemplateInstantiatorFactory::placeholder( Placeholder ph )
-{
-	assert( 0 );
-	StackElement se;
-	return se;
-}
 
 void MemberTypeTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
@@ -493,13 +459,6 @@ void MemberTypeTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, P
 /////////////////////////////////////////////////////////////////////////
 
 
-StructTemplateInstantiatorFactory::StackElement EnumValueTemplateInstantiatorFactory::placeholder( Placeholder ph )
-{
-	assert( 0 );
-	StackElement se;
-	return se;
-}
-
 void EnumValueTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
 	switch ( fn.id )
@@ -547,13 +506,6 @@ void EnumValueTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Pr
 
 /////////////////////////////////////////////////////////////////////////
 
-
-StructTemplateInstantiatorFactory::StackElement DiscriminatedUnionTemplateInstantiatorFactory::placeholder( Placeholder ph )
-{
-	assert( 0 );
-	StackElement se;
-	return se;
-}
 
 void DiscriminatedUnionTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
@@ -695,13 +647,6 @@ void DiscriminatedUnionTemplateInstantiatorFactory::execBuiltinFunction( Stack& 
 
 /////////////////////////////////////////////////////////////////////////
 
-
-StructTemplateInstantiatorFactory::StackElement DiscriminatedUnionOptionTemplateInstantiatorFactory::placeholder( Placeholder ph )
-{
-	assert( 0 );
-	StackElement se;
-	return se;
-}
 
 void DiscriminatedUnionOptionTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {

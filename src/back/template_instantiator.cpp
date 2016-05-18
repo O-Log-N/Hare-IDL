@@ -18,18 +18,14 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_instantiator.h"
 #include "template_instantiator_derived.h"
 
+TemplateInstantiator* TemplateInstantiatorFactory::create()
+{
+	return new TemplateInstantiator( templateSpace, outstr );
+}
+	
 void TemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
 	assert( 0 );
-}
-
-TemplateInstantiatorFactory::StackElement TemplateInstantiatorFactory::placeholder( Placeholder ph )
-{
-	fmt::print( "\n" );
-	fmt::print("error_placeholder {}\n", static_cast<int>(ph.id) );
-	assert( 0 );
-	StackElement se;
-	return move(se);
 }
 
 string TemplateInstantiatorFactory::context()

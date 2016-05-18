@@ -146,16 +146,13 @@ protected:
 public:
 	TemplateInstantiatorFactory( const TemplateInstantiatorFactory& other ) = default;
 	TemplateInstantiatorFactory( TemplateNodeSpace& templateSpace_, FILE* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}
-	virtual TemplateInstantiator* create() const {assert(0); return nullptr;}
+	TemplateInstantiator* create();
 	virtual TemplateInstantiatorFactory* clone() const {return new TemplateInstantiatorFactory( *this );}
 	virtual ~TemplateInstantiatorFactory() {}
 
 protected:
-#if 1
 	virtual void execBuiltinFunction( Stack& stack, PredefindedFunction fn );
 	virtual string context();
-	virtual TemplateInstantiatorFactory::StackElement placeholder( Placeholder ph );
-#endif // 0
 };
 
 
