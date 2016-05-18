@@ -313,69 +313,6 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 
 				break;
 			}
-			case TemplateLine::LINE_TYPE::FOR_SINGLE:
-			case TemplateLine::LINE_TYPE::FOR_EACH_OF:
-			{
-				assert( ltype == TemplateLine::LINE_TYPE::FOR_SINGLE || ltype == TemplateLine::LINE_TYPE::FOR_EACH_OF ); // just to make sure that we have not added anything else
-				bool isEnd = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
-				if ( isEnd )
-					return true; // it's upper level end or bullshit
-				TemplateNode node;
-				node.srcLineNum = lines[flidx].srcLineNum;
-//				node.attributes = lines[flidx].attributes;
-				node.expression = lines[flidx].expression;
-				// we may have include statement here, let's check
-				auto beginBlock = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} );
-				if ( beginBlock != lines[flidx].attributes.end() )
-				{
-					if ( lines[flidx].attributes.size() != 1 )
-					{
-						fmt::print( "line {}: error: {} BEGIN cannot be used with other parameters\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
-						assert( 0 );
-						return false;
-					}
-					node.type = ltype == TemplateLine::LINE_TYPE::FOR_EACH_OF ? NODE_TYPE::FOR_EACH_OF_ENTER_BLOCK : NODE_TYPE::FOR_SINGLE_ENTER_BLOCK;
-					bool isBegin = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} ) != lines[flidx].attributes.end();
-					if ( !isBegin )
-					{
-						fmt::print( "line {}: error: {} has unexpected parameter set\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
-						assert( isBegin );
-						return false;
-					}
-					++flidx;
-					if ( !buildTemplateTree( node, lines, flidx, isReturning ) )
-						return false;
-					bool isBegin1 = lines[flidx].attributes.find( {ATTRIBUTE::BEGIN, ""} ) != lines[flidx].attributes.end();
-					bool isEnd1 = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
-					if ( !isEnd1 )
-					{
-						fmt::print( "line {}: error: {} END expected\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
-						assert( isBegin1 );
-						return false;
-					}
-					++flidx;
-				}
-				else
-				{
-					auto includeTemplate = lines[flidx].attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
-					if ( includeTemplate == lines[flidx].attributes.end() )
-					{
-						fmt::print( "line {}: error: {} assumes BEGIN or TEMPLATE parameter\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
-						assert( 0 );
-						return false;
-					}
-					node.type = ltype == TemplateLine::LINE_TYPE::FOR_EACH_OF ? NODE_TYPE::FOR_EACH_OF_INCLUDE_TEMPLATE : NODE_TYPE::FOR_SINGLE_INCLUDE_TEMPLATE;
-					TemplateNode nodeIncludeTemplate;
-					nodeIncludeTemplate.type = NODE_TYPE::INCLUDE;
-					nodeIncludeTemplate.srcLineNum = lines[flidx].srcLineNum;
-//					nodeIncludeTemplate.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEMPLATE, ""), includeTemplate->second ) );
-					nodeIncludeTemplate.attributes = lines[flidx].attributes;
-					node.childNodes.push_back( nodeIncludeTemplate );
-					++flidx;
-				}
-				root.childNodes.push_back( node );
-				break;
-			}
 			case TemplateLine::LINE_TYPE::BEGIN_TEMPLATE:
 			{
 				int lnStart = lines[flidx].srcLineNum;

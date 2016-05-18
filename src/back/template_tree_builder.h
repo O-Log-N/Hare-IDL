@@ -34,7 +34,6 @@ struct TemplateNode
 	bool isReturning = false; // set to true if @@RETURN found down the tree
 };
 
-bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t& flidx );
 void dbgPrintNode_( TemplateNode& node, int depth );
 
 
