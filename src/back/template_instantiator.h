@@ -110,7 +110,7 @@ public:
 		}
 
 		// MAP FUNCTIONS
-		void insertToMap( const StackElement& key, const StackElement& value )
+		void assignToMapElement( const StackElement& key, const StackElement& value )
 		{
 			for ( auto& it:anyMap )
 				if ( it.first == key )

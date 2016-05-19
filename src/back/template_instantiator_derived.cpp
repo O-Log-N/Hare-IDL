@@ -21,6 +21,21 @@ void RootTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Predefi
 {
 	switch ( fn.id )
 	{
+		case PREDEFINED_FUNCTION::SERIALIZABLE_OBJECTS:
+		{
+			StackElement elem;
+			elem.argtype = ARGTYPE::ANY_LIST;
+			for ( auto& it:root->structuresIdl )
+			{
+				StackElement el;
+				el.argtype = ARGTYPE::OBJPTR;
+				StructTemplateInstantiatorFactory* structti = new StructTemplateInstantiatorFactory( *it, templateSpace, outstr );
+				el.singleObject.reset( structti );
+				elem.anyList.push_back( std::move( el ) );
+			}
+			stack.push_back( std::move(elem) );
+			break;
+		}
 		case PREDEFINED_FUNCTION::PUBLISHABLE_STRUCTS:
 		{
 			StackElement elem;
