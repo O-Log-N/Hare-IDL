@@ -27,11 +27,26 @@ void RootTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Predefi
 			elem.argtype = ARGTYPE::ANY_LIST;
 			for ( auto& it:root->structuresIdl )
 			{
-				StackElement el;
-				el.argtype = ARGTYPE::OBJPTR;
-				StructTemplateInstantiatorFactory* structti = new StructTemplateInstantiatorFactory( *it, templateSpace, outstr );
-				el.singleObject.reset( structti );
-				elem.anyList.push_back( std::move( el ) );
+				if ( it->type == Structure::TYPE::STRUCT )
+				{
+					StackElement el;
+					el.argtype = ARGTYPE::OBJPTR;
+					StructTemplateInstantiatorFactory* structti = new StructTemplateInstantiatorFactory( *it, templateSpace, outstr );
+					el.singleObject.reset( structti );
+					elem.anyList.push_back( std::move( el ) );
+				}
+				else if ( it->type == Structure::TYPE::DISCRIMINATED_UNION )
+				{
+					StackElement el;
+					el.argtype = ARGTYPE::OBJPTR;
+					DiscriminatedUnionTemplateInstantiatorFactory* structti = new DiscriminatedUnionTemplateInstantiatorFactory( *it, templateSpace, outstr );
+					el.singleObject.reset( structti );
+					elem.anyList.push_back( std::move( el ) );
+				}
+				else
+				{
+					assert(0); // TODO: implement other options or report an error
+				}
 			}
 			stack.push_back( std::move(elem) );
 			break;

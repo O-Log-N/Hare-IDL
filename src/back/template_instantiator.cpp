@@ -499,12 +499,12 @@ bool TemplateInstantiator::applyIncludeNode( TemplateNode& node, bool isReturnin
 	map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
 	map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
 	resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersNew) );
-	applyNode( *tn );
+	bool ret = applyNode( *tn );
 	// restore ini content of resolved params and locals
 	resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersIni) );
 	resolvedLocalPlaceholders = map<string, StackElement>( std::move(resolvedLocalPlaceholdersIni) );
 
-	return true;
+	return ret;
 }
 
 TemplateNode* TemplateInstantiator::prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isReturning )
@@ -549,7 +549,6 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 		case NODE_TYPE::FULL_TEMPLATE:
 		{
 			for ( auto& nodeIt: node.childNodes )
-//				applyNode( nodeIt );
 				if ( !applyNode( nodeIt ) )
 				{
 					assert( node.isReturning );
@@ -579,9 +578,11 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 		case NODE_TYPE::IF_FALSE_BRANCH:
 		{
 			for ( auto& nodeIt: node.childNodes )
-//				applyNode( nodeIt );
 				if ( !applyNode( nodeIt ) )
+				{
+					assert( node.isReturning );
 					return false;
+				}
 			break;
 		}
 		case NODE_TYPE::OPEN_OUTPUT_FILE:
@@ -603,9 +604,11 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 			FILE* tf = fopen( fileName.c_str(), "wb" );
 			outstr = tf;
 			for ( auto& nodeIt: node.childNodes )
-//				applyNode( nodeIt );
 				if ( !applyNode( nodeIt ) )
+				{
+					assert( node.isReturning );
 					return false;
+				}
 			outstr = nullptr;
 			break;
 		}
@@ -616,14 +619,26 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 			if ( cond )					
 			{
 				if ( node.childNodes[0].type == NODE_TYPE::IF_TRUE_BRANCH )
-					applyNode( node.childNodes[0] );
+				{
+					if ( !applyNode( node.childNodes[0] ) )
+					{
+						assert( node.isReturning );
+						return false;
+					}
+				}
 			}
 			else
 			{
+				bool applyRes = true; // NOTE: 'false' branche may or may not exist; no 'false' branche - no return from it
 				if ( node.childNodes[0].type == NODE_TYPE::IF_FALSE_BRANCH )
-					applyNode( node.childNodes[0] );
+					applyRes = applyNode( node.childNodes[0] );
 				else if ( node.childNodes.size() == 2 && node.childNodes[1].type == NODE_TYPE::IF_FALSE_BRANCH )
-					applyNode( node.childNodes[1] );
+					applyRes = applyNode( node.childNodes[1] );
+				if ( !applyRes )
+				{
+					assert( node.isReturning );
+					return false;
+				}
 			}
 			break;
 		}
@@ -709,7 +724,11 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 				resolvedLocalPlaceholders.erase( attr->first.ext );
 				auto& insret = resolvedLocalPlaceholders.insert( make_pair( attr->first.ext, it ) );
 				for ( auto nodeit:node.childNodes )
-					applyNode( nodeit );
+					if ( !applyNode( nodeit ) )
+					{
+						assert( node.isReturning );
+						return false;
+					}
 			}
 			break;
 		}
