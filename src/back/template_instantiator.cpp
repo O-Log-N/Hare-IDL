@@ -110,6 +110,85 @@ void TemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunctio
 	{
 		switch ( fn.id )
 		{
+			case PREDEFINED_FUNCTION::HAS_VALUE:
+			{
+				assert( stack.size() );
+				auto arg1 = stack.begin() + stack.size() - 1;
+				StackElement elem;
+				elem.argtype = ARGTYPE::BOOL;
+				elem.boolValue = arg1->argtype != ARGTYPE::NO_ARGTYPE;
+				stack.pop_back();
+				stack.push_back( elem );
+				break;
+			}
+// type-checkers
+			case PREDEFINED_FUNCTION::IS_ROOT:
+			{
+				assert( stack.size() );
+				auto arg1 = stack.begin() + stack.size() - 1;
+				StackElement elem;
+				elem.argtype = ARGTYPE::BOOL;
+				elem.boolValue = arg1->argtype == ARGTYPE::OBJPTR && arg1->singleObject->context() == "ROOT";
+				stack.pop_back();
+				stack.push_back( elem );
+				break;
+			}
+			case PREDEFINED_FUNCTION::IS_SERIALIZABLE_OBJECT:
+			{
+				assert( stack.size() );
+				auto arg1 = stack.begin() + stack.size() - 1;
+				StackElement elem;
+				elem.argtype = ARGTYPE::BOOL;
+				elem.boolValue = arg1->argtype == ARGTYPE::OBJPTR && ( arg1->singleObject->context() == "STRUCT" || arg1->singleObject->context() == "DISCRIMINATED-UNION" );
+				stack.pop_back();
+				stack.push_back( elem );
+				break;
+			}
+			case PREDEFINED_FUNCTION::IS_MEMBER:
+			{
+				assert( stack.size() );
+				auto arg1 = stack.begin() + stack.size() - 1;
+				StackElement elem;
+				elem.argtype = ARGTYPE::BOOL;
+				elem.boolValue = arg1->argtype == ARGTYPE::OBJPTR && arg1->singleObject->context() == "STRUCT-MEMBER";
+				stack.pop_back();
+				stack.push_back( elem );
+				break;
+			}
+			case PREDEFINED_FUNCTION::IS_MEMBER_TYPE:
+			{
+				assert( stack.size() );
+				auto arg1 = stack.begin() + stack.size() - 1;
+				StackElement elem;
+				elem.argtype = ARGTYPE::BOOL;
+				elem.boolValue = arg1->argtype == ARGTYPE::OBJPTR && arg1->singleObject->context() == "DATATYPE";
+				stack.pop_back();
+				stack.push_back( elem );
+				break;
+			}
+			case PREDEFINED_FUNCTION::IS_ENUM_VALUE:
+			{
+				assert( stack.size() );
+				auto arg1 = stack.begin() + stack.size() - 1;
+				StackElement elem;
+				elem.argtype = ARGTYPE::BOOL;
+				elem.boolValue = arg1->argtype == ARGTYPE::OBJPTR && arg1->singleObject->context() == "ENUMVALUE";
+				stack.pop_back();
+				stack.push_back( elem );
+				break;
+			}
+			case PREDEFINED_FUNCTION::IS_DU_OPTION:
+			{
+				assert( stack.size() );
+				auto arg1 = stack.begin() + stack.size() - 1;
+				StackElement elem;
+				elem.argtype = ARGTYPE::BOOL;
+				elem.boolValue = arg1->argtype == ARGTYPE::OBJPTR && arg1->singleObject->context() == "DISCRIMINATED-UNION-OPTION";
+				stack.pop_back();
+				stack.push_back( elem );
+				break;
+			}
+// map-related
 			case PREDEFINED_FUNCTION::CREATE_MAP:
 			{
 				StackElement elem;
@@ -406,8 +485,7 @@ TemplateNode* TemplateInstantiator::prepareDataForTemplateInclusion( TemplateIns
 	assert( stack[0].argtype == ARGTYPE::STRING );
 	string templateName = stack[0].lineParts[0].verbatim;
 
-	string tContext = instantiator->context();
-	TemplateNode* tn = templateSpace.getTemplate( templateName, tContext );
+	TemplateNode* tn = templateSpace.getTemplate( templateName );
 	if ( tn == nullptr )
 	{
 		assert( 0 ); // TODO: throw
@@ -655,7 +733,7 @@ string TemplateInstantiator::context()
 void processStructures( BackRoot& structure, TemplateNodeSpace& templateSpace )
 {
 	TemplateInstantiator ti( templateSpace, nullptr );
-	TemplateNode* mainT = templateSpace.getTemplate( "MAIN", "ROOT" );
+	TemplateNode* mainT = templateSpace.getTemplate( "MAIN" );
 	if ( mainT != nullptr )
 	{
 		RootTemplateInstantiatorFactory rtif( structure, templateSpace, nullptr );

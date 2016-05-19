@@ -49,7 +49,7 @@ public:
 		// 2. for each @@include there must be a template with a respective name
 		// 3. there is at least one template of type ROOT
 	}
-	TemplateNode* getTemplate( string name, string expectedType )
+	TemplateNode* getTemplate( string name )
 	{
 		for ( auto& node:templates )
 		{
@@ -61,19 +61,7 @@ public:
 			assert( attrT->second[0].lineParts.size() == 1 );
 			assert( attrT->second[0].lineParts[0].isVerbatim );
 
-			auto typeT = node.attributes.find( {ATTRIBUTE::TYPE, ""} );
-			assert( typeT != node.attributes.end() );
-			assert( typeT->second.size() == 1 );
-			assert( typeT->second[0].oper == OPERATOR::PUSH );
-			assert( typeT->second[0].argtype == ARGTYPE::STRING );
-			assert( typeT->second[0].lineParts.size() == 1 );
-			assert( typeT->second[0].lineParts.size() == 1 );
-			assert( typeT->second[0].lineParts[0].isVerbatim);
-
-			if ( attrT->second[0].lineParts[0].verbatim == name && typeT->second[0].lineParts[0].verbatim == expectedType )
-				return &node;
-
-			if ( attrT->second[0].lineParts[0].verbatim == name && expectedType == "" )
+			if ( attrT->second[0].lineParts[0].verbatim == name )
 				return &node;
 		}
 		return nullptr;
