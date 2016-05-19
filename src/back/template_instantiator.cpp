@@ -88,6 +88,16 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart2>& 
 				else
 					ret += resolveLinePartsToString( stack[0].lineParts );
 			}
+			else if ( stack[0].argtype == ARGTYPE::NUMBER )
+			{
+				ret += fmt::format( "{}", stack[0].numberValue );
+			}
+			else
+			{
+				fmt::print( "\n" );
+				fmt::print("error: cannot convert type {} to string\n", static_cast<int>(stack[0].argtype) );
+				assert( 0 );
+			}
 		}
 	}
 	return ret;
