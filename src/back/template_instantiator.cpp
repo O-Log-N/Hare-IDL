@@ -743,6 +743,25 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 			}
 			break;
 		}
+		case NODE_TYPE::WHILE:
+		{
+			for (;;)
+			{
+				Stack stack;
+				evaluateExpression( node.expression, stack );
+				assert( stack.size() == 1 ); // TODO: error reporting
+				assert( stack[0].argtype == ARGTYPE::BOOL ); // TODO: error reporting
+				if ( !stack[0].boolValue )
+					break;
+				for ( auto nodeit:node.childNodes )
+					if ( !applyNode( nodeit ) )
+					{
+						assert( node.isReturning );
+						return false;
+					}
+			}
+			break;
+		}
 		default:
 		{
 			fmt::print("Unexpected node type {} found\n", static_cast<int>(node.type) );

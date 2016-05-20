@@ -337,6 +337,39 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 
 				break;
 			}
+			case TemplateLine::LINE_TYPE::WHILE:
+			{
+				if ( lines[flidx].attributes.size() )
+				{
+					fmt::print( "line {}: error: {} does not have attributes\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+					assert( 0 );
+					return false;
+				}
+				if ( lines[flidx].expression.size() == 0 )
+				{
+					fmt::print( "line {}: error: {} requires expression\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+					assert( 0 );
+					return false;
+				}
+
+				TemplateNode node;
+				node.type = NODE_TYPE::WHILE;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				node.expression = lines[flidx].expression;
+
+				++flidx;
+				if ( !buildTemplateTree( node, lines, flidx, isReturning ) )
+					return false;
+				if ( lines[flidx].type != TemplateLine::LINE_TYPE::ENDWHILE )
+				{
+					fmt::print( "line {}: error: {} expected\n", lines[flidx].srcLineNum, mainKeywordToString( TemplateLine::LINE_TYPE::ENDWHILE ) );
+					assert( 0 );
+					return false;
+				}
+				++flidx;
+				root.childNodes.push_back( node );
+				break;
+			}
 			case TemplateLine::LINE_TYPE::BEGIN_TEMPLATE:
 			{
 				int lnStart = lines[flidx].srcLineNum;
