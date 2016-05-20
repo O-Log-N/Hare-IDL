@@ -53,6 +53,7 @@ enum class NODE_TYPE {
 	FOR_EACH,
 	LET,
 	RETURN,
+	DBG_PRINT,
 };
 
 enum class PLACEHOLDER {
@@ -238,6 +239,7 @@ struct TemplateLine
 //		FOR_SINGLE,
 		LET,
 		RETURN,
+		DBG_PRINT,
 
 		ELIF_TO_IF, // derived
 	};

@@ -24,7 +24,7 @@ Copyright (C) 2016 OLogN Technologies AG
 
 class TemplateInstantiator;
 
-class TemplateInstantiatorFactory
+class ExpressionObject
 {
 	friend class TemplateInstantiator;
 public:
@@ -34,7 +34,7 @@ public:
 		double numberValue = 0; // argtype: ARGTYPE::NUMBER
 		bool boolValue = false; // argtype: ARGTYPE::BOOL
 		vector<LinePart2> lineParts; // used for ARGTYPE::STRING
-		unique_ptr<TemplateInstantiatorFactory> singleObject = nullptr; // used for ARGTYPE::OBJPTR
+		unique_ptr<ExpressionObject> singleObject = nullptr; // used for ARGTYPE::OBJPTR
 		vector<pair<StackElement, StackElement>> anyMap; // used for ARGTYPE::ANY_MAP
 		vector<StackElement> anyList; // used for ARGTYPE::ANY_LIST
 
@@ -144,11 +144,10 @@ protected:
 	TemplateNodeSpace& templateSpace;
 
 public:
-	TemplateInstantiatorFactory( const TemplateInstantiatorFactory& other ) = default;
-	TemplateInstantiatorFactory( TemplateNodeSpace& templateSpace_, FILE* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}
-	TemplateInstantiator* create();
-	virtual TemplateInstantiatorFactory* clone() const {return new TemplateInstantiatorFactory( *this );}
-	virtual ~TemplateInstantiatorFactory() {}
+	ExpressionObject( const ExpressionObject& other ) = default;
+	ExpressionObject( TemplateNodeSpace& templateSpace_, FILE* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}
+	virtual ExpressionObject* clone() const {return new ExpressionObject( *this );}
+	virtual ~ExpressionObject() {}
 
 protected:
 	virtual void execBuiltinFunction( Stack& stack, PredefindedFunction fn );
@@ -161,17 +160,17 @@ void processStructures( BackRoot& structure, TemplateNodeSpace& templateSpace );
 class TemplateInstantiator
 {
 protected:
-	typedef TemplateInstantiatorFactory::StackElement StackElement;
-	typedef vector<TemplateInstantiatorFactory::StackElement> Stack;
+	typedef ExpressionObject::StackElement StackElement;
+	typedef vector<ExpressionObject::StackElement> Stack;
 
 protected:
-	friend class TemplateInstantiatorFactory;
+	friend class ExpressionObject;
 	friend void processStructures( BackRoot& structure, TemplateNodeSpace& templateSpace );
 	FILE* outstr;
 	TemplateNodeSpace& templateSpace;
-	map<string, TemplateInstantiatorFactory::StackElement> resolvedParamPlaceholders; // those starting from "@PARAM-"
-	map<string, TemplateInstantiatorFactory::StackElement> resolvedLocalPlaceholders; // those starting from "@LOCAL-"
-	TemplateInstantiatorFactory::StackElement fromTemplate;
+	map<string, ExpressionObject::StackElement> resolvedParamPlaceholders; // those starting from "@PARAM-"
+	map<string, ExpressionObject::StackElement> resolvedLocalPlaceholders; // those starting from "@LOCAL-"
+	ExpressionObject::StackElement fromTemplate;
 
 protected:
 	void execBuiltinFunction( Stack& stack, PredefindedFunction fn );
@@ -179,18 +178,15 @@ protected:
 	void evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack );
 	bool applyNode( TemplateNode& node );
 	bool applyIncludeNode( TemplateNode& node, bool isReturning );
-	TemplateNode* prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, TemplateInstantiatorFactory::StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isReturning );
+	TemplateNode* prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, ExpressionObject::StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isReturning );
 	string resolveLinePartsToString( const vector<LinePart2>& lineParts );
 	string placeholderAsString( Placeholder ph );
 	virtual string context();
-	virtual TemplateInstantiatorFactory::StackElement placeholder( Placeholder ph );
+	virtual ExpressionObject::StackElement placeholder( Placeholder ph );
 
 public:
 	TemplateInstantiator( TemplateNodeSpace& templateSpace_, FILE* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}
 	virtual ~TemplateInstantiator() {}
 };
-
-
-void apply( BackRoot& structure, TemplateNodeSpace& templateSpace );
 
 #endif // TEMPLATE_INSTANTIATOR_H

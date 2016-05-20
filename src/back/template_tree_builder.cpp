@@ -185,6 +185,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				if ( lines[flidx].type != TemplateLine::LINE_TYPE::ENDIF )
 				{
 					fmt::print( "line {}: error: ENDIF expected\n", lines[flidx].srcLineNum );
+					assert( 0 );
 					return false;
 				}
 				if ( ltype == TemplateLine::LINE_TYPE::IF )
@@ -211,6 +212,28 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				node.srcLineNum = lines[flidx].srcLineNum;
 				node.expression = lines[flidx].expression;
 				node.attributes = lines[flidx].attributes;
+				root.childNodes.push_back( node );
+				++flidx;
+				break;
+			}
+			case TemplateLine::LINE_TYPE::DBG_PRINT:
+			{
+				TemplateNode node;
+				node.type = NODE_TYPE::DBG_PRINT;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				if ( lines[flidx].expression.size() == 0 )
+				{
+					fmt::print( "line {}: error: expression required\n", lines[flidx].srcLineNum );
+					assert( 0 );
+					return false;
+				}
+				if ( lines[flidx].attributes.size() )
+				{
+					fmt::print( "line {}: error: attributes are not expected\n", lines[flidx].srcLineNum );
+					assert( 0 );
+					return false;
+				}
+				node.expression = lines[flidx].expression;
 				root.childNodes.push_back( node );
 				++flidx;
 				break;
@@ -251,6 +274,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				if ( lines[flidx].type != TemplateLine::LINE_TYPE::CLOSE_OUTPUT_FILE )
 				{
 					fmt::print( "line {}: error: CLOSE-OUTPUT-FILE expected\n", lines[flidx].srcLineNum );
+					assert( 0 );
 					return false;
 				}
 				++flidx;
@@ -332,6 +356,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 					if ( !nameOK )
 					{
 						fmt::print( "line {}: error: template has bad or no name\n", lines[flidx].srcLineNum );
+						assert( 0 );
 						return false;
 					}
 				}
@@ -347,6 +372,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				if ( lines[flidx].type != TemplateLine::LINE_TYPE::END_TEMPLATE )
 				{
 					fmt::print( "line {}: error: END-TEMPLATE expected\n", lines[flidx].srcLineNum );
+					assert( 0 );
 					return false;
 				}
 				string closingTemplateName;
@@ -368,12 +394,14 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 						if ( templateName != closingTemplateName )
 						{
 							fmt::print( "line {}: error: template name at template begin (see line {}) does not coincide with that at template end\n", lines[flidx].srcLineNum, lnStart );
+							assert( 0 );
 							return false;
 						}
 					}
 					else
 					{
 						fmt::print( "line {}: error: template has bad or no name\n", lines[flidx].srcLineNum );
+						assert( 0 );
 						return false;
 					}
 				}

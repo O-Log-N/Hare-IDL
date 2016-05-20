@@ -17,7 +17,7 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "template_instantiator_derived.h"
 
-void RootTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
+void RootExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
 	switch ( fn.id )
 	{
@@ -31,7 +31,7 @@ void RootTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Predefi
 				{
 					StackElement el;
 					el.argtype = ARGTYPE::OBJPTR;
-					StructTemplateInstantiatorFactory* structti = new StructTemplateInstantiatorFactory( *it, templateSpace, outstr );
+					StructExpressionObject* structti = new StructExpressionObject( *it, templateSpace, outstr );
 					el.singleObject.reset( structti );
 					elem.anyList.push_back( std::move( el ) );
 				}
@@ -39,7 +39,7 @@ void RootTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Predefi
 				{
 					StackElement el;
 					el.argtype = ARGTYPE::OBJPTR;
-					DiscriminatedUnionTemplateInstantiatorFactory* structti = new DiscriminatedUnionTemplateInstantiatorFactory( *it, templateSpace, outstr );
+					DiscriminatedUnionExpressionObject* structti = new DiscriminatedUnionExpressionObject( *it, templateSpace, outstr );
 					el.singleObject.reset( structti );
 					elem.anyList.push_back( std::move( el ) );
 				}
@@ -61,7 +61,7 @@ void RootTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Predefi
 				{
 					StackElement el;
 					el.argtype = ARGTYPE::OBJPTR;
-					StructTemplateInstantiatorFactory* structti = new StructTemplateInstantiatorFactory( *it, templateSpace, outstr );
+					StructExpressionObject* structti = new StructExpressionObject( *it, templateSpace, outstr );
 					el.singleObject.reset( structti );
 					elem.anyList.push_back( std::move( el ) );
 				}
@@ -79,7 +79,7 @@ void RootTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Predefi
 				{
 					StackElement el;
 					el.argtype = ARGTYPE::OBJPTR;
-					DiscriminatedUnionTemplateInstantiatorFactory* structti = new DiscriminatedUnionTemplateInstantiatorFactory( *it, templateSpace, outstr );
+					DiscriminatedUnionExpressionObject* structti = new DiscriminatedUnionExpressionObject( *it, templateSpace, outstr );
 					el.singleObject.reset( structti );
 					elem.anyList.push_back( std::move( el ) );
 				}
@@ -89,7 +89,7 @@ void RootTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Predefi
 		}
 		default:
 		{
-			TemplateInstantiatorFactory::execBuiltinFunction( stack, fn );
+			ExpressionObject::execBuiltinFunction( stack, fn );
 			break;
 		}
 	}
@@ -98,7 +98,7 @@ void RootTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Predefi
 /////////////////////////////////////////////////////////////////////////
 
 
-void StructTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
+void StructExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
 	switch ( fn.id )
 	{
@@ -125,7 +125,7 @@ void StructTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Prede
 				{
 					StackElement el;
 					el.argtype = ARGTYPE::OBJPTR;
-					StructMemberTemplateInstantiatorFactory* smti = new StructMemberTemplateInstantiatorFactory( *member, templateSpace, outstr );
+					StructMemberExpressionObject* smti = new StructMemberExpressionObject( *member, templateSpace, outstr );
 					el.singleObject.reset( smti );
 					elem.anyList.push_back( std::move( el ) );
 				}
@@ -140,7 +140,7 @@ void StructTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Prede
 		}
 		default:
 		{
-			TemplateInstantiatorFactory::execBuiltinFunction( stack, fn );
+			ExpressionObject::execBuiltinFunction( stack, fn );
 			break;
 		}
 	}
@@ -149,7 +149,7 @@ void StructTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Prede
 /////////////////////////////////////////////////////////////////////////
 
 
-void StructMemberTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
+void StructMemberExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
 	switch ( fn.id )
 	{
@@ -207,8 +207,8 @@ void StructMemberTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack,
 			DataType* memberType = new DataType( member->type );
 			if ( memberType != NULL )
 			{
-				MemberTypeTemplateInstantiatorFactory* mtti = new MemberTypeTemplateInstantiatorFactory( *memberType, templateSpace, outstr );
-				elem.singleObject = unique_ptr<TemplateInstantiatorFactory>(mtti);
+				MemberTypeExpressionObject* mtti = new MemberTypeExpressionObject( *memberType, templateSpace, outstr );
+				elem.singleObject = unique_ptr<ExpressionObject>(mtti);
 			}
 			else
 			{
@@ -220,7 +220,7 @@ void StructMemberTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack,
 		}
 		default:
 		{
-			TemplateInstantiatorFactory::execBuiltinFunction( stack, fn );
+			ExpressionObject::execBuiltinFunction( stack, fn );
 			break;
 		}
 	}
@@ -229,7 +229,7 @@ void StructMemberTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack,
 /////////////////////////////////////////////////////////////////////////
 
 
-void MemberTypeTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
+void MemberTypeExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
 	switch ( fn.id )
 	{
@@ -262,8 +262,8 @@ void MemberTypeTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, P
 			elem.argtype = ARGTYPE::OBJPTR;
 //			assert( dataType->kind == DataType::KIND::SEQUENCE || dataType->kind == DataType::KIND::DICTIONARY );
 			assert( dataType->kind == DataType::KIND::SEQUENCE || dataType->kind == DataType::KIND::DICTIONARY || dataType->kind == DataType::KIND::DISCRIMINATED_UNION ); // TEMPORARY; TODO: go back as soon as proper processing of DISCRIMINATED_UNION is implemented
-			MemberTypeTemplateInstantiatorFactory* mtti = new MemberTypeTemplateInstantiatorFactory( *(dataType->paramType), templateSpace, outstr );
-			elem.singleObject = unique_ptr<TemplateInstantiatorFactory>(mtti);
+			MemberTypeExpressionObject* mtti = new MemberTypeExpressionObject( *(dataType->paramType), templateSpace, outstr );
+			elem.singleObject = unique_ptr<ExpressionObject>(mtti);
 			stack.push_back( std::move(elem) );
 			break;
 		}
@@ -272,8 +272,8 @@ void MemberTypeTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, P
 			StackElement elem;
 			elem.argtype = ARGTYPE::OBJPTR;
 			assert( dataType->kind == DataType::KIND::DICTIONARY );
-			MemberTypeTemplateInstantiatorFactory* mtti = new MemberTypeTemplateInstantiatorFactory( *(dataType->keyType), templateSpace, outstr );
-			elem.singleObject = unique_ptr<TemplateInstantiatorFactory>(mtti);
+			MemberTypeExpressionObject* mtti = new MemberTypeExpressionObject( *(dataType->keyType), templateSpace, outstr );
+			elem.singleObject = unique_ptr<ExpressionObject>(mtti);
 			stack.push_back( std::move(elem) );
 			break;
 		}
@@ -295,7 +295,7 @@ void MemberTypeTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, P
 				assert( encodingEnumVal != dataType->encodingRepresentation->enumValues.end() );
 				StackElement el;
 				el.argtype = ARGTYPE::OBJPTR;
-				EnumValueTemplateInstantiatorFactory* evti = new EnumValueTemplateInstantiatorFactory( enumValName, idlEnumVal->second, mappingEnumVal->second, encodingEnumVal->second, templateSpace, outstr );
+				EnumValueExpressionObject* evti = new EnumValueExpressionObject( enumValName, idlEnumVal->second, mappingEnumVal->second, encodingEnumVal->second, templateSpace, outstr );
 				el.singleObject.reset( evti );
 				elem.anyList.push_back( std::move( el ) );
 			}
@@ -480,7 +480,7 @@ void MemberTypeTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, P
 		}
 		default:
 		{
-			TemplateInstantiatorFactory::execBuiltinFunction( stack, fn );
+			ExpressionObject::execBuiltinFunction( stack, fn );
 			break;
 		}
 	}
@@ -489,7 +489,7 @@ void MemberTypeTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, P
 /////////////////////////////////////////////////////////////////////////
 
 
-void EnumValueTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
+void EnumValueExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
 	switch ( fn.id )
 	{
@@ -528,7 +528,7 @@ void EnumValueTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Pr
 		}
 		default:
 		{
-			TemplateInstantiatorFactory::execBuiltinFunction( stack, fn );
+			ExpressionObject::execBuiltinFunction( stack, fn );
 			break;
 		}
 	}
@@ -537,7 +537,7 @@ void EnumValueTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, Pr
 /////////////////////////////////////////////////////////////////////////
 
 
-void DiscriminatedUnionTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
+void DiscriminatedUnionExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
 	switch ( fn.id )
 	{
@@ -576,7 +576,7 @@ void DiscriminatedUnionTemplateInstantiatorFactory::execBuiltinFunction( Stack& 
 				const BackDataMember* member = dynamic_cast<const BackDataMember*>( structure->getConstMember( j ) );
 				if ( member != NULL )
 				{
-					StructMemberTemplateInstantiatorFactory* smti = new StructMemberTemplateInstantiatorFactory( *member, templateSpace, outstr );
+					StructMemberExpressionObject* smti = new StructMemberExpressionObject( *member, templateSpace, outstr );
 					el.singleObject.reset( smti );
 					elem.anyList.push_back( std::move( el ) );
 				}
@@ -636,7 +636,7 @@ void DiscriminatedUnionTemplateInstantiatorFactory::execBuiltinFunction( Stack& 
 					assert( mappingEnumVal != enumMember->type.mappingRepresentation->enumValues.end() );
 					auto& encodingEnumVal = enumMember->type.encodingRepresentation->enumValues.find( enumValName );
 					assert( encodingEnumVal != enumMember->type.encodingRepresentation->enumValues.end() );
-					DiscriminatedUnionOptionTemplateInstantiatorFactory* duoti = new DiscriminatedUnionOptionTemplateInstantiatorFactory( *enumMember, usedMembers, enumValName, idlEnumVal->second, mappingEnumVal->second, encodingEnumVal->second, templateSpace, outstr );
+					DiscriminatedUnionOptionExpressionObject* duoti = new DiscriminatedUnionOptionExpressionObject( *enumMember, usedMembers, enumValName, idlEnumVal->second, mappingEnumVal->second, encodingEnumVal->second, templateSpace, outstr );
 					el.singleObject.reset( duoti );
 					elem.anyList.push_back( std::move( el ) );
 				}
@@ -662,14 +662,14 @@ void DiscriminatedUnionTemplateInstantiatorFactory::execBuiltinFunction( Stack& 
 			}
 			assert( enumMember != nullptr ); // TODO: report error
 
-			StructMemberTemplateInstantiatorFactory* smti = new StructMemberTemplateInstantiatorFactory( *enumMember, templateSpace, outstr );
-			elem.singleObject = unique_ptr<TemplateInstantiatorFactory>(smti);
+			StructMemberExpressionObject* smti = new StructMemberExpressionObject( *enumMember, templateSpace, outstr );
+			elem.singleObject = unique_ptr<ExpressionObject>(smti);
 			stack.push_back( std::move(elem) );
 			break;
 		}
 		default:
 		{
-			TemplateInstantiatorFactory::execBuiltinFunction( stack, fn );
+			ExpressionObject::execBuiltinFunction( stack, fn );
 			break;
 		}
 	}
@@ -678,7 +678,7 @@ void DiscriminatedUnionTemplateInstantiatorFactory::execBuiltinFunction( Stack& 
 /////////////////////////////////////////////////////////////////////////
 
 
-void DiscriminatedUnionOptionTemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
+void DiscriminatedUnionOptionExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
 	switch ( fn.id )
 	{
@@ -725,7 +725,7 @@ void DiscriminatedUnionOptionTemplateInstantiatorFactory::execBuiltinFunction( S
 				assert( it != NULL );
 				StackElement el;
 				el.argtype = ARGTYPE::OBJPTR;
-				StructMemberTemplateInstantiatorFactory* smti = new StructMemberTemplateInstantiatorFactory( *it, templateSpace, outstr );
+				StructMemberExpressionObject* smti = new StructMemberExpressionObject( *it, templateSpace, outstr );
 				el.singleObject.reset( smti );
 				elem.anyList.push_back( std::move( el ) );
 			}
@@ -734,7 +734,7 @@ void DiscriminatedUnionOptionTemplateInstantiatorFactory::execBuiltinFunction( S
 		}
 		default:
 		{
-			TemplateInstantiatorFactory::execBuiltinFunction( stack, fn );
+			ExpressionObject::execBuiltinFunction( stack, fn );
 			break;
 		}
 	}

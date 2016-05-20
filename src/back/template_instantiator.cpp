@@ -18,17 +18,12 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_instantiator.h"
 #include "template_instantiator_derived.h"
 
-TemplateInstantiator* TemplateInstantiatorFactory::create()
-{
-	return new TemplateInstantiator( templateSpace, outstr );
-}
-	
-void TemplateInstantiatorFactory::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
+void ExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
 	assert( 0 );
 }
 
-string TemplateInstantiatorFactory::context()
+string ExpressionObject::context()
 {
 	fmt::print( "\n" );
 	fmt::print("error: context() available\n" );
@@ -667,6 +662,22 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 			}
 			break;
 		}
+		case NODE_TYPE::DBG_PRINT:
+		{
+			Stack stack;
+			evaluateExpression( node.expression, stack );
+			assert( stack.size() == 1 );
+			if ( stack[0].argtype == ARGTYPE::STRING )
+			{
+				string msg = stack[0].lineParts[0].verbatim;
+				fmt::print("Line {}: message: {}\n", node.srcLineNum, msg );
+			}
+			else
+			{
+				fmt::print("Line {}: message <Error: expression cannot be evaluated to string>\n", node.srcLineNum );
+			}
+			break;
+		}
 		case NODE_TYPE::RETURN:
 		{
 			Stack stack;
@@ -788,7 +799,7 @@ void processStructures( BackRoot& structure, TemplateNodeSpace& templateSpace )
 	TemplateNode* mainT = templateSpace.getTemplate( "MAIN" );
 	if ( mainT != nullptr )
 	{
-		RootTemplateInstantiatorFactory rtif( structure, templateSpace, nullptr );
+		RootExpressionObject rtif( structure, templateSpace, nullptr );
 		TemplateInstantiator::StackElement se;
 		se.argtype = ARGTYPE::OBJPTR;
 		se.singleObject.reset( rtif.clone() );
