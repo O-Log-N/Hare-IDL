@@ -34,6 +34,15 @@ struct TemplateNode
 	bool isReturning = false; // set to true if @@RETURN found down the tree
 };
 
+struct TemplateRootNode
+{
+	bool isFunction;
+	int srcLineNum;
+	string name;
+	vector<TemplateNode> childNodes;
+	vector<AttributeName> params;
+};
+
 void dbgPrintNode_( TemplateNode& node, int depth );
 
 
@@ -41,7 +50,7 @@ class TemplateNodeSpace
 {
 public:
 	// TODO: internals of this class might be havily revised; its interface should hopefully survive
-	vector<TemplateNode> templates;
+	vector<TemplateRootNode> templates;
 	void dbgValidateTemplateSpace()
 	{
 		// TODO (at least):
@@ -49,19 +58,11 @@ public:
 		// 2. for each @@include there must be a template with a respective name
 		// 3. there is at least one template of type ROOT
 	}
-	TemplateNode* getTemplate( string name )
+	TemplateRootNode* getTemplate( string name )
 	{
 		for ( auto& node:templates )
 		{
-			auto attrT = node.attributes.find( {ATTRIBUTE::NAME, ""} );
-			assert( attrT != node.attributes.end() );
-			assert( attrT->second.size() == 1 );
-			assert( attrT->second[0].oper == OPERATOR::PUSH );
-			assert( attrT->second[0].argtype == ARGTYPE::STRING );
-			assert( attrT->second[0].lineParts.size() == 1 );
-			assert( attrT->second[0].lineParts[0].isVerbatim );
-
-			if ( attrT->second[0].lineParts[0].verbatim == name )
+			if ( node.name == name )
 				return &node;
 		}
 		return nullptr;

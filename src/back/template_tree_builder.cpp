@@ -82,7 +82,7 @@ void dbgPrintExpression( vector<ExpressionElement>& expression )
 		}
 		else if ( expression[i].oper == OPERATOR::CALL_USERDEF_FN )
 		{
-			assert( 0 == "NOT IMPLEMENTED" );
+			fmt::print( "{}() ", expression[i].userDefFunction.name.c_str() );
 		}
 		else
 		{
@@ -125,10 +125,31 @@ void dbgPrintNode_( TemplateNode& node, int depth )
 		dbgPrintNode_( node.childNodes[i], depth + 1 );
 }
 
+void dbgPrintRootNode( TemplateRootNode& node, int depth )
+{
+	dbgPrintIndent( depth );
+	fmt::print( "[{}] {} ", node.srcLineNum, node.isFunction ? "FUNCTION-NODE" : "TEMPLATE-NODE" );
+	fmt::print( "NAME= \"{}\" ", node.name );
+	for ( auto p:node.params )
+	{
+		fmt::print( "{}{}", attributeNameToString( p.id ).c_str(), p.ext );
+		fmt::print( " " );
+	}
+	fmt::print( "\n" );
+	for ( size_t i=0; i<node.childNodes.size(); i++ )
+		dbgPrintNode_( node.childNodes[i], depth + 1 );
+}
+
 void postProcessReturningTemplate( TemplateNode& node )
 {
 	assert( node.type != NODE_TYPE::CONTENT );
 	node.isReturning = true;
+	for ( size_t i=0; i<node.childNodes.size(); i++ )
+		postProcessReturningTemplate( node.childNodes[i] );
+}
+
+void postProcessReturningTemplate( TemplateRootNode& node )
+{
 	for ( size_t i=0; i<node.childNodes.size(); i++ )
 		postProcessReturningTemplate( node.childNodes[i] );
 }
@@ -398,93 +419,49 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				root.childNodes.push_back( node );
 				break;
 			}
+			default:
+				return true;
+		}
+	}
+
+	return true;
+}
+
+bool buildTemplateTree( TemplateRootNode& root, vector<TemplateLine>& lines, size_t& flidx, bool& isReturning )
+{
+	for ( ; flidx<lines.size(); )
+	{
+		TemplateLine::LINE_TYPE ltype = lines[flidx].type;
+		switch ( ltype )
+		{
 			case TemplateLine::LINE_TYPE::BEGIN_TEMPLATE:
-#if 0
-			{
-				int lnStart = lines[flidx].srcLineNum;
-				string templateName;
-				auto attrName = lines[flidx].attributes.find( {ATTRIBUTE::NAME, ""} );
-				bool nameOK = attrName != lines[flidx].attributes.end();
-				if ( nameOK )
-				{
-					auto& expr = attrName->second;
-					nameOK = expr.size() == 1;
-					if ( nameOK )
-						nameOK = expr[0].lineParts.size() == 1;
-					if ( nameOK )
-						nameOK = expr[0].lineParts[0].isVerbatim;
-					if ( nameOK )
-						templateName = expr[0].lineParts[0].verbatim;
-					if ( !nameOK )
-					{
-						fmt::print( "line {}: error: template has bad or no name\n", lines[flidx].srcLineNum );
-						assert( 0 );
-						return false;
-					}
-				}
-
-				TemplateNode node;
-				node.type = NODE_TYPE::FULL_TEMPLATE;
-				node.srcLineNum = lines[flidx].srcLineNum;
-				node.attributes = lines[flidx].attributes;
-				++flidx;
-				if ( !buildTemplateTree( node, lines, flidx, isReturning ) )
-					return false;
-				root.childNodes.push_back( node );
-				if ( lines[flidx].type != TemplateLine::LINE_TYPE::END_TEMPLATE )
-				{
-					fmt::print( "line {}: error: END-TEMPLATE expected\n", lines[flidx].srcLineNum );
-					assert( 0 );
-					return false;
-				}
-				string closingTemplateName;
-				attrName = lines[flidx].attributes.find( {ATTRIBUTE::NAME, ""} );
-				nameOK = attrName != lines[flidx].attributes.end();
-				if ( nameOK )
-				{
-					auto& expr = attrName->second;
-					nameOK = expr.size() == 1;
-					if ( nameOK )
-						nameOK = expr[0].lineParts.size() == 1;
-					if ( nameOK )
-						nameOK = expr[0].lineParts[0].isVerbatim;
-					if ( nameOK )
-						closingTemplateName = expr[0].lineParts[0].verbatim;
-
-					if ( nameOK )
-					{
-						if ( templateName != closingTemplateName )
-						{
-							fmt::print( "line {}: error: template name at template begin (see line {}) does not coincide with that at template end\n", lines[flidx].srcLineNum, lnStart );
-							assert( 0 );
-							return false;
-						}
-					}
-					else
-					{
-						fmt::print( "line {}: error: template has bad or no name\n", lines[flidx].srcLineNum );
-						assert( 0 );
-						return false;
-					}
-				}
-				++flidx;
-				break;
-			}
-#endif // 0
 			case TemplateLine::LINE_TYPE::BEGIN_FUNCTION:
 			{
 				int lnStart = lines[flidx].srcLineNum;
 				string templateName;
 				bool nameOK = getTemplateOrFunctionName( lines[flidx], templateName);
 
-				TemplateNode node;
-				node.type = ltype == TemplateLine::LINE_TYPE::BEGIN_FUNCTION ? NODE_TYPE::FULL_FUNCTION : NODE_TYPE::FULL_TEMPLATE;
-				node.srcLineNum = lines[flidx].srcLineNum;
-				node.attributes = lines[flidx].attributes;
+				// Function names are of a special form: FUNCTION-XXX. Let's check it
+				if ( ltype == TemplateLine::LINE_TYPE::BEGIN_FUNCTION )
+				{
+					size_t contentStart = 0;
+					SpecialName sn = parseStandardName( templateName, contentStart );
+					if ( sn.id != PLACEHOLDER::FUNCTION_MINUS )
+					{
+						fmt::print( "line {}: error: name of a user-defined function must be of a form FUNCTION-XXX\n", lines[flidx].srcLineNum );
+						assert( 0 );
+						return false;
+					}
+				}
+
+				root.srcLineNum = lines[flidx].srcLineNum;
 				++flidx;
+				TemplateNode node;
 				if ( !buildTemplateTree( node, lines, flidx, isReturning ) )
 					return false;
-				root.childNodes.push_back( node );
+				root.childNodes = std::move( node.childNodes );
+				root.isFunction = ltype == TemplateLine::LINE_TYPE::BEGIN_FUNCTION || isReturning; // TODO: revise as soon as functions are in effect
+				isReturning = root.isFunction;
 				auto terminator = ltype == TemplateLine::LINE_TYPE::BEGIN_FUNCTION ? TemplateLine::LINE_TYPE::END_FUNCTION : TemplateLine::LINE_TYPE::END_TEMPLATE;
 				if ( lines[flidx].type != terminator )
 				{
@@ -510,6 +487,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 					assert( 0 );
 					return false;
 				}
+				root.name = templateName;
 				++flidx;
 				break;
 			}
@@ -526,16 +504,18 @@ bool loadTemplates( FILE* tf, TemplateNodeSpace& nodeSpace, int& currentLineNum 
 {
 	for (;;)
 	{
-		TemplateNode rootNode;
+		TemplateRootNode rootNode;
 		vector<TemplateLine> templateLines;
 		bool ret = tokenizeTemplateLines( tf, templateLines, currentLineNum );
 		if ( !ret )
 			break;
 		size_t flidx = 0;
-		ret = buildTemplateTree( rootNode, templateLines, flidx, rootNode.isReturning );
-		if ( rootNode.isReturning )
+		bool isReturning = false;
+		ret = buildTemplateTree( rootNode, templateLines, flidx, isReturning );
+		fmt::print( "line {}: {}: {}\n", currentLineNum, rootNode.name, rootNode.isFunction ? "FUNCTION" : "TEMPLATE" );
+		if ( isReturning )
 			postProcessReturningTemplate( rootNode );
-		nodeSpace.templates.push_back( rootNode.childNodes[0] );
+		nodeSpace.templates.push_back( rootNode );
 	}
 	return true;
 }
@@ -544,7 +524,7 @@ void dbgPrintTemplateTrees( TemplateNodeSpace& nodeSpace )
 {
 	for ( auto tt:nodeSpace.templates)
 	{
-		dbgPrintNode_( tt, 0 );
+		dbgPrintRootNode( tt, 0 );
 		fmt::print( "\n" );
 	}
 }

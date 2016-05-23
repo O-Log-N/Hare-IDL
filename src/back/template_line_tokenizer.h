@@ -42,8 +42,8 @@ enum class ATTRIBUTE
 };
 
 enum class NODE_TYPE {
-	FULL_TEMPLATE,
-	FULL_FUNCTION,
+//	FULL_TEMPLATE,
+//	FULL_FUNCTION,
 	CONTENT,
 	IF,
 	INCLUDE,
@@ -197,6 +197,12 @@ struct LinePart2
 	vector<ExpressionElement> expr;
 };
 
+struct UserDefinedFunction
+{
+	string name;
+	int argC;
+};
+
 struct ExpressionElement
 {
 	OPERATOR oper;
@@ -206,7 +212,7 @@ struct ExpressionElement
 	vector<LinePart2> lineParts; // used for ARGTYPE::STRING
 	PredefindedFunction fn; // used for OPERATION::CALL
 	SpecialName ph; // used for OPERATION::PUSH, ARGTYPE::PLACEHOLDER
-	SpecialName userDefFunction;
+	UserDefinedFunction userDefFunction;
 };
 
 class AttributeName

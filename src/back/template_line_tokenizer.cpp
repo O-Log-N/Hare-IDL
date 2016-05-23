@@ -214,9 +214,15 @@ bool parseIdentifier( const string& line, size_t& currentPos, vector<ExpressionE
 					++currentPos; // for opening '('
 					ExpressionElement fncall;
 					fncall.oper = OPERATOR::CALL_USERDEF_FN;
-					fncall.userDefFunction = ph;
+					fncall.userDefFunction.name = standardNameToString( ph );
 					postfixOperations.push_back( fncall );
 					skipSpaces( line, currentPos );
+					fncall.userDefFunction.argC = readFunctionArguments( line, currentPos, expression, currentLineNum );
+					while ( postfixOperations.size() )
+					{
+						expression.push_back( postfixOperations.back() );
+						postfixOperations.pop_back();
+					}
 				}
 				else if ( ph.id != PLACEHOLDER::VERBATIM )
 				{

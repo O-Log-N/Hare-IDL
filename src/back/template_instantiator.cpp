@@ -310,11 +310,6 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 					}
 					case ARGTYPE::PLACEHOLDER:
 					{
-						// TODO: resolving placeholder should result in a stack element, not in a string!!!
-/*						LinePart part;
-						part.type = PLACEHOLDER::VERBATIM;
-						part.verbatim = specialNameAsString( it.ph );
-						se.lineParts.push_back( part );*/
 						se = placeholder( it. ph );
 						break;
 					}
@@ -378,6 +373,27 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 			case OPERATOR::CALL_BUILTIN_FN: 
 			{
 				execBuiltinFunction( stack, it.fn );
+				break;
+			}
+			case OPERATOR::CALL_USERDEF_FN: 
+			{
+				assert( 0 == "NOT IMPLEMENTED" );
+				assert( stack.size() >= it.userDefFunction.argC );
+				TemplateRootNode* tn = templateSpace.getTemplate( it.userDefFunction.name );
+				if ( tn == nullptr )
+				{
+					assert( 0 ); // TODO: throw
+				}
+				map<string, StackElement> resolvedParamPlaceholdersNew;
+				map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
+				map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
+				resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersNew) );
+				bool ret = applyNode( *tn );
+				// restore ini content of resolved params and locals
+				resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersIni) );
+				resolvedLocalPlaceholders = map<string, StackElement>( std::move(resolvedLocalPlaceholdersIni) );
+#if 0
+#endif
 				break;
 			}
 			case OPERATOR::ADD:
@@ -490,7 +506,7 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 bool TemplateInstantiator::applyIncludeNode( TemplateNode& node, bool isReturning )
 {
 	map<string, StackElement> resolvedParamPlaceholdersNew;
-	TemplateNode* tn = prepareDataForTemplateInclusion( this, resolvedParamPlaceholdersNew, node, isReturning );
+	TemplateRootNode* tn = prepareDataForTemplateInclusion( this, resolvedParamPlaceholdersNew, node, isReturning );
 	map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
 	map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
 	resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersNew) );
@@ -502,7 +518,7 @@ bool TemplateInstantiator::applyIncludeNode( TemplateNode& node, bool isReturnin
 	return ret;
 }
 
-TemplateNode* TemplateInstantiator::prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isReturning )
+TemplateRootNode* TemplateInstantiator::prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isReturning )
 {
 	Stack stack;
 	auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
@@ -513,12 +529,12 @@ TemplateNode* TemplateInstantiator::prepareDataForTemplateInclusion( TemplateIns
 	assert( stack[0].argtype == ARGTYPE::STRING );
 	string templateName = stack[0].lineParts[0].verbatim;
 
-	TemplateNode* tn = templateSpace.getTemplate( templateName );
+	TemplateRootNode* tn = templateSpace.getTemplate( templateName );
 	if ( tn == nullptr )
 	{
 		assert( 0 ); // TODO: throw
 	}
-	if ( isReturning && (!tn->isReturning) ) // calling non-returning from returning is prohibited
+	if ( isReturning && (!tn->isFunction) ) // calling non-returning from returning is prohibited
 	{
 		assert( 0 ); // TODO: throw
 	}
@@ -537,21 +553,17 @@ TemplateNode* TemplateInstantiator::prepareDataForTemplateInclusion( TemplateIns
 }
 
 
+bool TemplateInstantiator::applyNode( TemplateRootNode& node )
+{
+	for ( auto& nodeIt: node.childNodes )
+		if ( !applyNode( nodeIt ) )
+			return false;
+	return true;
+}
 bool TemplateInstantiator::applyNode( TemplateNode& node )
 {
 	switch ( node.type )
 	{
-		case NODE_TYPE::FULL_TEMPLATE:
-		case NODE_TYPE::FULL_FUNCTION:
-		{
-			for ( auto& nodeIt: node.childNodes )
-				if ( !applyNode( nodeIt ) )
-				{
-					assert( node.isReturning );
-					return false;
-				}
-			break;
-		}
 		case NODE_TYPE::CONTENT:
 		{
 			if ( outstr == nullptr )
@@ -816,7 +828,7 @@ string TemplateInstantiator::context()
 void processStructures( BackRoot& structure, TemplateNodeSpace& templateSpace )
 {
 	TemplateInstantiator ti( templateSpace, nullptr );
-	TemplateNode* mainT = templateSpace.getTemplate( "MAIN" );
+	TemplateRootNode* mainT = templateSpace.getTemplate( "MAIN" );
 	if ( mainT != nullptr )
 	{
 		RootExpressionObject rtif( structure, templateSpace, nullptr );

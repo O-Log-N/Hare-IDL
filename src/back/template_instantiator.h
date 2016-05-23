@@ -176,9 +176,10 @@ protected:
 	void execBuiltinFunction( Stack& stack, PredefindedFunction fn );
 	bool calcConditionOfIfNode( TemplateNode& ifNode );
 	void evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack );
+	bool applyNode( TemplateRootNode& node );
 	bool applyNode( TemplateNode& node );
 	bool applyIncludeNode( TemplateNode& node, bool isReturning );
-	TemplateNode* prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, ExpressionObject::StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isReturning );
+	TemplateRootNode* prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, ExpressionObject::StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isReturning );
 	string resolveLinePartsToString( const vector<LinePart2>& lineParts );
 	string specialNameAsString( SpecialName ph );
 	virtual string context();
