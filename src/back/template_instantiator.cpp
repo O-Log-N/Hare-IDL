@@ -35,7 +35,7 @@ string ExpressionObject::context()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string TemplateInstantiator::placeholderAsString( Placeholder ph )
+string TemplateInstantiator::specialNameAsString( SpecialName ph )
 {
 	StackElement& se = placeholder( ph );
 	// TODO: here we may need to perform type convergence
@@ -313,7 +313,7 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 						// TODO: resolving placeholder should result in a stack element, not in a string!!!
 /*						LinePart part;
 						part.type = PLACEHOLDER::VERBATIM;
-						part.verbatim = placeholderAsString( it.ph );
+						part.verbatim = specialNameAsString( it.ph );
 						se.lineParts.push_back( part );*/
 						se = placeholder( it. ph );
 						break;
@@ -375,7 +375,7 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 				stack.push_back( std::move(se) );
 				break;
 			}
-			case OPERATOR::CALL: 
+			case OPERATOR::CALL_BUILTIN_FN: 
 			{
 				execBuiltinFunction( stack, it.fn );
 				break;
@@ -542,6 +542,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 	switch ( node.type )
 	{
 		case NODE_TYPE::FULL_TEMPLATE:
+		case NODE_TYPE::FULL_FUNCTION:
 		{
 			for ( auto& nodeIt: node.childNodes )
 				if ( !applyNode( nodeIt ) )
@@ -772,7 +773,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 	return true;
 }
 
-TemplateInstantiator::StackElement TemplateInstantiator::placeholder( Placeholder ph )
+TemplateInstantiator::StackElement TemplateInstantiator::placeholder( SpecialName ph )
 {
 	if ( ph.id == PLACEHOLDER::PARAM_MINUS )
 	{

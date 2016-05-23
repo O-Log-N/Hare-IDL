@@ -74,7 +74,7 @@ void readLineParts( const string& line, size_t& currentPos, vector<LinePart2>& p
 		{
 			++currentPos;
 #if 0
-			Placeholder placehldr = parsePlaceholder( line, currentPos );
+			SpecialName placehldr = parsePlaceholder( line, currentPos );
 			if ( placehldr.id == PLACEHOLDER::VERBATIM )
 			{
 				part.verbatim.push_back( '@' ); 
@@ -126,6 +126,41 @@ void readLineParts( const string& line, size_t& currentPos, vector<LinePart2>& p
 	}
 }
 
+int readFunctionArguments( const string& line, size_t& currentPos, vector<ExpressionElement>& expression, int currentLineNum )
+{
+	int argCnt = 0;
+	size_t iniExprSz;
+	char terminator;
+	bool afterComma = false;
+	do
+	{
+		skipSpaces( line, currentPos );
+		iniExprSz = expression.size();
+		vector<ExpressionElement> expression2;
+		parseExpression( line, currentPos, expression2, currentLineNum );
+		if ( expression2.size() == 0 && afterComma )
+		{
+			fmt::print( "line {}:  expression expected after ','\n", currentLineNum );
+			assert( 0 ); // TODO: throw
+		}
+		for ( auto eit:expression2 )
+			expression.push_back( eit );
+		skipSpaces( line, currentPos );
+		if ( expression.size() > iniExprSz )
+			++argCnt;
+		terminator = line[currentPos++];
+		afterComma = true;
+	}
+	while ( terminator == ',' );
+	if ( terminator != ')' )
+	{
+		fmt::print( "line {}: error: ')' expected\n", currentLineNum );
+		assert( 0 ); // TODO: throw
+	}
+	skipSpaces( line, currentPos );
+	return argCnt;
+}
+
 bool parseIdentifier( const string& line, size_t& currentPos, vector<ExpressionElement>& expression, int currentLineNum, vector<ExpressionElement>& postfixOperations, size_t prevPos, bool memberFnCallExpected )
 {
 		if ( ( line[currentPos] >= 'a' && line[currentPos] <= 'z' ) || 
@@ -134,14 +169,14 @@ bool parseIdentifier( const string& line, size_t& currentPos, vector<ExpressionE
 		{
 			// we expect a predefined function or a PARAM- or LOCAL- placeholder here
 			PredefindedFunction fn = parsePredefinedFunction( line, currentPos );
-			if ( fn.id == PREDEFINED_FUNCTION::NOT_A_FUNCTION )
+			if ( fn.id == PREDEFINED_FUNCTION::NOT_A_BUILTIN_FUNCTION )
 			{
 				if ( memberFnCallExpected )
 				{
 					fmt::print( "line {}: function call expected\n", currentLineNum );
 					assert( 0 ); // TODO: throw
 				}
-				Placeholder ph =parsePlaceholder( line, currentPos );
+				SpecialName ph =parseStandardName( line, currentPos );
 				if ( ph.id == PLACEHOLDER::PARAM_MINUS || ph.id == PLACEHOLDER::LOCAL_MINUS )
 				{
 					ExpressionElement elem;
@@ -160,6 +195,27 @@ bool parseIdentifier( const string& line, size_t& currentPos, vector<ExpressionE
 						expression.push_back( postfixOperations.back() );
 						postfixOperations.pop_back();
 					}
+					skipSpaces( line, currentPos );
+				}
+				else if ( ph.id == PLACEHOLDER::FUNCTION_MINUS ) // user-defined function
+				{
+					if ( memberFnCallExpected )
+					{
+						fmt::print( "line {}: function {} cannot be called with respect to an object\n", currentLineNum, standardNameToString( ph ) );
+						assert( 0 ); // TODO: throw
+						return false;
+					}
+					skipSpaces( line, currentPos );
+					if ( line[currentPos] != '(' )
+					{
+						fmt::print( "line {}:  expected '('\n", currentLineNum );
+						assert( 0 ); // TODO: throw
+					}
+					++currentPos; // for opening '('
+					ExpressionElement fncall;
+					fncall.oper = OPERATOR::CALL_USERDEF_FN;
+					fncall.userDefFunction = ph;
+					postfixOperations.push_back( fncall );
 					skipSpaces( line, currentPos );
 				}
 				else if ( ph.id != PLACEHOLDER::VERBATIM )
@@ -219,10 +275,11 @@ bool parseIdentifier( const string& line, size_t& currentPos, vector<ExpressionE
 				}
 				++currentPos; // for opening '('
 				ExpressionElement fncall;
-				fncall.oper = OPERATOR::CALL;
+				fncall.oper = OPERATOR::CALL_BUILTIN_FN;
 				fncall.fn = fn;
 				postfixOperations.push_back( fncall );
 				skipSpaces( line, currentPos );
+#if 0
 				int argCnt = 0;
 				size_t iniExprSz;
 				char terminator;
@@ -253,6 +310,9 @@ bool parseIdentifier( const string& line, size_t& currentPos, vector<ExpressionE
 					assert( 0 ); // TODO: throw
 				}
 				skipSpaces( line, currentPos );
+#else
+				int argCnt = readFunctionArguments( line, currentPos, expression, currentLineNum );
+#endif
 				// quick sanity check for arg'less function
 				// TODO: indeed, we can calculate a number of actually supplied args
 				if ( fn.argC != argCnt )
@@ -260,7 +320,6 @@ bool parseIdentifier( const string& line, size_t& currentPos, vector<ExpressionE
 					fmt::print( "line {}: function {} takes {} arguments ({} actually supplied)\n", currentLineNum, functionNameToString( fn.id ), fn.argC, argCnt );
 					assert( 0 ); // TODO: throw
 				}
-				skipSpaces( line, currentPos );
 				while ( postfixOperations.size() )
 				{
 					expression.push_back( postfixOperations.back() );
@@ -380,9 +439,9 @@ void parseExpression( const string& line, size_t& currentPos, vector<ExpressionE
 #if 0
 			// we expect a predefined function or a PARAM- or LOCAL- placeholder here
 			PredefindedFunction fn = parsePredefinedFunction( line, currentPos );
-			if ( fn.id == PREDEFINED_FUNCTION::NOT_A_FUNCTION )
+			if ( fn.id == PREDEFINED_FUNCTION::NOT_A_BUILTIN_FUNCTION )
 			{
-				Placeholder ph =parsePlaceholder( line, currentPos );
+				SpecialName ph =parsePlaceholder( line, currentPos );
 				if ( ph.id == PLACEHOLDER::PARAM_MINUS || ph.id == PLACEHOLDER::LOCAL_MINUS )
 				{
 					ExpressionElement elem;
@@ -734,7 +793,7 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 		}
 		else
 		{
-			if ( tl.type == TemplateLine::LINE_TYPE::BEGIN_TEMPLATE )
+			if ( tl.type == TemplateLine::LINE_TYPE::BEGIN_TEMPLATE || tl.type == TemplateLine::LINE_TYPE::BEGIN_FUNCTION )
 				startFound = true;
 			if ( !startFound )
 			{
@@ -745,7 +804,7 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 				parseExpression( line, pos, tl.expression, currentLineNum );
 			readAttributes( line, pos, tl, currentLineNum );
 			templateLines.push_back( tl );
-			if ( tl.type == TemplateLine::LINE_TYPE::END_TEMPLATE )
+			if ( tl.type == TemplateLine::LINE_TYPE::END_TEMPLATE || tl.type == TemplateLine::LINE_TYPE::BEGIN_FUNCTION )
 				return true;
 		}
 	}

@@ -43,6 +43,7 @@ enum class ATTRIBUTE
 
 enum class NODE_TYPE {
 	FULL_TEMPLATE,
+	FULL_FUNCTION,
 	CONTENT,
 	IF,
 	INCLUDE,
@@ -61,13 +62,15 @@ enum class PLACEHOLDER {
 	VERBATIM,
 	PARAM_MINUS,
 	LOCAL_MINUS,
+	FUNCTION_MINUS,
 	FROM_TEMPLATE,
 };
 
 enum class OPERATOR { 
 	INVALID,
 	PUSH, 
-	CALL, 
+	CALL_BUILTIN_FN, 
+	CALL_USERDEF_FN,
 	EQ, 
 	NEQ,
 	GREATER,
@@ -83,7 +86,7 @@ enum class OPERATOR {
 	OR,
 };
 
-struct Placeholder
+struct SpecialName
 {
 	PLACEHOLDER id;
 	string specific;
@@ -91,7 +94,7 @@ struct Placeholder
 
 enum class PREDEFINED_FUNCTION
 {
-	NOT_A_FUNCTION,
+	NOT_A_BUILTIN_FUNCTION,
 
 	HAS_VALUE,
 
@@ -202,7 +205,8 @@ struct ExpressionElement
     double numberValue = 0; // argtype: ARGTYPE::NUMBER
 	vector<LinePart2> lineParts; // used for ARGTYPE::STRING
 	PredefindedFunction fn; // used for OPERATION::CALL
-	Placeholder ph; // used for OPERATION::PUSH, ARGTYPE::PLACEHOLDER
+	SpecialName ph; // used for OPERATION::PUSH, ARGTYPE::PLACEHOLDER
+	SpecialName userDefFunction;
 };
 
 class AttributeName
@@ -227,6 +231,8 @@ struct TemplateLine
 		CONTINUED_LINE,
 		BEGIN_TEMPLATE,
 		END_TEMPLATE,
+		BEGIN_FUNCTION,
+		END_FUNCTION,
 		IF,
 		ELSE,
 		ELIF,

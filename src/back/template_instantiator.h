@@ -180,9 +180,9 @@ protected:
 	bool applyIncludeNode( TemplateNode& node, bool isReturning );
 	TemplateNode* prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, ExpressionObject::StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isReturning );
 	string resolveLinePartsToString( const vector<LinePart2>& lineParts );
-	string placeholderAsString( Placeholder ph );
+	string specialNameAsString( SpecialName ph );
 	virtual string context();
-	virtual ExpressionObject::StackElement placeholder( Placeholder ph );
+	virtual ExpressionObject::StackElement placeholder( SpecialName ph );
 
 public:
 	TemplateInstantiator( TemplateNodeSpace& templateSpace_, FILE* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}

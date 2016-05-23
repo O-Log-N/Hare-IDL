@@ -37,8 +37,8 @@ void dbgPrintLineParts( vector<LinePart2>& parts )
 		else
 		{
 #if 0
-			Placeholder ph = {parts[i].type, parts[i].verbatim};
-			string placeholderStr = placeholderToString( ph );
+			SpecialName ph = {parts[i].type, parts[i].verbatim};
+			string placeholderStr = standardNameToString( ph );
 			fmt::print( "@{}@", placeholderStr.c_str() );
 #else
 			fmt::print( "@" );
@@ -68,7 +68,7 @@ void dbgPrintExpression( vector<ExpressionElement>& expression )
 				case ARGTYPE::NUMBER: fmt::print( "{} ", expression[i].numberValue ); break;
 				case ARGTYPE::PLACEHOLDER:
 				{
-					string placeholderStr = placeholderToString( expression[i].ph );
+					string placeholderStr = standardNameToString( expression[i].ph );
 					fmt::print( "{} ", placeholderStr.c_str() );
 					break;
 				}
@@ -76,9 +76,13 @@ void dbgPrintExpression( vector<ExpressionElement>& expression )
 				default: fmt::print( "[????[type={}]????] ", static_cast<int>(expression[i].argtype) ); break;
 			}
 		}
-		else if ( expression[i].oper == OPERATOR::CALL )
+		else if ( expression[i].oper == OPERATOR::CALL_BUILTIN_FN )
 		{
 			fmt::print( "{}() ", functionNameToString( expression[i].fn.id ).c_str() );
+		}
+		else if ( expression[i].oper == OPERATOR::CALL_USERDEF_FN )
+		{
+			assert( 0 == "NOT IMPLEMENTED" );
 		}
 		else
 		{
@@ -127,6 +131,30 @@ void postProcessReturningTemplate( TemplateNode& node )
 	node.isReturning = true;
 	for ( size_t i=0; i<node.childNodes.size(); i++ )
 		postProcessReturningTemplate( node.childNodes[i] );
+}
+
+bool getTemplateOrFunctionName( const TemplateLine& line, string& templateName)
+{
+	auto attrName = line.attributes.find( {ATTRIBUTE::NAME, ""} );
+	bool nameOK = attrName != line.attributes.end();
+	if ( nameOK )
+	{
+		auto& expr = attrName->second;
+		nameOK = expr.size() == 1;
+		if ( nameOK )
+			nameOK = expr[0].lineParts.size() == 1;
+		if ( nameOK )
+			nameOK = expr[0].lineParts[0].isVerbatim;
+		if ( nameOK )
+			templateName = expr[0].lineParts[0].verbatim;
+		if ( !nameOK )
+		{
+			fmt::print( "line {}: error: template/function has bad or no name\n", line.srcLineNum );
+			assert( 0 );
+			return false;
+		}
+	}
+	return nameOK;
 }
 
 bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t& flidx, bool& isReturning )
@@ -371,6 +399,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				break;
 			}
 			case TemplateLine::LINE_TYPE::BEGIN_TEMPLATE:
+#if 0
 			{
 				int lnStart = lines[flidx].srcLineNum;
 				string templateName;
@@ -437,6 +466,49 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 						assert( 0 );
 						return false;
 					}
+				}
+				++flidx;
+				break;
+			}
+#endif // 0
+			case TemplateLine::LINE_TYPE::BEGIN_FUNCTION:
+			{
+				int lnStart = lines[flidx].srcLineNum;
+				string templateName;
+				bool nameOK = getTemplateOrFunctionName( lines[flidx], templateName);
+
+				TemplateNode node;
+				node.type = ltype == TemplateLine::LINE_TYPE::BEGIN_FUNCTION ? NODE_TYPE::FULL_FUNCTION : NODE_TYPE::FULL_TEMPLATE;
+				node.srcLineNum = lines[flidx].srcLineNum;
+				node.attributes = lines[flidx].attributes;
+				++flidx;
+				if ( !buildTemplateTree( node, lines, flidx, isReturning ) )
+					return false;
+				root.childNodes.push_back( node );
+				auto terminator = ltype == TemplateLine::LINE_TYPE::BEGIN_FUNCTION ? TemplateLine::LINE_TYPE::END_FUNCTION : TemplateLine::LINE_TYPE::END_TEMPLATE;
+				if ( lines[flidx].type != terminator )
+				{
+					fmt::print( "line {}: error: {} expected\n", lines[flidx].srcLineNum, mainKeywordToString( terminator ) );
+					assert( 0 );
+					return false;
+				}
+
+				string closingTemplateName;
+				nameOK = getTemplateOrFunctionName( lines[flidx], closingTemplateName);
+				if ( nameOK )
+				{
+					if ( templateName != closingTemplateName )
+					{
+						fmt::print( "line {}: error: template/function name at template begin (see line {}) does not coincide with that at template/function end\n", lines[flidx].srcLineNum, lnStart );
+						assert( 0 );
+						return false;
+					}
+				}
+				else
+				{
+					fmt::print( "line {}: error: template has bad or no name\n", lines[flidx].srcLineNum );
+					assert( 0 );
+					return false;
 				}
 				++flidx;
 				break;
