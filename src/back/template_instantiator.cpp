@@ -377,23 +377,31 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 			}
 			case OPERATOR::CALL_USERDEF_FN: 
 			{
-				assert( 0 == "NOT IMPLEMENTED" );
 				assert( stack.size() >= it.userDefFunction.argC );
 				TemplateRootNode* tn = templateSpace.getTemplate( it.userDefFunction.name );
 				if ( tn == nullptr )
 				{
 					assert( 0 ); // TODO: throw
 				}
-				map<string, StackElement> resolvedParamPlaceholdersNew;
+				if ( it.userDefFunction.argC != tn->params.size() )
+				{
+					fmt::print("Instantiation error: function call {} has {} parameters while respective template function requires {}", it.userDefFunction.name, it.userDefFunction.argC, tn->params.size() );
+					assert(0); // TODO: replace by throwing an exception or alike
+				}
 				map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
 				map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
+				map<string, StackElement> resolvedParamPlaceholdersNew;
 				resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersNew) );
+				for ( int i=0; i<it.userDefFunction.argC; ++i)
+				{
+					resolvedParamPlaceholders.insert( make_pair( tn->params[i].ext, *(stack.begin() + stack.size() - it.userDefFunction.argC + i) ) );
+				}
 				bool ret = applyNode( *tn );
 				// restore ini content of resolved params and locals
 				resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersIni) );
 				resolvedLocalPlaceholders = map<string, StackElement>( std::move(resolvedLocalPlaceholdersIni) );
-#if 0
-#endif
+				stack.erase( stack.begin() + stack.size() - it.userDefFunction.argC, stack.end() );
+				stack.push_back( fromTemplate );
 				break;
 			}
 			case OPERATOR::ADD:
@@ -552,7 +560,6 @@ TemplateRootNode* TemplateInstantiator::prepareDataForTemplateInclusion( Templat
 	return tn;
 }
 
-
 bool TemplateInstantiator::applyNode( TemplateRootNode& node )
 {
 	for ( auto& nodeIt: node.childNodes )
@@ -560,6 +567,7 @@ bool TemplateInstantiator::applyNode( TemplateRootNode& node )
 			return false;
 	return true;
 }
+
 bool TemplateInstantiator::applyNode( TemplateNode& node )
 {
 	switch ( node.type )

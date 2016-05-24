@@ -455,11 +455,14 @@ bool buildTemplateTree( TemplateRootNode& root, vector<TemplateLine>& lines, siz
 				}
 
 				root.srcLineNum = lines[flidx].srcLineNum;
+				for (auto& p:lines[flidx].args)
+					root.params.push_back( p );
 				++flidx;
 				TemplateNode node;
 				if ( !buildTemplateTree( node, lines, flidx, isReturning ) )
 					return false;
 				root.childNodes = std::move( node.childNodes );
+//				root.params = std::move( lines[flidx].args );
 				root.isFunction = ltype == TemplateLine::LINE_TYPE::BEGIN_FUNCTION || isReturning; // TODO: revise as soon as functions are in effect
 				isReturning = root.isFunction;
 				auto terminator = ltype == TemplateLine::LINE_TYPE::BEGIN_FUNCTION ? TemplateLine::LINE_TYPE::END_FUNCTION : TemplateLine::LINE_TYPE::END_TEMPLATE;

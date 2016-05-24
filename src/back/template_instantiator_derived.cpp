@@ -261,7 +261,7 @@ void MemberTypeExpressionObject::execBuiltinFunction( Stack& stack, PredefindedF
 			StackElement elem;
 			elem.argtype = ARGTYPE::OBJPTR;
 //			assert( dataType->kind == DataType::KIND::SEQUENCE || dataType->kind == DataType::KIND::DICTIONARY );
-			assert( dataType->kind == DataType::KIND::SEQUENCE || dataType->kind == DataType::KIND::DICTIONARY || dataType->kind == DataType::KIND::DISCRIMINATED_UNION ); // TEMPORARY; TODO: go back as soon as proper processing of DISCRIMINATED_UNION is implemented
+			assert( dataType->kind == DataType::KIND::SEQUENCE || dataType->kind == DataType::KIND::DICTIONARY || dataType->kind == DataType::KIND::DISCRIMINATED_UNION || dataType->kind == DataType::KIND::NAMED_TYPE ); // TEMPORARY; TODO: go back as soon as proper processing of DISCRIMINATED_UNION is implemented
 			MemberTypeExpressionObject* mtti = new MemberTypeExpressionObject( *(dataType->paramType), templateSpace, outstr );
 			elem.singleObject = unique_ptr<ExpressionObject>(mtti);
 			stack.push_back( std::move(elem) );

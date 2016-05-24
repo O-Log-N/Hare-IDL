@@ -42,8 +42,6 @@ enum class ATTRIBUTE
 };
 
 enum class NODE_TYPE {
-//	FULL_TEMPLATE,
-//	FULL_FUNCTION,
 	CONTENT,
 	IF,
 	INCLUDE,
@@ -260,6 +258,7 @@ struct TemplateLine
 	LINE_TYPE type;
 	int srcLineNum;
 	map<AttributeName, vector<ExpressionElement>> attributes;
+	vector<AttributeName> args;
 	vector<ExpressionElement> expression; // used only for NODE_TYPE::IF(ELIF) and NODE_TYPE::ASSERT
 };
 

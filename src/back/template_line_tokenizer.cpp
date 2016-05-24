@@ -215,9 +215,9 @@ bool parseIdentifier( const string& line, size_t& currentPos, vector<ExpressionE
 					ExpressionElement fncall;
 					fncall.oper = OPERATOR::CALL_USERDEF_FN;
 					fncall.userDefFunction.name = standardNameToString( ph );
-					postfixOperations.push_back( fncall );
 					skipSpaces( line, currentPos );
 					fncall.userDefFunction.argC = readFunctionArguments( line, currentPos, expression, currentLineNum );
+					postfixOperations.push_back( fncall );
 					while ( postfixOperations.size() )
 					{
 						expression.push_back( postfixOperations.back() );
@@ -673,6 +673,42 @@ void readAttributes( const string& line, size_t& pos, TemplateLine& tl, int curr
 	}
 }
 
+void readNextInputParameter( const string& line, size_t& pos, TemplateLine& tl, int currentLineNum )
+{
+	size_t sz = line.size();
+	AttributeName attrName;
+	readAttributeName( line, pos, attrName, currentLineNum );
+	if ( attrName.id == ATTRIBUTE::NONE )
+	{
+		fmt::print( "line {}: error: unexpected tokens at the end of line\n", currentLineNum );
+		assert( 0 ); // TODO: throw
+	}
+	skipSpaces( line, pos );
+
+	if ( line[ pos ] == '=' )
+	{
+		fmt::print( "line {}: error: unexpected token '='\n", currentLineNum );
+		assert( 0 ); // TODO: throw
+	}
+	else
+	{
+		tl.args.push_back( attrName );
+	}
+
+}
+
+void readInputParameters( const string& line, size_t& pos, TemplateLine& tl, int currentLineNum )
+{
+	// attributes (with, potentially, their values) are the rest of the line
+	size_t sz = line.size();
+	skipSpaces( line, pos );
+	while ( pos != sz )
+	{
+		readNextInputParameter( line, pos, tl, currentLineNum );
+		skipSpaces( line, pos );
+	}
+}
+
 bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& currentLineNum )
 {
 	bool startFound = false;
@@ -799,6 +835,10 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 		}
 		else
 		{
+			bool fnHead = tl.type == TemplateLine::LINE_TYPE::BEGIN_FUNCTION;
+			bool tHead = tl.type == TemplateLine::LINE_TYPE::BEGIN_TEMPLATE;
+			if ( tl.type == TemplateLine::LINE_TYPE::BEGIN_FUNCTION )
+				tl.type = tl.type;
 			if ( tl.type == TemplateLine::LINE_TYPE::BEGIN_TEMPLATE || tl.type == TemplateLine::LINE_TYPE::BEGIN_FUNCTION )
 				startFound = true;
 			if ( !startFound )
@@ -808,9 +848,34 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 			}
 			if ( props.expressionRequired )
 				parseExpression( line, pos, tl.expression, currentLineNum );
-			readAttributes( line, pos, tl, currentLineNum );
+			if ( fnHead || tHead )
+			{
+				skipSpaces( line, pos );
+				readNextParam( line, pos, tl, currentLineNum );
+				skipSpaces( line, pos );
+				if ( tl.attributes.size() == 0 || tl.attributes.begin()->first.id != ATTRIBUTE::NAME )
+				{
+					fmt::print( "line {}: error: template/function name is expected\n", currentLineNum );
+					assert( 0 ); // TODO: throw
+				}
+				if ( tl.attributes.size() > 1 )
+				{
+					fmt::print( "line {}: error: unexpected attributes (only template/function name is expected)\n", currentLineNum );
+					assert( 0 ); // TODO: throw
+				}
+				readInputParameters( line, pos, tl, currentLineNum );
+				if ( pos < line.size() )
+				{
+					fmt::print( "line {}: error: unexpected tokens at the end of the line\n", currentLineNum );
+					assert( 0 ); // TODO: throw
+				}
+			}
+			else
+			{
+				readAttributes( line, pos, tl, currentLineNum );
+			}
 			templateLines.push_back( tl );
-			if ( tl.type == TemplateLine::LINE_TYPE::END_TEMPLATE || tl.type == TemplateLine::LINE_TYPE::BEGIN_FUNCTION )
+			if ( tl.type == TemplateLine::LINE_TYPE::END_TEMPLATE || tl.type == TemplateLine::LINE_TYPE::END_FUNCTION )
 				return true;
 		}
 	}
