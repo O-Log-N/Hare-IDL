@@ -443,8 +443,8 @@ void MemberTypeExpressionObject::execBuiltinFunction( Stack& stack, PredefindedF
 			StackElement elem;
 			elem.argtype = ARGTYPE::BOOL;
 			elem.boolValue = dataType->kind == DataType::KIND::CHARACTER_STRING;
-			if ( elem.boolValue )
-				assert( dataType->name.size() == 0 );
+/*			if ( elem.boolValue )
+				assert( dataType->name.size() == 0 );*/ // TODO: revise
 			stack.push_back( std::move(elem) );
 			break;
 		}

@@ -71,7 +71,7 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart2>& 
 	{
 		if ( lp.isVerbatim )
 			ret += lp.verbatim;
-		else
+		else if ( lp.expr.size() )
 		{
 			Stack stack;
 			evaluateExpression( lp.expr, stack );
