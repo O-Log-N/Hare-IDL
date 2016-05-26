@@ -21,14 +21,39 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_instantiator_derived.h"
 #include "idl_tree_finalizer.h"
 
+#include "../front-back/idl_tree_serializer.h"
+
 using namespace std;
 
-void idlcBackEnd( Root& root )
+void idlcBackEnd( Root& root2 )
 {
+#if 0
+	// serialize tree
+	FILE* out = fopen( "idl_tree.bin", "wb" );
+	OStream o(out);
+	serializeRoot( root2, o );
+	fclose( out );
+
+
+	// deserialize tree
+	Root root1;
+	uint8_t baseBuff[0x10000];
+	FILE* in = fopen( "idl_tree.bin", "rb" );
+	size_t sz = fread( baseBuff, 1, 0x10000, in );
+	fclose( in );
+	IStream i( baseBuff, sz );
+	deserializeRoot( root1, i );
+
+	Root& root = root1;
+#else
+	Root& root = root2;
+#endif
+
+	// further usage
 	BackRoot backRoot;
 	convertToBackTree( root, backRoot );
-//	TREE_DATA_COMPLETION_SCENARIO scenario = TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY; // TODO: must be precalculated from user input
-	TREE_DATA_COMPLETION_SCENARIO scenario = TREE_DATA_COMPLETION_SCENARIO::IDL_ONLY; // TODO: must be precalculated from user input
+	TREE_DATA_COMPLETION_SCENARIO scenario = TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY; // TODO: must be precalculated from user input
+//	TREE_DATA_COMPLETION_SCENARIO scenario = TREE_DATA_COMPLETION_SCENARIO::IDL_ONLY; // TODO: must be precalculated from user input
 	finalizeTree( backRoot, scenario );
 
 	TemplateNodeSpace nodeSpace;

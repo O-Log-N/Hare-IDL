@@ -192,6 +192,23 @@ string getTypeFromIdl( DataType& type, Structure::DECLTYPE declType )
 			// NOTE: temporary code!!!
 			return type.name;
 		}*/
+		case DataType::KIND::MAPPING_SPECIFIC:
+		{
+			if ( type.name == "_Bool" )
+				return "bool";
+			else
+				return type.name;
+			assert( 0 ); // TODO: address!
+		}
+		case DataType::KIND::DICTIONARY:
+		{
+			return "map";
+			assert( 0 ); // TODO: address!
+		}
+		case DataType::KIND::CHARACTER_STRING:
+		{
+			return "string";
+		}
 		default:
 		{
 			assert( 0 ); // TODO: address!
@@ -305,6 +322,22 @@ BackDataMember* createMember( BackDataMember& base, Structure::DECLTYPE baseDecl
 	{
 		assert( retDeclType == Structure::DECLTYPE::IDL );
 		ret->name = base.name;
+		// TODO: code below is HIGHLY temporary; get rid of it ASAP
+		if ( base.type.kind == DataType::KIND::MAPPING_SPECIFIC &&  base.type.name == "_Bool" )
+		{
+			base.type.name = "uint8_t";
+			base.type.mappingName = "uint8_t";
+			base.type.kind == DataType::KIND::INTEGER;
+			base.type.lowLimit.inclusive = true;
+			base.type.lowLimit.value = 0;
+			base.type.highLimit.inclusive = true;
+			base.type.highLimit.value = 1;
+		}
+		else if ( base.type.kind == DataType::KIND::DICTIONARY )
+		{
+			base.type.name = "map";
+			base.type.mappingName = "map";
+		}
 		ret->type = base.type; // TODO: actual implementation
 		initDataType( base.type, ret->type, baseDeclType, retDeclType );
 	}
@@ -446,6 +479,7 @@ BackStructure* createFakeStructureNode( Structure::DECLTYPE type )
 
 void traverseStructTreesForDataMatchingOrOverridding( vector<unique_ptr<BackStructure>>& tree1, Structure::DECLTYPE type1, vector<unique_ptr<BackStructure>>& tree2, Structure::DECLTYPE type2, TREE_DATA_COMPLETION_OPERATION oper )
 {
+
 	for ( auto& it1:tree1 )
 	{
 		bool found = false;

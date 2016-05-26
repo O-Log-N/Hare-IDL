@@ -1,0 +1,115 @@
+
+
+MAPPING( FrontEnd="1.0") PUBLISHABLE-STRUCT CharacterRange {
+
+uint32_t from;
+uint32_t to;
+};
+
+MAPPING( FrontEnd="1.0") PUBLISHABLE-STRUCT CharacterSet {
+
+vector< CharacterRange> ranges;
+};
+
+MAPPING( FrontEnd="1.0") PUBLISHABLE-STRUCT Variant {
+
+
+enum KIND {NONE=0,NUMBER=1,STRING=2} kind;
+
+double numberValue;
+string stringValue;
+};
+
+MAPPING( FrontEnd="1.0") PUBLISHABLE-STRUCT Limit {
+_Bool inclusive;
+double value;
+};
+
+
+MAPPING( FrontEnd="1.0") PUBLISHABLE-STRUCT Location {
+string fileName;
+uint16_t lineNumber;
+};
+
+
+
+MAPPING( FrontEnd="1.0") PUBLISHABLE-STRUCT DataType {
+
+
+
+
+
+enum KIND {ENUM=0,NAMED_TYPE=1,__SEQUENCE=2,ENCODING_SPECIFIC=3,MAPPING_SPECIFIC=4,__INTEGER=5,FIXED_POINT=6,FLOATING_POINT=7,__CHARACTER=8,CHARACTER_STRING=9,BIT_STRING=10,__DICTIONARY=11,DISCRIMINATED_UNION=12} kind;
+string name;
+string mappingName;
+string encodingName;
+unique_ptr< DataType> keyType;
+unique_ptr< DataType> paramType;
+Limit lowLimit;
+ Limit highLimit;
+double fixedPrecision;
+uint8_t floatingSignificandBits;
+uint8_t floatingExponentBits;
+ CharacterSet characterSet;
+uint32_t stringMinSize;
+uint32_t stringMaxSize;
+
+DICTIONARY<string,  Variant> encodingAttrs;
+DICTIONARY<string,  Variant> mappingAttrs;
+DICTIONARY<string, uint32_t> enumValues;
+};
+
+MAPPING( FrontEnd="1.0") PUBLISHABLE-STRUCT EncodingSpecifics {
+
+
+string name;
+DICTIONARY<string,  Variant> attrs;
+};
+
+MAPPING( FrontEnd="1.0") PUBLISHABLE-STRUCT EncodedOrMember {
+
+
+ Location location;
+};
+
+MAPPING( FrontEnd="1.0") PUBLISHABLE-STRUCT DataMember {
+
+
+ DataType type;
+string name;
+_Bool extendTo;
+ Variant defaultValue;
+vector<string> whenDiscriminant;
+};
+
+MAPPING( FrontEnd="1.0") PUBLISHABLE-STRUCT EncodedMembers {
+
+
+ EncodingSpecifics encodingSpecifics;
+vector<unique_ptr< EncodedOrMember> > members;
+};
+
+MAPPING( FrontEnd="1.0") PUBLISHABLE-STRUCT Structure {
+
+
+
+
+enum DECLTYPE {IDL=0,__MAPPING=1,__ENCODING=2} declType;
+enum TYPE {STRUCT=0,RPC=1,DISCRIMINATED_UNION=2} type;
+string name;
+string discriminant;
+};
+
+MAPPING( FrontEnd="1.0") PUBLISHABLE-STRUCT Typedef {
+
+ Location location;
+ DataType type;
+string name;
+};
+
+MAPPING( FrontEnd="1.0") PUBLISHABLE-STRUCT Root {
+
+
+vector< Typedef> typedefs;
+vector<unique_ptr< Structure> > structures;
+};

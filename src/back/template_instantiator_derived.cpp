@@ -309,7 +309,9 @@ void MemberTypeExpressionObject::execBuiltinFunction( Stack& stack, PredefindedF
 		{
 			StackElement elem;
 			elem.argtype = ARGTYPE::BOOL;
-			elem.boolValue = dataType->kind == DataType::KIND::NAMED_TYPE;
+//			assert( dataType->name != "Limit" );
+			elem.boolValue = dataType->kind == DataType::KIND::NAMED_TYPE ||dataType->kind == DataType::KIND::MAPPING_SPECIFIC;  // TODO: revise
+//			elem.boolValue = dataType->kind == DataType::KIND::NAMED_TYPE;
 			stack.push_back( std::move(elem) );
 			break;
 		}
