@@ -274,7 +274,7 @@ enum @PARAM-TYPE.MAPPING-MEMBER-TYPE()@ {
 @@IF (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "vector") || (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "list")
         auto& @PARAM-ITERATOR@ = @PARAM-NAME@.begin() 
 @@ELIF PARAM-TYPE.MAPPING-MEMBER-TYPE() == "unique_ptr"
-        auto& @PARAM-ITERATOR@ = *@PARAM-NAME@, int k=0 
+        auto @PARAM-ITERATOR@ = &@PARAM-NAME@ 
 @@ELSE
         @PARAM-NAME@._size() 
 @@ENDIF
@@ -286,7 +286,7 @@ enum @PARAM-TYPE.MAPPING-MEMBER-TYPE()@ {
 @@IF (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "vector") || (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "list")
         @PARAM-ITERATOR@ == @PARAM-NAME@.end() 
 @@ELIF PARAM-TYPE.MAPPING-MEMBER-TYPE() == "unique_ptr"
-        k 
+        @PARAM-ITERATOR@ != nullptr
 @@ELSE
         @PARAM-NAME@._size() 
 @@ENDIF
@@ -298,7 +298,7 @@ enum @PARAM-TYPE.MAPPING-MEMBER-TYPE()@ {
 @@IF (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "vector") || (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "list")
         ++@PARAM-ITERATOR@ 
 @@ELIF PARAM-TYPE.MAPPING-MEMBER-TYPE() == "unique_ptr"
-        ++k
+        @PARAM-ITERATOR@ = nullptr
 @@ELSE
         @PARAM-NAME@._size() 
 @@ENDIF
@@ -310,7 +310,7 @@ enum @PARAM-TYPE.MAPPING-MEMBER-TYPE()@ {
 @@IF (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "vector") || (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "list")
         auto& @PARAM-OBJECT@ = *@PARAM-ITERATOR@;
 @@ELIF PARAM-TYPE.MAPPING-MEMBER-TYPE() == "unique_ptr"
-        auto& @PARAM-OBJECT@ = *@PARAM-ITERATOR@;
+        auto& @PARAM-OBJECT@ = **@PARAM-ITERATOR@;
 @@ELSE
 //        auto& @PARAM-OBJECT@ = *@PARAM-ITERATOR@; // why am I here?!
 @@ENDIF
@@ -337,7 +337,7 @@ enum @PARAM-TYPE.MAPPING-MEMBER-TYPE()@ {
 @@BEGIN-TEMPLATE NAME="DESERILAIZE_SEQUENCE_ADD_NEXT"
 @@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
 @@IF (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "vector") || (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "list")
-        @PARAM-NAME@.push_back(@PARAM-TMP-OBJECT@) 
+        @PARAM-NAME@.push_back(std::move(@PARAM-TMP-OBJECT@)) 
 @@ELIF PARAM-TYPE.MAPPING-MEMBER-TYPE() == "unique_ptr"
         @PARAM-NAME@.reset(&@PARAM-TMP-OBJECT@) 
 @@ELSE
