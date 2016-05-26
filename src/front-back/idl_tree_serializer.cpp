@@ -193,8 +193,41 @@ void serializeEncodedMembers( EncodedMembers& s, OStream& o ) {
         it_2 = nullptr
          )
    {
-        auto& obj_2 = **it_2;
-   serializeEncodedOrMember(obj_2, o);
+	   // MANUALLY ADDED
+//        auto& obj_2 = **it_2;
+//   serializeEncodedOrMember(obj_2, o);
+	   do
+	   {
+		  // DataMember is behind
+		  DataMember* ptr_0 = dynamic_cast<DataMember*>(&(**it_2));
+		  if ( ptr_0 )
+		  {
+			  o.write_uint8_t( 0 );
+			  serializeDataMember( *ptr_0, o );
+			  break;
+		  }
+		  // EncodedMembers is behind
+		  EncodedMembers* ptr_1 = dynamic_cast<EncodedMembers*>(&(**it_2));
+		  if ( ptr_1 )
+		  {
+			  o.write_uint8_t( 1 );
+			  serializeEncodedMembers( *ptr_1, o );
+			  break;
+		  }
+		  // Structure is behind
+		  Structure* ptr_2 = dynamic_cast<Structure*>(&(**it_2));
+		  if ( ptr_2 )
+		  {
+			  o.write_uint8_t( 2 );
+			  serializeStructure( *ptr_2, o );
+			  break;
+		  }
+		  // base class
+		  o.write_uint8_t( 3 );
+		  serializeEncodedOrMember( **it_2, o );
+	   }
+	   while ( 0 );
+	   // end of MANUALLY ADDED
    }
    }
    }
@@ -290,7 +323,7 @@ bool deserializeLimit( Limit& s, IStream& i ) {
 
 bool deserializeLocation( Location& s, IStream& i ) {
    i.read_string(s.fileName);
-   uint16_t tmp; i.read_uint16_t(tmp);s.lineNumber = tmp;
+   uint16_t tmp; i.read_uint16_t(tmp);s.lineNumber=tmp;
 
    return true;
 }
@@ -327,7 +360,9 @@ bool deserializeVariant( Variant& s, IStream& i ) {
 	      case 0: s.kind = s.NONE; break;
 	      case 1: s.kind = s.NUMBER; break;
 	      case 2: s.kind = s.STRING; break;
-          default: assert(0);
+		  default: 
+			  cout << "Error: unexpected value of Variant::KIND: " << (int)tmp << endl; 
+			  assert(0);
        }
    }
  
@@ -505,13 +540,50 @@ bool deserializeEncodedMembers( EncodedMembers& s, IStream& i ) {
      uint32_t size_2;
 	 i.read_uint32_t(size_2);
      for(uint32_t k_2=0; k_2<size_2; ++k_2) {
-   EncodedOrMember
+		 // MANUALLY ADDED
+		 int8_t type;
+		 i.read_int8_t( type );
+		 switch ( type )
+		 {
+			case 0:
+			{
+				DataMember &obj_2 = *(new DataMember );
+                deserializeDataMember(obj_2, i);
+                obj_1.reset(&obj_2);
+				break;
+			}
+			case 1:
+			{
+				EncodedMembers &obj_2 = *(new EncodedMembers );
+                deserializeEncodedMembers(obj_2, i);
+                obj_1.reset(&obj_2);
+				break;
+			}
+			case 2:
+			{
+				Structure &obj_2 = *(new Structure );
+                deserializeStructure(obj_2, i);
+                obj_1.reset(&obj_2);
+				break;
+			}
+			case 3:
+			{
+				EncodedOrMember &obj_2 = *(new EncodedOrMember );
+                deserializeEncodedOrMember(obj_2, i);
+                obj_1.reset(&obj_2);
+				break;
+			}
+			default:
+				assert( 0 );
+		 }
+/*   EncodedOrMember
         &obj_2 = *(new 
    EncodedOrMember
         );
    deserializeEncodedOrMember(obj_2, i);
         obj_1.reset(&obj_2) 
-        ;
+        ;*/
+		 // end of MANUALLY ADDED
      }
    }
         s.members.push_back(std::move(obj_1)) 
