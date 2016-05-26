@@ -889,8 +889,38 @@ void printEncodedMembers( EncodedMembers& s ) {
         it_2 = nullptr
          )
    {
-        auto& obj_2 = **it_2;
-   printEncodedOrMember( obj_2 );
+   	   // MANUALLY ADDED
+//        auto& obj_2 = **it_2;
+//   printEncodedOrMember( obj_2 );
+	   do
+	   {
+		  // DataMember is behind
+		  DataMember* ptr_0 = dynamic_cast<DataMember*>(&(**it_2));
+		  if ( ptr_0 )
+		  {
+			  printDataMember( *ptr_0 );
+			  break;
+		  }
+		  // EncodedMembers is behind
+		  EncodedMembers* ptr_1 = dynamic_cast<EncodedMembers*>(&(**it_2));
+		  if ( ptr_1 )
+		  {
+			  printEncodedMembers( *ptr_1 );
+			  break;
+		  }
+		  // Structure is behind
+		  Structure* ptr_2 = dynamic_cast<Structure*>(&(**it_2));
+		  if ( ptr_2 )
+		  {
+			  printStructure( *ptr_2 );
+			  break;
+		  }
+		  // base class
+		  printEncodedOrMember( **it_2 );
+	   }
+	   while ( 0 );
+	   // end of MANUALLY ADDED
+
    }
    }
     cout << endl;

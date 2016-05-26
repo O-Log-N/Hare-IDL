@@ -1,0 +1,13 @@
+Root
+|-Structure kind=MAPPING type=STRUCT name=Character encAttrs=( FrontEnd = ( kind=STRING stringValue=1.0 ) ) discr= @C:\Projects\o-log-n\Hare-IDL\dbg\front\idl\sample-with-cpp.h:65
+| |-DataMember name='character_id'  type='MAPPING_SPECIFIC int32_t (  )' @C:\Projects\o-log-n\Hare-IDL\dbg\front\idl\sample-with-cpp.h:67
+| |-DataMember name='x'  type='MAPPING_SPECIFIC double (  )' @C:\Projects\o-log-n\Hare-IDL\dbg\front\idl\sample-with-cpp.h:68
+| |-DataMember name='y'  type='MAPPING_SPECIFIC double (  )' @C:\Projects\o-log-n\Hare-IDL\dbg\front\idl\sample-with-cpp.h:69
+| |-DataMember name='z'  type='MAPPING_SPECIFIC double (  )' @C:\Projects\o-log-n\Hare-IDL\dbg\front\idl\sample-with-cpp.h:70
+| |-DataMember name='vx'  type='MAPPING_SPECIFIC double (  )' @C:\Projects\o-log-n\Hare-IDL\dbg\front\idl\sample-with-cpp.h:71
+| |-DataMember name='vy'  type='MAPPING_SPECIFIC double (  )' @C:\Projects\o-log-n\Hare-IDL\dbg\front\idl\sample-with-cpp.h:72
+| |-DataMember name='vz'  type='MAPPING_SPECIFIC double (  )' @C:\Projects\o-log-n\Hare-IDL\dbg\front\idl\sample-with-cpp.h:73
+| |-DataMember name='angle'  type='MAPPING_SPECIFIC float (  )' @C:\Projects\o-log-n\Hare-IDL\dbg\front\idl\sample-with-cpp.h:74
+| |-DataMember name='anim'  type='ENUM Animation { Running = 2 , Standing = 0 , Walking = 1 }' @C:\Projects\o-log-n\Hare-IDL\dbg\front\idl\sample-with-cpp.h:75
+| |-DataMember name='animation_frame'  type='MAPPING_SPECIFIC int32_t (  )' @C:\Projects\o-log-n\Hare-IDL\dbg\front\idl\sample-with-cpp.h:76
+| |-DataMember name='inventory'  type='SEQUENCE vector < MAPPING_SPECIFIC  ( className = ( kind=STRING stringValue=Item ) ) >' @C:\Projects\o-log-n\Hare-IDL\dbg\front\idl\sample-with-cpp.h:77
