@@ -128,10 +128,18 @@ public:
 		bool ret = read_uint32_t( sz );
 		if (!ret )
 			return false;
-		x.resize( sz + 1 );
+/*		x.resize( sz + 1 );
 		uint8_t* strBuff = reinterpret_cast<uint8_t*>(const_cast<char*>(x.c_str()));
-		strBuff[sz] = 0;
-		return readData( strBuff, sz ) == sz;
+		strBuff[sz] = 0;*/
+		for ( int i=0; i<sz; i++ )
+		{
+			signed char ch;
+			if (!read_int8_t( ch ))
+				return false;
+			x.push_back( ch );
+		}
+//		return readData( strBuff, sz ) == sz;
+		return true;
 	}
 };
 
