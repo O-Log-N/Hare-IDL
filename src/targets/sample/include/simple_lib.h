@@ -29,6 +29,7 @@ DISCLAIMER:
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <map>
 #include <assert.h>
 #include <stdio.h>
 #include <string>
