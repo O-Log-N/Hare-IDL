@@ -274,7 +274,7 @@ enum @PARAM-TYPE.MAPPING-MEMBER-TYPE()@ {
 @@IF (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "vector") || (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "list")
         auto& @PARAM-ITERATOR@ = @PARAM-NAME@.begin() 
 @@ELIF PARAM-TYPE.MAPPING-MEMBER-TYPE() == "unique_ptr"
-        auto @PARAM-ITERATOR@ = &@PARAM-NAME@ 
+        auto @PARAM-ITERATOR@ = @PARAM-NAME@ != nullptr ? &@PARAM-NAME@ : nullptr
 @@ELSE
         @PARAM-NAME@._size() 
 @@ENDIF
@@ -286,7 +286,7 @@ enum @PARAM-TYPE.MAPPING-MEMBER-TYPE()@ {
 @@IF (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "vector") || (PARAM-TYPE.MAPPING-MEMBER-TYPE() == "list")
         @PARAM-ITERATOR@ == @PARAM-NAME@.end() 
 @@ELIF PARAM-TYPE.MAPPING-MEMBER-TYPE() == "unique_ptr"
-        @PARAM-ITERATOR@ != nullptr
+        @PARAM-ITERATOR@ == nullptr
 @@ELSE
         @PARAM-NAME@._size() 
 @@ENDIF
