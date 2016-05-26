@@ -76,9 +76,9 @@ void serializeDataType( DataType& s, OStream& o ) {
         (s.keyType != nullptr ? 1 : 0) 
      );
    for(
-        auto it_1 = &s.keyType 
+        auto it_1 = s.keyType != nullptr ? &s.keyType : nullptr
          ; !(
-        it_1 != nullptr
+        it_1 == nullptr
          );
         it_1 = nullptr
          )
@@ -92,9 +92,9 @@ void serializeDataType( DataType& s, OStream& o ) {
         (s.paramType != nullptr ? 1 : 0) 
      );
    for(
-        auto it_1 = &s.paramType 
+        auto it_1 = s.paramType != nullptr ? &s.paramType : nullptr
          ; !(
-        it_1 != nullptr
+        it_1 == nullptr
          );
         it_1 = nullptr
          )
@@ -186,9 +186,9 @@ void serializeEncodedMembers( EncodedMembers& s, OStream& o ) {
         (obj_1 != nullptr ? 1 : 0) 
      );
    for(
-        auto it_2 = &obj_1 
+        auto it_2 = obj_1 != nullptr ? &obj_1 : nullptr
          ; !(
-        it_2 != nullptr
+        it_2 == nullptr
          );
         it_2 = nullptr
          )
@@ -295,9 +295,9 @@ void serializeRoot( Root& s, OStream& o ) {
         (obj_1 != nullptr ? 1 : 0) 
      );
    for(
-        auto it_2 = &obj_1 
+        auto it_2 = obj_1 != nullptr ? &obj_1 : nullptr
          ; !(
-        it_2 != nullptr
+        it_2 == nullptr
          );
         it_2 = nullptr
          )
@@ -323,7 +323,7 @@ bool deserializeLimit( Limit& s, IStream& i ) {
 
 bool deserializeLocation( Location& s, IStream& i ) {
    i.read_string(s.fileName);
-   uint16_t tmp; i.read_uint16_t(tmp);s.lineNumber=tmp;
+   uint16_t tmp; i.read_uint16_t(tmp);s.lineNumber=tmp; // MANUALLY EDITED
 
    return true;
 }
@@ -360,9 +360,7 @@ bool deserializeVariant( Variant& s, IStream& i ) {
 	      case 0: s.kind = s.NONE; break;
 	      case 1: s.kind = s.NUMBER; break;
 	      case 2: s.kind = s.STRING; break;
-		  default: 
-			  cout << "Error: unexpected value of Variant::KIND: " << (int)tmp << endl; 
-			  assert(0);
+          default: assert(0);
        }
    }
  
@@ -749,9 +747,9 @@ void printDataType( DataType& s ) {
     cout << endl;
     cout << "keyType: ";
    for(
-        auto it_1 = &s.keyType 
+        auto it_1 = s.keyType != nullptr ? &s.keyType : nullptr
          ; !(
-        it_1 != nullptr
+        it_1 == nullptr
          );
         it_1 = nullptr
          )
@@ -762,9 +760,9 @@ void printDataType( DataType& s ) {
     cout << endl;
     cout << "paramType: ";
    for(
-        auto it_1 = &s.paramType 
+        auto it_1 = s.paramType != nullptr ? &s.paramType : nullptr
          ; !(
-        it_1 != nullptr
+        it_1 == nullptr
          );
         it_1 = nullptr
          )
@@ -884,9 +882,9 @@ void printEncodedMembers( EncodedMembers& s ) {
    {
         auto& obj_1 = *it_1;
    for(
-        auto it_2 = &obj_1 
+        auto it_2 = obj_1 != nullptr ? &obj_1 : nullptr
          ; !(
-        it_2 != nullptr
+        it_2 == nullptr
          );
         it_2 = nullptr
          )
@@ -951,9 +949,9 @@ void printRoot( Root& s ) {
    {
         auto& obj_1 = *it_1;
    for(
-        auto it_2 = &obj_1 
+        auto it_2 = obj_1 != nullptr ? &obj_1 : nullptr
          ; !(
-        it_2 != nullptr
+        it_2 == nullptr
          );
         it_2 = nullptr
          )
@@ -964,6 +962,8 @@ void printRoot( Root& s ) {
    }
     cout << endl;
 }
+
+
 
 
 
