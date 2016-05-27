@@ -602,10 +602,10 @@ void formVerbatimLine( const string& line, TemplateLine& tl, int currentLineNum 
 	tl.attributes.insert( make_pair(AttributeName(ATTRIBUTE::TEXT, ""), expression ) );
 }
 
-KeyWordProps getLineType( const string& line, size_t& pos )
+KeyWordProps getLineType( const string& line, size_t& pos, bool stdPrefixRequired )
 {
 	skipSpaces( line, pos );
-	return parseMainKeyword( line, pos );
+	return parseMainKeyword( line, pos, stdPrefixRequired );
 }
 
 void readAttributeName( const string& line, size_t& pos, AttributeName& attrName, int currentLineNum )
@@ -711,7 +711,9 @@ void readInputParameters( const string& line, size_t& pos, TemplateLine& tl, int
 
 bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& currentLineNum )
 {
-	bool startFound = false;
+//	bool startFound = false;
+	bool inFn = false;
+	bool inTempl = false;
 
 	string line, nextLine;
 	bool useNext = false;
@@ -737,7 +739,7 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 			if ( !readOK )
 				break;
 			size_t pos = 0;
-			KeyWordProps props = getLineType( nextLine, pos );
+			KeyWordProps props = getLineType( nextLine, pos, !inFn );
 			if ( props.id == TemplateLine::LINE_TYPE::CONTINUED_LINE )
 			{
 				line.append( nextLine.substr( pos ) );
@@ -751,7 +753,17 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 		}
 
 		size_t pos = 0;
-		KeyWordProps props = getLineType( line, pos );
+		KeyWordProps props = getLineType( line, pos, !inFn );
+		if ( props.id == TemplateLine::LINE_TYPE::END_FUNCTION )
+		{
+			size_t pos1 = 0;
+			KeyWordProps props1 = getLineType( line, pos1, true ); // re-evaluate
+			if ( props1.id != TemplateLine::LINE_TYPE::END_FUNCTION )
+			{
+				fmt::print( "line {}: error: unexpected tokens within function body (forgotten standard prefix at the beginning of the line?)\n", currentLineNum );
+				assert( 0 ); // TODO: throw
+			}
+		}
 		tl.type = props.id;
 
 		if ( tl.type == TemplateLine::LINE_TYPE::COMMENTED_LINE )
@@ -760,7 +772,7 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 		}
 		else if ( tl.type == TemplateLine::LINE_TYPE::CONTENT )
 		{
-			if ( !startFound )
+			if ( !( inFn || inTempl ) )
 			{
 				pos = 0;
 				skipSpaces( line, pos );
@@ -778,7 +790,7 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 		}
 		else if ( tl.type == TemplateLine::LINE_TYPE::FOR_EACH )
 		{
-			if ( !startFound )
+			if ( !( inFn || inTempl ) )
 			{
 				fmt::print( "line {}: error: unexpected tokens beyond templates\n", currentLineNum );
 				assert( 0 ); // TODO: throw
@@ -835,17 +847,36 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 		}
 		else
 		{
+			if ( tl.type == TemplateLine::LINE_TYPE::BEGIN_FUNCTION )
+			{
+				if ( !( inFn || inTempl ) )
+					inFn = true;
+				else
+				{
+					fmt::print( "line {}: error: local function declarations are not allowed\n", currentLineNum );
+					assert( 0 ); // TODO: throw
+				}
+			}
+			else if ( tl.type == TemplateLine::LINE_TYPE::BEGIN_TEMPLATE )
+			{
+				if ( !( inFn || inTempl ) )
+					inTempl = true;
+				else
+				{
+					fmt::print( "line {}: error: local template declarations are not allowed\n", currentLineNum );
+					assert( 0 ); // TODO: throw
+				}
+			}
+			else
+			{
+				if ( !( inFn || inTempl ) )
+				{
+					fmt::print( "line {}: error: unexpected tokens beyond templates\n", currentLineNum );
+					assert( 0 ); // TODO: throw
+				}
+			}
 			bool fnHead = tl.type == TemplateLine::LINE_TYPE::BEGIN_FUNCTION;
 			bool tHead = tl.type == TemplateLine::LINE_TYPE::BEGIN_TEMPLATE;
-			if ( tl.type == TemplateLine::LINE_TYPE::BEGIN_FUNCTION )
-				tl.type = tl.type;
-			if ( tl.type == TemplateLine::LINE_TYPE::BEGIN_TEMPLATE || tl.type == TemplateLine::LINE_TYPE::BEGIN_FUNCTION )
-				startFound = true;
-			if ( !startFound )
-			{
-				fmt::print( "line {}: error: unexpected tokens beyond templates\n", currentLineNum );
-				assert( 0 ); // TODO: throw
-			}
 			if ( props.expressionRequired )
 				parseExpression( line, pos, tl.expression, currentLineNum );
 			if ( fnHead || tHead )
@@ -876,7 +907,11 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 			}
 			templateLines.push_back( tl );
 			if ( tl.type == TemplateLine::LINE_TYPE::END_TEMPLATE || tl.type == TemplateLine::LINE_TYPE::END_FUNCTION )
+			{
+				inFn = false;
+				inTempl = false;
 				return true;
+			}
 		}
 	}
 	return true;

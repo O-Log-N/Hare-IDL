@@ -34,7 +34,7 @@ string readIntegralNumericalLiteral( const string& line, size_t& contentStart );
 string readIdentifier( const string& line, size_t& contentStart );
 
 
-KeyWordProps parseMainKeyword( const string& line, size_t& contentStart );
+KeyWordProps parseMainKeyword( const string& line, size_t& contentStart, bool stdPrefixRequired );
 AttributeName parseParam( const string& line, size_t& contentStart );
 SpecialName parseStandardName( const string& line, size_t& contentStart );
 PredefindedFunction parsePredefinedFunction( const string& line, size_t& contentStart );

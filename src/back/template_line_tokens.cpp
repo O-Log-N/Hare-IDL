@@ -410,11 +410,15 @@ template<class T> const T* parseSpecialWord( const string& line, size_t& content
 	}
 }
 
-KeyWordProps parseMainKeyword( const string& line, size_t& contentStart )
+KeyWordProps parseMainKeyword( const string& line, size_t& contentStart, bool stdPrefixRequired )
 {
 	if ( line.compare( contentStart, sizeof(KEYWORD_STD_PREFIX)-1, KEYWORD_STD_PREFIX ) != 0 )
-		return {TemplateLine::LINE_TYPE::CONTENT, false};
-	contentStart += 2;
+	{
+		if ( stdPrefixRequired )
+			return {TemplateLine::LINE_TYPE::CONTENT, false};
+	}
+	else
+		contentStart += 2;
 	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 	const KeyWord* kwret = parseSpecialWord( line, contentStart, keywords );
 	KeyWordProps ret = {kwret->id, kwret->expressionRequired};
