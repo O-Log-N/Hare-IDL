@@ -809,10 +809,6 @@ TemplateInstantiator::StackElement TemplateInstantiator::placeholder( SpecialNam
 //			return move(findres->second);
 			return findres->second;
 	}
-	else if ( ph.id == PLACEHOLDER::FROM_TEMPLATE )
-	{
-		return fromTemplate;
-	}
 
 	fmt::print( "\n" );
 	fmt::print("error_placeholder {}\n", static_cast<int>(ph.id) );

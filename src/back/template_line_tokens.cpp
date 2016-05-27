@@ -34,9 +34,6 @@ Copyright (C) 2016 OLogN Technologies AG
 #define KEYWORD_STRING_OPEN_OUTPUT_FILE "OPEN-OUTPUT-FILE"
 #define KEYWORD_STRING_CLOSE_OUTPUT_FILE "CLOSE-OUTPUT-FILE"
 #define KEYWORD_STRING_INCLUDE "INCLUDE"
-//#define KEYWORD_STRING_INCLUDE_FOR_TYPE "INCLUDE-FOR-TYPE"
-//#define KEYWORD_STRING_FOR_EACH_OF "FOR-EACH-OF"
-//#define KEYWORD_STRING_FOR_SINGLE "FOR-SINGLE"
 #define KEYWORD_STRING_LET "LET"
 #define KEYWORD_STRING_RETURN "RETURN"
 #define KEYWORD_STRING_FOR_EACH "FOR-EACH"
@@ -63,7 +60,6 @@ Copyright (C) 2016 OLogN Technologies AG
 #define VAR_STRING_PARAM_MINUS "PARAM-"
 #define VAR_STRING_LOCAL_MINUS "LOCAL-"
 #define VAR_STRING_FUNCTION_MINUS "FUNCTION-"
-#define VAR_STRING_FROM_TEMPLATE "FROM-TEMPLATE"
 
 // node type names (not directly derived from keywords
 #define NODETYPE_STRING_FULL_TEMPLATE "FULL-TEMPLATE"
@@ -207,8 +203,6 @@ struct NodeType
 
 const NodeType nodeTypes[] = 
 {
-//	{NODETYPE_STRING_FULL_TEMPLATE, NODE_TYPE::FULL_TEMPLATE},
-//	{NODETYPE_STRING_FULL_FUNCTION, NODE_TYPE::FULL_FUNCTION},
 	{KEYWORD_STRING_IF, NODE_TYPE::IF},
 	{NODETYPE_STRING_IF_TRUE, NODE_TYPE::IF_TRUE_BRANCH},
 	{NODETYPE_STRING_IF_FALSE, NODE_TYPE::IF_FALSE_BRANCH},
@@ -232,8 +226,6 @@ const KeyWord keywords[] =
 	{KEYWORD_STRING_END_TEMPLATE, sizeof(KEYWORD_STRING_END_TEMPLATE)-1, TemplateLine::LINE_TYPE::END_TEMPLATE, false},
 	{KEYWORD_STRING_BEGIN_FUNCTION, sizeof(KEYWORD_STRING_BEGIN_FUNCTION)-1, TemplateLine::LINE_TYPE::BEGIN_FUNCTION, false},
 	{KEYWORD_STRING_END_FUNCTION, sizeof(KEYWORD_STRING_END_FUNCTION)-1, TemplateLine::LINE_TYPE::END_FUNCTION, false},
-#define KEYWORD_STRING_BEGIN_FUNCTION "BEGIN-FUNCTION"
-#define KEYWORD_STRING_END_FUNCTION "END-FUNCTION"
 	{KEYWORD_STRING_IF, sizeof(KEYWORD_STRING_IF)-1, TemplateLine::LINE_TYPE::IF, true},
 	{KEYWORD_STRING_ENDIF, sizeof(KEYWORD_STRING_ENDIF)-1, TemplateLine::LINE_TYPE::ENDIF, false},
 	{KEYWORD_STRING_ELIF, sizeof(KEYWORD_STRING_ELIF)-1, TemplateLine::LINE_TYPE::ELIF, true},
@@ -253,7 +245,6 @@ const KeyWord keywords[] =
 
 const PlaceholderWord placeholders[] = 
 {
-	{VAR_STRING_FROM_TEMPLATE, sizeof(VAR_STRING_FROM_TEMPLATE)-1, PLACEHOLDER::FROM_TEMPLATE},
 	{VAR_STRING_PARAM_MINUS, sizeof(VAR_STRING_PARAM_MINUS)-1, PLACEHOLDER::PARAM_MINUS},
 	{VAR_STRING_LOCAL_MINUS, sizeof(VAR_STRING_LOCAL_MINUS)-1, PLACEHOLDER::LOCAL_MINUS},
 	{VAR_STRING_FUNCTION_MINUS, sizeof(VAR_STRING_FUNCTION_MINUS)-1, PLACEHOLDER::FUNCTION_MINUS},
@@ -452,17 +443,7 @@ SpecialName parseStandardName( const string& line, size_t& contentStart )
 	while ( contentStart < line.size() && (line[contentStart] == ' ' || line[contentStart] == '\t')) contentStart++;
 	ret.id = parseSpecialWord( line, contentStart, placeholders )->id;
 	if ( ret.id == PLACEHOLDER::PARAM_MINUS || ret.id == PLACEHOLDER::LOCAL_MINUS || ret.id == PLACEHOLDER::FUNCTION_MINUS)
-	{
 		ret.specific = readIdentifier( line, contentStart );
-/*		if ( line[contentStart] != '@' )
-		{
-			ret.id = PLACEHOLDER::VERBATIM;
-			ret.specific.clear();
-			contentStart = iniContentStart; // restore
-		}
-		else
-			++contentStart;*/
-	}
 	return ret;
 }
 
@@ -520,10 +501,7 @@ string standardNameToString( SpecialName ph )
 {
 	string ret = specialWordToString( placeholders, ph.id );
 	if ( ph.id == PLACEHOLDER::PARAM_MINUS || ph.id == PLACEHOLDER::LOCAL_MINUS || ph.id == PLACEHOLDER::FUNCTION_MINUS )
-	{
 		ret += ph.specific;
-//		ret.push_back( '@' ); // we have to do it manually here
-	}
 	return ret;
 }
 
