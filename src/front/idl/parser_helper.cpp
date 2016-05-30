@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "../../idlc_include.h"
 
 #include "../../front-back/raiistdiofile.h"
+#include "../../front-back/idl_tree_serializer.h"
 #include "../../../3rdparty/tiny-process-library/process.hpp"
 
 #include "parser_helper.h"
@@ -678,6 +679,128 @@ string unquote(string data) {
     return data;
 }
 
+void lauchCppToIdl(const Location& location, const string& fileName, const vector<string>& classNames, const map<string, Variant>& args) {
+    string findNames;
+    for (auto each : classNames)
+        findNames += fmt::format("-find-class={} ", each);
+
+    string clangOpts = "-xc++";
+
+    auto opts = args.find("ClangOptions");
+    if (opts != args.end()) {
+        if (opts->second.kind == Variant::STRING) {
+            clangOpts += " ";
+            clangOpts += unquote(opts->second.stringValue);
+        }
+        else
+            reportError(location, "Attribute 'ClangOptions' must be string.");
+    }
+
+    string cmdLine = fmt::format("C++2HareIDL {} {} -- {}", findNames, fileName, clangOpts);
+
+#ifdef _DEBUG
+    fmt::print(stderr, "\nLaunching external process:\n\n");
+    fmt::print(stderr, "{}\n\n", cmdLine);
+#endif
+    string outBuffer;
+    Process process(cmdLine, string(), [&](const char *bytes, size_t n) {
+        outBuffer.append(bytes, n);
+    }, [&](const char *bytes, size_t n) {
+        fwrite(bytes, sizeof(char), n, stderr);
+    });
+
+    int result = process.get_exit_status();
+    if (result == -1)
+        reportError(location, "Failed to launch external process.");
+    else if (result != 0)
+        reportError(location, fmt::format("External process finished with error code {}.", result));
+    else {
+
+#ifdef _DEBUG
+        fmt::print(stderr, "\nParsing buffer from external process:\n\n");
+        fmt::print(stderr, "{}\n\n", outBuffer);
+#endif
+
+        unique_ptr<Root> root(new Root());
+        parseStringBuffer(outBuffer, fileName, root.get());
+
+        //Merge with current root
+        currentRoot->typedefs.insert(currentRoot->typedefs.end(), root->typedefs.begin(),
+            root->typedefs.end());
+
+        // copy current attributes to each struct
+        for (auto& each : root->structures) {
+            each->encodingSpecifics.attrs.insert(args.begin(), args.end());
+            currentRoot->structures.emplace_back(each.release());
+        }
+    }
+}
+
+void lauchCppSerializer(const Location& location, const string& fileName, const vector<string>& classNames, const map<string, Variant>& args) {
+    string findNames;
+    for (auto each : classNames)
+        findNames += fmt::format("-find-class={} ", each);
+
+    string clangOpts = "-xc++";
+
+    auto opts = args.find("ClangOptions");
+    if (opts != args.end()) {
+        if (opts->second.kind == Variant::STRING) {
+            clangOpts += " ";
+            clangOpts += unquote(opts->second.stringValue);
+        }
+        else
+            reportError(location, "Attribute 'ClangOptions' must be string.");
+    }
+
+    string outFileName = fileName + ".bin";
+
+    string cmdLine = fmt::format("C++2HareIDL {} -serialize -o {} {} -- {}", findNames, outFileName, fileName, clangOpts);
+
+#ifdef _DEBUG
+    fmt::print(stderr, "\nLaunching external process:\n\n");
+    fmt::print(stderr, "{}\n\n", cmdLine);
+#endif
+    string outBuffer;
+    Process process(cmdLine, string(), [&](const char *bytes, size_t n) {
+        outBuffer.append(bytes, n);
+    }, [&](const char *bytes, size_t n) {
+        fwrite(bytes, sizeof(char), n, stderr);
+    });
+
+    int result = process.get_exit_status();
+    if (result == -1)
+        reportError(location, "Failed to launch external process.");
+    else if (result != 0)
+        reportError(location, fmt::format("External process finished with error code {}.", result));
+    else {
+
+#ifdef _DEBUG
+        fmt::print(stderr, "\nParsing output file from external process:\n\n");
+#endif
+        Root root;
+        uint8_t baseBuff[0x10000];
+        FILE* in = fopen(outFileName.c_str(), "rb");
+        size_t sz = fread(baseBuff, 1, 0x10000, in);
+        fclose(in);
+        IStream i(baseBuff, sz);
+        deserializeRoot(root, i);
+
+
+        //unique_ptr<Root> root(new Root());
+        //parseStringBuffer(outBuffer, yy->fileName, root.get());
+
+        //Merge with current root
+        currentRoot->typedefs.insert(currentRoot->typedefs.end(), root.typedefs.begin(),
+            root.typedefs.end());
+
+        // copy current attributes to each struct
+        for (auto& each : root.structures) {
+            each->encodingSpecifics.attrs.insert(args.begin(), args.end());
+            currentRoot->structures.emplace_back(each.release());
+        }
+    }
+}
 
 YYSTYPE processExtFileMapping(YYSTYPE file, YYSTYPE decl)
 {
@@ -696,60 +819,7 @@ YYSTYPE processExtFileMapping(YYSTYPE file, YYSTYPE decl)
         string lang = l->second.stringValue;
         if (lang == "C++") {
 
-            string findNames;
-            for (auto each : yy->classNames)
-                findNames += fmt::format("-find-class={} ", each);
-
-            string clangOpts = "-xc++";
-
-            auto opts = args.find("ClangOptions");
-            if (opts != args.end()) {
-                if (opts->second.kind == Variant::STRING) {
-                    clangOpts += " ";
-                    clangOpts += unquote(opts->second.stringValue);
-                }
-                else
-                    reportError(decl->location, "Attribute 'ClangOptions' must be string.");
-            }
-
-            string cmdLine = fmt::format("C++2HareIDL {} {} -- {}", findNames, yy->fileName, clangOpts);
-
-#ifdef _DEBUG
-            fmt::print(stderr, "\nLaunching external process:\n\n");
-            fmt::print(stderr, "{}\n\n", cmdLine);
-#endif
-            string outBuffer;
-            Process process(cmdLine, string(), [&](const char *bytes, size_t n) {
-                outBuffer.append(bytes, n);
-            }, [&](const char *bytes, size_t n) {
-                fwrite(bytes, sizeof(char), n, stderr);
-            });
-
-            int result = process.get_exit_status();
-            if (result == -1)
-                reportError(decl->location, "Failed to launch external process.");
-            else if (result != 0)
-                reportError(decl->location, fmt::format("External process finished with error code {}.", result));
-            else {
-
-#ifdef _DEBUG
-                fmt::print(stderr, "\nParsing buffer from external process:\n\n");
-                fmt::print(stderr, "{}\n\n", outBuffer);
-#endif
-
-                unique_ptr<Root> root(new Root());
-                parseStringBuffer(outBuffer, yy->fileName, root.get());
-
-                //Merge with current root
-                currentRoot->typedefs.insert(currentRoot->typedefs.end(), root->typedefs.begin(),
-                                             root->typedefs.end());
-
-                // copy current attributes to each struct
-                for (auto& each : root->structures) {
-                    each->encodingSpecifics.attrs.insert(args.begin(), args.end());
-                    currentRoot->structures.emplace_back(each.release());
-                }
-            }
+            lauchCppToIdl(decl->location, yy->fileName, yy->classNames, args);
         }
         else
             reportError(decl->location, fmt::format("Language '%s' not recognized.", lang));
