@@ -19,6 +19,7 @@ Copyright (C) 2016 OLogN Technologies AG
 #define IDL_TREE_H
 
 #include "../idlc_include.h"
+#include "../hare/hareidl.h"
 
 using namespace std;
 

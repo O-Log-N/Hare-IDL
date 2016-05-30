@@ -1,0 +1,1 @@
+C++2HareIDL.exe -find-class=Limit -find-class=Location -find-class=CharacterRange -find-class=CharacterSet -find-class=Variant -find-class=DataType -find-class=EncodingSpecifics -dump ..\..\..\src\front-back\idl_tree.h -- -fno-ms-compatibility -I..\..\..\src -xc++

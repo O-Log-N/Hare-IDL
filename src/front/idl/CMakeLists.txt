@@ -7,6 +7,10 @@ add_library(front-idl
     parser.h
     parser_helper.cpp
     parser_helper.h
+    ../../front-back/idl_tree.h
+    ../../front-back/idl_tree_serializer.h
+    ../../front-back/idl_tree_serializer.cpp
+    ../../front-back/raiistdiofile.h
 )
 
 target_link_libraries(front-idl

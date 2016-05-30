@@ -19,6 +19,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #ifndef HAREIDL_H_INCLUDED
 #define HAREIDL_H_INCLUDED
 
+#include <string>
+
 //#define HAREIDL_USE_GCC_ANNOTATE
 //#define HAREIDL_USE_CXX11_ATTRIBUTE
 
@@ -40,6 +42,7 @@ typedef uint16_t hare_uint16_t;
 typedef int16_t hare_int16_t;
 typedef uint32_t hare_uint32_t;
 typedef int32_t hare_int32_t;
-
+typedef bool hare_bool;
+typedef std::string hare_string;
 
 #endif // HAREIDL_H_INCLUDED
