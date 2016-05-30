@@ -18,7 +18,7 @@ Copyright (C) 2016 OLogN Technologies AG
 #ifndef IDLC_INCLUDE_H
 #define IDLC_INCLUDE_H
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
