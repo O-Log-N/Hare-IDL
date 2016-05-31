@@ -132,6 +132,8 @@ Copyright (C) 2016 OLogN Technologies AG
 #define FUNCTION_STRING_IS_CHARACTER_STRING "IS-CHARACTER-STRING"
 #define FUNCTION_STRING_IS_BIT_STRING "IS-BIT-STRING"
 #define FUNCTION_STRING_IS_DISCRIMINATED_UNION "IS-DISCRIMINATED-UNION"
+// annotation-specific
+#define FUNCTION_STRING_GET_MAPPING_ANNOTATION "GET-MAPPING-ANNOTATION"
 // object creation and manipulation: maps
 #define FUNCTION_STRING_CREATE_MAP "CREATE-MAP"
 #define FUNCTION_STRING_ASSIGN "ASSIGN"
@@ -183,8 +185,8 @@ struct PredefinedFunctionDetails
 	int size;
 	PREDEFINED_FUNCTION id;
 	size_t argC;
-	bool isMember;
-	bool isContextSpecific;
+	bool isMember; // that is, used as a member function of some object: object.member_function()
+	bool isContextSpecific; // a function that isMember with Member being a Context Object
 };
 
 struct Operator
@@ -321,6 +323,9 @@ const PredefinedFunctionDetails functions[]
 	{FUNCTION_STRING_IS_CHARACTER, sizeof(FUNCTION_STRING_IS_CHARACTER)-1, PREDEFINED_FUNCTION::IS_CHARACTER, 0, true, true},
 	{FUNCTION_STRING_IS_BIT_STRING, sizeof(FUNCTION_STRING_IS_BIT_STRING)-1, PREDEFINED_FUNCTION::IS_BIT_STRING, 0, true, true},
 	{FUNCTION_STRING_IS_DISCRIMINATED_UNION, sizeof(FUNCTION_STRING_IS_DISCRIMINATED_UNION)-1, PREDEFINED_FUNCTION::IS_DISCRIMINATED_UNION, 0, true, true},
+// annotation-specific
+#define FUNCTION_STRING_GET_MAPPING_ANNOTATION "GET-MAPPING-ANNOTATION"
+	{FUNCTION_STRING_GET_MAPPING_ANNOTATION, sizeof(FUNCTION_STRING_GET_MAPPING_ANNOTATION)-1, PREDEFINED_FUNCTION::GET_MAPPING_ANNOTATION, 2, false, false},
 // any object
 	{FUNCTION_STRING_HAS_VALUE, sizeof(FUNCTION_STRING_HAS_VALUE)-1, PREDEFINED_FUNCTION::HAS_VALUE, 0, true, false},
 // map creation and manipulation
@@ -461,6 +466,7 @@ PredefindedFunction parsePredefinedFunction( const string& line, size_t& content
 	ret.argC = fn->argC;
 	ret.isMember = fn->isMember;
 	ret.isContextSpecific = fn->isContextSpecific;
+	assert( (!ret.isContextSpecific) || (ret.isContextSpecific && ret.isMember ) );
 	return ret;
 }
 

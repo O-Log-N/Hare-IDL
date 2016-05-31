@@ -36,15 +36,9 @@ void dbgPrintLineParts( vector<LinePart2>& parts )
 			fmt::print( "{}", parts[i].verbatim.c_str() );
 		else
 		{
-#if 0
-			SpecialName ph = {parts[i].type, parts[i].verbatim};
-			string placeholderStr = standardNameToString( ph );
-			fmt::print( "@{}@", placeholderStr.c_str() );
-#else
 			fmt::print( "@" );
 			dbgPrintExpression( parts[i].expr );
 			fmt::print( "@" );
-#endif
 		}
 	}
 }

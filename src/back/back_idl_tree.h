@@ -28,6 +28,7 @@ class BackEncodedOrMember
 protected:
 	BackEncodedMembers* parent;
 public:
+	map<string, string> annotation;
 	BackEncodedOrMember* idlRepresentation = nullptr;
 	BackEncodedOrMember* mappingRepresentation = nullptr;
 	BackEncodedOrMember* encodingRepresentation = nullptr;
@@ -86,6 +87,7 @@ public:
 	string name; 
     string discriminant; // used with type == Structure::TYPE::DISCRIMINATED_UNION
 	string inheritedFrom;
+	map<string, string> annotation;
 };
 
 class BackRoot
@@ -94,6 +96,7 @@ public:
 	vector<unique_ptr<BackStructure>> structuresIdl;
 	vector<unique_ptr<BackStructure>> structuresMapping;
 	vector<unique_ptr<BackStructure>> structuresEncoding;
+	map<string, string> annotation;
 };
 
 

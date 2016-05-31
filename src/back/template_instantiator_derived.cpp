@@ -21,6 +21,24 @@ void RootExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunctio
 {
 	switch ( fn.id )
 	{
+		case PREDEFINED_FUNCTION::GET_MAPPING_ANNOTATION:
+		{
+			assert( stack.size() );
+			auto arg1 = stack.begin() + stack.size() - 1;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			assert( elem.lineParts.size() == 1 && elem.lineParts[0].isVerbatim ); // TODO: implement for other cases
+			string what = elem.lineParts[0].verbatim;
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			auto attr = root->annotation.find( what );
+			if ( attr != root->annotation.end() )
+				lp.verbatim = attr->second;
+			elem.lineParts.push_back( lp );
+			stack.pop_back();
+			stack.push_back( elem );
+			break;
+		}
 		case PREDEFINED_FUNCTION::SERIALIZABLE_OBJECTS:
 		{
 			StackElement elem;
@@ -102,6 +120,24 @@ void StructExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunct
 {
 	switch ( fn.id )
 	{
+		case PREDEFINED_FUNCTION::GET_MAPPING_ANNOTATION:
+		{
+			assert( stack.size() );
+			auto arg1 = stack.begin() + stack.size() - 1;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			assert( elem.lineParts.size() == 1 && elem.lineParts[0].isVerbatim ); // TODO: implement for other cases
+			string what = elem.lineParts[0].verbatim;
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			auto attr = structure->annotation.find( what );
+			if ( attr != structure->annotation.end() )
+				lp.verbatim = attr->second;
+			elem.lineParts.push_back( lp );
+			stack.pop_back();
+			stack.push_back( elem );
+			break;
+		}
 		case PREDEFINED_FUNCTION::STRUCT_NAME:
 		{
 			LinePart2 lp;
@@ -153,6 +189,24 @@ void StructMemberExpressionObject::execBuiltinFunction( Stack& stack, Predefinde
 {
 	switch ( fn.id )
 	{
+		case PREDEFINED_FUNCTION::GET_MAPPING_ANNOTATION:
+		{
+			assert( stack.size() );
+			auto arg1 = stack.begin() + stack.size() - 1;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			assert( elem.lineParts.size() == 1 && elem.lineParts[0].isVerbatim ); // TODO: implement for other cases
+			string what = elem.lineParts[0].verbatim;
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			auto attr = member->annotation.find( what );
+			if ( attr != member->annotation.end() )
+				lp.verbatim = attr->second;
+			elem.lineParts.push_back( lp );
+			stack.pop_back();
+			stack.push_back( elem );
+			break;
+		}
 		case PREDEFINED_FUNCTION::MAPPING_MEMBER_NAME:
 		{
 			assert( member->mappingRepresentation != nullptr );
@@ -543,6 +597,24 @@ void DiscriminatedUnionExpressionObject::execBuiltinFunction( Stack& stack, Pred
 {
 	switch ( fn.id )
 	{
+		case PREDEFINED_FUNCTION::GET_MAPPING_ANNOTATION:
+		{
+			assert( stack.size() );
+			auto arg1 = stack.begin() + stack.size() - 1;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			assert( elem.lineParts.size() == 1 && elem.lineParts[0].isVerbatim ); // TODO: implement for other cases
+			string what = elem.lineParts[0].verbatim;
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			auto attr = structure->annotation.find( what );
+			if ( attr != structure->annotation.end() )
+				lp.verbatim = attr->second;
+			elem.lineParts.push_back( lp );
+			stack.pop_back();
+			stack.push_back( elem );
+			break;
+		}
 		case PREDEFINED_FUNCTION::STRUCT_NAME:
 		{
 			LinePart2 lp;
