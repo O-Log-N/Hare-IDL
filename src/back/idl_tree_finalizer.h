@@ -39,6 +39,7 @@ enum class TREE_DATA_COMPLETION_OPERATION
 	OVERRIDE
 };
 
+void preprocessTree( BackRoot& root );
 void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario );
 void prevalidateTree( BackRoot& root );
 

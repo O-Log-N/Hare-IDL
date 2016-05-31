@@ -31,7 +31,7 @@ struct TemplateNode
 
 	map<AttributeName, vector<ExpressionElement>> attributes;
 	vector<ExpressionElement> expression; // used only for NODE_TYPE::IF(ELIF), NODE_TYPE::NODE_TYPE::FOR_EACH_OF, NODE_TYPE::INCLUDE_WITH, NODE_TYPE::RETURN, and NODE_TYPE::ASSERT
-	bool isReturning = false; // set to true if @@RETURN found down the tree
+	bool isFunctionNode = false; // set to true if @@RETURN found down the tree
 };
 
 struct TemplateRootNode

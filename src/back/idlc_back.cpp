@@ -25,6 +25,19 @@ Copyright (C) 2016 OLogN Technologies AG
 
 using namespace std;
 
+void addTestData( Root& root )
+{
+	for ( auto& it:root.structures )
+	{
+		if ( it->name == "Structure" )
+			it->inheritedFrom = "EncodedMembers";
+		else if ( it->name == "EncodedMembers" )
+			it->inheritedFrom = "EncodedOrMember";
+		else if ( it->name == "DataMember" )
+			it->inheritedFrom = "EncodedOrMember";
+	}
+}
+
 void idlcBackEnd( Root& root2 )
 {
 #if 0
@@ -49,11 +62,14 @@ void idlcBackEnd( Root& root2 )
 	Root& root = root2;
 #endif
 
+	addTestData( root );
+
 	// further usage
 	BackRoot backRoot;
 	convertToBackTree( root, backRoot );
 	TREE_DATA_COMPLETION_SCENARIO scenario = TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY; // TODO: must be precalculated from user input
 //	TREE_DATA_COMPLETION_SCENARIO scenario = TREE_DATA_COMPLETION_SCENARIO::IDL_ONLY; // TODO: must be precalculated from user input
+	preprocessTree( backRoot );
 	finalizeTree( backRoot, scenario );
 
 	TemplateNodeSpace nodeSpace;

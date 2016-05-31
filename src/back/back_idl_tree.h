@@ -72,6 +72,10 @@ public:
 		assert( childIndex < members.size() );
 		return &(*members[childIndex]);
 	}
+	void moveMembersFrom( BackEncodedMembers& other )
+	{
+		members = std::move( other.members );
+	}
 };
 
 class BackStructure : public BackEncodedMembers 
@@ -81,6 +85,7 @@ public:
 	Structure::TYPE type; 
 	string name; 
     string discriminant; // used with type == Structure::TYPE::DISCRIMINATED_UNION
+	string inheritedFrom;
 };
 
 class BackRoot

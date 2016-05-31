@@ -226,7 +226,6 @@ void TemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunctio
 			case PREDEFINED_FUNCTION::ASSIGN:
 			{
 				assert( stack.size() >= 3 ); // TODO: it's a common check. Think about generalization
-				bool res;
 				auto arg1 = stack.begin() + stack.size() - 3;
 				auto arg2 = stack.begin() + stack.size() - 2;
 				auto arg3 = stack.begin() + stack.size() - 1;
@@ -239,7 +238,6 @@ void TemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunctio
 			case PREDEFINED_FUNCTION::FIND_IN_MAP:
 			{
 				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
-				bool res;
 				auto arg1 = stack.begin() + stack.size() - 2;
 				auto arg2 = stack.begin() + stack.size() - 1;
 				assert( arg1->argtype == ARGTYPE::ANY_MAP ); // TODO: report an error
@@ -261,7 +259,6 @@ void TemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunctio
 			case PREDEFINED_FUNCTION::APPEND_TO_LIST:
 			{
 				assert( stack.size() >= 2 ); // TODO: it's a common check. Think about generalization
-				bool res;
 				auto arg1 = stack.begin() + stack.size() - 2;
 				auto arg2 = stack.begin() + stack.size() - 1;
 				assert( arg1->argtype == ARGTYPE::ANY_LIST ); // TODO: report an error
@@ -511,10 +508,10 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	}
 }
 
-bool TemplateInstantiator::applyIncludeNode( TemplateNode& node, bool isReturning )
+bool TemplateInstantiator::applyIncludeNode( TemplateNode& node, bool isFunctionNode )
 {
 	map<string, StackElement> resolvedParamPlaceholdersNew;
-	TemplateRootNode* tn = prepareDataForTemplateInclusion( this, resolvedParamPlaceholdersNew, node, isReturning );
+	TemplateRootNode* tn = prepareDataForTemplateInclusion( this, resolvedParamPlaceholdersNew, node, isFunctionNode );
 	map<string, StackElement> resolvedParamPlaceholdersIni( std::move(resolvedParamPlaceholders) );
 	map<string, StackElement> resolvedLocalPlaceholdersIni( std::move(resolvedLocalPlaceholders) );
 	resolvedParamPlaceholders = map<string, StackElement>( std::move(resolvedParamPlaceholdersNew) );
@@ -526,7 +523,7 @@ bool TemplateInstantiator::applyIncludeNode( TemplateNode& node, bool isReturnin
 	return ret;
 }
 
-TemplateRootNode* TemplateInstantiator::prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isReturning )
+TemplateRootNode* TemplateInstantiator::prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isFunctionNode )
 {
 	Stack stack;
 	auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
@@ -542,7 +539,7 @@ TemplateRootNode* TemplateInstantiator::prepareDataForTemplateInclusion( Templat
 	{
 		assert( 0 ); // TODO: throw
 	}
-	if ( isReturning && (!tn->isFunction) ) // calling non-returning from returning is prohibited
+	if ( isFunctionNode && (!tn->isFunction) ) // calling non-returning from returning is prohibited
 	{
 		assert( 0 ); // TODO: throw
 	}
@@ -596,7 +593,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 			for ( auto& nodeIt: node.childNodes )
 				if ( !applyNode( nodeIt ) )
 				{
-					assert( node.isReturning );
+					assert( node.isFunctionNode );
 					return false;
 				}
 			break;
@@ -622,7 +619,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 			for ( auto& nodeIt: node.childNodes )
 				if ( !applyNode( nodeIt ) )
 				{
-					assert( node.isReturning );
+					assert( node.isFunctionNode );
 					return false;
 				}
 			outstr = nullptr;
@@ -638,7 +635,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 				{
 					if ( !applyNode( node.childNodes[0] ) )
 					{
-						assert( node.isReturning );
+						assert( node.isFunctionNode );
 						return false;
 					}
 				}
@@ -652,7 +649,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 					applyRes = applyNode( node.childNodes[1] );
 				if ( !applyRes )
 				{
-					assert( node.isReturning );
+					assert( node.isFunctionNode );
 					return false;
 				}
 			}
@@ -758,7 +755,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 				for ( auto nodeit:node.childNodes )
 					if ( !applyNode( nodeit ) )
 					{
-						assert( node.isReturning );
+						assert( node.isFunctionNode );
 						return false;
 					}
 			}
@@ -777,7 +774,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 				for ( auto nodeit:node.childNodes )
 					if ( !applyNode( nodeit ) )
 					{
-						assert( node.isReturning );
+						assert( node.isFunctionNode );
 						return false;
 					}
 			}
