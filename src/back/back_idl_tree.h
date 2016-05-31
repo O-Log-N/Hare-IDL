@@ -96,7 +96,6 @@ public:
 	vector<unique_ptr<BackStructure>> structuresIdl;
 	vector<unique_ptr<BackStructure>> structuresMapping;
 	vector<unique_ptr<BackStructure>> structuresEncoding;
-	map<string, string> annotation;
 };
 
 

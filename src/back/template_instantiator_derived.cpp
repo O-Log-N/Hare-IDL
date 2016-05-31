@@ -21,24 +21,6 @@ void RootExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunctio
 {
 	switch ( fn.id )
 	{
-		case PREDEFINED_FUNCTION::GET_MAPPING_ANNOTATION:
-		{
-			assert( stack.size() );
-			auto arg1 = stack.begin() + stack.size() - 1;
-			StackElement elem;
-			elem.argtype = ARGTYPE::STRING;
-			assert( elem.lineParts.size() == 1 && elem.lineParts[0].isVerbatim ); // TODO: implement for other cases
-			string what = elem.lineParts[0].verbatim;
-			LinePart2 lp;
-			lp.isVerbatim = true;
-			auto attr = root->annotation.find( what );
-			if ( attr != root->annotation.end() )
-				lp.verbatim = attr->second;
-			elem.lineParts.push_back( lp );
-			stack.pop_back();
-			stack.push_back( elem );
-			break;
-		}
 		case PREDEFINED_FUNCTION::SERIALIZABLE_OBJECTS:
 		{
 			StackElement elem;
@@ -124,14 +106,14 @@ void StructExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunct
 		{
 			assert( stack.size() );
 			auto arg1 = stack.begin() + stack.size() - 1;
+			assert( arg1->argtype == ARGTYPE::STRING && arg1->lineParts.size() == 1 && arg1->lineParts[0].isVerbatim ); // TODO: implement for other cases
+			string what = arg1->lineParts[0].verbatim;
 			StackElement elem;
 			elem.argtype = ARGTYPE::STRING;
-			assert( elem.lineParts.size() == 1 && elem.lineParts[0].isVerbatim ); // TODO: implement for other cases
-			string what = elem.lineParts[0].verbatim;
 			LinePart2 lp;
 			lp.isVerbatim = true;
-			auto attr = structure->annotation.find( what );
-			if ( attr != structure->annotation.end() )
+			auto attr = structure->mappingRepresentation->annotation.find( what );
+			if ( attr != structure->mappingRepresentation->annotation.end() )
 				lp.verbatim = attr->second;
 			elem.lineParts.push_back( lp );
 			stack.pop_back();
@@ -601,14 +583,14 @@ void DiscriminatedUnionExpressionObject::execBuiltinFunction( Stack& stack, Pred
 		{
 			assert( stack.size() );
 			auto arg1 = stack.begin() + stack.size() - 1;
+			assert( arg1->argtype == ARGTYPE::STRING && arg1->lineParts.size() == 1 && arg1->lineParts[0].isVerbatim ); // TODO: implement for other cases
+			string what = arg1->lineParts[0].verbatim;
 			StackElement elem;
 			elem.argtype = ARGTYPE::STRING;
-			assert( elem.lineParts.size() == 1 && elem.lineParts[0].isVerbatim ); // TODO: implement for other cases
-			string what = elem.lineParts[0].verbatim;
 			LinePart2 lp;
 			lp.isVerbatim = true;
-			auto attr = structure->annotation.find( what );
-			if ( attr != structure->annotation.end() )
+			auto attr = structure->mappingRepresentation->annotation.find( what );
+			if ( attr != structure->mappingRepresentation->annotation.end() )
 				lp.verbatim = attr->second;
 			elem.lineParts.push_back( lp );
 			stack.pop_back();
