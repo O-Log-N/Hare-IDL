@@ -193,14 +193,14 @@ void StructMemberExpressionObject::execBuiltinFunction( Stack& stack, Predefinde
 		{
 			assert( stack.size() );
 			auto arg1 = stack.begin() + stack.size() - 1;
+			assert( arg1->argtype == ARGTYPE::STRING && arg1->lineParts.size() == 1 && arg1->lineParts[0].isVerbatim ); // TODO: implement for other cases
+			string what = arg1->lineParts[0].verbatim;
 			StackElement elem;
 			elem.argtype = ARGTYPE::STRING;
-			assert( elem.lineParts.size() == 1 && elem.lineParts[0].isVerbatim ); // TODO: implement for other cases
-			string what = elem.lineParts[0].verbatim;
 			LinePart2 lp;
 			lp.isVerbatim = true;
-			auto attr = member->annotation.find( what );
-			if ( attr != member->annotation.end() )
+			auto attr = member->mappingRepresentation->annotation.find( what );
+			if ( attr != member->mappingRepresentation->annotation.end() )
 				lp.verbatim = attr->second;
 			elem.lineParts.push_back( lp );
 			stack.pop_back();

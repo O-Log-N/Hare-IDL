@@ -100,7 +100,7 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart2>& 
 
 void TemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunction fn )
 {
-	assert( stack.size() >= fn.argC );
+	assert( fn.isMember ? stack.size() > fn.argC : stack.size() >= fn.argC );
 	if ( fn.isContextSpecific )
 	{
 		auto argContext = stack.begin() + stack.size() - fn.argC - 1;
