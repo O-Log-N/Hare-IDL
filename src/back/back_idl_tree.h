@@ -87,6 +87,9 @@ public:
 	string name; 
     string discriminant; // used with type == Structure::TYPE::DISCRIMINATED_UNION
 	string inheritedFrom;
+	BackStructure* inheritanceBase = nullptr;
+	vector<BackStructure*> derived;
+    map<string, uint32_t> derivedObjDiscriminatorValues;
 	map<string, string> annotation;
 };
 

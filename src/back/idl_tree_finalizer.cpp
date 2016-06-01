@@ -538,6 +538,28 @@ void traverseStructTreesForDataMatchingOrOverridding( vector<unique_ptr<BackStru
 	}
 }
 
+void inheritanceTreeToDUs( BackRoot& root )
+{
+	for ( auto& it:root.structuresMapping )
+		if ( it->inheritedFrom == "" && it->derived.size() ) // has derived and is base
+		{
+			BackStructure* base = new BackStructure;
+			base->type = it->type;
+			base->declType = it->declType;
+			base->moveMembersFrom( *it );
+			base->name = it->name;
+			it->type = Structure::TYPE::DISCRIMINATED_UNION;
+			it->discriminant = "__inheritance";
+			BackDataMember* discriminant = new BackDataMember;
+			discriminant->name = "__inheritance";
+			discriminant->type.kind = DataType::KIND::ENUM;
+			discriminant->type.name = "__inheritance";
+//			discriminant->type.enumValues
+//			for( auto& chit:it->
+//			base.addChild
+		}
+}
+
 void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario )
 {
 	traverseStructTreesForStructureMembersMappingTypeToKind( root.structuresMapping );
@@ -553,6 +575,7 @@ void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario )
 		case TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY:
 		{
 			traverseStructTreesForDataMatchingOrOverridding( root.structuresMapping, Structure::DECLTYPE::MAPPING, root.structuresIdl, Structure::DECLTYPE::IDL, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
+			inheritanceTreeToDUs( root );
 			traverseStructTreesForDataMatchingOrOverridding( root.structuresIdl, Structure::DECLTYPE::IDL, root.structuresEncoding, Structure::DECLTYPE::ENCODING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
 			break;
 		}
@@ -583,4 +606,67 @@ void prevalidateTree( BackRoot& root )
 		// TODO: any further validation
 	}
 #endif // 0
+}
+
+void buildInheritanceTrees( BackRoot& root )
+{
+	for ( auto& it:root.structuresMapping )
+		if ( it->inheritedFrom != "" )		
+		{
+			bool found = false;
+			for ( auto& it1:root.structuresMapping )
+				if ( it->inheritedFrom == it1->name )
+				{
+					it->inheritanceBase = &(*it1);
+					it1->derived.push_back( &(*it) );
+					found = true;
+
+					BackDataMember* parentMember = new BackDataMember;
+					parentMember->annotation.insert( make_pair( "PARENT", "yes" ) );
+					parentMember->name = "__parent";
+					assert( it1->type == Structure::TYPE::STRUCT ); // TODO: consider other options
+					parentMember->type.kind = DataType::KIND::NAMED_TYPE;
+					parentMember->type.name = it1->name;
+					it->addChild( parentMember );
+
+					break;
+				}
+			if ( !found )
+				assert( 0 ); // TODO: report an error
+		}
+}
+
+void inheritanceAddDiscriminatorValues( BackStructure& s, vector<map<string, uint32_t>*>& derivedObjDiscriminatorValues, string base, int& value )
+{
+	base = base + s.name;
+	for ( auto& it:derivedObjDiscriminatorValues )
+		it->insert( make_pair( base, value ) );
+	++value;
+	derivedObjDiscriminatorValues.push_back( &(s.derivedObjDiscriminatorValues) );
+	for ( auto& it: s.derived )
+		inheritanceAddDiscriminatorValues( *it, derivedObjDiscriminatorValues, base, value );
+	derivedObjDiscriminatorValues.pop_back();
+}
+
+void inheritanceAddDiscriminatorValues( BackRoot& root )
+{
+	for ( auto& it:root.structuresMapping )
+		if ( it->inheritedFrom == "" && it->derived.size() ) // has derived and is base
+		{
+			vector<map<string, uint32_t>*> duValues;
+			int value = 0;
+			inheritanceAddDiscriminatorValues( *it, duValues, "", value );
+//			fmt::print( "base struct {}: {} children in depth\n", it->name, value );
+		}
+}
+
+void preprocessInheritanceData( BackRoot& root )
+{
+	buildInheritanceTrees( root );
+	inheritanceAddDiscriminatorValues( root );
+}
+
+void preprocessTree( BackRoot& root )
+{
+	preprocessInheritanceData( root );
 }
