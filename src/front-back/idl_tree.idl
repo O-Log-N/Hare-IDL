@@ -1,0 +1,19 @@
+
+
+MAPPING(Lang="C++", ClangOptions="-fno-ms-compatibility -I..") { FILE "idl_tree.h" {
+CLASS Limit;
+CLASS Location;
+CLASS CharacterRange;
+CLASS CharacterSet;
+CLASS Variant;
+CLASS DataType;
+CLASS EncodingSpecifics;
+CLASS EncodedOrMember;
+CLASS DataMember;
+CLASS EncodedMembers;
+CLASS Structure;
+CLASS Typedef;
+CLASS Root;
+} 
+};
+

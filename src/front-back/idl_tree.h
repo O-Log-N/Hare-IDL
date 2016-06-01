@@ -54,6 +54,10 @@ public:
 
     double numberValue = 0;
     string stringValue;
+
+    Variant() :kind(NONE) {}
+    Variant(double value) :kind(NUMBER), numberValue(value) {}
+    Variant(string value) :kind(STRING), stringValue(std::move(value)) {}
 };
 
 class DataType

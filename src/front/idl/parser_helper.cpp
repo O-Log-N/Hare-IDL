@@ -753,7 +753,7 @@ void lauchCppSerializer(const Location& location, const string& fileName, const 
             reportError(location, "Attribute 'ClangOptions' must be string.");
     }
 
-    string outFileName = fileName + ".bin";
+    string outFileName = fileName + ".idlbin";
 
     string cmdLine = fmt::format("C++2HareIDL {} -serialize -o {} {} -- {}", findNames, outFileName, fileName, clangOpts);
 
@@ -818,8 +818,8 @@ YYSTYPE processExtFileMapping(YYSTYPE file, YYSTYPE decl)
     else {
         string lang = l->second.stringValue;
         if (lang == "C++") {
-
-            lauchCppToIdl(decl->location, yy->fileName, yy->classNames, args);
+            lauchCppSerializer(decl->location, yy->fileName, yy->classNames, args);
+//            lauchCppToIdl(decl->location, yy->fileName, yy->classNames, args);
         }
         else
             reportError(decl->location, fmt::format("Language '%s' not recognized.", lang));

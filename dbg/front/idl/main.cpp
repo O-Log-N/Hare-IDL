@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     HAREASSERT(root);
 
     dbgDumpLeaks();
-    dbgDumpTree(stdout, root, true);
+    dbgDumpTree(stdout, root, false);
 
     return 0;
 }
