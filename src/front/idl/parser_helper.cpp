@@ -818,8 +818,8 @@ YYSTYPE processExtFileMapping(YYSTYPE file, YYSTYPE decl)
     else {
         string lang = l->second.stringValue;
         if (lang == "C++") {
-//            lauchCppSerializer(decl->location, yy->fileName, yy->classNames, args);
-            lauchCppToIdl(decl->location, yy->fileName, yy->classNames, args);
+            lauchCppSerializer(decl->location, yy->fileName, yy->classNames, args);
+//            lauchCppToIdl(decl->location, yy->fileName, yy->classNames, args);
         }
         else
             reportError(decl->location, fmt::format("Language '%s' not recognized.", lang));
