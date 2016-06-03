@@ -696,7 +696,7 @@ void lauchCppToIdl(const Location& location, const string& fileName, const vecto
             reportError(location, "Attribute 'ClangOptions' must be string.");
     }
 
-    string cmdLine = fmt::format("C++2HareIDL {} {} -- {}", findNames, fileName, clangOpts);
+    string cmdLine = fmt::format("C++2HareIDL {} -idl {} -- {}", findNames, fileName, clangOpts);
 
 #ifdef _DEBUG
     fmt::print(stderr, "\nLaunching external process:\n\n");
@@ -818,8 +818,8 @@ YYSTYPE processExtFileMapping(YYSTYPE file, YYSTYPE decl)
     else {
         string lang = l->second.stringValue;
         if (lang == "C++") {
-            lauchCppSerializer(decl->location, yy->fileName, yy->classNames, args);
-//            lauchCppToIdl(decl->location, yy->fileName, yy->classNames, args);
+//            lauchCppSerializer(decl->location, yy->fileName, yy->classNames, args);
+            lauchCppToIdl(decl->location, yy->fileName, yy->classNames, args);
         }
         else
             reportError(decl->location, fmt::format("Language '%s' not recognized.", lang));
@@ -1274,7 +1274,25 @@ YYSTYPE createDictionaryType(YYSTYPE token, YYSTYPE key_type, YYSTYPE value_type
 
     return yy;
 }
+YYSTYPE createNamedDictionary(YYSTYPE id, YYSTYPE key_type, YYSTYPE value_type)
+{
+    unique_ptr<YyBase> d0(id);
+    unique_ptr<YyBase> d1(key_type);
+    unique_ptr<YyBase> d2(value_type);
 
+    YyDataType* yy = new YyDataType();
+
+    yy->dataType->kind = DataType::DICTIONARY;
+    yy->dataType->name = nameFromYyIdentifier(id);
+
+    YyDataType* kt = yystype_cast<YyDataType*>(key_type);
+    yy->dataType->keyType.reset(kt->dataType.release());
+
+    YyDataType* vt = yystype_cast<YyDataType*>(value_type);
+    yy->dataType->paramType.reset(vt->dataType.release());
+
+    return yy;
+}
 
 YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type)
 {

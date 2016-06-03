@@ -29,6 +29,7 @@ Copyright (C) 2016 OLogN Technologies AG
 %token KW_WHEN_DISCRIMINANT_IN KW_WHEN_DISCRIMINANT_IS
 
 %token IDENTIFIER
+%token KW_IDENTIFIER
 %token STRING_LITERAL INTEGER_LITERAL CHAR_LITERAL FLOAT_LITERAL
 %token KW_INTEGER KW_FIXED_POINT KW_FLOATING_POINT
 %token KW_CHARACTER KW_CHARACTER_STRING KW_BIT_STRING
@@ -228,6 +229,10 @@ dictionary_type
     | KW_DICTIONARY '<' IDENTIFIER ',' data_type '>' { $$ = createDictionaryType($1, createIdType($3), $5); releaseYys3($2, $4, $6); }
     | KW_DICTIONARY '<' data_type ',' IDENTIFIER '>' { $$ = createDictionaryType($1, $3, createIdType($5)); releaseYys3($2, $4, $6); }
     | KW_DICTIONARY '<' IDENTIFIER ',' IDENTIFIER '>' { $$ = createDictionaryType($1, createIdType($3), createIdType($5)); releaseYys3($2, $4, $6); }
+    | IDENTIFIER '<' data_type ',' data_type '>' { $$ = createNamedDictionary($1, $3, $5); releaseYys3($2, $4, $6); }
+    | IDENTIFIER '<' IDENTIFIER ',' data_type '>' { $$ = createNamedDictionary($1, createIdType($3), $5); releaseYys3($2, $4, $6); }
+    | IDENTIFIER '<' data_type ',' IDENTIFIER '>' { $$ = createNamedDictionary($1, $3, createIdType($5)); releaseYys3($2, $4, $6); }
+    | IDENTIFIER '<' IDENTIFIER ',' IDENTIFIER '>' { $$ = createNamedDictionary($1, createIdType($3), createIdType($5)); releaseYys3($2, $4, $6); }
 ;
 
 class_ref_type
@@ -242,6 +247,8 @@ inline_enum_type
 enum_values
 	: IDENTIFIER '=' INTEGER_LITERAL { $$ = addEnumValue(0, $1, $3); releaseYys($2); }
 	| enum_values ',' IDENTIFIER '=' INTEGER_LITERAL { $$ = addEnumValue($1, $3, $5); releaseYys2($2, $4); }
+	| KW_IDENTIFIER '(' STRING_LITERAL ')' '=' INTEGER_LITERAL { $$ = addEnumValue(0, $3, $6); releaseYys4($1, $2, $4, $5); }
+	| enum_values ',' KW_IDENTIFIER '(' STRING_LITERAL ')' '=' INTEGER_LITERAL { $$ = addEnumValue($1, $5, $8); releaseYys3($2, $3, $4); releaseYys2($6, $7); }
 ;
 
 arg_list

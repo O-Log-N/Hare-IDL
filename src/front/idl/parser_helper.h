@@ -99,6 +99,7 @@ YYSTYPE createBitStringType(YYSTYPE token, YYSTYPE min_expr, YYSTYPE max_expr);
 YYSTYPE createSequence(YYSTYPE token, YYSTYPE type);
 YYSTYPE createNamedSequence(YYSTYPE id, YYSTYPE type);
 YYSTYPE createDictionaryType(YYSTYPE token, YYSTYPE key_type, YYSTYPE value_type);
+YYSTYPE createNamedDictionary(YYSTYPE id, YYSTYPE key_type, YYSTYPE value_type);
 YYSTYPE createClassReference(YYSTYPE token, YYSTYPE id_type);
 YYSTYPE createInlineEnum(YYSTYPE token, YYSTYPE opt_id, YYSTYPE values);
 YYSTYPE addEnumValue(YYSTYPE list, YYSTYPE id, YYSTYPE int_lit);

@@ -88,6 +88,8 @@ int createToken(int token)
 	"NUMERIC" { return createToken( KW_NUMERIC ); }
     "INT" { return createToken( KW_INT ); }
 
+    "IDENTIFIER" { return createToken( KW_IDENTIFIER ); }
+
 	"INTEGER" { return createToken( KW_INTEGER ); }
 	"FIXED-POINT" { return createToken( KW_FIXED_POINT ); }
 	"FLOATING-POINT" { return createToken( KW_FLOATING_POINT ); }
