@@ -853,6 +853,12 @@ void processPolymorphicOwningPointerInUniquePtr( BackRoot& root, BackDataMember&
 			// self
 			{
 				discriminant->type.enumValues.insert( make_pair( dt.paramType->name, ctr++ ) );
+				BackDataMember* member = new BackDataMember;
+				member->name = dt.paramType->name;
+				member->whenDiscriminant.push_back( dt.paramType->name );
+				member->type.kind = DataType::KIND::NAMED_TYPE;
+				member->type.name = dt.paramType->name;
+				duMapping->addChild( member );
 			}
 			// other
 			for ( auto itd: innerstruct->derived )
