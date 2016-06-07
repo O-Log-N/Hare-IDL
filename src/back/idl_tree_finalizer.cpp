@@ -17,6 +17,11 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "idl_tree_finalizer.h"
 
+bool isUniquePtr( DataType& dt )
+{
+	return dt.kind == DataType::KIND::SEQUENCE && dt.name == "unique_ptr";
+}
+
 void memberMappingTypeToKind( DataType& type )
 {
 	// NOTE: in actual implementation mapping name is expected to be at DataType::mappingName
@@ -128,6 +133,7 @@ string getTypeFromIdl( DataType& type, Structure::DECLTYPE declType )
 				}
 			}
 		}
+		case DataType::KIND::DISCRIMINATED_UNION:
 		case DataType::KIND::NAMED_TYPE:
 		{
 			return type.name;
@@ -340,6 +346,7 @@ BackDataMember* createMember( BackDataMember& base, Structure::DECLTYPE baseDecl
 		}
 		ret->type = base.type; // TODO: actual implementation
 		initDataType( base.type, ret->type, baseDeclType, retDeclType );
+		ret->whenDiscriminant = base.whenDiscriminant;
 	}
 	else if ( baseDeclType == Structure::DECLTYPE::IDL )
 	{
@@ -348,11 +355,13 @@ BackDataMember* createMember( BackDataMember& base, Structure::DECLTYPE baseDecl
 		if ( retDeclType == Structure::DECLTYPE::MAPPING )
 		{
 			ret->type = base.type;
+			ret->whenDiscriminant = base.whenDiscriminant;
 			initDataType( base.type, ret->type, baseDeclType, retDeclType );
 		}
 		else
 		{
 			ret->type = base.type;
+			ret->whenDiscriminant = base.whenDiscriminant;
 			initDataType( base.type, ret->type, baseDeclType, retDeclType );
 		}
 	}
@@ -477,6 +486,34 @@ BackStructure* createFakeStructureNode( Structure::DECLTYPE type )
 	return ret;
 }
 
+void addCrossReferences( BackStructure* s1, Structure::DECLTYPE type1, BackStructure* s2, Structure::DECLTYPE type2 )
+{
+	assert( s1 != nullptr );
+	assert( s2 != nullptr );
+	switch ( type1 )
+	{
+		case Structure::DECLTYPE::IDL: s2->idlRepresentation = s1; s1->idlRepresentation = s1; break;
+		case Structure::DECLTYPE::MAPPING: s2->mappingRepresentation = s1; s1->mappingRepresentation = s1; break;
+		case Structure::DECLTYPE::ENCODING: s2->encodingRepresentation = s1; s1->encodingRepresentation = s1; break;
+		default: 
+		{
+			assert( 0 );
+			break;
+		}
+	}
+	switch ( type2 )
+	{
+		case Structure::DECLTYPE::IDL: s1->idlRepresentation = s2; s2->idlRepresentation = s2; break;
+		case Structure::DECLTYPE::MAPPING: s1->mappingRepresentation = s2; s2->mappingRepresentation = s2; break;
+		case Structure::DECLTYPE::ENCODING: s1->encodingRepresentation = s2; s2->encodingRepresentation = s2; break;
+		default: 
+		{
+			assert( 0 );
+			break;
+		}
+	}
+}
+
 void traverseStructTreesForDataMatchingOrOverridding( vector<unique_ptr<BackStructure>>& tree1, Structure::DECLTYPE type1, vector<unique_ptr<BackStructure>>& tree2, Structure::DECLTYPE type2, TREE_DATA_COMPLETION_OPERATION oper )
 {
 
@@ -513,7 +550,8 @@ void traverseStructTreesForDataMatchingOrOverridding( vector<unique_ptr<BackStru
 		}
 
 		// add cross-references
-		switch ( type1 )
+		addCrossReferences( &(*it1), type1, ret, type2 );
+/*		switch ( type1 )
 		{
 			case Structure::DECLTYPE::IDL: ret->idlRepresentation = &(*it1); it1->idlRepresentation = &(*it1); break;
 			case Structure::DECLTYPE::MAPPING: ret->mappingRepresentation = &(*it1); it1->mappingRepresentation = &(*it1); break;
@@ -534,7 +572,7 @@ void traverseStructTreesForDataMatchingOrOverridding( vector<unique_ptr<BackStru
 				assert( 0 );
 				break;
 			}
-		}
+		}*/
 	}
 }
 
@@ -560,33 +598,6 @@ void inheritanceTreeToDUs( BackRoot& root )
 		}
 }
 
-void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario )
-{
-	traverseStructTreesForStructureMembersMappingTypeToKind( root.structuresMapping );
-	switch ( scenario )
-	{
-		case TREE_DATA_COMPLETION_SCENARIO::IDL_MAP_ENC:  break;
-		case TREE_DATA_COMPLETION_SCENARIO::IDL_ONLY:
-		{
-			traverseStructTreesForDataMatchingOrOverridding( root.structuresIdl, Structure::DECLTYPE::IDL, root.structuresMapping, Structure::DECLTYPE::MAPPING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
-			traverseStructTreesForDataMatchingOrOverridding( root.structuresIdl, Structure::DECLTYPE::IDL, root.structuresEncoding, Structure::DECLTYPE::ENCODING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
-			break;
-		}
-		case TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY:
-		{
-			traverseStructTreesForDataMatchingOrOverridding( root.structuresMapping, Structure::DECLTYPE::MAPPING, root.structuresIdl, Structure::DECLTYPE::IDL, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
-			inheritanceTreeToDUs( root );
-			traverseStructTreesForDataMatchingOrOverridding( root.structuresIdl, Structure::DECLTYPE::IDL, root.structuresEncoding, Structure::DECLTYPE::ENCODING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
-			break;
-		}
-		case TREE_DATA_COMPLETION_SCENARIO::ENC_ONLY: break;
-		case TREE_DATA_COMPLETION_SCENARIO::IDL_MAP: break;
-		case TREE_DATA_COMPLETION_SCENARIO::IDL_ENC: break;
-		case TREE_DATA_COMPLETION_SCENARIO::MAJOR_MAP_ENC: break;
-		case TREE_DATA_COMPLETION_SCENARIO::MAJOR_ENC_MAP: break;
-	}
-}
-
 void prevalidateTree( BackRoot& root )
 {
 #if 0
@@ -608,7 +619,7 @@ void prevalidateTree( BackRoot& root )
 #endif // 0
 }
 
-void buildInheritanceTrees( BackRoot& root )
+void expandInheritanceData( BackRoot& root )
 {
 	for ( auto& it:root.structuresMapping )
 		if ( it->inheritedFrom != "" )		
@@ -627,6 +638,8 @@ void buildInheritanceTrees( BackRoot& root )
 					assert( it1->type == Structure::TYPE::STRUCT ); // TODO: consider other options
 					parentMember->type.kind = DataType::KIND::NAMED_TYPE;
 					parentMember->type.name = it1->name;
+					parentMember->type.mappingName = it1->name;
+					parentMember->type.encodingName = it1->name;
 					it->addChild( parentMember );
 
 					break;
@@ -636,6 +649,316 @@ void buildInheritanceTrees( BackRoot& root )
 		}
 }
 
+BackStructure* getTypeDescriptionWhenTypeIsStruct( BackRoot& root, const string& name )
+{
+	for ( auto& it:root.structuresMapping )
+		if ( it->name == name )
+			return &(*it);
+	return nullptr;
+}
+
+#if 0
+void processPolymorphicOwningPointerInUniquePtr( BackRoot& root, BackDataMember& member, DataType& dt )
+{
+	assert( isUniquePtr( dt ) );
+	if ( dt.paramType->kind == DataType::KIND::NAMED_TYPE )
+	{
+		string name = "__unique_ptr_";
+		name += dt.paramType->name;
+		bool found = false;
+		for ( auto& it:root.structuresIdl )
+			if ( it->manuallyAdded && it->name == name )
+			{
+				found = true;
+//				if ( it->derived.size() )
+				break;
+			}
+		if ( !found )
+		{
+			BackStructure* innerstruct = getTypeDescriptionWhenTypeIsStruct( root, dt.paramType->name );
+			assert( innerstruct != nullptr ); // TODO: convert to error reporting
+
+			dt.kind = DataType::KIND::DISCRIMINATED_UNION;
+			dt.name = name;
+			dt.mappingName = name;
+			dt.encodingName = name;
+			dt.paramType.reset( nullptr );
+
+			(dynamic_cast<BackDataMember*>(member.mappingRepresentation))->type.kind = DataType::KIND::DISCRIMINATED_UNION;
+			(dynamic_cast<BackDataMember*>(member.mappingRepresentation))->type.name = name;
+			(dynamic_cast<BackDataMember*>(member.mappingRepresentation))->type.mappingName = name;
+			(dynamic_cast<BackDataMember*>(member.mappingRepresentation))->type.encodingName = name;
+			(dynamic_cast<BackDataMember*>(member.mappingRepresentation))->type.paramType.reset( nullptr );
+
+			(dynamic_cast<BackDataMember*>(member.encodingRepresentation))->type.kind = DataType::KIND::DISCRIMINATED_UNION;
+			(dynamic_cast<BackDataMember*>(member.encodingRepresentation))->type.name = name;
+			(dynamic_cast<BackDataMember*>(member.encodingRepresentation))->type.mappingName = name;
+			(dynamic_cast<BackDataMember*>(member.encodingRepresentation))->type.encodingName = name;
+			(dynamic_cast<BackDataMember*>(member.encodingRepresentation))->type.paramType.reset( nullptr );
+
+			// (1) add a respective DU to IDL tree; add an entry to mapping tree
+
+			// DU itself
+			BackStructure* duIDL = new BackStructure;
+			duIDL->declType = Structure::DECLTYPE::IDL;
+			duIDL->type = Structure::TYPE::DISCRIMINATED_UNION;
+			duIDL->name = name;
+			duIDL->discriminant = "__ptr";
+//			du->inheritedFrom = innerstruct->inheritedFrom;
+//			du->inheritanceBase = innerstruct->inheritanceBase;
+			duIDL->manuallyAdded = true;
+			// discriminant and members
+			BackDataMember* discriminant = new BackDataMember;
+			discriminant->name = "__ptr";
+			discriminant->type.name = "__ptr";
+			discriminant->type.kind = DataType::KIND::ENUM;
+			discriminant->type.enumValues.insert( make_pair( "__nullptr", 0 ) );
+			duIDL->addChild( discriminant );
+			uint32_t ctr = 1;
+			for ( auto itd: innerstruct->derived )
+			{
+				discriminant->type.enumValues.insert( make_pair( itd->name, ctr++ ) );
+				BackDataMember* member = new BackDataMember;
+				member->name = "__du_option_";
+				member->name += itd->name;
+				member->whenDiscriminant.push_back( itd->name );
+				member->type.kind = DataType::KIND::NAMED_TYPE;
+				member->type.name = itd->name;
+				duIDL->addChild( member );
+			}
+			root.structuresIdl.push_back( unique_ptr<BackStructure>( duIDL ) );
+
+			// (2) add an entry to mapping tree
+			// DU itself
+			BackStructure* duMapping = new BackStructure;
+			duMapping->declType = Structure::DECLTYPE::MAPPING;
+			duMapping->type = Structure::TYPE::DISCRIMINATED_UNION;
+			duMapping->name = name;
+			duMapping->discriminant = "__ptr";
+//			du->inheritedFrom = innerstruct->inheritedFrom;
+//			du->inheritanceBase = innerstruct->inheritanceBase;
+			duMapping->manuallyAdded = true;
+			// discriminant and members
+			discriminant = new BackDataMember;
+			discriminant->name = "__ptr";
+			discriminant->type.name = "__ptr";
+			discriminant->type.kind = DataType::KIND::ENUM;
+			discriminant->type.enumValues.insert( make_pair( "__nullptr", 0 ) );
+			duMapping->addChild( discriminant );
+			ctr = 1;
+			for ( auto itd: innerstruct->derived )
+			{
+				discriminant->type.enumValues.insert( make_pair( itd->name, ctr++ ) );
+				BackDataMember* member = new BackDataMember;
+				member->name = "__du_option_";
+				member->name += itd->name;
+				member->whenDiscriminant.push_back( itd->name );
+				member->type.kind = DataType::KIND::NAMED_TYPE;
+				member->type.name = itd->name;
+				duMapping->addChild( member );
+			}
+			root.structuresMapping.push_back( unique_ptr<BackStructure>( duMapping ) );
+
+			// (3) add an entry to encoding tree
+			// DU itself
+			BackStructure* duEncoding = new BackStructure;
+			duEncoding->declType = Structure::DECLTYPE::MAPPING;
+			duEncoding->type = Structure::TYPE::DISCRIMINATED_UNION;
+			duEncoding->name = name;
+			duEncoding->discriminant = "__ptr";
+//			du->inheritedFrom = innerstruct->inheritedFrom;
+//			du->inheritanceBase = innerstruct->inheritanceBase;
+			duEncoding->manuallyAdded = true;
+			// discriminant and members
+			discriminant = new BackDataMember;
+			discriminant->name = "__ptr";
+			discriminant->type.name = "__ptr";
+			discriminant->type.kind = DataType::KIND::ENUM;
+			discriminant->type.enumValues.insert( make_pair( "__nullptr", 0 ) );
+			duEncoding->addChild( discriminant );
+			ctr = 1;
+			for ( auto itd: innerstruct->derived )
+			{
+				discriminant->type.enumValues.insert( make_pair( itd->name, ctr++ ) );
+				BackDataMember* member = new BackDataMember;
+				member->name = "__du_option_";
+				member->name += itd->name;
+				member->whenDiscriminant.push_back( itd->name );
+				member->type.kind = DataType::KIND::NAMED_TYPE;
+				member->type.name = itd->name;
+				duEncoding->addChild( member );
+			}
+			root.structuresEncoding.push_back( unique_ptr<BackStructure>( duEncoding ) );
+
+			// (4) add cross-references
+			duIDL->idlRepresentation = duIDL;
+			duIDL->mappingRepresentation = duMapping;
+			duIDL->encodingRepresentation = duEncoding;
+
+			duMapping->idlRepresentation = duIDL;
+			duMapping->mappingRepresentation = duMapping;
+			duMapping->encodingRepresentation = duEncoding;
+
+			duEncoding->idlRepresentation = duIDL;
+			duEncoding->mappingRepresentation = duMapping;
+			duEncoding->encodingRepresentation = duEncoding;
+
+			// (5) replace types
+
+		}
+	}
+}
+#endif
+
+
+void processPolymorphicOwningPointerInUniquePtr( BackRoot& root, BackDataMember& member, DataType& dt )
+{
+	assert( isUniquePtr( dt ) );
+	if ( dt.paramType->kind == DataType::KIND::NAMED_TYPE )
+	{
+		string nameIdl = "__unique_ptr_";
+		nameIdl += dt.paramType->name;
+		string nameMapping = "unique_ptr<";
+		nameMapping += dt.paramType->name;
+		nameMapping += ">";
+
+		bool found = false;
+		for ( auto& it:root.structuresMapping )
+			if ( it->manuallyAdded && it->name == nameMapping )
+			{
+				found = true;
+				break;
+			}
+		if ( !found )
+		{
+			BackStructure* innerstruct = getTypeDescriptionWhenTypeIsStruct( root, dt.paramType->name );
+			assert( innerstruct != nullptr ); // TODO: convert to error reporting
+
+			// add an entry to mapping tree
+			// DU itself
+			BackStructure* duMapping = new BackStructure;
+			duMapping->declType = Structure::DECLTYPE::MAPPING;
+			duMapping->type = Structure::TYPE::DISCRIMINATED_UNION;
+			duMapping->name = nameMapping;
+			duMapping->discriminant = "__ptr";
+			duMapping->manuallyAdded = true;
+			// discriminant and members
+			BackDataMember* discriminant = new BackDataMember;
+			discriminant->name = "__ptr";
+			discriminant->type.name = "__ptr";
+			discriminant->type.kind = DataType::KIND::ENUM;
+			discriminant->type.enumValues.insert( make_pair( "nullptr", 0 ) );
+			duMapping->addChild( discriminant );
+			uint32_t ctr = 1;
+			// self
+			{
+				discriminant->type.enumValues.insert( make_pair( dt.paramType->name, ctr++ ) );
+			}
+			// other
+			for ( auto itd: innerstruct->derived )
+			{
+				discriminant->type.enumValues.insert( make_pair( itd->name, ctr++ ) );
+				BackDataMember* member = new BackDataMember;
+//				member->name = "__du_option_";
+//				member->name += itd->name;
+				member->name = itd->name;
+				member->whenDiscriminant.push_back( itd->name );
+				member->type.kind = DataType::KIND::NAMED_TYPE;
+				member->type.name = itd->name;
+				duMapping->addChild( member );
+			}
+
+			root.structuresMapping.push_back( unique_ptr<BackStructure>( duMapping ) );
+			BackStructure* idlStruct = doStructureDataMatchingOrOverridding( *duMapping, Structure::DECLTYPE::MAPPING, nullptr, Structure::DECLTYPE::IDL, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
+			addCrossReferences( duMapping, Structure::DECLTYPE::MAPPING, idlStruct, Structure::DECLTYPE::IDL );
+			idlStruct->name = nameIdl;
+			idlStruct->annotation.insert( make_pair( "OWNING-PTR", "yes" ) );
+			root.structuresIdl.push_back( unique_ptr<BackStructure>( idlStruct ) );
+			BackStructure* encodingStruct = doStructureDataMatchingOrOverridding( *idlStruct, Structure::DECLTYPE::IDL, nullptr, Structure::DECLTYPE::ENCODING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
+			addCrossReferences( idlStruct, Structure::DECLTYPE::IDL, encodingStruct, Structure::DECLTYPE::ENCODING );
+			addCrossReferences( duMapping, Structure::DECLTYPE::MAPPING, encodingStruct, Structure::DECLTYPE::ENCODING );
+			root.structuresEncoding.push_back( unique_ptr<BackStructure>( encodingStruct ) );
+		}
+
+		dt.kind = DataType::KIND::NAMED_TYPE;
+		dt.name = nameIdl;
+		dt.mappingName = nameMapping;
+		dt.encodingName = nameIdl;
+		dt.paramType.reset( nullptr );
+
+		dt.idlRepresentation->kind = DataType::KIND::NAMED_TYPE;
+		dt.idlRepresentation->name = nameIdl;
+		dt.idlRepresentation->mappingName = nameMapping;
+		dt.idlRepresentation->encodingName = nameIdl;
+		dt.idlRepresentation->paramType.reset( nullptr );
+
+		dt.encodingRepresentation->kind = DataType::KIND::NAMED_TYPE;
+		dt.encodingRepresentation->name = nameIdl;
+		dt.encodingRepresentation->mappingName = nameMapping;
+		dt.encodingRepresentation->encodingName = nameIdl;
+		dt.encodingRepresentation->paramType.reset( nullptr );
+	}
+}
+
+void processPolymorphicOwningPointerInDictionary( BackRoot& root, BackDataMember& member, DataType& dt );
+void processPolymorphicOwningPointerInSequence( BackRoot& root, BackDataMember& member, DataType& dt )
+{
+	assert( dt.kind == DataType::KIND::SEQUENCE );
+	if ( isUniquePtr( *(dt.paramType) ) )
+		processPolymorphicOwningPointerInUniquePtr( root, member, *(dt.paramType) );
+	else if ( dt.paramType->kind == DataType::KIND::SEQUENCE )
+		processPolymorphicOwningPointerInSequence( root, member, *(dt.paramType) );
+	else if ( dt.paramType->kind == DataType::KIND::SEQUENCE )
+		processPolymorphicOwningPointerInDictionary( root, member, *(dt.paramType) );
+}
+
+void processPolymorphicOwningPointerInDictionary( BackRoot& root, BackDataMember& member, DataType& dt )
+{
+	assert( dt.kind == DataType::KIND::DICTIONARY );
+	if ( isUniquePtr( *(dt.paramType) ) )
+		processPolymorphicOwningPointerInUniquePtr( root, member, *(dt.paramType) );
+	else if ( dt.paramType->kind == DataType::KIND::SEQUENCE )
+		processPolymorphicOwningPointerInSequence( root, member, *(dt.paramType) );
+	else if ( dt.paramType->kind == DataType::KIND::SEQUENCE )
+		processPolymorphicOwningPointerInDictionary( root, member, *(dt.paramType) );
+	if ( isUniquePtr( *(dt.keyType) ) )
+		processPolymorphicOwningPointerInUniquePtr( root, member, *(dt.keyType) );
+	else if ( dt.keyType->kind == DataType::KIND::SEQUENCE )
+		processPolymorphicOwningPointerInSequence( root, member, *(dt.keyType) );
+	else if ( dt.keyType->kind == DataType::KIND::SEQUENCE )
+		processPolymorphicOwningPointerInDictionary( root, member, *(dt.keyType) );
+}
+
+void processPolymorphicOwningPointers( BackRoot& root )
+{
+//	for ( auto& strit:root.structuresIdl )
+	size_t sz = root.structuresMapping.size();
+	for ( size_t i=0; i<sz; ++i )
+	{
+		auto& strit = *(root.structuresMapping.begin() + i );
+		BackStructure* s = &(*strit);
+		size_t cnt = strit->getChildCount();
+		for ( size_t i=0; i<cnt; ++i )
+		{
+			BackDataMember* member = dynamic_cast<BackDataMember*>(s->getMember( i ));
+			assert( member ); // TODO: currently we do not expect anything else here; revise as necessary
+			// We're looking here for the following cases:
+			// - unique_ptr
+			// - SEQUENCE< ... unique_ptr<X> ... >
+			// - DICTIONARY< ... unique_ptr<X> ... >
+			// When found, we check whether there are types inherited from X
+			// If yes, then a respective DU is constructed (unless already added), and X is replaced by (or is annotated to use) that DU
+			if ( isUniquePtr( member->type ) )
+				processPolymorphicOwningPointerInUniquePtr( root, *member, member->type );
+			else if ( member->type.kind == DataType::KIND::SEQUENCE )
+				processPolymorphicOwningPointerInSequence( root, *member, member->type );
+			else if ( member->type.kind == DataType::KIND::DICTIONARY )
+				processPolymorphicOwningPointerInDictionary( root, *member, member->type );
+		}
+	}
+}
+
+/*
 void inheritanceAddDiscriminatorValues( BackStructure& s, vector<map<string, uint32_t>*>& derivedObjDiscriminatorValues, string base, int& value )
 {
 	base = base + s.name;
@@ -659,14 +982,33 @@ void inheritanceAddDiscriminatorValues( BackRoot& root )
 //			fmt::print( "base struct {}: {} children in depth\n", it->name, value );
 		}
 }
+*/
 
-void preprocessInheritanceData( BackRoot& root )
+void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario )
 {
-	buildInheritanceTrees( root );
-	inheritanceAddDiscriminatorValues( root );
-}
-
-void preprocessTree( BackRoot& root )
-{
-	preprocessInheritanceData( root );
+	traverseStructTreesForStructureMembersMappingTypeToKind( root.structuresMapping );
+	switch ( scenario )
+	{
+		case TREE_DATA_COMPLETION_SCENARIO::IDL_MAP_ENC:  break;
+		case TREE_DATA_COMPLETION_SCENARIO::IDL_ONLY:
+		{
+			traverseStructTreesForDataMatchingOrOverridding( root.structuresIdl, Structure::DECLTYPE::IDL, root.structuresMapping, Structure::DECLTYPE::MAPPING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
+			traverseStructTreesForDataMatchingOrOverridding( root.structuresIdl, Structure::DECLTYPE::IDL, root.structuresEncoding, Structure::DECLTYPE::ENCODING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
+			break;
+		}
+		case TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY:
+		{
+			expandInheritanceData( root );
+//			inheritanceTreeToDUs( root );
+			traverseStructTreesForDataMatchingOrOverridding( root.structuresMapping, Structure::DECLTYPE::MAPPING, root.structuresIdl, Structure::DECLTYPE::IDL, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
+			traverseStructTreesForDataMatchingOrOverridding( root.structuresIdl, Structure::DECLTYPE::IDL, root.structuresEncoding, Structure::DECLTYPE::ENCODING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
+			processPolymorphicOwningPointers( root );
+			break;
+		}
+		case TREE_DATA_COMPLETION_SCENARIO::ENC_ONLY: break;
+		case TREE_DATA_COMPLETION_SCENARIO::IDL_MAP: break;
+		case TREE_DATA_COMPLETION_SCENARIO::IDL_ENC: break;
+		case TREE_DATA_COMPLETION_SCENARIO::MAJOR_MAP_ENC: break;
+		case TREE_DATA_COMPLETION_SCENARIO::MAJOR_ENC_MAP: break;
+	}
 }

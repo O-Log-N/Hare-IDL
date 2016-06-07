@@ -91,6 +91,7 @@ public:
 	vector<BackStructure*> derived;
     map<string, uint32_t> derivedObjDiscriminatorValues;
 	map<string, string> annotation;
+	bool manuallyAdded = false;
 };
 
 class BackRoot

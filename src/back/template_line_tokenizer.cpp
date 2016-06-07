@@ -57,6 +57,13 @@ void readLineParts( const string& line, size_t& currentPos, vector<LinePart2>& p
 	part.isVerbatim = true;
 	do
 	{
+		// NOTE: lines below is a workaround to handle '"' inside a string
+		if ( line[currentPos] == '\"' && part.verbatim.size() && part.verbatim.back() == '\\' )
+		{
+			part.verbatim.back() = '\"';
+			++currentPos;
+			continue;
+		}
 		if ( terminator.size() )
 		{
 			bool terminal = false; 

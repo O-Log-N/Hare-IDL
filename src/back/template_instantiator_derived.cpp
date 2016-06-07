@@ -131,6 +131,17 @@ void StructExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunct
 			stack.push_back( std::move(elem) );
 			break;
 		}
+		case PREDEFINED_FUNCTION::MAPPING_STRUCT_NAME:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = (dynamic_cast<BackStructure*>(structure->mappingRepresentation))->name;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
 		case PREDEFINED_FUNCTION::MEMBERS:
 		{
 			StackElement elem;
@@ -608,11 +619,23 @@ void DiscriminatedUnionExpressionObject::execBuiltinFunction( Stack& stack, Pred
 			stack.push_back( std::move(elem) );
 			break;
 		}
+		case PREDEFINED_FUNCTION::MAPPING_STRUCT_NAME:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = (dynamic_cast<BackStructure*>(structure->mappingRepresentation))->name;
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
 		case PREDEFINED_FUNCTION::MAPPING_DISCRIMINATOR_NAME:
 		{
 			LinePart2 lp;
 			lp.isVerbatim = true;
-			lp.verbatim = structure->discriminant;
+//			lp.verbatim = structure->discriminant;
+			lp.verbatim = (dynamic_cast<BackStructure*>(structure->mappingRepresentation))->discriminant;
 			StackElement elem;
 			elem.argtype = ARGTYPE::STRING;
 			elem.lineParts.push_back( lp );
@@ -738,6 +761,28 @@ void DiscriminatedUnionOptionExpressionObject::execBuiltinFunction( Stack& stack
 {
 	switch ( fn.id )
 	{
+		case PREDEFINED_FUNCTION::IDL_DISCRIMINATED_UNION_OPTION_NAME:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = fmt::format( "{}", enumValueName ); // TODO: revise!!!
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
+		case PREDEFINED_FUNCTION::MAPPING_DISCRIMINATED_UNION_OPTION_NAME:
+		{
+			LinePart2 lp;
+			lp.isVerbatim = true;
+			lp.verbatim = fmt::format( "{}", enumValueName ); // TODO: revise!!!
+			StackElement elem;
+			elem.argtype = ARGTYPE::STRING;
+			elem.lineParts.push_back( lp );
+			stack.push_back( std::move(elem) );
+			break;
+		}
 		case PREDEFINED_FUNCTION::ENCODING_DISCRIMINATED_UNION_OPTION_NAME:
 		{
 			LinePart2 lp;

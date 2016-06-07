@@ -35,6 +35,8 @@ void addTestData( Root& root )
 			it->inheritedFrom = "EncodedOrMember";
 		else if ( it->name == "DataMember" )
 			it->inheritedFrom = "EncodedOrMember";
+		else if ( it->name == "CharacterSet" )
+			it->inheritedFrom = "CharacterRange";
 	}
 }
 
@@ -69,7 +71,6 @@ void idlcBackEnd( Root& root2 )
 	convertToBackTree( root, backRoot );
 	TREE_DATA_COMPLETION_SCENARIO scenario = TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY; // TODO: must be precalculated from user input
 //	TREE_DATA_COMPLETION_SCENARIO scenario = TREE_DATA_COMPLETION_SCENARIO::IDL_ONLY; // TODO: must be precalculated from user input
-	preprocessTree( backRoot );
 	finalizeTree( backRoot, scenario );
 
 	TemplateNodeSpace nodeSpace;
