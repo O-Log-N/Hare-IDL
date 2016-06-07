@@ -854,7 +854,7 @@ void processPolymorphicOwningPointerInUniquePtr( BackRoot& root, BackDataMember&
 			{
 				discriminant->type.enumValues.insert( make_pair( dt.paramType->name, ctr++ ) );
 				BackDataMember* member = new BackDataMember;
-				member->annotation.insert( make_pair( "POINTER", "yes" ) );
+				member->annotation.insert( make_pair( "POLY-POINTER-TYPE", dt.paramType->name ) );
 				member->name = dt.paramType->name;
 				member->whenDiscriminant.push_back( dt.paramType->name );
 				member->type.kind = DataType::KIND::NAMED_TYPE;
@@ -866,7 +866,7 @@ void processPolymorphicOwningPointerInUniquePtr( BackRoot& root, BackDataMember&
 			{
 				discriminant->type.enumValues.insert( make_pair( itd->name, ctr++ ) );
 				BackDataMember* member = new BackDataMember;
-				member->annotation.insert( make_pair( "POINTER", "yes" ) );
+				member->annotation.insert( make_pair( "POLY-POINTER-TYPE", itd->name ) );
 //				member->name = "__du_option_";
 //				member->name += itd->name;
 				member->name = itd->name;
