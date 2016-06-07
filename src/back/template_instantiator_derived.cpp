@@ -109,13 +109,15 @@ void StructExpressionObject::execBuiltinFunction( Stack& stack, PredefindedFunct
 			assert( arg1->argtype == ARGTYPE::STRING && arg1->lineParts.size() == 1 && arg1->lineParts[0].isVerbatim ); // TODO: implement for other cases
 			string what = arg1->lineParts[0].verbatim;
 			StackElement elem;
-			elem.argtype = ARGTYPE::STRING;
 			LinePart2 lp;
 			lp.isVerbatim = true;
 			auto attr = structure->mappingRepresentation->annotation.find( what );
 			if ( attr != structure->mappingRepresentation->annotation.end() )
+			{
+				elem.argtype = ARGTYPE::STRING;
 				lp.verbatim = attr->second;
-			elem.lineParts.push_back( lp );
+				elem.lineParts.push_back( lp );
+			}
 			stack.pop_back();
 			stack.push_back( elem );
 			break;
@@ -189,13 +191,15 @@ void StructMemberExpressionObject::execBuiltinFunction( Stack& stack, Predefinde
 			assert( arg1->argtype == ARGTYPE::STRING && arg1->lineParts.size() == 1 && arg1->lineParts[0].isVerbatim ); // TODO: implement for other cases
 			string what = arg1->lineParts[0].verbatim;
 			StackElement elem;
-			elem.argtype = ARGTYPE::STRING;
 			LinePart2 lp;
 			lp.isVerbatim = true;
 			auto attr = member->mappingRepresentation->annotation.find( what );
 			if ( attr != member->mappingRepresentation->annotation.end() )
+			{
+				elem.argtype = ARGTYPE::STRING;
 				lp.verbatim = attr->second;
-			elem.lineParts.push_back( lp );
+				elem.lineParts.push_back( lp );
+			}
 			stack.pop_back();
 			stack.push_back( elem );
 			break;
@@ -596,14 +600,21 @@ void DiscriminatedUnionExpressionObject::execBuiltinFunction( Stack& stack, Pred
 			auto arg1 = stack.begin() + stack.size() - 1;
 			assert( arg1->argtype == ARGTYPE::STRING && arg1->lineParts.size() == 1 && arg1->lineParts[0].isVerbatim ); // TODO: implement for other cases
 			string what = arg1->lineParts[0].verbatim;
+if ( what == "OWNING-PTR" )
+{
+	static int i=0;
+	++i;
+}
 			StackElement elem;
-			elem.argtype = ARGTYPE::STRING;
 			LinePart2 lp;
 			lp.isVerbatim = true;
 			auto attr = structure->mappingRepresentation->annotation.find( what );
 			if ( attr != structure->mappingRepresentation->annotation.end() )
+			{
+				elem.argtype = ARGTYPE::STRING;
 				lp.verbatim = attr->second;
-			elem.lineParts.push_back( lp );
+				elem.lineParts.push_back( lp );
+			}
 			stack.pop_back();
 			stack.push_back( elem );
 			break;

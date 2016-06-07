@@ -854,6 +854,7 @@ void processPolymorphicOwningPointerInUniquePtr( BackRoot& root, BackDataMember&
 			{
 				discriminant->type.enumValues.insert( make_pair( dt.paramType->name, ctr++ ) );
 				BackDataMember* member = new BackDataMember;
+				member->annotation.insert( make_pair( "POINTER", "yes" ) );
 				member->name = dt.paramType->name;
 				member->whenDiscriminant.push_back( dt.paramType->name );
 				member->type.kind = DataType::KIND::NAMED_TYPE;
@@ -865,6 +866,7 @@ void processPolymorphicOwningPointerInUniquePtr( BackRoot& root, BackDataMember&
 			{
 				discriminant->type.enumValues.insert( make_pair( itd->name, ctr++ ) );
 				BackDataMember* member = new BackDataMember;
+				member->annotation.insert( make_pair( "POINTER", "yes" ) );
 //				member->name = "__du_option_";
 //				member->name += itd->name;
 				member->name = itd->name;
@@ -874,11 +876,11 @@ void processPolymorphicOwningPointerInUniquePtr( BackRoot& root, BackDataMember&
 				duMapping->addChild( member );
 			}
 
+			duMapping->annotation.insert( make_pair( "OWNING-PTR", "yes" ) );
 			root.structuresMapping.push_back( unique_ptr<BackStructure>( duMapping ) );
 			BackStructure* idlStruct = doStructureDataMatchingOrOverridding( *duMapping, Structure::DECLTYPE::MAPPING, nullptr, Structure::DECLTYPE::IDL, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
 			addCrossReferences( duMapping, Structure::DECLTYPE::MAPPING, idlStruct, Structure::DECLTYPE::IDL );
 			idlStruct->name = nameIdl;
-			idlStruct->annotation.insert( make_pair( "OWNING-PTR", "yes" ) );
 			root.structuresIdl.push_back( unique_ptr<BackStructure>( idlStruct ) );
 			BackStructure* encodingStruct = doStructureDataMatchingOrOverridding( *idlStruct, Structure::DECLTYPE::IDL, nullptr, Structure::DECLTYPE::ENCODING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
 			addCrossReferences( idlStruct, Structure::DECLTYPE::IDL, encodingStruct, Structure::DECLTYPE::ENCODING );
