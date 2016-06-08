@@ -85,9 +85,9 @@ public:
     map<string,Variant> mappingAttrs;
     map<string, uint32_t> enumValues;
 
-//    DataType* idlRepresentation = nullptr;
-//    DataType* mappingRepresentation = nullptr;
-//    DataType* encodingRepresentation = nullptr;
+    DataType* idlRepresentation = nullptr;
+    DataType* mappingRepresentation = nullptr;
+    DataType* encodingRepresentation = nullptr;
 
     DataType() = default;
     DataType(const DataType& other)
@@ -100,8 +100,8 @@ public:
           stringMinSize(other.stringMinSize), stringMaxSize(other.stringMaxSize),
           encodingAttrs(other.encodingAttrs), mappingAttrs(other.mappingAttrs),
           enumValues(other.enumValues) //,
-       //   idlRepresentation( other.idlRepresentation ), mappingRepresentation( other.mappingRepresentation ), encodingRepresentation( other.encodingRepresentation )
-          {}
+          idlRepresentation( other.idlRepresentation ), mappingRepresentation( other.mappingRepresentation ), encodingRepresentation( other.encodingRepresentation )
+    {}
 
     DataType& operator = ( const DataType& other )
     {
