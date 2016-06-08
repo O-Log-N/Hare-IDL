@@ -600,11 +600,6 @@ void DiscriminatedUnionExpressionObject::execBuiltinFunction( Stack& stack, Pred
 			auto arg1 = stack.begin() + stack.size() - 1;
 			assert( arg1->argtype == ARGTYPE::STRING && arg1->lineParts.size() == 1 && arg1->lineParts[0].isVerbatim ); // TODO: implement for other cases
 			string what = arg1->lineParts[0].verbatim;
-if ( what == "OWNING-PTR" )
-{
-	static int i=0;
-	++i;
-}
 			StackElement elem;
 			LinePart2 lp;
 			lp.isVerbatim = true;
