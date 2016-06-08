@@ -4,16 +4,6 @@
 
 // SERIALIZATION
 
-void serializeLimit( Limit& s, OStream& o ) {
-   o.write_uint8_t(s.inclusive);
-   o.write_double(s.value);
-}
-
-void serializeLocation( Location& s, OStream& o ) {
-   o.write_string(s.fileName);
-   o.write_uint16_t(s.lineNumber);
-}
-
 void serializeCharacterRange( CharacterRange& s, OStream& o ) {
    o.write_uint32_t(s.from);
    o.write_uint32_t(s.to);
@@ -50,6 +40,16 @@ void serializeVariant( Variant& s, OStream& o ) {
    o.write_string(s.stringValue);
 }
 
+void serializeLimit( Limit& s, OStream& o ) {
+   o.write_uint8_t(s.inclusive);
+   o.write_double(s.value);
+}
+
+void serializeLocation( Location& s, OStream& o ) {
+   o.write_string(s.fileName);
+   o.write_uint16_t(s.lineNumber);
+}
+
 void serializeDataType( DataType& s, OStream& o ) {
       switch ( s.kind )
 	  {
@@ -71,38 +71,8 @@ void serializeDataType( DataType& s, OStream& o ) {
    o.write_string(s.name);
    o.write_string(s.mappingName);
    o.write_string(s.encodingName);
-   {
-   o.write_uint32_t( 
-        (s.keyType != nullptr ? 1 : 0) 
-     );
-   for(
-        auto it_1 = s.keyType != nullptr ? &s.keyType : nullptr
-         ; !(
-        it_1 == nullptr
-         );
-        it_1 = nullptr
-         )
-   {
-        auto& obj_1 = **it_1;
-   serializeDataType(obj_1, o);
-   }
-   }
-   {
-   o.write_uint32_t( 
-        (s.paramType != nullptr ? 1 : 0) 
-     );
-   for(
-        auto it_1 = s.paramType != nullptr ? &s.paramType : nullptr
-         ; !(
-        it_1 == nullptr
-         );
-        it_1 = nullptr
-         )
-   {
-        auto& obj_1 = **it_1;
-   serializeDataType(obj_1, o);
-   }
-   }
+   serialize__unique_ptr_DataType(s.keyType, o);
+   serialize__unique_ptr_DataType(s.paramType, o);
    serializeLimit(s.lowLimit, o);
    serializeLimit(s.highLimit, o);
    o.write_double(s.fixedPrecision);
@@ -142,7 +112,6 @@ void serializeEncodedOrMember( EncodedOrMember& s, OStream& o ) {
 }
 
 void serializeDataMember( DataMember& s, OStream& o ) {
-	serializeEncodedOrMember( *((EncodedOrMember*)(&s)), o ); // MANUALLY ADDED
    serializeDataType(s.type, o);
    o.write_string(s.name);
    o.write_uint8_t(s.extendTo);
@@ -163,10 +132,10 @@ void serializeDataMember( DataMember& s, OStream& o ) {
    o.write_string(obj_1);
    }
    }
+   serializeEncodedOrMember(s, o);
 }
 
 void serializeEncodedMembers( EncodedMembers& s, OStream& o ) {
-	serializeEncodedOrMember( *((EncodedOrMember*)(&s)), o ); // MANUALLY ADDED
    serializeEncodingSpecifics(s.encodingSpecifics, o);
    {
    o.write_uint32_t( 
@@ -181,61 +150,13 @@ void serializeEncodedMembers( EncodedMembers& s, OStream& o ) {
          )
    {
         auto& obj_1 = *it_1;
-   {
-   o.write_uint32_t( 
-        (obj_1 != nullptr ? 1 : 0) 
-     );
-   for(
-        auto it_2 = obj_1 != nullptr ? &obj_1 : nullptr
-         ; !(
-        it_2 == nullptr
-         );
-        it_2 = nullptr
-         )
-   {
-	   // MANUALLY ADDED
-//        auto& obj_2 = **it_2;
-//   serializeEncodedOrMember(obj_2, o);
-	   do
-	   {
-		  // DataMember is behind
-		  DataMember* ptr_0 = dynamic_cast<DataMember*>(&(**it_2));
-		  if ( ptr_0 )
-		  {
-			  o.write_uint8_t( 0 );
-			  serializeDataMember( *ptr_0, o );
-			  break;
-		  }
-		  // EncodedMembers is behind
-		  EncodedMembers* ptr_1 = dynamic_cast<EncodedMembers*>(&(**it_2));
-		  if ( ptr_1 )
-		  {
-			  o.write_uint8_t( 1 );
-			  serializeEncodedMembers( *ptr_1, o );
-			  break;
-		  }
-		  // Structure is behind
-		  Structure* ptr_2 = dynamic_cast<Structure*>(&(**it_2));
-		  if ( ptr_2 )
-		  {
-			  o.write_uint8_t( 2 );
-			  serializeStructure( *ptr_2, o );
-			  break;
-		  }
-		  // base class
-		  o.write_uint8_t( 3 );
-		  serializeEncodedOrMember( **it_2, o );
-	   }
-	   while ( 0 );
-	   // end of MANUALLY ADDED
+   serialize__unique_ptr_EncodedOrMember(obj_1, o);
    }
    }
-   }
-   }
+   serializeEncodedOrMember(s, o);
 }
 
 void serializeStructure( Structure& s, OStream& o ) {
-	serializeEncodedMembers( *((EncodedMembers*)(&s)), o ); // MANUALLY ADDED
       switch ( s.declType )
 	  {
         case 0 /*IDL*/: o.write_uint8_t( 0 ); break;
@@ -252,6 +173,7 @@ void serializeStructure( Structure& s, OStream& o ) {
 	  }
    o.write_string(s.name);
    o.write_string(s.discriminant);
+   serializeEncodedMembers(s, o);
 }
 
 void serializeTypedef( Typedef& s, OStream& o ) {
@@ -290,44 +212,64 @@ void serializeRoot( Root& s, OStream& o ) {
          )
    {
         auto& obj_1 = *it_1;
-   {
-   o.write_uint32_t( 
-        (obj_1 != nullptr ? 1 : 0) 
-     );
-   for(
-        auto it_2 = obj_1 != nullptr ? &obj_1 : nullptr
-         ; !(
-        it_2 == nullptr
-         );
-        it_2 = nullptr
-         )
-   {
-        auto& obj_2 = **it_2;
-   serializeStructure(obj_2, o);
-   }
-   }
+   serialize__unique_ptr_Structure(obj_1, o);
    }
    }
 }
 
+
+void serialize__unique_ptr_DataType( unique_ptr<DataType>& s, OStream& o ) {
+uint8_t TMP; if ( s == nullptr ) TMP = 1; else if ( typeid( *(s) ) == typeid( DataType ) ) TMP = 0; 
+   o.write_int8_t( TMP );
+   switch ( TMP )
+   {
+      case 0:
+	  {
+   serializeDataType(*(dynamic_cast<DataType*>(&(*(s)))), o);
+         break;
+      }
+   }
+}
+
+void serialize__unique_ptr_EncodedOrMember( unique_ptr<EncodedOrMember>& s, OStream& o ) {
+uint8_t TMP; if ( s == nullptr ) TMP = 3; else if ( typeid( *(s) ) == typeid( DataMember ) ) TMP = 0; else if ( typeid( *(s) ) == typeid( EncodedMembers ) ) TMP = 1; else if ( typeid( *(s) ) == typeid( EncodedOrMember ) ) TMP = 2; 
+   o.write_int8_t( TMP );
+   switch ( TMP )
+   {
+      case 0:
+	  {
+   serializeDataMember(*(dynamic_cast<DataMember*>(&(*(s)))), o);
+         break;
+      }
+      case 1:
+	  {
+   serializeEncodedMembers(*(dynamic_cast<EncodedMembers*>(&(*(s)))), o);
+         break;
+      }
+      case 2:
+	  {
+   serializeEncodedOrMember(*(dynamic_cast<EncodedOrMember*>(&(*(s)))), o);
+         break;
+      }
+   }
+}
+
+void serialize__unique_ptr_Structure( unique_ptr<Structure>& s, OStream& o ) {
+uint8_t TMP; if ( s == nullptr ) TMP = 1; else if ( typeid( *(s) ) == typeid( Structure ) ) TMP = 0; 
+   o.write_int8_t( TMP );
+   switch ( TMP )
+   {
+      case 0:
+	  {
+   serializeStructure(*(dynamic_cast<Structure*>(&(*(s)))), o);
+         break;
+      }
+   }
+}
 
 
   
 // DESERIALIZATION
-bool deserializeLimit( Limit& s, IStream& i ) {
-   i.read_bool(s.inclusive);
-   i.read_double(s.value);
-
-   return true;
-}
-
-bool deserializeLocation( Location& s, IStream& i ) {
-   i.read_string(s.fileName);
-   uint16_t tmp; i.read_uint16_t(tmp);s.lineNumber=tmp; // MANUALLY EDITED
-
-   return true;
-}
-
 bool deserializeCharacterRange( CharacterRange& s, IStream& i ) {
    i.read_uint32_t(s.from);
    i.read_uint32_t(s.to);
@@ -370,6 +312,21 @@ bool deserializeVariant( Variant& s, IStream& i ) {
    return true;
 }
 
+bool deserializeLimit( Limit& s, IStream& i ) {
+   i.read_bool(s.inclusive);
+   i.read_double(s.value);
+
+   return true;
+}
+
+bool deserializeLocation( Location& s, IStream& i ) {
+   i.read_string(s.fileName);
+//   i.read_uint16_t(s.lineNumber);
+   uint16_t tmp; i.read_uint16_t(tmp);s.lineNumber=tmp; // MANUALLY EDITED
+
+   return true;
+}
+
 bool deserializeDataType( DataType& s, IStream& i ) {
    {
        uint8_t tmp;
@@ -396,32 +353,8 @@ bool deserializeDataType( DataType& s, IStream& i ) {
    i.read_string(s.name);
    i.read_string(s.mappingName);
    i.read_string(s.encodingName);
-   {
-     uint32_t size_1;
-	 i.read_uint32_t(size_1);
-     for(uint32_t k_1=0; k_1<size_1; ++k_1) {
-   DataType
-        &obj_1 = *(new 
-   DataType
-        );
-   deserializeDataType(obj_1, i);
-        s.keyType.reset(&obj_1) 
-        ;
-     }
-   }
-   {
-     uint32_t size_1;
-	 i.read_uint32_t(size_1);
-     for(uint32_t k_1=0; k_1<size_1; ++k_1) {
-   DataType
-        &obj_1 = *(new 
-   DataType
-        );
-   deserializeDataType(obj_1, i);
-        s.paramType.reset(&obj_1) 
-        ;
-     }
-   }
+   deserialize__unique_ptr_DataType(s.keyType, i);
+   deserialize__unique_ptr_DataType(s.paramType, i);
    deserializeLimit(s.lowLimit, i);
    deserializeLimit(s.highLimit, i);
    i.read_double(s.fixedPrecision);
@@ -503,7 +436,6 @@ bool deserializeEncodedOrMember( EncodedOrMember& s, IStream& i ) {
 }
 
 bool deserializeDataMember( DataMember& s, IStream& i ) {
-	deserializeEncodedOrMember( *((EncodedOrMember*)(&s)), i ); // MANUALLY ADDED
    deserializeDataType(s.type, i);
    i.read_string(s.name);
    i.read_bool(s.extendTo);
@@ -519,81 +451,30 @@ bool deserializeDataMember( DataMember& s, IStream& i ) {
         ;
      }
    }
+   deserializeEncodedOrMember(s, i);
 
    return true;
 }
 
 bool deserializeEncodedMembers( EncodedMembers& s, IStream& i ) {
-	deserializeEncodedOrMember( *((EncodedOrMember*)(&s)), i ); // MANUALLY ADDED
    deserializeEncodingSpecifics(s.encodingSpecifics, i);
    {
      uint32_t size_1;
 	 i.read_uint32_t(size_1);
      for(uint32_t k_1=0; k_1<size_1; ++k_1) {
-   unique_ptr<
-   EncodedOrMember
-   >
+   unique_ptr<EncodedOrMember>
         obj_1;
-   {
-     uint32_t size_2;
-	 i.read_uint32_t(size_2);
-     for(uint32_t k_2=0; k_2<size_2; ++k_2) {
-		 // MANUALLY ADDED
-		 int8_t type;
-		 i.read_int8_t( type );
-		 switch ( type )
-		 {
-			case 0:
-			{
-				DataMember &obj_2 = *(new DataMember );
-                deserializeDataMember(obj_2, i);
-                obj_1.reset(&obj_2);
-				break;
-			}
-			case 1:
-			{
-				EncodedMembers &obj_2 = *(new EncodedMembers );
-                deserializeEncodedMembers(obj_2, i);
-                obj_1.reset(&obj_2);
-				break;
-			}
-			case 2:
-			{
-				Structure &obj_2 = *(new Structure );
-                deserializeStructure(obj_2, i);
-                obj_1.reset(&obj_2);
-				break;
-			}
-			case 3:
-			{
-				EncodedOrMember &obj_2 = *(new EncodedOrMember );
-                deserializeEncodedOrMember(obj_2, i);
-                obj_1.reset(&obj_2);
-				break;
-			}
-			default:
-				assert( 0 );
-		 }
-/*   EncodedOrMember
-        &obj_2 = *(new 
-   EncodedOrMember
-        );
-   deserializeEncodedOrMember(obj_2, i);
-        obj_1.reset(&obj_2) 
-        ;*/
-		 // end of MANUALLY ADDED
-     }
-   }
+   deserialize__unique_ptr_EncodedOrMember(obj_1, i);
         s.members.push_back(std::move(obj_1)) 
         ;
      }
    }
+   deserializeEncodedOrMember(s, i);
 
    return true;
 }
 
 bool deserializeStructure( Structure& s, IStream& i ) {
-	deserializeEncodedMembers( *((EncodedMembers*)(&s)), i ); // MANUALLY ADDED
    {
        uint8_t tmp;
        i.read_uint8_t(tmp);
@@ -620,6 +501,7 @@ bool deserializeStructure( Structure& s, IStream& i ) {
  
    i.read_string(s.name);
    i.read_string(s.discriminant);
+   deserializeEncodedMembers(s, i);
 
    return true;
 }
@@ -648,23 +530,9 @@ bool deserializeRoot( Root& s, IStream& i ) {
      uint32_t size_1;
 	 i.read_uint32_t(size_1);
      for(uint32_t k_1=0; k_1<size_1; ++k_1) {
-   unique_ptr<
-   Structure
-   >
+   unique_ptr<Structure>
         obj_1;
-   {
-     uint32_t size_2;
-	 i.read_uint32_t(size_2);
-     for(uint32_t k_2=0; k_2<size_2; ++k_2) {
-   Structure
-        &obj_2 = *(new 
-   Structure
-        );
-   deserializeStructure(obj_2, i);
-        obj_1.reset(&obj_2) 
-        ;
-     }
-   }
+   deserialize__unique_ptr_Structure(obj_1, i);
         s.structures.push_back(std::move(obj_1)) 
         ;
      }
@@ -674,27 +542,66 @@ bool deserializeRoot( Root& s, IStream& i ) {
 }
 
 
+bool deserialize__unique_ptr_DataType( unique_ptr<DataType>& s, IStream& i ) {
+       uint8_t tmp;
+       i.read_uint8_t(tmp);
+   switch ( tmp )
+   {
+      case 0:
+      {
+         s.reset( new DataType );
+   deserializeDataType(*(dynamic_cast<DataType*>(&(*(s)))), i);
+         break;
+	  }
+   }
+   return true;
+}
+
+bool deserialize__unique_ptr_EncodedOrMember( unique_ptr<EncodedOrMember>& s, IStream& i ) {
+       uint8_t tmp;
+       i.read_uint8_t(tmp);
+   switch ( tmp )
+   {
+      case 0:
+      {
+         s.reset( new DataMember );
+   deserializeDataMember(*(dynamic_cast<DataMember*>(&(*(s)))), i);
+         break;
+	  }
+      case 1:
+      {
+         s.reset( new EncodedMembers );
+   deserializeEncodedMembers(*(dynamic_cast<EncodedMembers*>(&(*(s)))), i);
+         break;
+	  }
+      case 2:
+      {
+         s.reset( new EncodedOrMember );
+   deserializeEncodedOrMember(*(dynamic_cast<EncodedOrMember*>(&(*(s)))), i);
+         break;
+	  }
+   }
+   return true;
+}
+
+bool deserialize__unique_ptr_Structure( unique_ptr<Structure>& s, IStream& i ) {
+       uint8_t tmp;
+       i.read_uint8_t(tmp);
+   switch ( tmp )
+   {
+      case 0:
+      {
+         s.reset( new Structure );
+   deserializeStructure(*(dynamic_cast<Structure*>(&(*(s)))), i);
+         break;
+	  }
+   }
+   return true;
+}
+
   
   
 // PRINTING
-void printLimit( Limit& s ) {
-    cout << "inclusive: ";
-   cout << s.inclusive << endl;
-    cout << endl;
-    cout << "value: ";
-   cout << s.value << endl;
-    cout << endl;
-}
-
-void printLocation( Location& s ) {
-    cout << "fileName: ";
-   cout << s.fileName << endl;
-    cout << endl;
-    cout << "lineNumber: ";
-   cout << s.lineNumber << endl;
-    cout << endl;
-}
-
 void printCharacterRange( CharacterRange& s ) {
     cout << "from: ";
    cout << s.from << endl;
@@ -732,6 +639,24 @@ void printVariant( Variant& s ) {
     cout << endl;
 }
 
+void printLimit( Limit& s ) {
+    cout << "inclusive: ";
+   cout << s.inclusive << endl;
+    cout << endl;
+    cout << "value: ";
+   cout << s.value << endl;
+    cout << endl;
+}
+
+void printLocation( Location& s ) {
+    cout << "fileName: ";
+   cout << s.fileName << endl;
+    cout << endl;
+    cout << "lineNumber: ";
+   cout << s.lineNumber << endl;
+    cout << endl;
+}
+
 void printDataType( DataType& s ) {
     cout << "kind: ";
    cout << s.kind;
@@ -746,30 +671,10 @@ void printDataType( DataType& s ) {
    cout << s.encodingName << endl;
     cout << endl;
     cout << "keyType: ";
-   for(
-        auto it_1 = s.keyType != nullptr ? &s.keyType : nullptr
-         ; !(
-        it_1 == nullptr
-         );
-        it_1 = nullptr
-         )
-   {
-        auto& obj_1 = **it_1;
-   printDataType( obj_1 );
-   }
+   print__unique_ptr_DataType( s.keyType );
     cout << endl;
     cout << "paramType: ";
-   for(
-        auto it_1 = s.paramType != nullptr ? &s.paramType : nullptr
-         ; !(
-        it_1 == nullptr
-         );
-        it_1 = nullptr
-         )
-   {
-        auto& obj_1 = **it_1;
-   printDataType( obj_1 );
-   }
+   print__unique_ptr_DataType( s.paramType );
     cout << endl;
     cout << "lowLimit: ";
    printLimit( s.lowLimit );
@@ -838,7 +743,6 @@ void printEncodedOrMember( EncodedOrMember& s ) {
 }
 
 void printDataMember( DataMember& s ) {
-	printEncodedOrMember( *((EncodedOrMember*)(&s)) ); // MANUALLY ADDED
     cout << "type: ";
    printDataType( s.type );
     cout << endl;
@@ -864,10 +768,12 @@ void printDataMember( DataMember& s ) {
    cout << obj_1 << endl;
    }
     cout << endl;
+    cout << "__parent: ";
+   printEncodedOrMember( s );
+    cout << endl;
 }
 
 void printEncodedMembers( EncodedMembers& s ) {
-	printEncodedOrMember( *((EncodedOrMember*)(&s)) ); // MANUALLY ADDED
     cout << "encodingSpecifics: ";
    printEncodingSpecifics( s.encodingSpecifics );
     cout << endl;
@@ -881,53 +787,15 @@ void printEncodedMembers( EncodedMembers& s ) {
          )
    {
         auto& obj_1 = *it_1;
-   for(
-        auto it_2 = obj_1 != nullptr ? &obj_1 : nullptr
-         ; !(
-        it_2 == nullptr
-         );
-        it_2 = nullptr
-         )
-   {
-   	   // MANUALLY ADDED
-//        auto& obj_2 = **it_2;
-//   printEncodedOrMember( obj_2 );
-	   do
-	   {
-		  // DataMember is behind
-		  DataMember* ptr_0 = dynamic_cast<DataMember*>(&(**it_2));
-		  if ( ptr_0 )
-		  {
-			  printDataMember( *ptr_0 );
-			  break;
-		  }
-		  // EncodedMembers is behind
-		  EncodedMembers* ptr_1 = dynamic_cast<EncodedMembers*>(&(**it_2));
-		  if ( ptr_1 )
-		  {
-			  printEncodedMembers( *ptr_1 );
-			  break;
-		  }
-		  // Structure is behind
-		  Structure* ptr_2 = dynamic_cast<Structure*>(&(**it_2));
-		  if ( ptr_2 )
-		  {
-			  printStructure( *ptr_2 );
-			  break;
-		  }
-		  // base class
-		  printEncodedOrMember( **it_2 );
-	   }
-	   while ( 0 );
-	   // end of MANUALLY ADDED
-
+   print__unique_ptr_EncodedOrMember( obj_1 );
    }
-   }
+    cout << endl;
+    cout << "__parent: ";
+   printEncodedOrMember( s );
     cout << endl;
 }
 
 void printStructure( Structure& s ) {
-	printEncodedMembers( *((EncodedMembers*)(&s)) ); // MANUALLY ADDED
     cout << "declType: ";
    cout << s.declType;
     cout << endl;
@@ -939,6 +807,9 @@ void printStructure( Structure& s ) {
     cout << endl;
     cout << "discriminant: ";
    cout << s.discriminant << endl;
+    cout << endl;
+    cout << "__parent: ";
+   printEncodedMembers( s );
     cout << endl;
 }
 
@@ -978,22 +849,56 @@ void printRoot( Root& s ) {
          )
    {
         auto& obj_1 = *it_1;
-   for(
-        auto it_2 = obj_1 != nullptr ? &obj_1 : nullptr
-         ; !(
-        it_2 == nullptr
-         );
-        it_2 = nullptr
-         )
-   {
-        auto& obj_2 = **it_2;
-   printStructure( obj_2 );
-   }
+   print__unique_ptr_Structure( obj_1 );
    }
     cout << endl;
 }
 
 
+void print__unique_ptr_DataType( unique_ptr<DataType>& s ) {
+uint8_t TMP; if ( s == nullptr ) TMP = 1; else if ( typeid( *(s) ) == typeid( DataType ) ) TMP = 0; 
+   switch ( TMP )
+   {
+      case 1:
+	  {
+   printDataType( *(dynamic_cast<DataType*>(&(*(s)))) );
+         break;
+      }
+   }
+}
 
+void print__unique_ptr_EncodedOrMember( unique_ptr<EncodedOrMember>& s ) {
+uint8_t TMP; if ( s == nullptr ) TMP = 3; else if ( typeid( *(s) ) == typeid( DataMember ) ) TMP = 0; else if ( typeid( *(s) ) == typeid( EncodedMembers ) ) TMP = 1; else if ( typeid( *(s) ) == typeid( EncodedOrMember ) ) TMP = 2; 
+   switch ( TMP )
+   {
+      case 2:
+	  {
+   printDataMember( *(dynamic_cast<DataMember*>(&(*(s)))) );
+         break;
+      }
+      case 3:
+	  {
+   printEncodedMembers( *(dynamic_cast<EncodedMembers*>(&(*(s)))) );
+         break;
+      }
+      case 1:
+	  {
+   printEncodedOrMember( *(dynamic_cast<EncodedOrMember*>(&(*(s)))) );
+         break;
+      }
+   }
+}
+
+void print__unique_ptr_Structure( unique_ptr<Structure>& s ) {
+uint8_t TMP; if ( s == nullptr ) TMP = 1; else if ( typeid( *(s) ) == typeid( Structure ) ) TMP = 0; 
+   switch ( TMP )
+   {
+      case 1:
+	  {
+   printStructure( *(dynamic_cast<Structure*>(&(*(s)))) );
+         break;
+      }
+   }
+}
 
 

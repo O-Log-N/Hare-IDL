@@ -58,6 +58,7 @@ BackStructure* copyStructure( const Structure* src )
 	ret->declType = src->declType;
 	ret->type = src->type;
 	ret->name = src->name;
+	ret->inheritedFrom = src->inheritedFrom;
 	ret->discriminant = src->discriminant;
 	size_t i;
 	for ( i=0; i<src->members.size(); i++ )

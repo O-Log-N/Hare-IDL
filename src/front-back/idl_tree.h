@@ -157,6 +157,9 @@ public:
     TYPE type = STRUCT;
     string name;
     string discriminant;
+    string inheritedFrom; // TODO: we may have a longer set of essential properties here; 
+	                      //       potentially, later we will replace it by something like map<string,Variant> mappingAttrs or similar.
+	                      //       I've just chosen the most straightforward way to address my needs leaving generalization for future.
 };
 
 class Typedef {
