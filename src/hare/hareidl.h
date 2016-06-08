@@ -20,6 +20,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define HAREIDL_H_INCLUDED
 
 #include <string>
+#include <vector>
+#include <list>
+#include <map>
 
 //#define HAREIDL_USE_GCC_ANNOTATE
 //#define HAREIDL_USE_CXX11_ATTRIBUTE
@@ -42,7 +45,21 @@ typedef uint16_t hare_uint16_t;
 typedef int16_t hare_int16_t;
 typedef uint32_t hare_uint32_t;
 typedef int32_t hare_int32_t;
+typedef uint64_t hare_uint64_t;
+typedef int64_t hare_int64_t;
 typedef bool hare_bool;
+typedef float hare_float;
+typedef double hare_double;
 typedef std::string hare_string;
+
+typedef std::unique_ptr<int> hare_sequence_unique_ptr;
+typedef std::vector<int> hare_sequence_vector;
+typedef std::list<int> hare_sequence_list;
+
+typedef std::map<int,int> hare_dictionary_map;
+
+//template < class T, class Allocator >
+//using hare_sequence_vector = std::vector<T, Allocator>;
+
 
 #endif // HAREIDL_H_INCLUDED

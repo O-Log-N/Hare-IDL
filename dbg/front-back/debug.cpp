@@ -210,8 +210,8 @@ private:
 
         string tags = dbgAttributesToString(node->encodingSpecifics.attrs);
         dbgWriteWithLocation(node->location,
-                             fmt::format("Structure kind={} type={} name={} encAttrs={} discr={}",
-                                         kind, type, node->name, tags, node->discriminant));
+                             fmt::format("Structure kind={} type={} name={} inherit={} encAttrs={} discr={}",
+                                         kind, type, node->name, node->inheritedFrom, tags, node->discriminant));
 
         ++offset;
         for (auto& it : node->members) {

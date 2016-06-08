@@ -726,7 +726,7 @@ void lauchCppToIdl(const Location& location, const string& fileName, const vecto
 
         //Merge with current root
         currentRoot->typedefs.insert(currentRoot->typedefs.end(), root->typedefs.begin(),
-            root->typedefs.end());
+                                     root->typedefs.end());
 
         // copy current attributes to each struct
         for (auto& each : root->structures) {
@@ -776,7 +776,7 @@ void lauchCppSerializer(const Location& location, const string& fileName, const 
     else {
 
 #ifdef _DEBUG
-        fmt::print(stderr, "\nParsing output file from external process:\n\n");
+        fmt::print(stderr, "\nReading serialized file from external process.\n\n");
 #endif
         Root root;
         uint8_t baseBuff[0x10000];
@@ -792,7 +792,7 @@ void lauchCppSerializer(const Location& location, const string& fileName, const 
 
         //Merge with current root
         currentRoot->typedefs.insert(currentRoot->typedefs.end(), root.typedefs.begin(),
-            root.typedefs.end());
+                                     root.typedefs.end());
 
         // copy current attributes to each struct
         for (auto& each : root.structures) {
