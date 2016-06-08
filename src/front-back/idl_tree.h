@@ -99,7 +99,7 @@ public:
           floatingExponentBits(other.floatingExponentBits), characterSet(other.characterSet),
           stringMinSize(other.stringMinSize), stringMaxSize(other.stringMaxSize),
           encodingAttrs(other.encodingAttrs), mappingAttrs(other.mappingAttrs),
-          enumValues(other.enumValues) //,
+          enumValues(other.enumValues),
           idlRepresentation( other.idlRepresentation ), mappingRepresentation( other.mappingRepresentation ), encodingRepresentation( other.encodingRepresentation )
     {}
 
