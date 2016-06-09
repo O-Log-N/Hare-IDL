@@ -1,5 +1,5 @@
 
-add_library(front-idl
+add_library(idl-front
     hare-idl.tab.cpp
     hare-idl.tab.h
     lex.h
@@ -13,10 +13,10 @@ add_library(front-idl
     ../../front-back/raiistdiofile.h
 )
 
-target_link_libraries(front-idl
+target_link_libraries(idl-front
   cppformat
   tiny-process-library
 )
 
-set_property(TARGET front-idl PROPERTY CXX_STANDARD 11)
-set_property(TARGET front-idl PROPERTY CXX_STANDARD_REQUIRED ON)
+set_property(TARGET idl-front PROPERTY CXX_STANDARD 11)
+set_property(TARGET idl-front PROPERTY CXX_STANDARD_REQUIRED ON)

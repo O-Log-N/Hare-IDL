@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 {
     // don't try-catch, since this is debug only code, better to have an unhandled exception
 
-    string fileName = "sample2.idl";
+    string fileName = "idl_tree.idl";
     if (argc == 2)
         fileName = argv[1];
 

@@ -20,6 +20,7 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "../back/idlc_back.h"
 
 #include "../front/idl/parser.h"
+#include "idl_tree_serializer.h"
 
 DataMember* makeMember(const string& type_name, const string& name)
 {
@@ -54,14 +55,43 @@ void loadFakeSample( Root& root )
 	root.structures.push_back( unique_ptr<Structure>(stre) );
 }
 
+Root* deserializeFile(const char* fileName) {
+    unique_ptr<Root> root(new Root());
+    uint8_t baseBuff[0x10000];
+    FILE* in = fopen(fileName, "rb");
+    size_t sz = fread(baseBuff, 1, 0x10000, in);
+    fclose(in);
+    IStream i(baseBuff, sz);
+    deserializeRoot(*root, i);
+
+    return root.release();
+}
+
+void addTestInherit(Root& root)
+{
+    for (auto& it : root.structures)
+    {
+        if (it->name == "Structure")
+            it->inheritedFrom = "EncodedMembers";
+        else if (it->name == "EncodedMembers")
+            it->inheritedFrom = "EncodedOrMember";
+        else if (it->name == "DataMember")
+            it->inheritedFrom = "EncodedOrMember";
+        //else if ( it->name == "CharacterSet" )
+        //	it->inheritedFrom = "CharacterRange";
+    }
+}
+
 int main()
 {
 	try
 	{
         // mb: fix path
-        Root* root = parseSourceFile("src/front/idl/sample.idl", false);
-
-		// Roughly: front end
+        //Root* root = parseSourceFile("idl_tree.idl", false);
+        Root* root = deserializeFile("../../dbg/front/idl/idl_tree.h.idlbin");
+        //Root* root2 = parseSourceFile("../../dbg/front/idl/idl_tree.current.idl", false);
+        //addTestInherit(*root);
+        // Roughly: front end
 //		loadFakeSample( root );
 
 		// Roughly: back end

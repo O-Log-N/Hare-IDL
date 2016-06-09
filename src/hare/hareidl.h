@@ -47,7 +47,7 @@ typedef uint32_t hare_uint32_t;
 typedef int32_t hare_int32_t;
 typedef uint64_t hare_uint64_t;
 typedef int64_t hare_int64_t;
-typedef bool hare_bool;
+typedef bool hare__Bool;
 typedef float hare_float;
 typedef double hare_double;
 typedef std::string hare_string;

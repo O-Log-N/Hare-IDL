@@ -15,7 +15,7 @@ add_subdirectory(../../front-back dbg-front-back)
 include_directories(../../../src)
 
 target_link_libraries(dbgFrontIdl
-  front-idl
+  idl-front
   dbg-front-back
 )
 
