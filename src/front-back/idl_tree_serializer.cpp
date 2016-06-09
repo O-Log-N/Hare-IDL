@@ -173,6 +173,7 @@ void serializeStructure( Structure& s, OStream& o ) {
 	  }
    o.write_string(s.name);
    o.write_string(s.discriminant);
+   o.write_string(s.inheritedFrom);
    serializeEncodedMembers(s, o);
 }
 
@@ -501,6 +502,7 @@ bool deserializeStructure( Structure& s, IStream& i ) {
  
    i.read_string(s.name);
    i.read_string(s.discriminant);
+   i.read_string(s.inheritedFrom);
    deserializeEncodedMembers(s, i);
 
    return true;
@@ -807,6 +809,9 @@ void printStructure( Structure& s ) {
     cout << endl;
     cout << "discriminant: ";
    cout << s.discriminant << endl;
+    cout << endl;
+    cout << "inheritedFrom: ";
+   cout << s.inheritedFrom << endl;
     cout << endl;
     cout << "__parent: ";
    printEncodedMembers( s );
