@@ -21,6 +21,7 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "../front-back/idl_tree.h"
 
 void idlcBackEnd( Root& root );
+void idlcBackEnd(Root& root, const string& path, const vector<string>& files );
 
 
 #endif // IDLC_BACK_H

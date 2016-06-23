@@ -93,9 +93,19 @@ int main()
         //addTestInherit(*root);
         // Roughly: front end
 //		loadFakeSample( root );
+        auto it = root->structures[1]->members.begin();
+        while (it != root->structures[1]->members.end()) {
+            DataMember* dm = dynamic_cast<DataMember*>(it->get());
+            if (dm->name == "anim" || dm->name == "inventory")
+                it = root->structures[1]->members.erase(it);
+            else
+                ++it;
+        }
+
 
 		// Roughly: back end
-		idlcBackEnd( *root );
+        idlcBackEnd(*root, "../../Hare-IDL/src/targets/cpp/codegen/protobuf/", 
+            {"main.txt", "mapping.txt", "encoding.txt", "proto.txt"});
 	}
 	catch ( std::exception& x )
 	{
