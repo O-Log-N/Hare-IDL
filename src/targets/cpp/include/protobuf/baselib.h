@@ -298,8 +298,9 @@ public:
 		}
 		return false; // TODO: think about incomplete/broken packet
 	}
-	bool readFieldTypeAndID( uint64_t& typeAndFieldNumber )
+	FORCE_INLINE uint64_t readFieldTypeAndID()
 	{
+		uint64_t ret = (uint64_t)(-1);
 		uint8_t buff[12];
 //		memset( buff, 0, 12 );
 		int pos = 0;
@@ -309,16 +310,16 @@ public:
 //			readret = fread( buff + pos, 1, 1, instr );
 			readret = readData( buff + pos, 1 );
 			if ( readret == 0 )
-				return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
+				return (uint64_t)(-1); // nothing to read (anymore); TODO: think about incomplete/broken packet
 			if ( ( buff[pos] & 0x80 ) == 0 )
 			{
-				deserializeFromStringVariantUint64( typeAndFieldNumber, buff );
-				return true;
+				deserializeFromStringVariantUint64( ret, buff );
+				return ret;
 			}
 		}
-		return false; // TODO: think about incomplete/broken packet
+		return (uint64_t)(-1); // TODO: think about incomplete/broken packet
 	}
-	bool readInt32( int32_t& x )
+	FORCE_INLINE bool readInt32( int32_t& x )
 	{
 		uint8_t buff[4];
 //		size_t readret = fread( buff, 1, 4, instr );
@@ -328,7 +329,7 @@ public:
 		deserializeSignedFixed32FromString( x, buff );
 		return true;
 	}
-	bool readInt64( int64_t& x )
+	FORCE_INLINE bool readInt64( int64_t& x )
 	{
 		uint8_t buff[8];
 //		size_t readret = fread( buff, 1, 8, instr );
@@ -349,7 +350,7 @@ public:
 		return true;
 	}
 #endif // 0
-	bool readVariantInt64( int64_t& x )
+	FORCE_INLINE bool readVariantInt64( int64_t& x )
 	{
 		uint8_t buff[12];
 		memset( buff, 0, 12 );
@@ -371,6 +372,16 @@ public:
 		}
 		return true;
 	}
+	FORCE_INLINE bool readFixed64Bit( double& x )
+	{
+		uint8_t buff[8];
+//		size_t readret = fread( buff, 1, 8, instr );
+		size_t readret = readData( buff, 8 );
+		if ( readret < 8 )
+			return false;
+		deserializeDoubleFromString( x, buff );
+		return true;
+	}
 #if 0
 	bool readInt64( int64_t& x )
 	{
@@ -385,7 +396,7 @@ public:
 		fwrite( buff, ret - buff, 1, outstr );
 	}
 #endif
-	bool readString( std::string& x )
+	FORCE_INLINE bool readString( std::string& x )
 	{
 		uint8_t buff[12];
 		memset( buff, 0, 12 );

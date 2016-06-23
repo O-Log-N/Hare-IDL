@@ -35,14 +35,14 @@ void addTestData( Root& root )
 			it->inheritedFrom = "EncodedOrMember";
 		else if ( it->name == "DataMember" )
 			it->inheritedFrom = "EncodedOrMember";
-		else if ( it->name == "CharacterSet" )
-			it->inheritedFrom = "CharacterRange";
+//		else if ( it->name == "CharacterSet" )
+//			it->inheritedFrom = "CharacterRange";
 	}
 }
 
 void idlcBackEnd( Root& root2 )
 {
-#if 0
+#if 1
 	// serialize tree
 	FILE* out = fopen( "idl_tree.bin", "wb" );
 	OStream o(out);
@@ -88,7 +88,8 @@ void idlcBackEnd( Root& root2 )
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template6/main.txt", "rb" );
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template7/main.txt", "rb" );
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template8/main.txt", "rb" );
-	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template9/main.txt", "rb" );
+//	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template9/main.txt", "rb" );
+	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/cpp/codegen/protobuf/main.txt", "rb" );
 	if ( tf == NULL )
 	{
 		fmt::print( "failed to open template file\n" );
@@ -106,7 +107,8 @@ void idlcBackEnd( Root& root2 )
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template6/mapping.txt", "rb" );
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template7/mapping.txt", "rb" );
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template8/mapping.txt", "rb" );
-	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template9/mapping.txt", "rb" );
+//	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template9/mapping.txt", "rb" );
+	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/cpp/codegen/protobuf/mapping.txt", "rb" );
 	if ( tf == NULL )
 	{
 		fmt::print( "failed to open template file\n" );
@@ -124,7 +126,8 @@ void idlcBackEnd( Root& root2 )
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template6/encoding.txt", "rb" );
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template7/encoding.txt", "rb" );
 //	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template8/encoding.txt", "rb" );
-	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template9/encoding.txt", "rb" );
+//	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/sample/template9/encoding.txt", "rb" );
+	tf = fopen( "../../../GITHUB/Hare-IDL/src/targets/cpp/codegen/protobuf/encoding.txt", "rb" );
 	if ( tf == NULL )
 	{
 		fmt::print( "failed to open template file\n" );
