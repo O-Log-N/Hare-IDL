@@ -19,10 +19,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #ifndef HAREIDL_H_INCLUDED
 #define HAREIDL_H_INCLUDED
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <list>
 #include <map>
+
 
 //#define HAREIDL_USE_GCC_ANNOTATE
 //#define HAREIDL_USE_CXX11_ATTRIBUTE

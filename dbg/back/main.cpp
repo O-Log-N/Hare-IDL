@@ -15,12 +15,12 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#include "../idlc_include.h"
-#include "idl_tree.h"
-#include "../back/idlc_back.h"
+#include "idlc_include.h"
+#include "front-back/idl_tree.h"
+#include "back/idlc_back.h"
 
-#include "../front/idl/parser.h"
-#include "idl_tree_serializer.h"
+#include "front/idl/parser.h"
+#include "front-back/idl_tree_serializer.h"
 
 DataMember* makeMember(const string& type_name, const string& name)
 {
@@ -88,7 +88,7 @@ int main()
 	{
         // mb: fix path
         //Root* root = parseSourceFile("idl_tree.idl", false);
-        Root* root = deserializeFile("../../dbg/back/sample.h.idlbin");
+        Root* root = deserializeFile("../../Hare-IDL/dbg/back/sample.h.idlbin");
         //Root* root2 = parseSourceFile("../../dbg/front/idl/idl_tree.current.idl", false);
         //addTestInherit(*root);
         // Roughly: front end

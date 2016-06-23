@@ -19,7 +19,6 @@ add_library(idl-back
 )
 
 target_link_libraries(idl-back
-  idl-front
   idl-front-back
   cppformat
 )

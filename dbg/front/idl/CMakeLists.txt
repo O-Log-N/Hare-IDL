@@ -17,6 +17,7 @@ include_directories(../../../src)
 target_link_libraries(dbgFrontIdl
   idl-front
   dbg-front-back
+  idl-front-back
 )
 
 set_property(TARGET dbgFrontIdl PROPERTY CXX_STANDARD 11)

@@ -16,15 +16,20 @@ int main(int argc, char *argv[])
     // don't try-catch, since this is debug only code, better to have an unhandled exception
 
 	// deserialize tree
+    const char* fileName = "idl_tree.h.idlbin";
+    if (argc > 2) {
+        fileName = argv[1];
+    }
+
 	Root root;
 	uint8_t baseBuff[0x10000];
-	FILE* in = fopen( "idl_tree.bin", "rb" );
+	FILE* in = fopen(fileName, "rb" );
 	size_t sz = fread( baseBuff, 1, 0x10000, in );
 	fclose( in );
 	IStream i( baseBuff, sz );
 	deserializeRoot( root, i );
 
-    dbgDumpTree(stdout, &root, true);
+    dbgDumpTree(stdout, &root, false);
 
     return 0;
 }
