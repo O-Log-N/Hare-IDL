@@ -250,19 +250,45 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 		case @LOCAL-TMP1@:
 		{
 @@IF PARAM-TYPE.IS-INTEGER()
-			if ( type == VARINT )
-			{
-				i.readVariantInt64( @PARAM-NAME@ );
-				initFlags[@PARAM-MEMCTR@] = 1;
-			}
+  @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER()
+    @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(64)
+      if ( type == VARINT )
+      {
+        i.readVariantUInt( @PARAM-NAME@ );
+        initFlags[@PARAM-MEMCTR@] = 1;
+      }
+    @@ELSE
+      @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+    @@ENDIF
+  @@ELSE
+    @@IF PARAM-TYPE.IS-SIGNED-INTEGER-FITTING-INT(64)
+      if ( type == VARINT )
+      {
+        i.readVariantSInt( @PARAM-NAME@ );
+        initFlags[@PARAM-MEMCTR@] = 1;
+      }
+    @@ELSE
+      @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+    @@ENDIF
+  @@ENDIF
 @@ELIF PARAM-TYPE.IS-FIXED-POINT()
    @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
 @@ELIF PARAM-TYPE.IS-FLOATING-POINT()
-			if ( type == FIXED_64_BIT )
-			{
-				i.deserializeDoubleFromString( @PARAM-NAME@ );
-				initFlags[@PARAM-MEMCTR@] = 1;
-			}
+  @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(23,9)
+      if ( type == FIXED_32_BIT )
+        i.deserializeDoubleFromString( @PARAM-NAME@ );
+        initFlags[@PARAM-MEMCTR@] = 1;
+      }
+  @@ELIF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
+      if ( type == FIXED_64_BIT )
+      {
+        i.deserializeDoubleFromString( @PARAM-NAME@ );
+        initFlags[@PARAM-MEMCTR@] = 1;
+      }
+  @@ELSE
+    @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+  @@ENDIF
+
 @@ELIF PARAM-TYPE.IS-CHARACTER-STRING()
 			if ( type == LENGTH_DELIMITED )
 			{

@@ -87,11 +87,11 @@ int main()
 	try
 	{
         //Root* root = parseSourceFile("idl_tree.idl", false);
-        Root* root = deserializeFile("../../Hare-IDL/dbg/back/sample.h.idlbin");
+        Root* root = deserializeFile("sample.h.idlbin");
 //		loadFakeSample( root );
-
+        HAREASSERT(root);
 		// Roughly: back end
-        idlcBackEnd(*root, "../../Hare-IDL/src/targets/cpp/codegen/protobuf/", 
+        idlcBackEnd(*root, "../../src/targets/cpp/codegen/protobuf/", 
             {"main.txt", "mapping.txt", "encoding.txt", "proto.txt"});
 	}
 	catch ( std::exception& x )

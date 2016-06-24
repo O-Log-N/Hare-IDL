@@ -55,6 +55,9 @@ enum WIRE_TYPE
 	FIXED_32_BIT = 5,
 };
 
+void sint64ToUint64(int64_t src, uint64_t& target);
+void uint64ToSint64(uint64_t src, int64_t& target);
+
 uint8_t* deserializeHeaderFromString( int& fieldNumber, int& type, uint8_t* buff );
 
 uint8_t* serializeToStringVariantUint64( uint64_t value, uint8_t* buff );
@@ -435,6 +438,36 @@ public:
 		return true;
 #endif // 1/0
 	}
+
+    template<class T>
+    bool readVariantUInt(T& x)
+    {
+        uint64_t temp = 0;
+        bool res = readVariantInt64(temp);
+        if (res && temp <= numeric_limits<T>::max) {
+            x = static_cast<T>(temp);
+            return true;
+        }
+        else
+            return false;
+    }
+
+    template<class T>
+    bool readVariantSInt(T& x)
+    {
+        uint64_t temp = 0;
+        bool res = readVariantInt64(temp);
+        if (res) {
+            int64_t temp2 = 0;
+            uint64ToSint64(temp, temp2);
+            if (temp2 >= numeric_limits<T>::min && temp2 <= numeric_limits<T>::max) {
+                x = static_cast<T>(temp2);
+                return true;
+            }
+        }
+        return false;
+    }
+
 };
 
 #endif // 0
