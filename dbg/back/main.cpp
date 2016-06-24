@@ -86,22 +86,9 @@ int main()
 {
 	try
 	{
-        // mb: fix path
         //Root* root = parseSourceFile("idl_tree.idl", false);
         Root* root = deserializeFile("../../Hare-IDL/dbg/back/sample.h.idlbin");
-        //Root* root2 = parseSourceFile("../../dbg/front/idl/idl_tree.current.idl", false);
-        //addTestInherit(*root);
-        // Roughly: front end
 //		loadFakeSample( root );
-        auto it = root->structures[1]->members.begin();
-        while (it != root->structures[1]->members.end()) {
-            DataMember* dm = dynamic_cast<DataMember*>(it->get());
-            if (dm->name == "anim" || dm->name == "inventory")
-                it = root->structures[1]->members.erase(it);
-            else
-                ++it;
-        }
-
 
 		// Roughly: back end
         idlcBackEnd(*root, "../../Hare-IDL/src/targets/cpp/codegen/protobuf/", 

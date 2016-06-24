@@ -229,9 +229,6 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
    return OK;
 }
 
-   return true;
-}
-
 @@END-TEMPLATE NAME="DESERIALIZE-STRUCT"
 
 
