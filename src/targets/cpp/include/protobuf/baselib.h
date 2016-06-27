@@ -65,7 +65,7 @@ uint8_t* deserializeFromStringVariantUint64( uint64_t& value, uint8_t* buff );
 
 uint8_t* serializeLengthDelimitedToString( int fieldNumber, const uint8_t* valueStr, size_t valueSize, uint8_t* buff );
 uint8_t* serializeLengthDelimitedToString( int fieldNumber, std::string& value, uint8_t* buff );
-uint8_t* deserializeLengthDelimitedFromString( uint8_t* valueStr, size_t& valueSize, uint8_t* buff );
+//uint8_t* deserializeLengthDelimitedFromString( uint8_t* valueStr, size_t& valueSize, uint8_t* buff );
 uint8_t* deserializeLengthDelimitedFromString( std::string& value, uint8_t* buff );
 
 ///////////////////////////   WIRE_TYPE::VARINT      ////////////////////////////////////
@@ -280,7 +280,7 @@ protected:
 	}
 public:
 	IStream( uint8_t* inStr, size_t buffSz_ ) : instr( inStr ), buffSz( buffSz_ ) { readPos = 0; }
-	bool readFieldTypeAndID( int& type, int& fieldNumber )
+    bool readFieldTypeAndID( int& type, int& fieldNumber )
 	{
 		uint8_t buff[12];
 //		memset( buff, 0, 12 );
@@ -438,14 +438,33 @@ public:
 		return true;
 #endif // 1/0
 	}
-
-    template<class T>
-    bool readVariantUInt(T& x)
+    private:
+    pair<bool, uint64_t> readVarInt()
     {
-        uint64_t temp = 0;
-        bool res = readVariantInt64(temp);
-        if (res && temp <= numeric_limits<T>::max) {
-            x = static_cast<T>(temp);
+        vector<uint8_t> buff;
+        uint8_t current = 0;
+
+        do {
+            size_t readret = readData(&current, 1);
+            if (readret == 0)
+                return make_pair(false, 0); // nothing to read (anymore); TODO: think about incomplete/broken packet
+
+            buff.push_back(current);
+        } while ((current & 0x80) == 0);
+
+        uint64_t result = 0;
+        deserializeUnsignedVariantFromString(result, &buff[0]);
+
+        return make_pair(true, result);
+    }
+
+public:
+    template<class T>
+    bool readUnsignedVarInt(T& x)
+    {
+        pair<bool, uint64_t> temp = readVarInt();
+        if (temp.first && temp.second <= numeric_limits<T>::max()) {
+            x = static_cast<T>(temp.second);
             return true;
         }
         else
@@ -453,18 +472,60 @@ public:
     }
 
     template<class T>
-    bool readVariantSInt(T& x)
+    bool readSignedVarInt(T& x)
     {
-        uint64_t temp = 0;
-        bool res = readVariantInt64(temp);
-        if (res) {
+        pair<bool, uint64_t> temp = readVarInt();
+        if (temp.first) {
             int64_t temp2 = 0;
-            uint64ToSint64(temp, temp2);
-            if (temp2 >= numeric_limits<T>::min && temp2 <= numeric_limits<T>::max) {
+            uint64ToSint64(temp.second, temp2);
+            if (temp2 >= numeric_limits<T>::min() && temp2 <= numeric_limits<T>::max()) {
                 x = static_cast<T>(temp2);
                 return true;
             }
         }
+        return false;
+    }
+
+    bool readBool(bool& x)
+    {
+        pair<bool, uint64_t> temp = readVarInt();
+        x = temp.second != 0;
+        return temp.first;
+    }
+
+    template<class T>
+    bool readEnum(T& x)
+    {
+        return false;
+    }
+
+    bool readFloat(float& x)
+    {
+        return false;
+    }
+    bool readDouble(float& x)
+    {
+        return false;
+    }
+
+    bool readDouble(double& x)
+    {
+        return readFixed64Bit(x);
+    }
+    bool readUnsignedFixed32(uint32_t& x)
+    {
+        return false;
+    }
+    bool readSignedFixed32(int32_t& x)
+    {
+        return false;
+    }
+    bool readUnsignedFixed64(uint64_t& x)
+    {
+        return false;
+    }
+    bool readSignedFixed64(int64_t& x)
+    {
         return false;
     }
 

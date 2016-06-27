@@ -33,6 +33,7 @@
 @@CLOSE-OUTPUT-FILE
 @@OPEN-OUTPUT-FILE FILENAME="output.cpp"
 #include "output.h"
+#include "sample.h"
 
 // IMPLEMENTATIONS
 
@@ -49,6 +50,7 @@
 @@CLOSE-OUTPUT-FILE
 @@OPEN-OUTPUT-FILE FILENAME="output.proto"
 
+package pb;
 //syntax="proto2"
 
 // PROTO MESSAGES

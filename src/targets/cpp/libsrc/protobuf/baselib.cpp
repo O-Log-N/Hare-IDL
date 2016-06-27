@@ -19,7 +19,7 @@ void sint64ToUint64( int64_t src, uint64_t& target )
 }
 void uint64ToSint64( uint64_t src, int64_t& target )
 {
-	target = (src >> 1) ^ -(src & 1);
+	target = (src >> 1) | (src << 63);
 }
 
 uint8_t* serializeToStringVariantUint64( uint64_t value, uint8_t* buff )
@@ -268,15 +268,15 @@ uint8_t* serializeLengthDelimitedToString( int fieldNumber, std::string& value, 
 	return serializeToStringKnownLength( reinterpret_cast<const uint8_t*>(value.c_str()), value.size(), buff );
 }
 
-uint8_t* deserializeLengthDelimitedFromString( uint8_t* valueStr, size_t& valueSize, uint8_t* buff )
-{
-	buff = deserializeFromStringVariantUint64( valueSize, buff );
-	return deserializeFromStringKnownLength( valueStr, valueSize, buff );
-}
+//uint8_t* deserializeLengthDelimitedFromString( uint8_t* valueStr, size_t& valueSize, uint8_t* buff )
+//{
+//	buff = deserializeFromStringVariantUint64( valueSize, buff );
+//	return deserializeFromStringKnownLength( valueStr, valueSize, buff );
+//}
 
 uint8_t* deserializeLengthDelimitedFromString( std::string& value, uint8_t* buff )
 {
-	size_t valueSize;
+	uint64_t valueSize;
 	buff = deserializeFromStringVariantUint64( valueSize, buff );
 	value = std::string( buff, buff + valueSize );
 	return buff + valueSize;
