@@ -1,0 +1,41 @@
+
+package pb;
+//syntax="proto2"
+
+// PROTO MESSAGES
+message Item {
+   optional string 
+      name = 1; 
+}
+
+message Character {
+     optional uint64 
+      character_id = 1; 
+   optional double
+      x = 2; 
+   optional double
+      y = 3; 
+   optional double
+      z = 4; 
+   optional double
+      vx = 5; 
+   optional double
+      vy = 6; 
+   optional double
+      vz = 7; 
+   optional double
+      angle = 8; 
+  enum Animation {
+    Running = 2;
+    Standing = 0;
+    Walking = 1;
+  }
+   optional Animation
+      anim = 9; 
+     optional uint64 
+      animation_frame = 10; 
+}
+
+
+
+

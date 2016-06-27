@@ -43,7 +43,7 @@ struct Character {
   enum Animation {Standing=0,Walking=1, Running=2} anim;
   uint8_t animation_frame;
  
-  vector<Item> inventory;
+//  vector<Item> inventory;
 };
 
 #endif // SAMPLE_H

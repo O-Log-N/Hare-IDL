@@ -22,7 +22,3 @@ target_link_libraries(dbgBack
 
 set_property(TARGET dbgBack PROPERTY CXX_STANDARD 11)
 set_property(TARGET dbgBack PROPERTY CXX_STANDARD_REQUIRED ON)
-
-# file(COPY sample.idl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
-# install(TARGETS hare RUNTIME DESTINATION bin)
