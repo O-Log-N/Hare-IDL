@@ -91,10 +91,17 @@ class Item : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional string name = 1;
+  // optional sint32 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::int32 id() const;
+  inline void set_id(::google::protobuf::int32 value);
+
+  // optional string name = 2;
   inline bool has_name() const;
   inline void clear_name();
-  static const int kNameFieldNumber = 1;
+  static const int kNameFieldNumber = 2;
   inline const ::std::string& name() const;
   inline void set_name(const ::std::string& value);
   inline void set_name(const char* value);
@@ -103,16 +110,29 @@ class Item : public ::google::protobuf::Message {
   inline ::std::string* release_name();
   inline void set_allocated_name(::std::string* name);
 
+  // optional bool valid = 3;
+  inline bool has_valid() const;
+  inline void clear_valid();
+  static const int kValidFieldNumber = 3;
+  inline bool valid() const;
+  inline void set_valid(bool value);
+
   // @@protoc_insertion_point(class_scope:pb.Item)
  private:
+  inline void set_has_id();
+  inline void clear_has_id();
   inline void set_has_name();
   inline void clear_has_name();
+  inline void set_has_valid();
+  inline void clear_has_valid();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::std::string* name_;
+  ::google::protobuf::int32 id_;
+  bool valid_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
@@ -271,6 +291,34 @@ class Character : public ::google::protobuf::Message {
   inline ::std::string* release_desc();
   inline void set_allocated_desc(::std::string* desc);
 
+  // repeated string more_text = 14;
+  inline int more_text_size() const;
+  inline void clear_more_text();
+  static const int kMoreTextFieldNumber = 14;
+  inline const ::std::string& more_text(int index) const;
+  inline ::std::string* mutable_more_text(int index);
+  inline void set_more_text(int index, const ::std::string& value);
+  inline void set_more_text(int index, const char* value);
+  inline void set_more_text(int index, const char* value, size_t size);
+  inline ::std::string* add_more_text();
+  inline void add_more_text(const ::std::string& value);
+  inline void add_more_text(const char* value);
+  inline void add_more_text(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& more_text() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_more_text();
+
+  // repeated sint32 some_ints = 15;
+  inline int some_ints_size() const;
+  inline void clear_some_ints();
+  static const int kSomeIntsFieldNumber = 15;
+  inline ::google::protobuf::int32 some_ints(int index) const;
+  inline void set_some_ints(int index, ::google::protobuf::int32 value);
+  inline void add_some_ints(::google::protobuf::int32 value);
+  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      some_ints() const;
+  inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_some_ints();
+
   // @@protoc_insertion_point(class_scope:pb.Character)
  private:
   inline void set_has_max_u8();
@@ -316,6 +364,8 @@ class Character : public ::google::protobuf::Message {
   double y_;
   double z_;
   ::std::string* desc_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> more_text_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > some_ints_;
   bool flag_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
@@ -331,15 +381,39 @@ class Character : public ::google::protobuf::Message {
 
 // Item
 
-// optional string name = 1;
-inline bool Item::has_name() const {
+// optional sint32 id = 1;
+inline bool Item::has_id() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void Item::set_has_name() {
+inline void Item::set_has_id() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void Item::clear_has_name() {
+inline void Item::clear_has_id() {
   _has_bits_[0] &= ~0x00000001u;
+}
+inline void Item::clear_id() {
+  id_ = 0;
+  clear_has_id();
+}
+inline ::google::protobuf::int32 Item::id() const {
+  // @@protoc_insertion_point(field_get:pb.Item.id)
+  return id_;
+}
+inline void Item::set_id(::google::protobuf::int32 value) {
+  set_has_id();
+  id_ = value;
+  // @@protoc_insertion_point(field_set:pb.Item.id)
+}
+
+// optional string name = 2;
+inline bool Item::has_name() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void Item::set_has_name() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void Item::clear_has_name() {
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void Item::clear_name() {
   if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -405,6 +479,30 @@ inline void Item::set_allocated_name(::std::string* name) {
     name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:pb.Item.name)
+}
+
+// optional bool valid = 3;
+inline bool Item::has_valid() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void Item::set_has_valid() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void Item::clear_has_valid() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void Item::clear_valid() {
+  valid_ = false;
+  clear_has_valid();
+}
+inline bool Item::valid() const {
+  // @@protoc_insertion_point(field_get:pb.Item.valid)
+  return valid_;
+}
+inline void Item::set_valid(bool value) {
+  set_has_valid();
+  valid_ = value;
+  // @@protoc_insertion_point(field_set:pb.Item.valid)
 }
 
 // -------------------------------------------------------------------
@@ -773,6 +871,90 @@ inline void Character::set_allocated_desc(::std::string* desc) {
     desc_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:pb.Character.desc)
+}
+
+// repeated string more_text = 14;
+inline int Character::more_text_size() const {
+  return more_text_.size();
+}
+inline void Character::clear_more_text() {
+  more_text_.Clear();
+}
+inline const ::std::string& Character::more_text(int index) const {
+  // @@protoc_insertion_point(field_get:pb.Character.more_text)
+  return more_text_.Get(index);
+}
+inline ::std::string* Character::mutable_more_text(int index) {
+  // @@protoc_insertion_point(field_mutable:pb.Character.more_text)
+  return more_text_.Mutable(index);
+}
+inline void Character::set_more_text(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:pb.Character.more_text)
+  more_text_.Mutable(index)->assign(value);
+}
+inline void Character::set_more_text(int index, const char* value) {
+  more_text_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.Character.more_text)
+}
+inline void Character::set_more_text(int index, const char* value, size_t size) {
+  more_text_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.Character.more_text)
+}
+inline ::std::string* Character::add_more_text() {
+  return more_text_.Add();
+}
+inline void Character::add_more_text(const ::std::string& value) {
+  more_text_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:pb.Character.more_text)
+}
+inline void Character::add_more_text(const char* value) {
+  more_text_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:pb.Character.more_text)
+}
+inline void Character::add_more_text(const char* value, size_t size) {
+  more_text_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:pb.Character.more_text)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+Character::more_text() const {
+  // @@protoc_insertion_point(field_list:pb.Character.more_text)
+  return more_text_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+Character::mutable_more_text() {
+  // @@protoc_insertion_point(field_mutable_list:pb.Character.more_text)
+  return &more_text_;
+}
+
+// repeated sint32 some_ints = 15;
+inline int Character::some_ints_size() const {
+  return some_ints_.size();
+}
+inline void Character::clear_some_ints() {
+  some_ints_.Clear();
+}
+inline ::google::protobuf::int32 Character::some_ints(int index) const {
+  // @@protoc_insertion_point(field_get:pb.Character.some_ints)
+  return some_ints_.Get(index);
+}
+inline void Character::set_some_ints(int index, ::google::protobuf::int32 value) {
+  some_ints_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pb.Character.some_ints)
+}
+inline void Character::add_some_ints(::google::protobuf::int32 value) {
+  some_ints_.Add(value);
+  // @@protoc_insertion_point(field_add:pb.Character.some_ints)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+Character::some_ints() const {
+  // @@protoc_insertion_point(field_list:pb.Character.some_ints)
+  return some_ints_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+Character::mutable_some_ints() {
+  // @@protoc_insertion_point(field_mutable_list:pb.Character.some_ints)
+  return &some_ints_;
 }
 
 

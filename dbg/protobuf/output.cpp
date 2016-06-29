@@ -8,7 +8,9 @@
 // SERIALIZATION
 
 void serializeItem( Item& s, OStream& o ) {
-   o.writeString(1, s.name);
+    o.writeInt(1, s.id);
+    o.writeString(2, s.name);
+    o.writeInt(3, s.valid);
 }
 
 void serializeCharacter( Character& s, OStream& o ) {
@@ -20,11 +22,15 @@ void serializeCharacter( Character& s, OStream& o ) {
     o.writeInt(6, s.max_s8);
     o.writeInt(7, s.max_s16);
     o.writeInt(8, s.max_s32);
-   o.writeDouble(9, s.x);
-   o.writeDouble(10, s.y);
-   o.writeDouble(11, s.z);
+    o.writeDouble(9, s.x);
+    o.writeDouble(10, s.y);
+    o.writeDouble(11, s.z);
     o.writeInt(12, s.flag);
-   o.writeString(13, s.desc);
+    o.writeString(13, s.desc);
+    for(auto& item:s.more_text)
+    o.writeString(14, item);
+    for(auto& item:s.some_ints)
+    o.writeInt(15, item);
 }
 
 
@@ -35,7 +41,7 @@ bool deserializeItem( Item& s, IStream& i ) {
    int type;
    int fieldNumber;
    bool readret;
-   const int memcnt = 1;
+   const int memcnt = 3;
    uint8_t initFlags[memcnt];
    memset( initFlags, 0, memcnt );
    do
@@ -45,11 +51,25 @@ bool deserializeItem( Item& s, IStream& i ) {
 		  break;
 	  switch ( fieldNumber )
 	  {
-		case 1:
-		{
-     initFlags[0] = i.readString( s.name );
-			break;
-		}
+    case 1:
+    {
+      int64_t temp = 0;
+      initFlags[0] = i.readVariantInt64( temp );
+      s.id = temp;
+      break;
+    }
+    case 2:
+    {
+     initFlags[1] = i.readString( s.name );
+      break;
+    }
+    case 3:
+    {
+      int64_t temp = 0;
+      initFlags[2] = i.readVariantInt64( temp );
+      s.valid = static_cast<bool>( temp );
+      break;
+    }
 		default:
 		{
 			// TODO: what?
@@ -70,7 +90,7 @@ bool deserializeCharacter( Character& s, IStream& i ) {
    int type;
    int fieldNumber;
    bool readret;
-   const int memcnt = 13;
+   const int memcnt = 15;
    uint8_t initFlags[memcnt];
    memset( initFlags, 0, memcnt );
    do
@@ -80,92 +100,109 @@ bool deserializeCharacter( Character& s, IStream& i ) {
 		  break;
 	  switch ( fieldNumber )
 	  {
-		case 1:
-		{
+    case 1:
+    {
       int64_t temp = 0;
       initFlags[0] = i.readVariantInt64( temp );
       s.max_u8 = temp;
-			break;
-		}
-		case 2:
-		{
+      break;
+    }
+    case 2:
+    {
       int64_t temp = 0;
       initFlags[1] = i.readVariantInt64( temp );
       s.max_u16 = temp;
-			break;
-		}
-		case 3:
-		{
+      break;
+    }
+    case 3:
+    {
       int64_t temp = 0;
       initFlags[2] = i.readVariantInt64( temp );
       s.min_s8 = temp;
-			break;
-		}
-		case 4:
-		{
+      break;
+    }
+    case 4:
+    {
       int64_t temp = 0;
       initFlags[3] = i.readVariantInt64( temp );
       s.min_s16 = temp;
-			break;
-		}
-		case 5:
-		{
+      break;
+    }
+    case 5:
+    {
       int64_t temp = 0;
       initFlags[4] = i.readVariantInt64( temp );
       s.min_s32 = temp;
-			break;
-		}
-		case 6:
-		{
+      break;
+    }
+    case 6:
+    {
       int64_t temp = 0;
       initFlags[5] = i.readVariantInt64( temp );
       s.max_s8 = temp;
-			break;
-		}
-		case 7:
-		{
+      break;
+    }
+    case 7:
+    {
       int64_t temp = 0;
       initFlags[6] = i.readVariantInt64( temp );
       s.max_s16 = temp;
-			break;
-		}
-		case 8:
-		{
+      break;
+    }
+    case 8:
+    {
       int64_t temp = 0;
       initFlags[7] = i.readVariantInt64( temp );
       s.max_s32 = temp;
-			break;
-		}
-		case 9:
-		{
+      break;
+    }
+    case 9:
+    {
       initFlags[8] = i.readFixed64Bit( s.x );
-
-			break;
-		}
-		case 10:
-		{
+      break;
+    }
+    case 10:
+    {
       initFlags[9] = i.readFixed64Bit( s.y );
-
-			break;
-		}
-		case 11:
-		{
+      break;
+    }
+    case 11:
+    {
       initFlags[10] = i.readFixed64Bit( s.z );
-
-			break;
-		}
-		case 12:
-		{
+      break;
+    }
+    case 12:
+    {
       int64_t temp = 0;
       initFlags[11] = i.readVariantInt64( temp );
       s.flag = static_cast<bool>( temp );
-			break;
-		}
-		case 13:
-		{
+      break;
+    }
+    case 13:
+    {
      initFlags[12] = i.readString( s.desc );
-			break;
-		}
+      break;
+    }
+    case 14:
+    {
+   {
+      string temp2;
+     initFlags[13] = i.readString( temp2 );
+      s.more_text.push_back(temp2);
+   }
+      break;
+    }
+    case 15:
+    {
+   {
+      int16_t temp2;
+      int64_t temp = 0;
+      initFlags[14] = i.readVariantInt64( temp );
+      temp2 = temp;
+      s.some_ints.push_back(temp2);
+   }
+      break;
+    }
 		default:
 		{
 			// TODO: what?
@@ -187,9 +224,19 @@ bool deserializeCharacter( Character& s, IStream& i ) {
   
 // PRINTING
 void printItem( Item& s ) {
+    cout << "id: ";
+	cout << 
+   s.id 
+	  ;
+    cout << endl;
     cout << "name: ";
 	cout << 
    s.name 
+	  ;
+    cout << endl;
+    cout << "valid: ";
+	cout << 
+   s.valid 
 	  ;
     cout << endl;
 }
@@ -258,6 +305,16 @@ void printCharacter( Character& s ) {
     cout << "desc: ";
 	cout << 
    s.desc 
+	  ;
+    cout << endl;
+    cout << "more_text: ";
+	cout << 
+    "TODO"
+	  ;
+    cout << endl;
+    cout << "some_ints: ";
+	cout << 
+    "TODO"
 	  ;
     cout << endl;
 }

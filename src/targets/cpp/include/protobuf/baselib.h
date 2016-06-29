@@ -418,9 +418,10 @@ public:
         }
 
 #if 1
-        x.resize(stringSz + 1);
+//        x.resize(stringSz + 1);
+        x.resize(stringSz);
         uint8_t* strBuff = reinterpret_cast<uint8_t*>(const_cast<char*>(x.c_str()));
-        strBuff[stringSz] = 0;
+//        strBuff[stringSz] = 0;
         return readret == readData(strBuff, stringSz);
 #else
         for (; stringSz; --stringSz)

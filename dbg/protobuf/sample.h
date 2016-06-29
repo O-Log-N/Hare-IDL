@@ -28,7 +28,9 @@ using namespace std;
 
 
 struct Item {
-	string name;
+	uint8_t id;
+  string name;
+  bool valid;
 };
 
 struct Character {
@@ -60,6 +62,10 @@ struct Character {
 
   string desc;
 
+  vector<string> more_text;
+  vector<int16_t> some_ints;
+
+//  Item item;
 //  vector<Item> inventory;
 };
 

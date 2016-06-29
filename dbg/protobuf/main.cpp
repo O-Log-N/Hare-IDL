@@ -13,28 +13,46 @@
 
 using namespace std;
 
+template<class T, class U>
+bool areEqualSeq(const T& left, const U& right)
+{
+    auto it1 = left.begin();
+    auto it1_end = left.end();
+    auto it2 = right.begin();
+    auto it2_end = right.end();
+    for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2)
+        if (*it1 != *it2)
+            return false;
+
+    return it1 == it1_end && it2 == it2_end;
+}
+
 bool areEqual(const Character& left, const pb::Character& right)
 {
-    return
-        //        left.max_u8 == right.max_u8() &&
-        //        left.max_u16 == right.max_u16() &&
-        ////        left.max_u32 == right.max_u32() &&
-        //        //left.idU64 == right.idU64 &&
-        //        left.max_s8 == right.max_s8() &&
-        //        left.max_s16 == right.max_s16() &&
-        //        left.max_s32 == right.max_s32() &&
-        //
-        //        left.min_s8 == right.min_s8() &&
-        //        left.min_s16 == right.min_s16() &&
-        //        left.min_s32 == right.min_s32() &&
+    bool ok = true;
+    ok = ok && left.max_u8 == right.max_u8();
+    ok = ok && left.max_u16 == right.max_u16();
+    ////        left.max_u32 == right.max_u32() &&
+    //        //left.idU64 == right.idU64 &&
+    ok = ok && left.max_s8 == right.max_s8();
+    ok = ok && left.max_s16 == right.max_s16();
+    ok = ok && left.max_s32 == right.max_s32();
+        
+    ok = ok && left.min_s8 == right.min_s8();
+    ok = ok && left.min_s16 == right.min_s16();
+    ok = ok && left.min_s32 == right.min_s32();
 
-        left.x == right.x() &&
-        left.y == right.y();// &&
-        //left.z == right.z() &&
+    ok = ok && left.x == right.x();
+    ok = ok && left.y == right.y();
+    ok = ok && left.z == right.z();
 //        left.angle == right.angle() &&
 //        left.anim == right.anim() &&
-        //left.flag == right.flag() &&
-        //left.desc == right.desc();
+    ok = ok && left.flag == right.flag();
+    ok = ok && left.desc == right.desc();
+    ok = ok && areEqualSeq(left.more_text, right.more_text());
+    ok = ok && areEqualSeq(left.some_ints, right.some_ints());
+    
+    return ok;
 }
 
 void protobufReadAndReply(istream& is, ostream& os, const Character& our)
@@ -96,59 +114,65 @@ unique_ptr<Character> createSample() {
 
     unique_ptr<Character> character(new Character);
 
-    //character->max_u8 = numeric_limits<uint8_t>::max();
-    //character->max_u16 = numeric_limits<uint16_t>::max();
+    character->max_u8 = numeric_limits<uint8_t>::max();
+    character->max_u16 = numeric_limits<uint16_t>::max();
 //    character->max_u32 = numeric_limits<uint32_t>::max();
     //character->idU64 = numeric_limits<uint64_t>::max();
 
-    //character->min_s8 = numeric_limits<int8_t>::min();
-    //character->min_s16 = numeric_limits<int16_t>::min();
-    //character->min_s32 = numeric_limits<int32_t>::min();
+    character->min_s8 = numeric_limits<int8_t>::min();
+    character->min_s16 = numeric_limits<int16_t>::min();
+    character->min_s32 = numeric_limits<int32_t>::min();
 
-    //character->max_s8 = numeric_limits<int8_t>::max();
-    //character->max_s16 = numeric_limits<int16_t>::max();
-    //character->max_s32 = numeric_limits<int32_t>::max();
+    character->max_s8 = numeric_limits<int8_t>::max();
+    character->max_s16 = numeric_limits<int16_t>::max();
+    character->max_s32 = numeric_limits<int32_t>::max();
     ////character->idS64 = numeric_limits<int64_t>::min();
 
 
     character->x = 10.0;
     character->y = 10.0;
-//    character->z = 1.0;
+    character->z = 1.0;
 ////    character->angle = 45;
 ////    character->anim = Character::Walking;
-//    character->flag = true;
-//    character->desc = "My description here";
+    character->flag = true;
+    character->desc = "My description here";
+    character->more_text.push_back("line1");
+    character->more_text.push_back("line2");
+    character->more_text.push_back("line3");
+
+    character->some_ints.push_back(10);
+    character->some_ints.push_back(100);
+    character->some_ints.push_back(1000);
 
     return character;
 }
 
 bool areEqual(const Character& left, const Character& right)
 {
-    return
-        //left.max_u8 == right.max_u8 &&
-        //left.max_u16 == right.max_u16 &&
-//        left.max_u32 == right.max_u32 &&
+    bool ok = true;
+    ok = ok && left.max_u8 == right.max_u8;
+    ok = ok && left.max_u16 == right.max_u16;
+    ////        left.max_u32 == right.max_u32() &&
+    //        //left.idU64 == right.idU64 &&
+    ok = ok && left.max_s8 == right.max_s8;
+    ok = ok && left.max_s16 == right.max_s16;
+    ok = ok && left.max_s32 == right.max_s32;
 
-        //left.min_s8 == right.min_s8 &&
-        //left.min_s16 == right.min_s16 &&
-        //left.min_s32 == right.min_s32 &&
+    ok = ok && left.min_s8 == right.min_s8;
+    ok = ok && left.min_s16 == right.min_s16;
+    ok = ok && left.min_s32 == right.min_s32;
 
-        //left.max_s8 == right.max_s8 &&
-        //left.max_s16 == right.max_s16 &&
-        //left.max_s32 == right.max_s32 &&
+    ok = ok && left.x == right.x;
+    ok = ok && left.y == right.y;
+    ok = ok && left.z == right.z;
+    //        left.angle == right.angle() &&
+    //        left.anim == right.anim() &&
+    ok = ok && left.flag == right.flag;
+    ok = ok && left.desc == right.desc;
+    ok = ok && areEqualSeq(left.more_text, right.more_text);
+    ok = ok && areEqualSeq(left.some_ints, right.some_ints);
 
-        //left.idU64 == right.idU64 &&
-        //left.idS8 == right.idS8 &&
-        //left.idS16 == right.idS16 &&
-        //left.idS32 == right.idS32 &&
-        //left.idS64 == right.idS64 &&
-        left.x == right.x &&
-        left.y == right.y;// &&
-        //left.z == right.z &&
-        //left.angle == right.angle &&
-        //left.anim == right.anim &&
-        //left.flag == right.flag &&
-        //left.desc == right.desc;
+    return ok;
 }
 
 void dumpStream(istream& is)
