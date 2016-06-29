@@ -444,7 +444,7 @@ void MemberTypeExpressionObject::execBuiltinFunction( Stack& stack, PredefindedF
 			int binCnt = arg.numberValue;
 			StackElement elem;
 			elem.argtype = ARGTYPE::BOOL;
-			elem.boolValue = binCnt < 64 ? dataType->highLimit.value < ( 1 << binCnt ) : true; // TODO: proper check
+			elem.boolValue = binCnt < 64 ? dataType->highLimit.value < ( uint64_t(1) << binCnt ) : true; // TODO: proper check
 			// pop args, push result
 			stack.pop_back();
 			stack.push_back( std::move(elem) );
@@ -462,8 +462,8 @@ void MemberTypeExpressionObject::execBuiltinFunction( Stack& stack, PredefindedF
 
 			StackElement elem;
 			elem.argtype = ARGTYPE::BOOL;
-			bool OK = bitCnt < 64 ? dataType->highLimit.value <= ( 1 << (bitCnt-1) ) : true;
-			elem.boolValue = OK && ( bitCnt < 64 ? dataType->highLimit.value <= ( 1 << (bitCnt-1) ) : true );
+			bool OK = bitCnt < 64 ? dataType->highLimit.value <= ( uint64_t(1) << (bitCnt-1) ) : true;
+			elem.boolValue = OK && ( bitCnt < 64 ? dataType->highLimit.value <= (uint64_t(1) << (bitCnt-1) ) : true );
 			// pop args, push result
 			stack.pop_back();
 			stack.push_back( std::move(elem) );
