@@ -113,6 +113,14 @@ void memberMappingTypeToKind( DataType& type )
                 type.highLimit.value = INT16_MAX;
                 type.highLimit.inclusive = true;
             }
+            else if (type.mappingName == "bool" || type.mappingName == "_Bool")
+            {
+                type.kind = DataType::KIND::INTEGER;
+                type.lowLimit.value = 0;
+                type.lowLimit.inclusive = true;
+                type.highLimit.value = 1;
+                type.highLimit.inclusive = true;
+            }
             else if ( type.mappingName == "double" )
 			{
 				type.kind = DataType::KIND::FLOATING_POINT;
@@ -369,17 +377,18 @@ BackDataMember* createMember( BackDataMember& base, Structure::DECLTYPE baseDecl
 		assert( retDeclType == Structure::DECLTYPE::IDL );
 		ret->name = base.name;
 		// TODO: code below is HIGHLY temporary; get rid of it ASAP
-		if ( base.type.kind == DataType::KIND::MAPPING_SPECIFIC &&  base.type.name == "_Bool" )
-		{
-			base.type.name = "uint8_t";
-			base.type.mappingName = "uint8_t";
-			base.type.kind == DataType::KIND::INTEGER;
-			base.type.lowLimit.inclusive = true;
-			base.type.lowLimit.value = 0;
-			base.type.highLimit.inclusive = true;
-			base.type.highLimit.value = 1;
-		}
-		else if ( base.type.kind == DataType::KIND::DICTIONARY )
+		//if ( base.type.kind == DataType::KIND::MAPPING_SPECIFIC &&  base.type.name == "_Bool" )
+		//{
+		//	base.type.name = "uint8_t";
+		//	base.type.mappingName = "uint8_t";
+		//	base.type.kind == DataType::KIND::INTEGER;
+		//	base.type.lowLimit.inclusive = true;
+		//	base.type.lowLimit.value = 0;
+		//	base.type.highLimit.inclusive = true;
+		//	base.type.highLimit.value = 1;
+		//}
+		//else
+        if ( base.type.kind == DataType::KIND::DICTIONARY )
 		{
 			base.type.name = "map";
 			base.type.mappingName = "map";
