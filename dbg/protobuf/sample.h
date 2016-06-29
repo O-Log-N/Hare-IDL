@@ -32,9 +32,10 @@ struct Item {
 };
 
 struct Character {
+
   uint8_t max_u8;
   uint16_t max_u16;
-  uint32_t max_u32;
+//  uint32_t max_u32;
 //  uint64_t max_u64;
 
   int8_t min_s8;
@@ -51,9 +52,9 @@ struct Character {
   double y;
   double z;
 
-  float angle;
+//  float angle;
 
-  enum Animation {Standing=0,Walking=1, Running=2} anim;
+  //enum Animation {Standing=0,Walking=1, Running=2} anim;
 
   bool flag;
 

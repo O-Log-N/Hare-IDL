@@ -23,7 +23,6 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
-#include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 // @@protoc_insertion_point(includes)
 
@@ -37,26 +36,6 @@ void protobuf_ShutdownFile_output_2eproto();
 class Item;
 class Character;
 
-enum Character_Animation {
-  Character_Animation_Running = 2,
-  Character_Animation_Standing = 0,
-  Character_Animation_Walking = 1
-};
-bool Character_Animation_IsValid(int value);
-const Character_Animation Character_Animation_Animation_MIN = Character_Animation_Standing;
-const Character_Animation Character_Animation_Animation_MAX = Character_Animation_Running;
-const int Character_Animation_Animation_ARRAYSIZE = Character_Animation_Animation_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* Character_Animation_descriptor();
-inline const ::std::string& Character_Animation_Name(Character_Animation value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    Character_Animation_descriptor(), value);
-}
-inline bool Character_Animation_Parse(
-    const ::std::string& name, Character_Animation* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<Character_Animation>(
-    Character_Animation_descriptor(), name, value);
-}
 // ===================================================================
 
 class Item : public ::google::protobuf::Message {
@@ -194,142 +173,96 @@ class Character : public ::google::protobuf::Message {
 
   // nested types ----------------------------------------------------
 
-  typedef Character_Animation Animation;
-  static const Animation Running = Character_Animation_Running;
-  static const Animation Standing = Character_Animation_Standing;
-  static const Animation Walking = Character_Animation_Walking;
-  static inline bool Animation_IsValid(int value) {
-    return Character_Animation_IsValid(value);
-  }
-  static const Animation Animation_MIN =
-    Character_Animation_Animation_MIN;
-  static const Animation Animation_MAX =
-    Character_Animation_Animation_MAX;
-  static const int Animation_ARRAYSIZE =
-    Character_Animation_Animation_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  Animation_descriptor() {
-    return Character_Animation_descriptor();
-  }
-  static inline const ::std::string& Animation_Name(Animation value) {
-    return Character_Animation_Name(value);
-  }
-  static inline bool Animation_Parse(const ::std::string& name,
-      Animation* value) {
-    return Character_Animation_Parse(name, value);
-  }
-
   // accessors -------------------------------------------------------
 
-  // optional uint32 max_u8 = 1;
+  // optional sint32 max_u8 = 1;
   inline bool has_max_u8() const;
   inline void clear_max_u8();
   static const int kMaxU8FieldNumber = 1;
-  inline ::google::protobuf::uint32 max_u8() const;
-  inline void set_max_u8(::google::protobuf::uint32 value);
+  inline ::google::protobuf::int32 max_u8() const;
+  inline void set_max_u8(::google::protobuf::int32 value);
 
-  // optional uint32 max_u16 = 2;
+  // optional sint32 max_u16 = 2;
   inline bool has_max_u16() const;
   inline void clear_max_u16();
   static const int kMaxU16FieldNumber = 2;
-  inline ::google::protobuf::uint32 max_u16() const;
-  inline void set_max_u16(::google::protobuf::uint32 value);
+  inline ::google::protobuf::int32 max_u16() const;
+  inline void set_max_u16(::google::protobuf::int32 value);
 
-  // optional uint32 max_u32 = 3;
-  inline bool has_max_u32() const;
-  inline void clear_max_u32();
-  static const int kMaxU32FieldNumber = 3;
-  inline ::google::protobuf::uint32 max_u32() const;
-  inline void set_max_u32(::google::protobuf::uint32 value);
-
-  // optional sint32 min_s8 = 4;
+  // optional sint32 min_s8 = 3;
   inline bool has_min_s8() const;
   inline void clear_min_s8();
-  static const int kMinS8FieldNumber = 4;
+  static const int kMinS8FieldNumber = 3;
   inline ::google::protobuf::int32 min_s8() const;
   inline void set_min_s8(::google::protobuf::int32 value);
 
-  // optional sint32 min_s16 = 5;
+  // optional sint32 min_s16 = 4;
   inline bool has_min_s16() const;
   inline void clear_min_s16();
-  static const int kMinS16FieldNumber = 5;
+  static const int kMinS16FieldNumber = 4;
   inline ::google::protobuf::int32 min_s16() const;
   inline void set_min_s16(::google::protobuf::int32 value);
 
-  // optional sint32 min_s32 = 6;
+  // optional sint32 min_s32 = 5;
   inline bool has_min_s32() const;
   inline void clear_min_s32();
-  static const int kMinS32FieldNumber = 6;
+  static const int kMinS32FieldNumber = 5;
   inline ::google::protobuf::int32 min_s32() const;
   inline void set_min_s32(::google::protobuf::int32 value);
 
-  // optional sint32 max_s8 = 7;
+  // optional sint32 max_s8 = 6;
   inline bool has_max_s8() const;
   inline void clear_max_s8();
-  static const int kMaxS8FieldNumber = 7;
+  static const int kMaxS8FieldNumber = 6;
   inline ::google::protobuf::int32 max_s8() const;
   inline void set_max_s8(::google::protobuf::int32 value);
 
-  // optional sint32 max_s16 = 8;
+  // optional sint32 max_s16 = 7;
   inline bool has_max_s16() const;
   inline void clear_max_s16();
-  static const int kMaxS16FieldNumber = 8;
+  static const int kMaxS16FieldNumber = 7;
   inline ::google::protobuf::int32 max_s16() const;
   inline void set_max_s16(::google::protobuf::int32 value);
 
-  // optional sint32 max_s32 = 9;
+  // optional sint32 max_s32 = 8;
   inline bool has_max_s32() const;
   inline void clear_max_s32();
-  static const int kMaxS32FieldNumber = 9;
+  static const int kMaxS32FieldNumber = 8;
   inline ::google::protobuf::int32 max_s32() const;
   inline void set_max_s32(::google::protobuf::int32 value);
 
-  // optional double x = 10;
+  // optional double x = 9;
   inline bool has_x() const;
   inline void clear_x();
-  static const int kXFieldNumber = 10;
+  static const int kXFieldNumber = 9;
   inline double x() const;
   inline void set_x(double value);
 
-  // optional double y = 11;
+  // optional double y = 10;
   inline bool has_y() const;
   inline void clear_y();
-  static const int kYFieldNumber = 11;
+  static const int kYFieldNumber = 10;
   inline double y() const;
   inline void set_y(double value);
 
-  // optional double z = 12;
+  // optional double z = 11;
   inline bool has_z() const;
   inline void clear_z();
-  static const int kZFieldNumber = 12;
+  static const int kZFieldNumber = 11;
   inline double z() const;
   inline void set_z(double value);
 
-  // optional float angle = 13;
-  inline bool has_angle() const;
-  inline void clear_angle();
-  static const int kAngleFieldNumber = 13;
-  inline float angle() const;
-  inline void set_angle(float value);
-
-  // optional .pb.Character.Animation anim = 14;
-  inline bool has_anim() const;
-  inline void clear_anim();
-  static const int kAnimFieldNumber = 14;
-  inline ::pb::Character_Animation anim() const;
-  inline void set_anim(::pb::Character_Animation value);
-
-  // optional bool flag = 15;
+  // optional bool flag = 12;
   inline bool has_flag() const;
   inline void clear_flag();
-  static const int kFlagFieldNumber = 15;
+  static const int kFlagFieldNumber = 12;
   inline bool flag() const;
   inline void set_flag(bool value);
 
-  // optional string desc = 16;
+  // optional string desc = 13;
   inline bool has_desc() const;
   inline void clear_desc();
-  static const int kDescFieldNumber = 16;
+  static const int kDescFieldNumber = 13;
   inline const ::std::string& desc() const;
   inline void set_desc(const ::std::string& value);
   inline void set_desc(const char* value);
@@ -344,8 +277,6 @@ class Character : public ::google::protobuf::Message {
   inline void clear_has_max_u8();
   inline void set_has_max_u16();
   inline void clear_has_max_u16();
-  inline void set_has_max_u32();
-  inline void clear_has_max_u32();
   inline void set_has_min_s8();
   inline void clear_has_min_s8();
   inline void set_has_min_s16();
@@ -364,10 +295,6 @@ class Character : public ::google::protobuf::Message {
   inline void clear_has_y();
   inline void set_has_z();
   inline void clear_has_z();
-  inline void set_has_angle();
-  inline void clear_has_angle();
-  inline void set_has_anim();
-  inline void clear_has_anim();
   inline void set_has_flag();
   inline void clear_has_flag();
   inline void set_has_desc();
@@ -377,22 +304,19 @@ class Character : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::google::protobuf::uint32 max_u8_;
-  ::google::protobuf::uint32 max_u16_;
-  ::google::protobuf::uint32 max_u32_;
+  ::google::protobuf::int32 max_u8_;
+  ::google::protobuf::int32 max_u16_;
   ::google::protobuf::int32 min_s8_;
   ::google::protobuf::int32 min_s16_;
   ::google::protobuf::int32 min_s32_;
   ::google::protobuf::int32 max_s8_;
   ::google::protobuf::int32 max_s16_;
+  ::google::protobuf::int32 max_s32_;
   double x_;
   double y_;
-  ::google::protobuf::int32 max_s32_;
-  float angle_;
   double z_;
-  int anim_;
-  bool flag_;
   ::std::string* desc_;
+  bool flag_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
@@ -487,7 +411,7 @@ inline void Item::set_allocated_name(::std::string* name) {
 
 // Character
 
-// optional uint32 max_u8 = 1;
+// optional sint32 max_u8 = 1;
 inline bool Character::has_max_u8() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -498,20 +422,20 @@ inline void Character::clear_has_max_u8() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void Character::clear_max_u8() {
-  max_u8_ = 0u;
+  max_u8_ = 0;
   clear_has_max_u8();
 }
-inline ::google::protobuf::uint32 Character::max_u8() const {
+inline ::google::protobuf::int32 Character::max_u8() const {
   // @@protoc_insertion_point(field_get:pb.Character.max_u8)
   return max_u8_;
 }
-inline void Character::set_max_u8(::google::protobuf::uint32 value) {
+inline void Character::set_max_u8(::google::protobuf::int32 value) {
   set_has_max_u8();
   max_u8_ = value;
   // @@protoc_insertion_point(field_set:pb.Character.max_u8)
 }
 
-// optional uint32 max_u16 = 2;
+// optional sint32 max_u16 = 2;
 inline bool Character::has_max_u16() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -522,52 +446,28 @@ inline void Character::clear_has_max_u16() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline void Character::clear_max_u16() {
-  max_u16_ = 0u;
+  max_u16_ = 0;
   clear_has_max_u16();
 }
-inline ::google::protobuf::uint32 Character::max_u16() const {
+inline ::google::protobuf::int32 Character::max_u16() const {
   // @@protoc_insertion_point(field_get:pb.Character.max_u16)
   return max_u16_;
 }
-inline void Character::set_max_u16(::google::protobuf::uint32 value) {
+inline void Character::set_max_u16(::google::protobuf::int32 value) {
   set_has_max_u16();
   max_u16_ = value;
   // @@protoc_insertion_point(field_set:pb.Character.max_u16)
 }
 
-// optional uint32 max_u32 = 3;
-inline bool Character::has_max_u32() const {
+// optional sint32 min_s8 = 3;
+inline bool Character::has_min_s8() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void Character::set_has_max_u32() {
+inline void Character::set_has_min_s8() {
   _has_bits_[0] |= 0x00000004u;
 }
-inline void Character::clear_has_max_u32() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void Character::clear_max_u32() {
-  max_u32_ = 0u;
-  clear_has_max_u32();
-}
-inline ::google::protobuf::uint32 Character::max_u32() const {
-  // @@protoc_insertion_point(field_get:pb.Character.max_u32)
-  return max_u32_;
-}
-inline void Character::set_max_u32(::google::protobuf::uint32 value) {
-  set_has_max_u32();
-  max_u32_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.max_u32)
-}
-
-// optional sint32 min_s8 = 4;
-inline bool Character::has_min_s8() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
-}
-inline void Character::set_has_min_s8() {
-  _has_bits_[0] |= 0x00000008u;
-}
 inline void Character::clear_has_min_s8() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void Character::clear_min_s8() {
   min_s8_ = 0;
@@ -583,15 +483,15 @@ inline void Character::set_min_s8(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:pb.Character.min_s8)
 }
 
-// optional sint32 min_s16 = 5;
+// optional sint32 min_s16 = 4;
 inline bool Character::has_min_s16() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline void Character::set_has_min_s16() {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000008u;
 }
 inline void Character::clear_has_min_s16() {
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void Character::clear_min_s16() {
   min_s16_ = 0;
@@ -607,15 +507,15 @@ inline void Character::set_min_s16(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:pb.Character.min_s16)
 }
 
-// optional sint32 min_s32 = 6;
+// optional sint32 min_s32 = 5;
 inline bool Character::has_min_s32() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 inline void Character::set_has_min_s32() {
-  _has_bits_[0] |= 0x00000020u;
+  _has_bits_[0] |= 0x00000010u;
 }
 inline void Character::clear_has_min_s32() {
-  _has_bits_[0] &= ~0x00000020u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 inline void Character::clear_min_s32() {
   min_s32_ = 0;
@@ -631,15 +531,15 @@ inline void Character::set_min_s32(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:pb.Character.min_s32)
 }
 
-// optional sint32 max_s8 = 7;
+// optional sint32 max_s8 = 6;
 inline bool Character::has_max_s8() const {
-  return (_has_bits_[0] & 0x00000040u) != 0;
+  return (_has_bits_[0] & 0x00000020u) != 0;
 }
 inline void Character::set_has_max_s8() {
-  _has_bits_[0] |= 0x00000040u;
+  _has_bits_[0] |= 0x00000020u;
 }
 inline void Character::clear_has_max_s8() {
-  _has_bits_[0] &= ~0x00000040u;
+  _has_bits_[0] &= ~0x00000020u;
 }
 inline void Character::clear_max_s8() {
   max_s8_ = 0;
@@ -655,15 +555,15 @@ inline void Character::set_max_s8(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:pb.Character.max_s8)
 }
 
-// optional sint32 max_s16 = 8;
+// optional sint32 max_s16 = 7;
 inline bool Character::has_max_s16() const {
-  return (_has_bits_[0] & 0x00000080u) != 0;
+  return (_has_bits_[0] & 0x00000040u) != 0;
 }
 inline void Character::set_has_max_s16() {
-  _has_bits_[0] |= 0x00000080u;
+  _has_bits_[0] |= 0x00000040u;
 }
 inline void Character::clear_has_max_s16() {
-  _has_bits_[0] &= ~0x00000080u;
+  _has_bits_[0] &= ~0x00000040u;
 }
 inline void Character::clear_max_s16() {
   max_s16_ = 0;
@@ -679,15 +579,15 @@ inline void Character::set_max_s16(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:pb.Character.max_s16)
 }
 
-// optional sint32 max_s32 = 9;
+// optional sint32 max_s32 = 8;
 inline bool Character::has_max_s32() const {
-  return (_has_bits_[0] & 0x00000100u) != 0;
+  return (_has_bits_[0] & 0x00000080u) != 0;
 }
 inline void Character::set_has_max_s32() {
-  _has_bits_[0] |= 0x00000100u;
+  _has_bits_[0] |= 0x00000080u;
 }
 inline void Character::clear_has_max_s32() {
-  _has_bits_[0] &= ~0x00000100u;
+  _has_bits_[0] &= ~0x00000080u;
 }
 inline void Character::clear_max_s32() {
   max_s32_ = 0;
@@ -703,15 +603,15 @@ inline void Character::set_max_s32(::google::protobuf::int32 value) {
   // @@protoc_insertion_point(field_set:pb.Character.max_s32)
 }
 
-// optional double x = 10;
+// optional double x = 9;
 inline bool Character::has_x() const {
-  return (_has_bits_[0] & 0x00000200u) != 0;
+  return (_has_bits_[0] & 0x00000100u) != 0;
 }
 inline void Character::set_has_x() {
-  _has_bits_[0] |= 0x00000200u;
+  _has_bits_[0] |= 0x00000100u;
 }
 inline void Character::clear_has_x() {
-  _has_bits_[0] &= ~0x00000200u;
+  _has_bits_[0] &= ~0x00000100u;
 }
 inline void Character::clear_x() {
   x_ = 0;
@@ -727,15 +627,15 @@ inline void Character::set_x(double value) {
   // @@protoc_insertion_point(field_set:pb.Character.x)
 }
 
-// optional double y = 11;
+// optional double y = 10;
 inline bool Character::has_y() const {
-  return (_has_bits_[0] & 0x00000400u) != 0;
+  return (_has_bits_[0] & 0x00000200u) != 0;
 }
 inline void Character::set_has_y() {
-  _has_bits_[0] |= 0x00000400u;
+  _has_bits_[0] |= 0x00000200u;
 }
 inline void Character::clear_has_y() {
-  _has_bits_[0] &= ~0x00000400u;
+  _has_bits_[0] &= ~0x00000200u;
 }
 inline void Character::clear_y() {
   y_ = 0;
@@ -751,15 +651,15 @@ inline void Character::set_y(double value) {
   // @@protoc_insertion_point(field_set:pb.Character.y)
 }
 
-// optional double z = 12;
+// optional double z = 11;
 inline bool Character::has_z() const {
-  return (_has_bits_[0] & 0x00000800u) != 0;
+  return (_has_bits_[0] & 0x00000400u) != 0;
 }
 inline void Character::set_has_z() {
-  _has_bits_[0] |= 0x00000800u;
+  _has_bits_[0] |= 0x00000400u;
 }
 inline void Character::clear_has_z() {
-  _has_bits_[0] &= ~0x00000800u;
+  _has_bits_[0] &= ~0x00000400u;
 }
 inline void Character::clear_z() {
   z_ = 0;
@@ -775,64 +675,15 @@ inline void Character::set_z(double value) {
   // @@protoc_insertion_point(field_set:pb.Character.z)
 }
 
-// optional float angle = 13;
-inline bool Character::has_angle() const {
-  return (_has_bits_[0] & 0x00001000u) != 0;
-}
-inline void Character::set_has_angle() {
-  _has_bits_[0] |= 0x00001000u;
-}
-inline void Character::clear_has_angle() {
-  _has_bits_[0] &= ~0x00001000u;
-}
-inline void Character::clear_angle() {
-  angle_ = 0;
-  clear_has_angle();
-}
-inline float Character::angle() const {
-  // @@protoc_insertion_point(field_get:pb.Character.angle)
-  return angle_;
-}
-inline void Character::set_angle(float value) {
-  set_has_angle();
-  angle_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.angle)
-}
-
-// optional .pb.Character.Animation anim = 14;
-inline bool Character::has_anim() const {
-  return (_has_bits_[0] & 0x00002000u) != 0;
-}
-inline void Character::set_has_anim() {
-  _has_bits_[0] |= 0x00002000u;
-}
-inline void Character::clear_has_anim() {
-  _has_bits_[0] &= ~0x00002000u;
-}
-inline void Character::clear_anim() {
-  anim_ = 2;
-  clear_has_anim();
-}
-inline ::pb::Character_Animation Character::anim() const {
-  // @@protoc_insertion_point(field_get:pb.Character.anim)
-  return static_cast< ::pb::Character_Animation >(anim_);
-}
-inline void Character::set_anim(::pb::Character_Animation value) {
-  assert(::pb::Character_Animation_IsValid(value));
-  set_has_anim();
-  anim_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.anim)
-}
-
-// optional bool flag = 15;
+// optional bool flag = 12;
 inline bool Character::has_flag() const {
-  return (_has_bits_[0] & 0x00004000u) != 0;
+  return (_has_bits_[0] & 0x00000800u) != 0;
 }
 inline void Character::set_has_flag() {
-  _has_bits_[0] |= 0x00004000u;
+  _has_bits_[0] |= 0x00000800u;
 }
 inline void Character::clear_has_flag() {
-  _has_bits_[0] &= ~0x00004000u;
+  _has_bits_[0] &= ~0x00000800u;
 }
 inline void Character::clear_flag() {
   flag_ = false;
@@ -848,15 +699,15 @@ inline void Character::set_flag(bool value) {
   // @@protoc_insertion_point(field_set:pb.Character.flag)
 }
 
-// optional string desc = 16;
+// optional string desc = 13;
 inline bool Character::has_desc() const {
-  return (_has_bits_[0] & 0x00008000u) != 0;
+  return (_has_bits_[0] & 0x00001000u) != 0;
 }
 inline void Character::set_has_desc() {
-  _has_bits_[0] |= 0x00008000u;
+  _has_bits_[0] |= 0x00001000u;
 }
 inline void Character::clear_has_desc() {
-  _has_bits_[0] &= ~0x00008000u;
+  _has_bits_[0] &= ~0x00001000u;
 }
 inline void Character::clear_desc() {
   if (desc_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -933,11 +784,6 @@ inline void Character::set_allocated_desc(::std::string* desc) {
 namespace google {
 namespace protobuf {
 
-template <> struct is_proto_enum< ::pb::Character_Animation> : ::google::protobuf::internal::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::pb::Character_Animation>() {
-  return ::pb::Character_Animation_descriptor();
-}
 
 }  // namespace google
 }  // namespace protobuf

@@ -37,9 +37,7 @@ message @PARAM-STRUCT.STRUCT-NAME()@ {
     @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(1)
      optional bool 
     @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(32)
-     optional uint32 
-    @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(64)
-     optional uint64 
+     optional sint32 
     @@ELSE
       @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
     @@ENDIF

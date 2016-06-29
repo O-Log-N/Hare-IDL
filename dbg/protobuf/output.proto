@@ -9,43 +9,32 @@ message Item {
 }
 
 message Character {
-     optional uint32 
+     optional sint32 
       max_u8 = 1; 
-     optional uint32 
+     optional sint32 
       max_u16 = 2; 
-     optional uint32 
-      max_u32 = 3; 
      optional sint32
-      min_s8 = 4; 
+      min_s8 = 3; 
      optional sint32
-      min_s16 = 5; 
+      min_s16 = 4; 
      optional sint32
-      min_s32 = 6; 
+      min_s32 = 5; 
      optional sint32
-      max_s8 = 7; 
+      max_s8 = 6; 
      optional sint32
-      max_s16 = 8; 
+      max_s16 = 7; 
      optional sint32
-      max_s32 = 9; 
+      max_s32 = 8; 
    optional double
-      x = 10; 
+      x = 9; 
    optional double
-      y = 11; 
+      y = 10; 
    optional double
-      z = 12; 
-   optional float
-      angle = 13; 
-  enum Animation {
-    Running = 2;
-    Standing = 0;
-    Walking = 1;
-  }
-   optional Animation
-      anim = 14; 
+      z = 11; 
      optional bool 
-      flag = 15; 
+      flag = 12; 
    optional string 
-      desc = 16; 
+      desc = 13; 
 }
 
 
