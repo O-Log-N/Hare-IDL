@@ -32,17 +32,28 @@ struct Item {
 };
 
 struct Character {
-  uint16_t character_id;
+  uint8_t idU8;
+  uint16_t idU16;
+  uint32_t idU32;
+//  uint64_t idU64;
+
+//  int8_t idS8;
+//  int16_t idS16;
+//  int32_t idS32;
+//  int64_t idS64;
+
   double x;
   double y;
   double z;
-  double vx;
-  double vy;
-  double vz;
+
   float angle;
+
   enum Animation {Standing=0,Walking=1, Running=2} anim;
-  uint8_t animation_frame;
- 
+
+  bool flag;
+
+  string desc;
+
 //  vector<Item> inventory;
 };
 

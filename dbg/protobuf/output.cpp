@@ -1,4 +1,6 @@
 #include "output.h"
+
+#include <bitset>
 #include "sample.h"
 
 // IMPLEMENTATIONS
@@ -10,16 +12,16 @@ void serializeItem( Item& s, OStream& o ) {
 }
 
 void serializeCharacter( Character& s, OStream& o ) {
-   o.writeInt(1, s.character_id);
-   o.writeDouble(2, s.x);
-   o.writeDouble(3, s.y);
-   o.writeDouble(4, s.z);
-   o.writeDouble(5, s.vx);
-   o.writeDouble(6, s.vy);
-   o.writeDouble(7, s.vz);
-   o.writeDouble(8, s.angle);
-   o.writeInt(9, s.anim);
-   o.writeInt(10, s.animation_frame);
+    o.writeUnsignedVarInt(1, s.idU8);
+    o.writeUnsignedVarInt(2, s.idU16);
+    o.writeUnsignedVarInt(3, s.idU32);
+   o.writeFloatingPoint(4, s.x);
+   o.writeFloatingPoint(5, s.y);
+   o.writeFloatingPoint(6, s.z);
+   o.writeFloatingPoint(7, s.angle);
+   o.writeEnum(8, s.anim);
+    o.writeUnsignedVarInt(9, s.flag);
+   o.writeString(10, s.desc);
 }
 
 
@@ -30,9 +32,7 @@ bool deserializeItem( Item& s, IStream& i ) {
    int type;
    int fieldNumber;
    bool readret;
-   const int memcnt = 1;
-   uint8_t initFlags[memcnt];
-   memset( initFlags, 0, memcnt );
+   std::bitset<1> initFlags;
    do
    {
       readret = i.readFieldTypeAndID( type, fieldNumber );
@@ -42,11 +42,7 @@ bool deserializeItem( Item& s, IStream& i ) {
 	  {
 		case 1:
 		{
-			if ( type == LENGTH_DELIMITED )
-			{
-				i.readString( s.name );
-				initFlags[0] = 1;
-			}
+     initFlags[0] = i.readString( s.name );
 			break;
 		}
 		default:
@@ -58,20 +54,14 @@ bool deserializeItem( Item& s, IStream& i ) {
    }
    while ( 1 ); // TODO: stop criterion (except the end of the message?
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-	   OK = OK && initFlags[i] != 0;
-
-   return OK;
+   return initFlags.all();
 }
 
 bool deserializeCharacter( Character& s, IStream& i ) {
    int type;
    int fieldNumber;
    bool readret;
-   const int memcnt = 10;
-   uint8_t initFlags[memcnt];
-   memset( initFlags, 0, memcnt );
+   std::bitset<10> initFlags;
    do
    {
       readret = i.readFieldTypeAndID( type, fieldNumber );
@@ -81,89 +71,56 @@ bool deserializeCharacter( Character& s, IStream& i ) {
 	  {
 		case 1:
 		{
-      if ( type == VARINT )
-      {
-        initFlags[0] = i.readUnsignedVarInt( s.character_id );
-      }
+      initFlags[0] = i.readUnsignedVarInt( s.idU8 );
 			break;
 		}
 		case 2:
 		{
-      if ( type == FIXED_64_BIT )
-      {
-        initFlags[1] = i.readDouble( s.x );
-      }
-
+      initFlags[1] = i.readUnsignedVarInt( s.idU16 );
 			break;
 		}
 		case 3:
 		{
-      if ( type == FIXED_64_BIT )
-      {
-        initFlags[2] = i.readDouble( s.y );
-      }
-
+      initFlags[2] = i.readUnsignedVarInt( s.idU32 );
 			break;
 		}
 		case 4:
 		{
-      if ( type == FIXED_64_BIT )
-      {
-        initFlags[3] = i.readDouble( s.z );
-      }
+      initFlags[3] = i.readFloatingPoint( s.x );
 
 			break;
 		}
 		case 5:
 		{
-      if ( type == FIXED_64_BIT )
-      {
-        initFlags[4] = i.readDouble( s.vx );
-      }
+      initFlags[4] = i.readFloatingPoint( s.y );
 
 			break;
 		}
 		case 6:
 		{
-      if ( type == FIXED_64_BIT )
-      {
-        initFlags[5] = i.readDouble( s.vy );
-      }
+      initFlags[5] = i.readFloatingPoint( s.z );
 
 			break;
 		}
 		case 7:
 		{
-      if ( type == FIXED_64_BIT )
-      {
-        initFlags[6] = i.readDouble( s.vz );
-      }
+      initFlags[6] = i.readFloatingPoint( s.angle );
 
 			break;
 		}
 		case 8:
 		{
-      if ( type == FIXED_64_BIT )
-      {
-        initFlags[7] = i.readDouble( s.angle );
-      }
-
+  		initFlags[7] = i.readEnum( s.anim );
 			break;
 		}
 		case 9:
 		{
-			if ( type == VARINT )
-			{
-				initFlags[8] = i.readEnum( s.anim );
-			}
+      initFlags[8] = i.readUnsignedVarInt( s.flag );
 			break;
 		}
 		case 10:
 		{
-      if ( type == VARINT )
-      {
-        initFlags[9] = i.readUnsignedVarInt( s.animation_frame );
-      }
+     initFlags[9] = i.readString( s.desc );
 			break;
 		}
 		default:
@@ -175,11 +132,7 @@ bool deserializeCharacter( Character& s, IStream& i ) {
    }
    while ( 1 ); // TODO: stop criterion (except the end of the message?
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-	   OK = OK && initFlags[i] != 0;
-
-   return OK;
+   return initFlags.all();
 }
 
 
@@ -195,9 +148,19 @@ void printItem( Item& s ) {
 }
 
 void printCharacter( Character& s ) {
-    cout << "character_id: ";
+    cout << "idU8: ";
 	cout << 
-   s.character_id 
+   s.idU8 
+	  ;
+    cout << endl;
+    cout << "idU16: ";
+	cout << 
+   s.idU16 
+	  ;
+    cout << endl;
+    cout << "idU32: ";
+	cout << 
+   s.idU32 
 	  ;
     cout << endl;
     cout << "x: ";
@@ -215,21 +178,6 @@ void printCharacter( Character& s ) {
    s.z 
 	  ;
     cout << endl;
-    cout << "vx: ";
-	cout << 
-   s.vx 
-	  ;
-    cout << endl;
-    cout << "vy: ";
-	cout << 
-   s.vy 
-	  ;
-    cout << endl;
-    cout << "vz: ";
-	cout << 
-   s.vz 
-	  ;
-    cout << endl;
     cout << "angle: ";
 	cout << 
    s.angle 
@@ -240,9 +188,14 @@ void printCharacter( Character& s ) {
    s.anim 
 	  ;
     cout << endl;
-    cout << "animation_frame: ";
+    cout << "flag: ";
 	cout << 
-   s.animation_frame 
+   s.flag 
+	  ;
+    cout << endl;
+    cout << "desc: ";
+	cout << 
+   s.desc 
 	  ;
     cout << endl;
 }

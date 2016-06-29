@@ -91,17 +91,21 @@ void serialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.STRUCT-NAME()@& s, OSt
 @@BEGIN-TEMPLATE NAME="SERIALIZE-TYPE"
 @@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
 @@IF PARAM-TYPE.IS-INTEGER()
-   o.writeInt(@PARAM-MEMCTR@, @PARAM-NAME@);
+  @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER()
+    o.writeUnsignedVarInt(@PARAM-MEMCTR@, @PARAM-NAME@);
+  @@ELSE
+    o.writeSignedVarInt(@PARAM-MEMCTR@, @PARAM-NAME@);
+  @@ENDIF
 @@ELIF PARAM-TYPE.IS-FIXED-POINT()
    o.writeDouble(@PARAM-MEMCTR@, @PARAM-NAME@);
 @@ELIF PARAM-TYPE.IS-FLOATING-POINT()
-   o.writeDouble(@PARAM-MEMCTR@, @PARAM-NAME@);
+   o.writeFloatingPoint(@PARAM-MEMCTR@, @PARAM-NAME@);
 @@ELIF PARAM-TYPE.IS-CHARACTER-STRING()
    o.writeString(@PARAM-MEMCTR@, @PARAM-NAME@);
 @@ELIF PARAM-TYPE.IS-STRUCTURE()
    serialize@PARAM-TYPE.MAPPING-MEMBER-TYPE()@(@PARAM-MEMCTR@, @PARAM-NAME@, o);
 @@ELIF PARAM-TYPE.IS-ENUM()
-   o.writeInt(@PARAM-MEMCTR@, @PARAM-NAME@);
+   o.writeEnum(@PARAM-MEMCTR@, @PARAM-NAME@);
 @@ELSE
 @@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
 @@ENDIF
@@ -198,9 +202,7 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
    @@FOR-EACH LOCAL-MEMBER IN PARAM-STRUCT.MEMBERS()
       @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
    @@FOR-EACH END
-   const int memcnt = @LOCAL-MEMCTR@;
-   uint8_t initFlags[memcnt];
-   memset( initFlags, 0, memcnt );
+   std::bitset<@LOCAL-MEMCTR@> initFlags;
    do
    {
       readret = i.readFieldTypeAndID( type, fieldNumber );
@@ -222,11 +224,7 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
    }
    while ( 1 ); // TODO: stop criterion (except the end of the message?
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-	   OK = OK && initFlags[i] != 0;
-
-   return OK;
+   return initFlags.all();
 }
 
 @@END-TEMPLATE NAME="DESERIALIZE-STRUCT"
@@ -252,19 +250,13 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 @@IF PARAM-TYPE.IS-INTEGER()
   @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER()
     @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(64)
-      if ( type == VARINT )
-      {
-        initFlags[@PARAM-MEMCTR@] = i.readUnsignedVarInt( @PARAM-NAME@ );
-      }
+      initFlags[@PARAM-MEMCTR@] = i.readUnsignedVarInt( @PARAM-NAME@ );
     @@ELSE
       @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
     @@ENDIF
   @@ELSE
     @@IF PARAM-TYPE.IS-SIGNED-INTEGER-FITTING-INT(64)
-      if ( type == VARINT )
-      {
-        initFlags[@PARAM-MEMCTR@] = i.readSignedVarInt( @PARAM-NAME@ );
-      }
+      initFlags[@PARAM-MEMCTR@] = i.readSignedVarInt( @PARAM-NAME@ );
     @@ELSE
       @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
     @@ENDIF
@@ -272,33 +264,19 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 @@ELIF PARAM-TYPE.IS-FIXED-POINT()
    @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
 @@ELIF PARAM-TYPE.IS-FLOATING-POINT()
-  @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(23,9)
-      if ( type == FIXED_32_BIT )
-        initFlags[@PARAM-MEMCTR@] = i.readFloat( @PARAM-NAME@ );
-      }
-  @@ELIF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
-      if ( type == FIXED_64_BIT )
-      {
-        initFlags[@PARAM-MEMCTR@] = i.readDouble( @PARAM-NAME@ );
-      }
+  @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
+      initFlags[@PARAM-MEMCTR@] = i.readFloatingPoint( @PARAM-NAME@ );
   @@ELSE
     @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
   @@ENDIF
 
 @@ELIF PARAM-TYPE.IS-CHARACTER-STRING()
-			if ( type == LENGTH_DELIMITED )
-			{
-				i.readString( @PARAM-NAME@ );
-				initFlags[@PARAM-MEMCTR@] = 1;
-			}
+     initFlags[@PARAM-MEMCTR@] = i.readString( @PARAM-NAME@ );
 @@ELIF PARAM-TYPE.IS-STRUCTURE()
 //   deserialize@PARAM-TYPE.MAPPING-MEMBER-TYPE()@(@PARAM-NAME@, i);
    @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
 @@ELIF PARAM-TYPE.IS-ENUM()
-			if ( type == VARINT )
-			{
-				initFlags[@PARAM-MEMCTR@] = i.readEnum( @PARAM-NAME@ );
-			}
+  		initFlags[@PARAM-MEMCTR@] = i.readEnum( @PARAM-NAME@ );
 @@ELSE
 @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
 @@ENDIF

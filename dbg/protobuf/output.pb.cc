@@ -54,16 +54,16 @@ void protobuf_AssignDesc_output_2eproto() {
       sizeof(Item));
   Character_descriptor_ = file->message_type(1);
   static const int Character_offsets_[10] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, character_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, idu8_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, idu16_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, idu32_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, x_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, y_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, z_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, vx_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, vy_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, vz_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, angle_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, anim_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, animation_frame_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, flag_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, desc_),
   };
   Character_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -112,12 +112,12 @@ void protobuf_AddDesc_output_2eproto() {
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014output.proto\022\002pb\"\024\n\004Item\022\014\n\004name\030\001 \001(\t"
-    "\"\352\001\n\tCharacter\022\024\n\014character_id\030\001 \001(\004\022\t\n\001"
-    "x\030\002 \001(\001\022\t\n\001y\030\003 \001(\001\022\t\n\001z\030\004 \001(\001\022\n\n\002vx\030\005 \001("
-    "\001\022\n\n\002vy\030\006 \001(\001\022\n\n\002vz\030\007 \001(\001\022\r\n\005angle\030\010 \001(\001"
-    "\022%\n\004anim\030\t \001(\0162\027.pb.Character.Animation\022"
-    "\027\n\017animation_frame\030\n \001(\004\"3\n\tAnimation\022\013\n"
-    "\007Running\020\002\022\014\n\010Standing\020\000\022\013\n\007Walking\020\001", 277);
+    "\"\337\001\n\tCharacter\022\014\n\004idU8\030\001 \001(\004\022\r\n\005idU16\030\002 "
+    "\001(\004\022\r\n\005idU32\030\003 \001(\004\022\t\n\001x\030\004 \001(\001\022\t\n\001y\030\005 \001(\001"
+    "\022\t\n\001z\030\006 \001(\001\022\r\n\005angle\030\007 \001(\001\022%\n\004anim\030\010 \001(\016"
+    "2\027.pb.Character.Animation\022\014\n\004flag\030\t \001(\004\022"
+    "\014\n\004desc\030\n \001(\t\"3\n\tAnimation\022\013\n\007Running\020\002\022"
+    "\014\n\010Standing\020\000\022\013\n\007Walking\020\001", 266);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "output.proto", &protobuf_RegisterTypes);
   Item::default_instance_ = new Item();
@@ -403,16 +403,16 @@ const Character_Animation Character::Animation_MAX;
 const int Character::Animation_ARRAYSIZE;
 #endif  // _MSC_VER
 #ifndef _MSC_VER
-const int Character::kCharacterIdFieldNumber;
+const int Character::kIdU8FieldNumber;
+const int Character::kIdU16FieldNumber;
+const int Character::kIdU32FieldNumber;
 const int Character::kXFieldNumber;
 const int Character::kYFieldNumber;
 const int Character::kZFieldNumber;
-const int Character::kVxFieldNumber;
-const int Character::kVyFieldNumber;
-const int Character::kVzFieldNumber;
 const int Character::kAngleFieldNumber;
 const int Character::kAnimFieldNumber;
-const int Character::kAnimationFrameFieldNumber;
+const int Character::kFlagFieldNumber;
+const int Character::kDescFieldNumber;
 #endif  // !_MSC_VER
 
 Character::Character()
@@ -432,17 +432,18 @@ Character::Character(const Character& from)
 }
 
 void Character::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  character_id_ = GOOGLE_ULONGLONG(0);
+  idu8_ = GOOGLE_ULONGLONG(0);
+  idu16_ = GOOGLE_ULONGLONG(0);
+  idu32_ = GOOGLE_ULONGLONG(0);
   x_ = 0;
   y_ = 0;
   z_ = 0;
-  vx_ = 0;
-  vy_ = 0;
-  vz_ = 0;
   angle_ = 0;
   anim_ = 2;
-  animation_frame_ = GOOGLE_ULONGLONG(0);
+  flag_ = GOOGLE_ULONGLONG(0);
+  desc_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -452,6 +453,9 @@ Character::~Character() {
 }
 
 void Character::SharedDtor() {
+  if (desc_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete desc_;
+  }
   if (this != default_instance_) {
   }
 }
@@ -489,11 +493,16 @@ void Character::Clear() {
   } while (0)
 
   if (_has_bits_[0 / 32] & 255) {
-    ZR_(character_id_, angle_);
+    ZR_(idu8_, angle_);
+    anim_ = 2;
   }
   if (_has_bits_[8 / 32] & 768) {
-    anim_ = 2;
-    animation_frame_ = GOOGLE_ULONGLONG(0);
+    flag_ = GOOGLE_ULONGLONG(0);
+    if (has_desc()) {
+      if (desc_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        desc_->clear();
+      }
+    }
   }
 
 #undef OFFSET_OF_FIELD_
@@ -513,23 +522,53 @@ bool Character::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional uint64 character_id = 1;
+      // optional uint64 idU8 = 1;
       case 1: {
         if (tag == 8) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &character_id_)));
-          set_has_character_id();
+                 input, &idu8_)));
+          set_has_idu8();
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(17)) goto parse_x;
+        if (input->ExpectTag(16)) goto parse_idU16;
         break;
       }
 
-      // optional double x = 2;
+      // optional uint64 idU16 = 2;
       case 2: {
-        if (tag == 17) {
+        if (tag == 16) {
+         parse_idU16:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &idu16_)));
+          set_has_idu16();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(24)) goto parse_idU32;
+        break;
+      }
+
+      // optional uint64 idU32 = 3;
+      case 3: {
+        if (tag == 24) {
+         parse_idU32:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &idu32_)));
+          set_has_idu32();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(33)) goto parse_x;
+        break;
+      }
+
+      // optional double x = 4;
+      case 4: {
+        if (tag == 33) {
          parse_x:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
@@ -538,13 +577,13 @@ bool Character::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(25)) goto parse_y;
+        if (input->ExpectTag(41)) goto parse_y;
         break;
       }
 
-      // optional double y = 3;
-      case 3: {
-        if (tag == 25) {
+      // optional double y = 5;
+      case 5: {
+        if (tag == 41) {
          parse_y:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
@@ -553,13 +592,13 @@ bool Character::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(33)) goto parse_z;
+        if (input->ExpectTag(49)) goto parse_z;
         break;
       }
 
-      // optional double z = 4;
-      case 4: {
-        if (tag == 33) {
+      // optional double z = 6;
+      case 6: {
+        if (tag == 49) {
          parse_z:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
@@ -568,58 +607,13 @@ bool Character::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(41)) goto parse_vx;
+        if (input->ExpectTag(57)) goto parse_angle;
         break;
       }
 
-      // optional double vx = 5;
-      case 5: {
-        if (tag == 41) {
-         parse_vx:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 input, &vx_)));
-          set_has_vx();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(49)) goto parse_vy;
-        break;
-      }
-
-      // optional double vy = 6;
-      case 6: {
-        if (tag == 49) {
-         parse_vy:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 input, &vy_)));
-          set_has_vy();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(57)) goto parse_vz;
-        break;
-      }
-
-      // optional double vz = 7;
+      // optional double angle = 7;
       case 7: {
         if (tag == 57) {
-         parse_vz:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 input, &vz_)));
-          set_has_vz();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(65)) goto parse_angle;
-        break;
-      }
-
-      // optional double angle = 8;
-      case 8: {
-        if (tag == 65) {
          parse_angle:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
@@ -628,13 +622,13 @@ bool Character::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(72)) goto parse_anim;
+        if (input->ExpectTag(64)) goto parse_anim;
         break;
       }
 
-      // optional .pb.Character.Animation anim = 9;
-      case 9: {
-        if (tag == 72) {
+      // optional .pb.Character.Animation anim = 8;
+      case 8: {
+        if (tag == 64) {
          parse_anim:
           int value;
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
@@ -643,23 +637,40 @@ bool Character::MergePartialFromCodedStream(
           if (::pb::Character_Animation_IsValid(value)) {
             set_anim(static_cast< ::pb::Character_Animation >(value));
           } else {
-            mutable_unknown_fields()->AddVarint(9, value);
+            mutable_unknown_fields()->AddVarint(8, value);
           }
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(80)) goto parse_animation_frame;
+        if (input->ExpectTag(72)) goto parse_flag;
         break;
       }
 
-      // optional uint64 animation_frame = 10;
-      case 10: {
-        if (tag == 80) {
-         parse_animation_frame:
+      // optional uint64 flag = 9;
+      case 9: {
+        if (tag == 72) {
+         parse_flag:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &animation_frame_)));
-          set_has_animation_frame();
+                 input, &flag_)));
+          set_has_flag();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(82)) goto parse_desc;
+        break;
+      }
+
+      // optional string desc = 10;
+      case 10: {
+        if (tag == 82) {
+         parse_desc:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_desc()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->desc().data(), this->desc().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "desc");
         } else {
           goto handle_unusual;
         }
@@ -692,55 +703,60 @@ failure:
 void Character::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:pb.Character)
-  // optional uint64 character_id = 1;
-  if (has_character_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->character_id(), output);
+  // optional uint64 idU8 = 1;
+  if (has_idu8()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->idu8(), output);
   }
 
-  // optional double x = 2;
+  // optional uint64 idU16 = 2;
+  if (has_idu16()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->idu16(), output);
+  }
+
+  // optional uint64 idU32 = 3;
+  if (has_idu32()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->idu32(), output);
+  }
+
+  // optional double x = 4;
   if (has_x()) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(2, this->x(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(4, this->x(), output);
   }
 
-  // optional double y = 3;
+  // optional double y = 5;
   if (has_y()) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(3, this->y(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(5, this->y(), output);
   }
 
-  // optional double z = 4;
+  // optional double z = 6;
   if (has_z()) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(4, this->z(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(6, this->z(), output);
   }
 
-  // optional double vx = 5;
-  if (has_vx()) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(5, this->vx(), output);
-  }
-
-  // optional double vy = 6;
-  if (has_vy()) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(6, this->vy(), output);
-  }
-
-  // optional double vz = 7;
-  if (has_vz()) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(7, this->vz(), output);
-  }
-
-  // optional double angle = 8;
+  // optional double angle = 7;
   if (has_angle()) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(8, this->angle(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(7, this->angle(), output);
   }
 
-  // optional .pb.Character.Animation anim = 9;
+  // optional .pb.Character.Animation anim = 8;
   if (has_anim()) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      9, this->anim(), output);
+      8, this->anim(), output);
   }
 
-  // optional uint64 animation_frame = 10;
-  if (has_animation_frame()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(10, this->animation_frame(), output);
+  // optional uint64 flag = 9;
+  if (has_flag()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(9, this->flag(), output);
+  }
+
+  // optional string desc = 10;
+  if (has_desc()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->desc().data(), this->desc().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "desc");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      10, this->desc(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -753,55 +769,61 @@ void Character::SerializeWithCachedSizes(
 ::google::protobuf::uint8* Character::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:pb.Character)
-  // optional uint64 character_id = 1;
-  if (has_character_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->character_id(), target);
+  // optional uint64 idU8 = 1;
+  if (has_idu8()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->idu8(), target);
   }
 
-  // optional double x = 2;
+  // optional uint64 idU16 = 2;
+  if (has_idu16()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->idu16(), target);
+  }
+
+  // optional uint64 idU32 = 3;
+  if (has_idu32()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->idu32(), target);
+  }
+
+  // optional double x = 4;
   if (has_x()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(2, this->x(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(4, this->x(), target);
   }
 
-  // optional double y = 3;
+  // optional double y = 5;
   if (has_y()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(3, this->y(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(5, this->y(), target);
   }
 
-  // optional double z = 4;
+  // optional double z = 6;
   if (has_z()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(4, this->z(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(6, this->z(), target);
   }
 
-  // optional double vx = 5;
-  if (has_vx()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(5, this->vx(), target);
-  }
-
-  // optional double vy = 6;
-  if (has_vy()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(6, this->vy(), target);
-  }
-
-  // optional double vz = 7;
-  if (has_vz()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(7, this->vz(), target);
-  }
-
-  // optional double angle = 8;
+  // optional double angle = 7;
   if (has_angle()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(8, this->angle(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(7, this->angle(), target);
   }
 
-  // optional .pb.Character.Animation anim = 9;
+  // optional .pb.Character.Animation anim = 8;
   if (has_anim()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      9, this->anim(), target);
+      8, this->anim(), target);
   }
 
-  // optional uint64 animation_frame = 10;
-  if (has_animation_frame()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(10, this->animation_frame(), target);
+  // optional uint64 flag = 9;
+  if (has_flag()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(9, this->flag(), target);
+  }
+
+  // optional string desc = 10;
+  if (has_desc()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->desc().data(), this->desc().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "desc");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        10, this->desc(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -816,61 +838,67 @@ int Character::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional uint64 character_id = 1;
-    if (has_character_id()) {
+    // optional uint64 idU8 = 1;
+    if (has_idu8()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->character_id());
+          this->idu8());
     }
 
-    // optional double x = 2;
+    // optional uint64 idU16 = 2;
+    if (has_idu16()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->idu16());
+    }
+
+    // optional uint64 idU32 = 3;
+    if (has_idu32()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->idu32());
+    }
+
+    // optional double x = 4;
     if (has_x()) {
       total_size += 1 + 8;
     }
 
-    // optional double y = 3;
+    // optional double y = 5;
     if (has_y()) {
       total_size += 1 + 8;
     }
 
-    // optional double z = 4;
+    // optional double z = 6;
     if (has_z()) {
       total_size += 1 + 8;
     }
 
-    // optional double vx = 5;
-    if (has_vx()) {
-      total_size += 1 + 8;
-    }
-
-    // optional double vy = 6;
-    if (has_vy()) {
-      total_size += 1 + 8;
-    }
-
-    // optional double vz = 7;
-    if (has_vz()) {
-      total_size += 1 + 8;
-    }
-
-    // optional double angle = 8;
+    // optional double angle = 7;
     if (has_angle()) {
       total_size += 1 + 8;
     }
 
-  }
-  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
-    // optional .pb.Character.Animation anim = 9;
+    // optional .pb.Character.Animation anim = 8;
     if (has_anim()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->anim());
     }
 
-    // optional uint64 animation_frame = 10;
-    if (has_animation_frame()) {
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    // optional uint64 flag = 9;
+    if (has_flag()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->animation_frame());
+          this->flag());
+    }
+
+    // optional string desc = 10;
+    if (has_desc()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->desc());
     }
 
   }
@@ -900,8 +928,14 @@ void Character::MergeFrom(const ::google::protobuf::Message& from) {
 void Character::MergeFrom(const Character& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_character_id()) {
-      set_character_id(from.character_id());
+    if (from.has_idu8()) {
+      set_idu8(from.idu8());
+    }
+    if (from.has_idu16()) {
+      set_idu16(from.idu16());
+    }
+    if (from.has_idu32()) {
+      set_idu32(from.idu32());
     }
     if (from.has_x()) {
       set_x(from.x());
@@ -912,25 +946,19 @@ void Character::MergeFrom(const Character& from) {
     if (from.has_z()) {
       set_z(from.z());
     }
-    if (from.has_vx()) {
-      set_vx(from.vx());
-    }
-    if (from.has_vy()) {
-      set_vy(from.vy());
-    }
-    if (from.has_vz()) {
-      set_vz(from.vz());
-    }
     if (from.has_angle()) {
       set_angle(from.angle());
     }
-  }
-  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     if (from.has_anim()) {
       set_anim(from.anim());
     }
-    if (from.has_animation_frame()) {
-      set_animation_frame(from.animation_frame());
+  }
+  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    if (from.has_flag()) {
+      set_flag(from.flag());
+    }
+    if (from.has_desc()) {
+      set_desc(from.desc());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -955,16 +983,16 @@ bool Character::IsInitialized() const {
 
 void Character::Swap(Character* other) {
   if (other != this) {
-    std::swap(character_id_, other->character_id_);
+    std::swap(idu8_, other->idu8_);
+    std::swap(idu16_, other->idu16_);
+    std::swap(idu32_, other->idu32_);
     std::swap(x_, other->x_);
     std::swap(y_, other->y_);
     std::swap(z_, other->z_);
-    std::swap(vx_, other->vx_);
-    std::swap(vy_, other->vy_);
-    std::swap(vz_, other->vz_);
     std::swap(angle_, other->angle_);
     std::swap(anim_, other->anim_);
-    std::swap(animation_frame_, other->animation_frame_);
+    std::swap(flag_, other->flag_);
+    std::swap(desc_, other->desc_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

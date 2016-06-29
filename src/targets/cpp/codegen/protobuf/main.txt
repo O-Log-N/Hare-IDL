@@ -33,6 +33,8 @@
 @@CLOSE-OUTPUT-FILE
 @@OPEN-OUTPUT-FILE FILENAME="output.cpp"
 #include "output.h"
+
+#include <bitset>
 #include "sample.h"
 
 // IMPLEMENTATIONS

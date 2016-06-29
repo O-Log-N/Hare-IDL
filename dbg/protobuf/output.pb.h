@@ -221,112 +221,117 @@ class Character : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional uint64 character_id = 1;
-  inline bool has_character_id() const;
-  inline void clear_character_id();
-  static const int kCharacterIdFieldNumber = 1;
-  inline ::google::protobuf::uint64 character_id() const;
-  inline void set_character_id(::google::protobuf::uint64 value);
+  // optional uint64 idU8 = 1;
+  inline bool has_idu8() const;
+  inline void clear_idu8();
+  static const int kIdU8FieldNumber = 1;
+  inline ::google::protobuf::uint64 idu8() const;
+  inline void set_idu8(::google::protobuf::uint64 value);
 
-  // optional double x = 2;
+  // optional uint64 idU16 = 2;
+  inline bool has_idu16() const;
+  inline void clear_idu16();
+  static const int kIdU16FieldNumber = 2;
+  inline ::google::protobuf::uint64 idu16() const;
+  inline void set_idu16(::google::protobuf::uint64 value);
+
+  // optional uint64 idU32 = 3;
+  inline bool has_idu32() const;
+  inline void clear_idu32();
+  static const int kIdU32FieldNumber = 3;
+  inline ::google::protobuf::uint64 idu32() const;
+  inline void set_idu32(::google::protobuf::uint64 value);
+
+  // optional double x = 4;
   inline bool has_x() const;
   inline void clear_x();
-  static const int kXFieldNumber = 2;
+  static const int kXFieldNumber = 4;
   inline double x() const;
   inline void set_x(double value);
 
-  // optional double y = 3;
+  // optional double y = 5;
   inline bool has_y() const;
   inline void clear_y();
-  static const int kYFieldNumber = 3;
+  static const int kYFieldNumber = 5;
   inline double y() const;
   inline void set_y(double value);
 
-  // optional double z = 4;
+  // optional double z = 6;
   inline bool has_z() const;
   inline void clear_z();
-  static const int kZFieldNumber = 4;
+  static const int kZFieldNumber = 6;
   inline double z() const;
   inline void set_z(double value);
 
-  // optional double vx = 5;
-  inline bool has_vx() const;
-  inline void clear_vx();
-  static const int kVxFieldNumber = 5;
-  inline double vx() const;
-  inline void set_vx(double value);
-
-  // optional double vy = 6;
-  inline bool has_vy() const;
-  inline void clear_vy();
-  static const int kVyFieldNumber = 6;
-  inline double vy() const;
-  inline void set_vy(double value);
-
-  // optional double vz = 7;
-  inline bool has_vz() const;
-  inline void clear_vz();
-  static const int kVzFieldNumber = 7;
-  inline double vz() const;
-  inline void set_vz(double value);
-
-  // optional double angle = 8;
+  // optional double angle = 7;
   inline bool has_angle() const;
   inline void clear_angle();
-  static const int kAngleFieldNumber = 8;
+  static const int kAngleFieldNumber = 7;
   inline double angle() const;
   inline void set_angle(double value);
 
-  // optional .pb.Character.Animation anim = 9;
+  // optional .pb.Character.Animation anim = 8;
   inline bool has_anim() const;
   inline void clear_anim();
-  static const int kAnimFieldNumber = 9;
+  static const int kAnimFieldNumber = 8;
   inline ::pb::Character_Animation anim() const;
   inline void set_anim(::pb::Character_Animation value);
 
-  // optional uint64 animation_frame = 10;
-  inline bool has_animation_frame() const;
-  inline void clear_animation_frame();
-  static const int kAnimationFrameFieldNumber = 10;
-  inline ::google::protobuf::uint64 animation_frame() const;
-  inline void set_animation_frame(::google::protobuf::uint64 value);
+  // optional uint64 flag = 9;
+  inline bool has_flag() const;
+  inline void clear_flag();
+  static const int kFlagFieldNumber = 9;
+  inline ::google::protobuf::uint64 flag() const;
+  inline void set_flag(::google::protobuf::uint64 value);
+
+  // optional string desc = 10;
+  inline bool has_desc() const;
+  inline void clear_desc();
+  static const int kDescFieldNumber = 10;
+  inline const ::std::string& desc() const;
+  inline void set_desc(const ::std::string& value);
+  inline void set_desc(const char* value);
+  inline void set_desc(const char* value, size_t size);
+  inline ::std::string* mutable_desc();
+  inline ::std::string* release_desc();
+  inline void set_allocated_desc(::std::string* desc);
 
   // @@protoc_insertion_point(class_scope:pb.Character)
  private:
-  inline void set_has_character_id();
-  inline void clear_has_character_id();
+  inline void set_has_idu8();
+  inline void clear_has_idu8();
+  inline void set_has_idu16();
+  inline void clear_has_idu16();
+  inline void set_has_idu32();
+  inline void clear_has_idu32();
   inline void set_has_x();
   inline void clear_has_x();
   inline void set_has_y();
   inline void clear_has_y();
   inline void set_has_z();
   inline void clear_has_z();
-  inline void set_has_vx();
-  inline void clear_has_vx();
-  inline void set_has_vy();
-  inline void clear_has_vy();
-  inline void set_has_vz();
-  inline void clear_has_vz();
   inline void set_has_angle();
   inline void clear_has_angle();
   inline void set_has_anim();
   inline void clear_has_anim();
-  inline void set_has_animation_frame();
-  inline void clear_has_animation_frame();
+  inline void set_has_flag();
+  inline void clear_has_flag();
+  inline void set_has_desc();
+  inline void clear_has_desc();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::google::protobuf::uint64 character_id_;
+  ::google::protobuf::uint64 idu8_;
+  ::google::protobuf::uint64 idu16_;
+  ::google::protobuf::uint64 idu32_;
   double x_;
   double y_;
   double z_;
-  double vx_;
-  double vy_;
-  double vz_;
   double angle_;
-  ::google::protobuf::uint64 animation_frame_;
+  ::google::protobuf::uint64 flag_;
+  ::std::string* desc_;
   int anim_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
@@ -422,39 +427,87 @@ inline void Item::set_allocated_name(::std::string* name) {
 
 // Character
 
-// optional uint64 character_id = 1;
-inline bool Character::has_character_id() const {
+// optional uint64 idU8 = 1;
+inline bool Character::has_idu8() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void Character::set_has_character_id() {
+inline void Character::set_has_idu8() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void Character::clear_has_character_id() {
+inline void Character::clear_has_idu8() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void Character::clear_character_id() {
-  character_id_ = GOOGLE_ULONGLONG(0);
-  clear_has_character_id();
+inline void Character::clear_idu8() {
+  idu8_ = GOOGLE_ULONGLONG(0);
+  clear_has_idu8();
 }
-inline ::google::protobuf::uint64 Character::character_id() const {
-  // @@protoc_insertion_point(field_get:pb.Character.character_id)
-  return character_id_;
+inline ::google::protobuf::uint64 Character::idu8() const {
+  // @@protoc_insertion_point(field_get:pb.Character.idU8)
+  return idu8_;
 }
-inline void Character::set_character_id(::google::protobuf::uint64 value) {
-  set_has_character_id();
-  character_id_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.character_id)
+inline void Character::set_idu8(::google::protobuf::uint64 value) {
+  set_has_idu8();
+  idu8_ = value;
+  // @@protoc_insertion_point(field_set:pb.Character.idU8)
 }
 
-// optional double x = 2;
-inline bool Character::has_x() const {
+// optional uint64 idU16 = 2;
+inline bool Character::has_idu16() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void Character::set_has_x() {
+inline void Character::set_has_idu16() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void Character::clear_has_x() {
+inline void Character::clear_has_idu16() {
   _has_bits_[0] &= ~0x00000002u;
+}
+inline void Character::clear_idu16() {
+  idu16_ = GOOGLE_ULONGLONG(0);
+  clear_has_idu16();
+}
+inline ::google::protobuf::uint64 Character::idu16() const {
+  // @@protoc_insertion_point(field_get:pb.Character.idU16)
+  return idu16_;
+}
+inline void Character::set_idu16(::google::protobuf::uint64 value) {
+  set_has_idu16();
+  idu16_ = value;
+  // @@protoc_insertion_point(field_set:pb.Character.idU16)
+}
+
+// optional uint64 idU32 = 3;
+inline bool Character::has_idu32() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void Character::set_has_idu32() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void Character::clear_has_idu32() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void Character::clear_idu32() {
+  idu32_ = GOOGLE_ULONGLONG(0);
+  clear_has_idu32();
+}
+inline ::google::protobuf::uint64 Character::idu32() const {
+  // @@protoc_insertion_point(field_get:pb.Character.idU32)
+  return idu32_;
+}
+inline void Character::set_idu32(::google::protobuf::uint64 value) {
+  set_has_idu32();
+  idu32_ = value;
+  // @@protoc_insertion_point(field_set:pb.Character.idU32)
+}
+
+// optional double x = 4;
+inline bool Character::has_x() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void Character::set_has_x() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void Character::clear_has_x() {
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void Character::clear_x() {
   x_ = 0;
@@ -470,15 +523,15 @@ inline void Character::set_x(double value) {
   // @@protoc_insertion_point(field_set:pb.Character.x)
 }
 
-// optional double y = 3;
+// optional double y = 5;
 inline bool Character::has_y() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 inline void Character::set_has_y() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000010u;
 }
 inline void Character::clear_has_y() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 inline void Character::clear_y() {
   y_ = 0;
@@ -494,15 +547,15 @@ inline void Character::set_y(double value) {
   // @@protoc_insertion_point(field_set:pb.Character.y)
 }
 
-// optional double z = 4;
+// optional double z = 6;
 inline bool Character::has_z() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000020u) != 0;
 }
 inline void Character::set_has_z() {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000020u;
 }
 inline void Character::clear_has_z() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000020u;
 }
 inline void Character::clear_z() {
   z_ = 0;
@@ -518,87 +571,15 @@ inline void Character::set_z(double value) {
   // @@protoc_insertion_point(field_set:pb.Character.z)
 }
 
-// optional double vx = 5;
-inline bool Character::has_vx() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
-}
-inline void Character::set_has_vx() {
-  _has_bits_[0] |= 0x00000010u;
-}
-inline void Character::clear_has_vx() {
-  _has_bits_[0] &= ~0x00000010u;
-}
-inline void Character::clear_vx() {
-  vx_ = 0;
-  clear_has_vx();
-}
-inline double Character::vx() const {
-  // @@protoc_insertion_point(field_get:pb.Character.vx)
-  return vx_;
-}
-inline void Character::set_vx(double value) {
-  set_has_vx();
-  vx_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.vx)
-}
-
-// optional double vy = 6;
-inline bool Character::has_vy() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
-}
-inline void Character::set_has_vy() {
-  _has_bits_[0] |= 0x00000020u;
-}
-inline void Character::clear_has_vy() {
-  _has_bits_[0] &= ~0x00000020u;
-}
-inline void Character::clear_vy() {
-  vy_ = 0;
-  clear_has_vy();
-}
-inline double Character::vy() const {
-  // @@protoc_insertion_point(field_get:pb.Character.vy)
-  return vy_;
-}
-inline void Character::set_vy(double value) {
-  set_has_vy();
-  vy_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.vy)
-}
-
-// optional double vz = 7;
-inline bool Character::has_vz() const {
+// optional double angle = 7;
+inline bool Character::has_angle() const {
   return (_has_bits_[0] & 0x00000040u) != 0;
 }
-inline void Character::set_has_vz() {
+inline void Character::set_has_angle() {
   _has_bits_[0] |= 0x00000040u;
 }
-inline void Character::clear_has_vz() {
-  _has_bits_[0] &= ~0x00000040u;
-}
-inline void Character::clear_vz() {
-  vz_ = 0;
-  clear_has_vz();
-}
-inline double Character::vz() const {
-  // @@protoc_insertion_point(field_get:pb.Character.vz)
-  return vz_;
-}
-inline void Character::set_vz(double value) {
-  set_has_vz();
-  vz_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.vz)
-}
-
-// optional double angle = 8;
-inline bool Character::has_angle() const {
-  return (_has_bits_[0] & 0x00000080u) != 0;
-}
-inline void Character::set_has_angle() {
-  _has_bits_[0] |= 0x00000080u;
-}
 inline void Character::clear_has_angle() {
-  _has_bits_[0] &= ~0x00000080u;
+  _has_bits_[0] &= ~0x00000040u;
 }
 inline void Character::clear_angle() {
   angle_ = 0;
@@ -614,15 +595,15 @@ inline void Character::set_angle(double value) {
   // @@protoc_insertion_point(field_set:pb.Character.angle)
 }
 
-// optional .pb.Character.Animation anim = 9;
+// optional .pb.Character.Animation anim = 8;
 inline bool Character::has_anim() const {
-  return (_has_bits_[0] & 0x00000100u) != 0;
+  return (_has_bits_[0] & 0x00000080u) != 0;
 }
 inline void Character::set_has_anim() {
-  _has_bits_[0] |= 0x00000100u;
+  _has_bits_[0] |= 0x00000080u;
 }
 inline void Character::clear_has_anim() {
-  _has_bits_[0] &= ~0x00000100u;
+  _has_bits_[0] &= ~0x00000080u;
 }
 inline void Character::clear_anim() {
   anim_ = 2;
@@ -639,28 +620,104 @@ inline void Character::set_anim(::pb::Character_Animation value) {
   // @@protoc_insertion_point(field_set:pb.Character.anim)
 }
 
-// optional uint64 animation_frame = 10;
-inline bool Character::has_animation_frame() const {
+// optional uint64 flag = 9;
+inline bool Character::has_flag() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void Character::set_has_flag() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void Character::clear_has_flag() {
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline void Character::clear_flag() {
+  flag_ = GOOGLE_ULONGLONG(0);
+  clear_has_flag();
+}
+inline ::google::protobuf::uint64 Character::flag() const {
+  // @@protoc_insertion_point(field_get:pb.Character.flag)
+  return flag_;
+}
+inline void Character::set_flag(::google::protobuf::uint64 value) {
+  set_has_flag();
+  flag_ = value;
+  // @@protoc_insertion_point(field_set:pb.Character.flag)
+}
+
+// optional string desc = 10;
+inline bool Character::has_desc() const {
   return (_has_bits_[0] & 0x00000200u) != 0;
 }
-inline void Character::set_has_animation_frame() {
+inline void Character::set_has_desc() {
   _has_bits_[0] |= 0x00000200u;
 }
-inline void Character::clear_has_animation_frame() {
+inline void Character::clear_has_desc() {
   _has_bits_[0] &= ~0x00000200u;
 }
-inline void Character::clear_animation_frame() {
-  animation_frame_ = GOOGLE_ULONGLONG(0);
-  clear_has_animation_frame();
+inline void Character::clear_desc() {
+  if (desc_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    desc_->clear();
+  }
+  clear_has_desc();
 }
-inline ::google::protobuf::uint64 Character::animation_frame() const {
-  // @@protoc_insertion_point(field_get:pb.Character.animation_frame)
-  return animation_frame_;
+inline const ::std::string& Character::desc() const {
+  // @@protoc_insertion_point(field_get:pb.Character.desc)
+  return *desc_;
 }
-inline void Character::set_animation_frame(::google::protobuf::uint64 value) {
-  set_has_animation_frame();
-  animation_frame_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.animation_frame)
+inline void Character::set_desc(const ::std::string& value) {
+  set_has_desc();
+  if (desc_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    desc_ = new ::std::string;
+  }
+  desc_->assign(value);
+  // @@protoc_insertion_point(field_set:pb.Character.desc)
+}
+inline void Character::set_desc(const char* value) {
+  set_has_desc();
+  if (desc_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    desc_ = new ::std::string;
+  }
+  desc_->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.Character.desc)
+}
+inline void Character::set_desc(const char* value, size_t size) {
+  set_has_desc();
+  if (desc_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    desc_ = new ::std::string;
+  }
+  desc_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.Character.desc)
+}
+inline ::std::string* Character::mutable_desc() {
+  set_has_desc();
+  if (desc_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    desc_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.Character.desc)
+  return desc_;
+}
+inline ::std::string* Character::release_desc() {
+  clear_has_desc();
+  if (desc_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = desc_;
+    desc_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Character::set_allocated_desc(::std::string* desc) {
+  if (desc_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete desc_;
+  }
+  if (desc) {
+    set_has_desc();
+    desc_ = desc;
+  } else {
+    clear_has_desc();
+    desc_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.Character.desc)
 }
 
 
