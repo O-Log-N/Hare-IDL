@@ -9,23 +9,23 @@ message Item {
 }
 
 message Character {
-     optional uint64 
+     optional uint32 
       max_u8 = 1; 
-     optional uint64 
+     optional uint32 
       max_u16 = 2; 
-     optional uint64 
+     optional uint32 
       max_u32 = 3; 
-     optional sint64
+     optional sint32
       min_s8 = 4; 
-     optional sint64
+     optional sint32
       min_s16 = 5; 
-     optional sint64
+     optional sint32
       min_s32 = 6; 
-     optional sint64
+     optional sint32
       max_s8 = 7; 
-     optional sint64
+     optional sint32
       max_s16 = 8; 
-     optional sint64
+     optional sint32
       max_s32 = 9; 
    optional double
       x = 10; 
@@ -42,7 +42,7 @@ message Character {
   }
    optional Animation
       anim = 14; 
-     optional uint64 
+     optional bool 
       flag = 15; 
    optional string 
       desc = 16; 

@@ -95,7 +95,7 @@ public:
     void writeUnsignedVarInt(uint64_t tag, T value)
     {
         writeTagAndType(tag, WIRE_TYPE::VARINT);
-        writeVarInt(os, value);
+        writeVarInt(os, static_cast<uint64_t>(value));
     }
 
     template<class T>
@@ -179,6 +179,14 @@ public:
             return false;
     }
 
+    template<>
+    bool readUnsignedVarInt<bool>(bool& x)
+    {
+        pair<bool, uint64_t> temp = readVarInt(is);
+        x = temp.second != 0;
+        return temp.first;
+    }
+
     template<class T>
     bool readSignedVarInt(T& x)
     {
@@ -191,13 +199,6 @@ public:
             }
         }
         return false;
-    }
-
-    bool readBool(bool& x)
-    {
-        pair<bool, uint64_t> temp = readVarInt(is);
-        x = temp.second != 0;
-        return temp.first;
     }
 
     template<class T>

@@ -31,7 +31,7 @@ bool areEqual(const Character& left, const pb::Character& right)
         left.z == right.z() &&
         left.angle == right.angle() &&
         left.anim == right.anim() &&
-        left.flag == (right.flag() != 0) &&
+        left.flag == right.flag() &&
         left.desc == right.desc();
 }
 
@@ -136,20 +136,6 @@ void dumpStream(istream& is)
 int main(int argc, char* argv[])
 {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  int64_t val = INT8_MAX;
-
-  uint64_t val2 = toUnsigned64(val);
-  
-  int64_t val3 = toSigned64(val2);
-
-  int64_t val5 = INT8_MIN;
-
-  uint64_t val6 = toUnsigned64(val5);
-
-  int64_t val7 = toSigned64(val6);
-
-
 
   unique_ptr<Character> toSend = createSample();
 

@@ -118,13 +118,13 @@ void protobuf_AddDesc_output_2eproto() {
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014output.proto\022\002pb\"\024\n\004Item\022\014\n\004name\030\001 \001(\t"
-    "\"\311\002\n\tCharacter\022\016\n\006max_u8\030\001 \001(\004\022\017\n\007max_u1"
-    "6\030\002 \001(\004\022\017\n\007max_u32\030\003 \001(\004\022\016\n\006min_s8\030\004 \001(\022"
-    "\022\017\n\007min_s16\030\005 \001(\022\022\017\n\007min_s32\030\006 \001(\022\022\016\n\006ma"
-    "x_s8\030\007 \001(\022\022\017\n\007max_s16\030\010 \001(\022\022\017\n\007max_s32\030\t"
-    " \001(\022\022\t\n\001x\030\n \001(\001\022\t\n\001y\030\013 \001(\001\022\t\n\001z\030\014 \001(\001\022\r\n"
+    "\"\311\002\n\tCharacter\022\016\n\006max_u8\030\001 \001(\r\022\017\n\007max_u1"
+    "6\030\002 \001(\r\022\017\n\007max_u32\030\003 \001(\r\022\016\n\006min_s8\030\004 \001(\021"
+    "\022\017\n\007min_s16\030\005 \001(\021\022\017\n\007min_s32\030\006 \001(\021\022\016\n\006ma"
+    "x_s8\030\007 \001(\021\022\017\n\007max_s16\030\010 \001(\021\022\017\n\007max_s32\030\t"
+    " \001(\021\022\t\n\001x\030\n \001(\001\022\t\n\001y\030\013 \001(\001\022\t\n\001z\030\014 \001(\001\022\r\n"
     "\005angle\030\r \001(\002\022%\n\004anim\030\016 \001(\0162\027.pb.Characte"
-    "r.Animation\022\014\n\004flag\030\017 \001(\004\022\014\n\004desc\030\020 \001(\t\""
+    "r.Animation\022\014\n\004flag\030\017 \001(\010\022\014\n\004desc\030\020 \001(\t\""
     "3\n\tAnimation\022\013\n\007Running\020\002\022\014\n\010Standing\020\000\022"
     "\013\n\007Walking\020\001", 372);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
@@ -449,21 +449,21 @@ Character::Character(const Character& from)
 void Character::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  max_u8_ = GOOGLE_ULONGLONG(0);
-  max_u16_ = GOOGLE_ULONGLONG(0);
-  max_u32_ = GOOGLE_ULONGLONG(0);
-  min_s8_ = GOOGLE_LONGLONG(0);
-  min_s16_ = GOOGLE_LONGLONG(0);
-  min_s32_ = GOOGLE_LONGLONG(0);
-  max_s8_ = GOOGLE_LONGLONG(0);
-  max_s16_ = GOOGLE_LONGLONG(0);
-  max_s32_ = GOOGLE_LONGLONG(0);
+  max_u8_ = 0u;
+  max_u16_ = 0u;
+  max_u32_ = 0u;
+  min_s8_ = 0;
+  min_s16_ = 0;
+  min_s32_ = 0;
+  max_s8_ = 0;
+  max_s16_ = 0;
+  max_s32_ = 0;
   x_ = 0;
   y_ = 0;
   z_ = 0;
   angle_ = 0;
   anim_ = 2;
-  flag_ = GOOGLE_ULONGLONG(0);
+  flag_ = false;
   desc_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -517,9 +517,9 @@ void Character::Clear() {
     ZR_(max_u8_, max_s16_);
   }
   if (_has_bits_[8 / 32] & 65280) {
-    ZR_(max_s32_, angle_);
+    ZR_(x_, z_);
     anim_ = 2;
-    flag_ = GOOGLE_ULONGLONG(0);
+    flag_ = false;
     if (has_desc()) {
       if (desc_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         desc_->clear();
@@ -544,11 +544,11 @@ bool Character::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional uint64 max_u8 = 1;
+      // optional uint32 max_u8 = 1;
       case 1: {
         if (tag == 8) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &max_u8_)));
           set_has_max_u8();
         } else {
@@ -558,12 +558,12 @@ bool Character::MergePartialFromCodedStream(
         break;
       }
 
-      // optional uint64 max_u16 = 2;
+      // optional uint32 max_u16 = 2;
       case 2: {
         if (tag == 16) {
          parse_max_u16:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &max_u16_)));
           set_has_max_u16();
         } else {
@@ -573,12 +573,12 @@ bool Character::MergePartialFromCodedStream(
         break;
       }
 
-      // optional uint64 max_u32 = 3;
+      // optional uint32 max_u32 = 3;
       case 3: {
         if (tag == 24) {
          parse_max_u32:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
                  input, &max_u32_)));
           set_has_max_u32();
         } else {
@@ -588,12 +588,12 @@ bool Character::MergePartialFromCodedStream(
         break;
       }
 
-      // optional sint64 min_s8 = 4;
+      // optional sint32 min_s8 = 4;
       case 4: {
         if (tag == 32) {
          parse_min_s8:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_SINT64>(
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
                  input, &min_s8_)));
           set_has_min_s8();
         } else {
@@ -603,12 +603,12 @@ bool Character::MergePartialFromCodedStream(
         break;
       }
 
-      // optional sint64 min_s16 = 5;
+      // optional sint32 min_s16 = 5;
       case 5: {
         if (tag == 40) {
          parse_min_s16:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_SINT64>(
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
                  input, &min_s16_)));
           set_has_min_s16();
         } else {
@@ -618,12 +618,12 @@ bool Character::MergePartialFromCodedStream(
         break;
       }
 
-      // optional sint64 min_s32 = 6;
+      // optional sint32 min_s32 = 6;
       case 6: {
         if (tag == 48) {
          parse_min_s32:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_SINT64>(
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
                  input, &min_s32_)));
           set_has_min_s32();
         } else {
@@ -633,12 +633,12 @@ bool Character::MergePartialFromCodedStream(
         break;
       }
 
-      // optional sint64 max_s8 = 7;
+      // optional sint32 max_s8 = 7;
       case 7: {
         if (tag == 56) {
          parse_max_s8:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_SINT64>(
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
                  input, &max_s8_)));
           set_has_max_s8();
         } else {
@@ -648,12 +648,12 @@ bool Character::MergePartialFromCodedStream(
         break;
       }
 
-      // optional sint64 max_s16 = 8;
+      // optional sint32 max_s16 = 8;
       case 8: {
         if (tag == 64) {
          parse_max_s16:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_SINT64>(
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
                  input, &max_s16_)));
           set_has_max_s16();
         } else {
@@ -663,12 +663,12 @@ bool Character::MergePartialFromCodedStream(
         break;
       }
 
-      // optional sint64 max_s32 = 9;
+      // optional sint32 max_s32 = 9;
       case 9: {
         if (tag == 72) {
          parse_max_s32:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_SINT64>(
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
                  input, &max_s32_)));
           set_has_max_s32();
         } else {
@@ -758,12 +758,12 @@ bool Character::MergePartialFromCodedStream(
         break;
       }
 
-      // optional uint64 flag = 15;
+      // optional bool flag = 15;
       case 15: {
         if (tag == 120) {
          parse_flag:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
                  input, &flag_)));
           set_has_flag();
         } else {
@@ -815,49 +815,49 @@ failure:
 void Character::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:pb.Character)
-  // optional uint64 max_u8 = 1;
+  // optional uint32 max_u8 = 1;
   if (has_max_u8()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->max_u8(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->max_u8(), output);
   }
 
-  // optional uint64 max_u16 = 2;
+  // optional uint32 max_u16 = 2;
   if (has_max_u16()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->max_u16(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->max_u16(), output);
   }
 
-  // optional uint64 max_u32 = 3;
+  // optional uint32 max_u32 = 3;
   if (has_max_u32()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->max_u32(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->max_u32(), output);
   }
 
-  // optional sint64 min_s8 = 4;
+  // optional sint32 min_s8 = 4;
   if (has_min_s8()) {
-    ::google::protobuf::internal::WireFormatLite::WriteSInt64(4, this->min_s8(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteSInt32(4, this->min_s8(), output);
   }
 
-  // optional sint64 min_s16 = 5;
+  // optional sint32 min_s16 = 5;
   if (has_min_s16()) {
-    ::google::protobuf::internal::WireFormatLite::WriteSInt64(5, this->min_s16(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteSInt32(5, this->min_s16(), output);
   }
 
-  // optional sint64 min_s32 = 6;
+  // optional sint32 min_s32 = 6;
   if (has_min_s32()) {
-    ::google::protobuf::internal::WireFormatLite::WriteSInt64(6, this->min_s32(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteSInt32(6, this->min_s32(), output);
   }
 
-  // optional sint64 max_s8 = 7;
+  // optional sint32 max_s8 = 7;
   if (has_max_s8()) {
-    ::google::protobuf::internal::WireFormatLite::WriteSInt64(7, this->max_s8(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteSInt32(7, this->max_s8(), output);
   }
 
-  // optional sint64 max_s16 = 8;
+  // optional sint32 max_s16 = 8;
   if (has_max_s16()) {
-    ::google::protobuf::internal::WireFormatLite::WriteSInt64(8, this->max_s16(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteSInt32(8, this->max_s16(), output);
   }
 
-  // optional sint64 max_s32 = 9;
+  // optional sint32 max_s32 = 9;
   if (has_max_s32()) {
-    ::google::protobuf::internal::WireFormatLite::WriteSInt64(9, this->max_s32(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteSInt32(9, this->max_s32(), output);
   }
 
   // optional double x = 10;
@@ -886,9 +886,9 @@ void Character::SerializeWithCachedSizes(
       14, this->anim(), output);
   }
 
-  // optional uint64 flag = 15;
+  // optional bool flag = 15;
   if (has_flag()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(15, this->flag(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteBool(15, this->flag(), output);
   }
 
   // optional string desc = 16;
@@ -911,49 +911,49 @@ void Character::SerializeWithCachedSizes(
 ::google::protobuf::uint8* Character::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:pb.Character)
-  // optional uint64 max_u8 = 1;
+  // optional uint32 max_u8 = 1;
   if (has_max_u8()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(1, this->max_u8(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->max_u8(), target);
   }
 
-  // optional uint64 max_u16 = 2;
+  // optional uint32 max_u16 = 2;
   if (has_max_u16()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->max_u16(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->max_u16(), target);
   }
 
-  // optional uint64 max_u32 = 3;
+  // optional uint32 max_u32 = 3;
   if (has_max_u32()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->max_u32(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->max_u32(), target);
   }
 
-  // optional sint64 min_s8 = 4;
+  // optional sint32 min_s8 = 4;
   if (has_min_s8()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteSInt64ToArray(4, this->min_s8(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteSInt32ToArray(4, this->min_s8(), target);
   }
 
-  // optional sint64 min_s16 = 5;
+  // optional sint32 min_s16 = 5;
   if (has_min_s16()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteSInt64ToArray(5, this->min_s16(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteSInt32ToArray(5, this->min_s16(), target);
   }
 
-  // optional sint64 min_s32 = 6;
+  // optional sint32 min_s32 = 6;
   if (has_min_s32()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteSInt64ToArray(6, this->min_s32(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteSInt32ToArray(6, this->min_s32(), target);
   }
 
-  // optional sint64 max_s8 = 7;
+  // optional sint32 max_s8 = 7;
   if (has_max_s8()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteSInt64ToArray(7, this->max_s8(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteSInt32ToArray(7, this->max_s8(), target);
   }
 
-  // optional sint64 max_s16 = 8;
+  // optional sint32 max_s16 = 8;
   if (has_max_s16()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteSInt64ToArray(8, this->max_s16(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteSInt32ToArray(8, this->max_s16(), target);
   }
 
-  // optional sint64 max_s32 = 9;
+  // optional sint32 max_s32 = 9;
   if (has_max_s32()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteSInt64ToArray(9, this->max_s32(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteSInt32ToArray(9, this->max_s32(), target);
   }
 
   // optional double x = 10;
@@ -982,9 +982,9 @@ void Character::SerializeWithCachedSizes(
       14, this->anim(), target);
   }
 
-  // optional uint64 flag = 15;
+  // optional bool flag = 15;
   if (has_flag()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(15, this->flag(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(15, this->flag(), target);
   }
 
   // optional string desc = 16;
@@ -1010,68 +1010,68 @@ int Character::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional uint64 max_u8 = 1;
+    // optional uint32 max_u8 = 1;
     if (has_max_u8()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
           this->max_u8());
     }
 
-    // optional uint64 max_u16 = 2;
+    // optional uint32 max_u16 = 2;
     if (has_max_u16()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
           this->max_u16());
     }
 
-    // optional uint64 max_u32 = 3;
+    // optional uint32 max_u32 = 3;
     if (has_max_u32()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
           this->max_u32());
     }
 
-    // optional sint64 min_s8 = 4;
+    // optional sint32 min_s8 = 4;
     if (has_min_s8()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::SInt64Size(
+        ::google::protobuf::internal::WireFormatLite::SInt32Size(
           this->min_s8());
     }
 
-    // optional sint64 min_s16 = 5;
+    // optional sint32 min_s16 = 5;
     if (has_min_s16()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::SInt64Size(
+        ::google::protobuf::internal::WireFormatLite::SInt32Size(
           this->min_s16());
     }
 
-    // optional sint64 min_s32 = 6;
+    // optional sint32 min_s32 = 6;
     if (has_min_s32()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::SInt64Size(
+        ::google::protobuf::internal::WireFormatLite::SInt32Size(
           this->min_s32());
     }
 
-    // optional sint64 max_s8 = 7;
+    // optional sint32 max_s8 = 7;
     if (has_max_s8()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::SInt64Size(
+        ::google::protobuf::internal::WireFormatLite::SInt32Size(
           this->max_s8());
     }
 
-    // optional sint64 max_s16 = 8;
+    // optional sint32 max_s16 = 8;
     if (has_max_s16()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::SInt64Size(
+        ::google::protobuf::internal::WireFormatLite::SInt32Size(
           this->max_s16());
     }
 
   }
   if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
-    // optional sint64 max_s32 = 9;
+    // optional sint32 max_s32 = 9;
     if (has_max_s32()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::SInt64Size(
+        ::google::protobuf::internal::WireFormatLite::SInt32Size(
           this->max_s32());
     }
 
@@ -1101,11 +1101,9 @@ int Character::ByteSize() const {
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->anim());
     }
 
-    // optional uint64 flag = 15;
+    // optional bool flag = 15;
     if (has_flag()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->flag());
+      total_size += 1 + 1;
     }
 
     // optional string desc = 16;
