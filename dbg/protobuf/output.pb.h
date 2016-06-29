@@ -305,12 +305,12 @@ class Character : public ::google::protobuf::Message {
   inline double z() const;
   inline void set_z(double value);
 
-  // optional double angle = 13;
+  // optional float angle = 13;
   inline bool has_angle() const;
   inline void clear_angle();
   static const int kAngleFieldNumber = 13;
-  inline double angle() const;
-  inline void set_angle(double value);
+  inline float angle() const;
+  inline void set_angle(float value);
 
   // optional .pb.Character.Animation anim = 14;
   inline bool has_anim() const;
@@ -389,10 +389,10 @@ class Character : public ::google::protobuf::Message {
   double x_;
   double y_;
   double z_;
-  double angle_;
+  float angle_;
+  int anim_;
   ::google::protobuf::uint64 flag_;
   ::std::string* desc_;
-  int anim_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
@@ -775,7 +775,7 @@ inline void Character::set_z(double value) {
   // @@protoc_insertion_point(field_set:pb.Character.z)
 }
 
-// optional double angle = 13;
+// optional float angle = 13;
 inline bool Character::has_angle() const {
   return (_has_bits_[0] & 0x00001000u) != 0;
 }
@@ -789,11 +789,11 @@ inline void Character::clear_angle() {
   angle_ = 0;
   clear_has_angle();
 }
-inline double Character::angle() const {
+inline float Character::angle() const {
   // @@protoc_insertion_point(field_get:pb.Character.angle)
   return angle_;
 }
-inline void Character::set_angle(double value) {
+inline void Character::set_angle(float value) {
   set_has_angle();
   angle_ = value;
   // @@protoc_insertion_point(field_set:pb.Character.angle)

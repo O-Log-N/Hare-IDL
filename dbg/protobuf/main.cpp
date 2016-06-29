@@ -29,7 +29,7 @@ bool areEqual(const Character& left, const pb::Character& right)
         left.x == right.x() &&
         left.y == right.y() &&
         left.z == right.z() &&
-//        left.angle == right.angle() &&
+        left.angle == right.angle() &&
         left.anim == right.anim() &&
         left.flag == (right.flag() != 0) &&
         left.desc == right.desc();

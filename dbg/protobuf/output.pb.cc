@@ -123,7 +123,7 @@ void protobuf_AddDesc_output_2eproto() {
     "\022\017\n\007min_s16\030\005 \001(\022\022\017\n\007min_s32\030\006 \001(\022\022\016\n\006ma"
     "x_s8\030\007 \001(\022\022\017\n\007max_s16\030\010 \001(\022\022\017\n\007max_s32\030\t"
     " \001(\022\022\t\n\001x\030\n \001(\001\022\t\n\001y\030\013 \001(\001\022\t\n\001z\030\014 \001(\001\022\r\n"
-    "\005angle\030\r \001(\001\022%\n\004anim\030\016 \001(\0162\027.pb.Characte"
+    "\005angle\030\r \001(\002\022%\n\004anim\030\016 \001(\0162\027.pb.Characte"
     "r.Animation\022\014\n\004flag\030\017 \001(\004\022\014\n\004desc\030\020 \001(\t\""
     "3\n\tAnimation\022\013\n\007Running\020\002\022\014\n\010Standing\020\000\022"
     "\013\n\007Walking\020\001", 372);
@@ -517,8 +517,9 @@ void Character::Clear() {
     ZR_(max_u8_, max_s16_);
   }
   if (_has_bits_[8 / 32] & 65280) {
-    ZR_(max_s32_, flag_);
+    ZR_(max_s32_, angle_);
     anim_ = 2;
+    flag_ = GOOGLE_ULONGLONG(0);
     if (has_desc()) {
       if (desc_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         desc_->clear();
@@ -718,16 +719,16 @@ bool Character::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(105)) goto parse_angle;
+        if (input->ExpectTag(109)) goto parse_angle;
         break;
       }
 
-      // optional double angle = 13;
+      // optional float angle = 13;
       case 13: {
-        if (tag == 105) {
+        if (tag == 109) {
          parse_angle:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
                  input, &angle_)));
           set_has_angle();
         } else {
@@ -874,9 +875,9 @@ void Character::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteDouble(12, this->z(), output);
   }
 
-  // optional double angle = 13;
+  // optional float angle = 13;
   if (has_angle()) {
-    ::google::protobuf::internal::WireFormatLite::WriteDouble(13, this->angle(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(13, this->angle(), output);
   }
 
   // optional .pb.Character.Animation anim = 14;
@@ -970,9 +971,9 @@ void Character::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(12, this->z(), target);
   }
 
-  // optional double angle = 13;
+  // optional float angle = 13;
   if (has_angle()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(13, this->angle(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(13, this->angle(), target);
   }
 
   // optional .pb.Character.Animation anim = 14;
@@ -1089,9 +1090,9 @@ int Character::ByteSize() const {
       total_size += 1 + 8;
     }
 
-    // optional double angle = 13;
+    // optional float angle = 13;
     if (has_angle()) {
-      total_size += 1 + 8;
+      total_size += 1 + 4;
     }
 
     // optional .pb.Character.Animation anim = 14;

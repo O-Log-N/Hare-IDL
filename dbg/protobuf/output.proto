@@ -33,7 +33,7 @@ message Character {
       y = 11; 
    optional double
       z = 12; 
-   optional double
+   optional float
       angle = 13; 
   enum Animation {
     Running = 2;
