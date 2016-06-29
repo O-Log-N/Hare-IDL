@@ -10,30 +10,42 @@ message Item {
 
 message Character {
      optional uint64 
-      idU8 = 1; 
+      max_u8 = 1; 
      optional uint64 
-      idU16 = 2; 
+      max_u16 = 2; 
      optional uint64 
-      idU32 = 3; 
+      max_u32 = 3; 
+     optional sint64
+      min_s8 = 4; 
+     optional sint64
+      min_s16 = 5; 
+     optional sint64
+      min_s32 = 6; 
+     optional sint64
+      max_s8 = 7; 
+     optional sint64
+      max_s16 = 8; 
+     optional sint64
+      max_s32 = 9; 
    optional double
-      x = 4; 
+      x = 10; 
    optional double
-      y = 5; 
+      y = 11; 
    optional double
-      z = 6; 
+      z = 12; 
    optional double
-      angle = 7; 
+      angle = 13; 
   enum Animation {
     Running = 2;
     Standing = 0;
     Walking = 1;
   }
    optional Animation
-      anim = 8; 
+      anim = 14; 
      optional uint64 
-      flag = 9; 
+      flag = 15; 
    optional string 
-      desc = 10; 
+      desc = 16; 
 }
 
 

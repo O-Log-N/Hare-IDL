@@ -58,22 +58,12 @@ enum WIRE_TYPE
 
 inline int64_t toSigned64(uint64_t value)
 {
-    union {
-        uint64_t u;
-        int64_t s;
-    } temp = { (value << 63) | (value >> 1) };
-
-    return temp.s;
+    return (value >> 1) ^ -(value & 1);
 }
 
 inline uint64_t toUnsigned64(int64_t value)
 {
-    union {
-        int64_t s;
-        uint64_t u;
-    } temp = { (value >> 63) & (value << 1) };
-
-    return temp.u;
+    return (value >> 63) ^ (value << 1);
 }
 
 pair<bool, uint64_t> readVarInt(istream& is);

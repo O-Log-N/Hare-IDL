@@ -7,24 +7,29 @@
 #include "sample.h"
 #include "output.pb.h"
 #include "output.h"
+#include "protobuf/baselib.h"
 
 using namespace std;
 
 bool areEqual(const Character& left, const pb::Character& right)
 {
     return
-        left.idU8 == right.idu8() &&
-        left.idU16 == right.idu16() &&
-        left.idU32 == right.idu32() &&
+        left.max_u8 == right.max_u8() &&
+        left.max_u16 == right.max_u16() &&
+        left.max_u32 == right.max_u32() &&
         //left.idU64 == right.idU64 &&
-        //left.idS8 == right.idS8 &&
-        //left.idS16 == right.idS16 &&
-        //left.idS32 == right.idS32 &&
-        //left.idS64 == right.idS64 &&
+        left.max_s8 == right.max_s8() &&
+        left.max_s16 == right.max_s16() &&
+        left.max_s32 == right.max_s32() &&
+
+        left.min_s8 == right.min_s8() &&
+        left.min_s16 == right.min_s16() &&
+        left.min_s32 == right.min_s32() &&
+
         left.x == right.x() &&
         left.y == right.y() &&
         left.z == right.z() &&
-        left.angle == right.angle() &&
+//        left.angle == right.angle() &&
         left.anim == right.anim() &&
         left.flag == (right.flag() != 0) &&
         left.desc == right.desc();
@@ -66,15 +71,20 @@ unique_ptr<Character> createSample() {
 
     unique_ptr<Character> character(new Character);
 
-    character->idU8 = numeric_limits<uint8_t>::max();
-    character->idU16 = numeric_limits<uint16_t>::max();
-    character->idU32 = numeric_limits<uint32_t>::max();
+    character->max_u8 = numeric_limits<uint8_t>::max();
+    character->max_u16 = numeric_limits<uint16_t>::max();
+    character->max_u32 = numeric_limits<uint32_t>::max();
     //character->idU64 = numeric_limits<uint64_t>::max();
 
-    //character->idS8 = numeric_limits<int8_t>::min();
-    //character->idS16 = numeric_limits<int16_t>::min();
-    //character->idS32 = numeric_limits<int32_t>::min();
+    character->min_s8 = numeric_limits<int8_t>::min();
+    character->min_s16 = numeric_limits<int16_t>::min();
+    character->min_s32 = numeric_limits<int32_t>::min();
+
+    character->max_s8 = numeric_limits<int8_t>::max();
+    character->max_s16 = numeric_limits<int16_t>::max();
+    character->max_s32 = numeric_limits<int32_t>::max();
     //character->idS64 = numeric_limits<int64_t>::min();
+
 
     character->x = 10.0;
     character->y = 10.0;
@@ -90,9 +100,18 @@ unique_ptr<Character> createSample() {
 bool areEqual(const Character& left, const Character& right)
 {
     return
-        left.idU8 == right.idU8 &&
-        left.idU16 == right.idU16 &&
-        left.idU32 == right.idU32 &&
+        left.max_u8 == right.max_u8 &&
+        left.max_u16 == right.max_u16 &&
+        left.max_u32 == right.max_u32 &&
+
+        left.min_s8 == right.min_s8 &&
+        left.min_s16 == right.min_s16 &&
+        left.min_s32 == right.min_s32 &&
+
+        left.max_s8 == right.max_s8 &&
+        left.max_s16 == right.max_s16 &&
+        left.max_s32 == right.max_s32 &&
+
         //left.idU64 == right.idU64 &&
         //left.idS8 == right.idS8 &&
         //left.idS16 == right.idS16 &&
@@ -117,6 +136,20 @@ void dumpStream(istream& is)
 int main(int argc, char* argv[])
 {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  int64_t val = INT8_MAX;
+
+  uint64_t val2 = toUnsigned64(val);
+  
+  int64_t val3 = toSigned64(val2);
+
+  int64_t val5 = INT8_MIN;
+
+  uint64_t val6 = toUnsigned64(val5);
+
+  int64_t val7 = toSigned64(val6);
+
+
 
   unique_ptr<Character> toSend = createSample();
 

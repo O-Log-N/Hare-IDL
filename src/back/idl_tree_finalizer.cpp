@@ -49,7 +49,15 @@ void memberMappingTypeToKind( DataType& type )
 		case DataType::KIND::NAMED_TYPE:
 		case DataType::KIND::MAPPING_SPECIFIC:
 		{
-			if ( type.mappingName == "uint32_t" )
+            if (type.mappingName == "uint64_t")
+            {
+                type.kind = DataType::KIND::INTEGER;
+                type.lowLimit.value = 0;
+                type.lowLimit.inclusive = true;
+                type.highLimit.value = UINT64_MAX;
+                type.highLimit.inclusive = true;
+            }
+            if ( type.mappingName == "uint32_t" )
 			{
 				type.kind = DataType::KIND::INTEGER;
 				type.lowLimit.value = 0;
@@ -73,7 +81,39 @@ void memberMappingTypeToKind( DataType& type )
 				type.highLimit.value = 255;
 				type.highLimit.inclusive = true;
 			}
-			else if ( type.mappingName == "double" )
+            else if (type.mappingName == "int64_t")
+            {
+                type.kind = DataType::KIND::INTEGER;
+                type.lowLimit.value = INT64_MIN;
+                type.lowLimit.inclusive = true;
+                type.highLimit.value = INT64_MAX;
+                type.highLimit.inclusive = true;
+            }
+            else if (type.mappingName == "int32_t")
+            {
+                type.kind = DataType::KIND::INTEGER;
+                type.lowLimit.value = INT32_MIN;
+                type.lowLimit.inclusive = true;
+                type.highLimit.value = INT32_MAX;
+                type.highLimit.inclusive = true;
+            }
+            else if (type.mappingName == "int16_t")
+            {
+                type.kind = DataType::KIND::INTEGER;
+                type.lowLimit.value = INT16_MIN;
+                type.lowLimit.inclusive = true;
+                type.highLimit.value = INT16_MAX;
+                type.highLimit.inclusive = true;
+            }
+            else if (type.mappingName == "int8_t")
+            {
+                type.kind = DataType::KIND::INTEGER;
+                type.lowLimit.value = INT8_MIN;
+                type.lowLimit.inclusive = true;
+                type.highLimit.value = INT16_MAX;
+                type.highLimit.inclusive = true;
+            }
+            else if ( type.mappingName == "double" )
 			{
 				type.kind = DataType::KIND::FLOATING_POINT;
 				type.floatingSignificandBits = 53;
@@ -151,7 +191,7 @@ string getTypeFromIdl( DataType& type, Structure::DECLTYPE declType )
 					return "uint16_t";
 				else if ( tmpHigh.value < 4294967296. )
 					return "uint32_t";
-				else if ( tmpHigh.value < 4294967296. * 4294967296. ) // TODO: unsafe! - fix
+				else if ( tmpHigh.value < 4294967296. * 4294967296. ) // TODO: not working! - fix
 					return "uint64_t";
 				else
 				{
@@ -166,7 +206,7 @@ string getTypeFromIdl( DataType& type, Structure::DECLTYPE declType )
 					return "int16_t";
 				else if ( tmpLow.value >= -2147483648. && tmpHigh.value < 2147483648. )
 					return "int32_t";
-				else if ( tmpLow.value >= 4294967296. * (-2147483648.) && tmpHigh.value < 4294967296. * 2147483648. ) // TODO: unsafe! - fix
+				else if ( tmpLow.value >= 4294967296. * (-2147483648.) && tmpHigh.value < 4294967296. * 2147483648. ) // TODO: not working! - fix 
 					return "int64_t";
 				else
 				{

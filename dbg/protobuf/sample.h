@@ -32,15 +32,20 @@ struct Item {
 };
 
 struct Character {
-  uint8_t idU8;
-  uint16_t idU16;
-  uint32_t idU32;
-//  uint64_t idU64;
+  uint8_t max_u8;
+  uint16_t max_u16;
+  uint32_t max_u32;
+//  uint64_t max_u64;
 
-//  int8_t idS8;
-//  int16_t idS16;
-//  int32_t idS32;
-//  int64_t idS64;
+  int8_t min_s8;
+  int16_t min_s16;
+  int32_t min_s32;
+//  int64_t min_s64;
+
+  int8_t max_s8;
+  int16_t max_s16;
+  int32_t max_s32;
+//  int64_t max_s64;
 
   double x;
   double y;
