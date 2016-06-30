@@ -41,8 +41,7 @@ bool deserializeItem( Item& s, IStream& i ) {
    int fieldNumber;
    bool readret;
    const int memcnt = 3;
-   uint8_t initFlags[memcnt];
-   memset( initFlags, 0, memcnt );
+   uint8_t initFlags[memcnt] = { 0 };
    do
    {
       readret = i.readFieldTypeAndID( type, fieldNumber );
@@ -90,8 +89,9 @@ bool deserializeCharacter( Character& s, IStream& i ) {
    int fieldNumber;
    bool readret;
    const int memcnt = 15;
-   uint8_t initFlags[memcnt];
-   memset( initFlags, 0, memcnt );
+   uint8_t initFlags[memcnt] = { 0 };
+  initFlags[13] = true;
+  initFlags[14] = true;
    do
    {
       readret = i.readFieldTypeAndID( type, fieldNumber );
