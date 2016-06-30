@@ -100,6 +100,32 @@ uint8_t* deserializeLengthDelimitedFromString(uint8_t* valueStr, size_t& valueSi
 uint8_t* deserializeLengthDelimitedFromString(std::string& value, uint8_t* buff);
 
 
+constexpr size_t getVarIntSize(uint64_t value)
+{
+    return (value < (uint64_t(1) << 7)) ? 1 : (
+        (value < (uint64_t(1) << 14)) ? 2 : (
+            (value < (uint64_t(1) << 21)) ? 3 : (
+                (value < (uint64_t(1) << 28)) ? 4 : (
+                    (value < (uint64_t(1) << 35)) ? 5 : (
+                        (value < (uint64_t(1) << 42)) ? 6 : (
+                            (value < (uint64_t(1) << 49)) ? 7 : (
+                                (value < (uint64_t(1) << 56)) ? 8 : (
+                                    (value < (uint64_t(1) << 63) ? 9 : 10)))))))));
+}
+size_t getVarIntSize(int64_t value);
+
+constexpr size_t getVarIntSize(uint32_t value) { return getVarIntSize(static_cast<uint64_t>(value)); }
+constexpr size_t getVarIntSize(uint16_t value) { return getVarIntSize(static_cast<uint64_t>(value)); }
+constexpr size_t getVarIntSize(uint8_t value) { return getVarIntSize(static_cast<uint64_t>(value)); }
+
+inline size_t getVarIntSize(int32_t value) { return getVarIntSize(static_cast<int64_t>(value)); }
+inline size_t getVarIntSize(int16_t value) { return getVarIntSize(static_cast<int64_t>(value)); }
+inline size_t getVarIntSize(int8_t value) { return getVarIntSize(static_cast<int64_t>(value)); } 
+
+constexpr size_t getVarIntSize(bool value) { return 1; }
+constexpr size_t getTagSize(uint64_t tag) { return getVarIntSize(tag << 3); }
+constexpr size_t getFixedSize(float) { return 4; }
+constexpr size_t getFixedSize(double) { return 8; }
 
 
 class OStream
@@ -112,6 +138,7 @@ public:
     {
         uint8_t buff[1000];
         uint8_t* ret = serializeSignedVariantToString(fieldNumber, x, buff);
+//        assert(ret - buff - 1 == getVarIntSize(x));
         fwrite(buff, ret - buff, 1, outstr);
     }
     void writeDouble(int fieldNumber, double x)
@@ -439,6 +466,7 @@ public:
 };
 
 #endif // 0
+
 
 #endif // BASELIB_H
 

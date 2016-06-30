@@ -283,6 +283,12 @@ uint8_t* deserializeLengthDelimitedFromString(std::string& value, uint8_t* buff)
     return buff + valueSize;
 }
 
+size_t getVarIntSize(int64_t value)
+{
+    uint64_t target = 0;
+    sint64ToUint64(value, target);
+    return getVarIntSize(target);
+}
 
 
 

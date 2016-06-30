@@ -320,3 +320,80 @@ void printCharacter( Character& s ) {
 
 
 
+// GET-SIZE
+size_t getSizeItem( const Item& s ) {
+   size_t sz = 0;
+      
+  sz += getTagSize(1);
+  sz += getVarIntSize(s.id);
+      
+  sz += getTagSize(2);
+  sz += getVarIntSize(s.name.size());
+  sz += s.name.size();
+      
+  sz += getTagSize(3);
+  sz += getVarIntSize(s.valid);
+   
+   return sz;
+}
+
+size_t getSizeCharacter( const Character& s ) {
+   size_t sz = 0;
+      
+  sz += getTagSize(1);
+  sz += getVarIntSize(s.max_u8);
+      
+  sz += getTagSize(2);
+  sz += getVarIntSize(s.max_u16);
+      
+  sz += getTagSize(3);
+  sz += getVarIntSize(s.min_s8);
+      
+  sz += getTagSize(4);
+  sz += getVarIntSize(s.min_s16);
+      
+  sz += getTagSize(5);
+  sz += getVarIntSize(s.min_s32);
+      
+  sz += getTagSize(6);
+  sz += getVarIntSize(s.max_s8);
+      
+  sz += getTagSize(7);
+  sz += getVarIntSize(s.max_s16);
+      
+  sz += getTagSize(8);
+  sz += getVarIntSize(s.max_s32);
+      
+  sz += getTagSize(9);
+  sz += getFixedSize(s.x);
+      
+  sz += getTagSize(10);
+  sz += getFixedSize(s.y);
+      
+  sz += getTagSize(11);
+  sz += getFixedSize(s.z);
+      
+  sz += getTagSize(12);
+  sz += getVarIntSize(s.flag);
+      
+  sz += getTagSize(13);
+  sz += getVarIntSize(s.desc.size());
+  sz += s.desc.size();
+      
+    for(const auto& item:s.more_text) {
+  sz += getTagSize(14);
+  sz += getVarIntSize(item.size());
+  sz += item.size();
+    }
+      
+    for(const auto& item:s.some_ints) {
+  sz += getTagSize(15);
+  sz += getVarIntSize(item);
+    }
+   
+   return sz;
+}
+
+
+
+
