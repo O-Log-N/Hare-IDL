@@ -63,7 +63,7 @@ message @PARAM-STRUCT.STRUCT-NAME()@ {
     @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(1)
      @@RETURN "bool"
     @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(32)
-     @@RETURN "sint32"  
+     @@RETURN "uint32"  
     @@ELSE
       @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
     @@ENDIF

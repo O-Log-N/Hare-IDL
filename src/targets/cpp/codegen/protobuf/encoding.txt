@@ -91,7 +91,7 @@ void serialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& 
 @@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
 @@IF PARAM-TYPE.IS-INTEGER()
   @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER()
-    o.writeInt(@PARAM-MEMCTR@, @PARAM-NAME@);
+    o.writeUInt(@PARAM-MEMCTR@, @PARAM-NAME@);
   @@ELSE
     o.writeInt(@PARAM-MEMCTR@, @PARAM-NAME@);
   @@ENDIF
@@ -106,10 +106,11 @@ void serialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& 
     o.writeObjectTagAndSize(@PARAM-MEMCTR@, sz_@PARAM-MEMCTR@);
     serialize@PARAM-TYPE.MAPPING-MEMBER-TYPE()@(@PARAM-NAME@, o);
 @@ELIF PARAM-TYPE.IS-ENUM()
-    o.writeInt(@PARAM-MEMCTR@, @PARAM-NAME@);
+    o.writeUInt(@PARAM-MEMCTR@, @PARAM-NAME@);
 @@ELIF PARAM-TYPE.IS-SEQUENCE()
-    for(const auto& item:@PARAM-NAME@)
+    for(const auto& item:@PARAM-NAME@) {
       @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-MEMCTR=PARAM-MEMCTR PARAM-NAME="item" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
+    }
 @@ELIF PARAM-TYPE.IS-DICTIONARY()
     for(const auto& item:@PARAM-NAME@) {
       @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item.first" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE2()
@@ -280,15 +281,15 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 @@IF PARAM-TYPE.IS-INTEGER()
   @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER()
     @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(1)
-      int64_t temp = 0;
-      initFlags[@PARAM-MEMCTR@] = i.readVariantInt64( temp );
+      uint64_t temp = 0;
+      initFlags[@PARAM-MEMCTR@] = i.readVariantUInt64( temp );
       @PARAM-NAME@ = static_cast<bool>( temp );
     @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(63)
-      int64_t temp = 0;
-      initFlags[@PARAM-MEMCTR@] = i.readVariantInt64( temp );
+      uint64_t temp = 0;
+      initFlags[@PARAM-MEMCTR@] = i.readVariantUInt64( temp );
       @PARAM-NAME@ = temp;
     @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(64)
-      initFlags[@PARAM-MEMCTR@] = i.readVariantInt64( @PARAM-NAME@ );
+      initFlags[@PARAM-MEMCTR@] = i.readVariantUInt64( @PARAM-NAME@ );
     @@ELSE
       @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
     @@ENDIF
@@ -314,8 +315,8 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 @@ELIF PARAM-TYPE.IS-CHARACTER-STRING()
      initFlags[@PARAM-MEMCTR@] = i.readString( @PARAM-NAME@ );
 @@ELIF PARAM-TYPE.IS-STRUCTURE()
-    int64_t sz_@PARAM-MEMCTR@ = 0;
-    i.readVariantInt64(sz_@PARAM-MEMCTR@);
+    uint64_t sz_@PARAM-MEMCTR@ = 0;
+    i.readVariantUInt64(sz_@PARAM-MEMCTR@);
     IStream is_@PARAM-MEMCTR@ = i.makeSubStream(sz_@PARAM-MEMCTR@);
     initFlags[@PARAM-MEMCTR@] = deserialize@PARAM-TYPE.MAPPING-MEMBER-TYPE()@(@PARAM-NAME@, is_@PARAM-MEMCTR@);
 @@ELIF PARAM-TYPE.IS-ENUM()

@@ -75,8 +75,8 @@ unique_ptr<Character> createSample() {
 
     character->max_u8 = numeric_limits<uint8_t>::max();
     character->max_u16 = numeric_limits<uint16_t>::max();
-//    character->max_u32 = numeric_limits<uint32_t>::max();
-    //character->idU64 = numeric_limits<uint64_t>::max();
+    character->max_u32 = numeric_limits<uint32_t>::max();
+//    //character->idU64 = numeric_limits<uint64_t>::max();
 
     character->min_s8 = numeric_limits<int8_t>::min();
     character->min_s16 = numeric_limits<int16_t>::min();
@@ -95,17 +95,26 @@ unique_ptr<Character> createSample() {
 ////    character->anim = Character::Walking;
     character->flag = true;
     character->desc = "My description here";
-    character->more_text.push_back("line1");
-    character->more_text.push_back("line2");
-    character->more_text.push_back("line3");
+    //character->more_text.push_back("line1");
+    //character->more_text.push_back("line2");
+    //character->more_text.push_back("line3");
 
     character->some_ints.push_back(10);
     character->some_ints.push_back(100);
     character->some_ints.push_back(1000);
 
-    character->item.id = 0;
-    character->item.name = "main item";
-    character->item.valid = true;
+    Item item1;
+    item1.id = 1;
+    item1.name = "main item";
+    item1.valid = true;
+
+    Item item2;
+    item2.id = 2;
+    item2.name = "other item";
+    item2.valid = false;
+
+    character->inventory.push_back(item1);
+    character->inventory.push_back(item2);
 
     return character;
 }

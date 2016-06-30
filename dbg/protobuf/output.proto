@@ -4,7 +4,7 @@ package pb;
 
 // PROTO MESSAGES
 message Item {
-     optional sint32 
+     optional uint32 
       id = 1; 
      optional string 
       name = 2; 
@@ -13,38 +13,40 @@ message Item {
 }
 
 message Character {
-     optional sint32 
+     optional uint32 
       max_u8 = 1; 
-     optional sint32 
+     optional uint32 
       max_u16 = 2; 
+     optional uint32 
+      max_u32 = 3; 
      optional sint32 
-      min_s8 = 3; 
+      min_s8 = 4; 
      optional sint32 
-      min_s16 = 4; 
+      min_s16 = 5; 
      optional sint32 
-      min_s32 = 5; 
+      min_s32 = 6; 
      optional sint32 
-      max_s8 = 6; 
+      max_s8 = 7; 
      optional sint32 
-      max_s16 = 7; 
+      max_s16 = 8; 
      optional sint32 
-      max_s32 = 8; 
+      max_s32 = 9; 
      optional double 
-      x = 9; 
+      x = 10; 
      optional double 
-      y = 10; 
+      y = 11; 
      optional double 
-      z = 11; 
+      z = 12; 
      optional bool 
-      flag = 12; 
+      flag = 13; 
      optional string 
-      desc = 13; 
+      desc = 14; 
    repeated string
-      more_text = 14; 
+      more_text = 15; 
    repeated sint32
-      some_ints = 15; 
-   optional Item
-      item = 16; 
+      some_ints = 16; 
+   repeated Item
+      inventory = 17; 
 }
 
 

@@ -19,6 +19,7 @@ inline void assertEqualItem( const Item& left, const Item& right ) {
 inline void assertEqualCharacter( const Character& left, const Character& right ) {
     assert(left.max_u8 == right.max_u8);
     assert(left.max_u16 == right.max_u16);
+    assert(left.max_u32 == right.max_u32);
     assert(left.min_s8 == right.min_s8);
     assert(left.min_s16 == right.min_s16);
     assert(left.min_s32 == right.min_s32);
@@ -50,7 +51,16 @@ inline void assertEqualCharacter( const Character& left, const Character& right 
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
-    assertEqualItem(left.item , right.item);
+    {
+      auto it1 = left.inventory.begin();
+      auto it1_end = left.inventory.end();
+      auto it2 = right.inventory.begin();
+      auto it2_end = right.inventory.end();
+      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2)
+      assertEqualItem(*it1, *it2);
+      assert(it1 == it1_end);
+      assert(it2 == it2_end);
+    }
 }
 
 
@@ -67,6 +77,7 @@ inline void assertEqualItem( const Item& left, const pb::Item& right ) {
 inline void assertEqualCharacter( const Character& left, const pb::Character& right ) {
     assert(left.max_u8 == right.max_u8());
     assert(left.max_u16 == right.max_u16());
+    assert(left.max_u32 == right.max_u32());
     assert(left.min_s8 == right.min_s8());
     assert(left.min_s16 == right.min_s16());
     assert(left.min_s32 == right.min_s32());
@@ -98,7 +109,16 @@ inline void assertEqualCharacter( const Character& left, const pb::Character& ri
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
-    assertEqualItem(left.item , right.item());
+    {
+      auto it1 = left.inventory.begin();
+      auto it1_end = left.inventory.end();
+      auto it2 = right.inventory().begin();
+      auto it2_end = right.inventory().end();
+      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2)
+      assertEqualItem(*it1, *it2);
+      assert(it1 == it1_end);
+      assert(it2 == it2_end);
+    }
 }
 
 

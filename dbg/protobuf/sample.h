@@ -37,7 +37,7 @@ struct Character {
 
   uint8_t max_u8;
   uint16_t max_u16;
-//  uint32_t max_u32;
+  uint32_t max_u32;
 //  uint64_t max_u64;
 
   int8_t min_s8;
@@ -65,8 +65,7 @@ struct Character {
   vector<string> more_text;
   vector<int16_t> some_ints;
 
-  Item item;
-//  vector<Item> inventory;
+  vector<Item> inventory;
 };
 
 #endif // SAMPLE_H
