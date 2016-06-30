@@ -6,13 +6,13 @@
 
 // SERIALIZATION
 
-void serializeItem( Item& s, OStream& o ) {
+void serializeItem( const Item& s, OStream& o ) {
     o.writeInt(1, s.id);
     o.writeString(2, s.name);
     o.writeInt(3, s.valid);
 }
 
-void serializeCharacter( Character& s, OStream& o ) {
+void serializeCharacter( const Character& s, OStream& o ) {
     o.writeInt(1, s.max_u8);
     o.writeInt(2, s.max_u16);
     o.writeInt(3, s.min_s8);
@@ -26,9 +26,9 @@ void serializeCharacter( Character& s, OStream& o ) {
     o.writeDouble(11, s.z);
     o.writeInt(12, s.flag);
     o.writeString(13, s.desc);
-    for(auto& item:s.more_text)
+    for(const auto& item:s.more_text)
     o.writeString(14, item);
-    for(auto& item:s.some_ints)
+    for(const auto& item:s.some_ints)
     o.writeInt(15, item);
 }
 
@@ -222,7 +222,7 @@ bool deserializeCharacter( Character& s, IStream& i ) {
   
   
 // PRINTING
-void printItem( Item& s ) {
+void printItem( const Item& s ) {
     cout << "id: ";
 	cout << 
    s.id 
@@ -240,7 +240,7 @@ void printItem( Item& s ) {
     cout << endl;
 }
 
-void printCharacter( Character& s ) {
+void printCharacter( const Character& s ) {
     cout << "max_u8: ";
 	cout << 
    s.max_u8 
