@@ -1,6 +1,5 @@
 #include "output.h"
 
-#include <bitset>
 #include "sample.h"
 
 // IMPLEMENTATIONS

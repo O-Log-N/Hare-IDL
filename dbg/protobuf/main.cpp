@@ -9,51 +9,10 @@
 #include "output.pb.h"
 #include "output.h"
 #include "protobuf/baselib.h"
-
+#include "dbg_assert_equal.h"
 
 using namespace std;
 
-template<class T, class U>
-bool areEqualSeq(const T& left, const U& right)
-{
-    auto it1 = left.begin();
-    auto it1_end = left.end();
-    auto it2 = right.begin();
-    auto it2_end = right.end();
-    for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2)
-        if (*it1 != *it2)
-            return false;
-
-    return it1 == it1_end && it2 == it2_end;
-}
-
-bool areEqual(const Character& left, const pb::Character& right)
-{
-    bool ok = true;
-    ok = ok && left.max_u8 == right.max_u8();
-    ok = ok && left.max_u16 == right.max_u16();
-    ////        left.max_u32 == right.max_u32() &&
-    //        //left.idU64 == right.idU64 &&
-    ok = ok && left.max_s8 == right.max_s8();
-    ok = ok && left.max_s16 == right.max_s16();
-    ok = ok && left.max_s32 == right.max_s32();
-        
-    ok = ok && left.min_s8 == right.min_s8();
-    ok = ok && left.min_s16 == right.min_s16();
-    ok = ok && left.min_s32 == right.min_s32();
-
-    ok = ok && left.x == right.x();
-    ok = ok && left.y == right.y();
-    ok = ok && left.z == right.z();
-//        left.angle == right.angle() &&
-//        left.anim == right.anim() &&
-    ok = ok && left.flag == right.flag();
-    ok = ok && left.desc == right.desc();
-    ok = ok && areEqualSeq(left.more_text, right.more_text());
-    ok = ok && areEqualSeq(left.some_ints, right.some_ints());
-    
-    return ok;
-}
 
 void protobufReadAndReply(istream& is, ostream& os, const Character& our)
 {
@@ -63,7 +22,7 @@ void protobufReadAndReply(istream& is, ostream& os, const Character& our)
         throw std::runtime_error("Failed to parse.");
     }
 
-    assert(areEqual(our, character));
+    assertEqualCharacter(our, character);
 
     if (!character.SerializeToOstream(&os)) {
         cerr << "Failed to write." << endl;
@@ -147,33 +106,6 @@ unique_ptr<Character> createSample() {
     return character;
 }
 
-bool areEqual(const Character& left, const Character& right)
-{
-    bool ok = true;
-    ok = ok && left.max_u8 == right.max_u8;
-    ok = ok && left.max_u16 == right.max_u16;
-    ////        left.max_u32 == right.max_u32() &&
-    //        //left.idU64 == right.idU64 &&
-    ok = ok && left.max_s8 == right.max_s8;
-    ok = ok && left.max_s16 == right.max_s16;
-    ok = ok && left.max_s32 == right.max_s32;
-
-    ok = ok && left.min_s8 == right.min_s8;
-    ok = ok && left.min_s16 == right.min_s16;
-    ok = ok && left.min_s32 == right.min_s32;
-
-    ok = ok && left.x == right.x;
-    ok = ok && left.y == right.y;
-    ok = ok && left.z == right.z;
-    //        left.angle == right.angle() &&
-    //        left.anim == right.anim() &&
-    ok = ok && left.flag == right.flag;
-    ok = ok && left.desc == right.desc;
-    ok = ok && areEqualSeq(left.more_text, right.more_text);
-    ok = ok && areEqualSeq(left.some_ints, right.some_ints);
-
-    return ok;
-}
 
 void dumpStream(istream& is)
 {
@@ -202,7 +134,8 @@ int main(int argc, char* argv[])
     }
   unique_ptr<Character> recv = deserializeFromFile(sendFile);
 
-  assert(recv && areEqual(*toSend, *recv));
+  assert(recv);
+  assertEqualCharacter(*toSend, *recv);
 
   google::protobuf::ShutdownProtobufLibrary();
 

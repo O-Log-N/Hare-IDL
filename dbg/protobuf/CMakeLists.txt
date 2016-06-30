@@ -11,6 +11,7 @@ add_executable(dbgProtobuf
   output.cpp
   output.pb.h
   output.pb.cc
+  dbg_are_equal.h
   ../../src/targets/cpp/include/protobuf/baselib.h
   ../../src/targets/cpp/libsrc/protobuf/baselib.cpp
 )
