@@ -95,13 +95,17 @@ unique_ptr<Character> createSample() {
 ////    character->anim = Character::Walking;
     character->flag = true;
     character->desc = "My description here";
-    //character->more_text.push_back("line1");
-    //character->more_text.push_back("line2");
-    //character->more_text.push_back("line3");
+    character->more_text.push_back("line1");
+    character->more_text.push_back("line2");
+    character->more_text.push_back("line3");
 
     character->some_ints.push_back(10);
     character->some_ints.push_back(100);
     character->some_ints.push_back(1000);
+
+    character->item.id = 0;
+    character->item.name = "main item";
+    character->item.valid = true;
 
     return character;
 }

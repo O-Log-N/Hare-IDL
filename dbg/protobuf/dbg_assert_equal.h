@@ -50,6 +50,7 @@ inline void assertEqualCharacter( const Character& left, const Character& right 
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
+    assertEqualItem(left.item , right.item);
 }
 
 
@@ -97,6 +98,7 @@ inline void assertEqualCharacter( const Character& left, const pb::Character& ri
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
+    assertEqualItem(left.item , right.item());
 }
 
 

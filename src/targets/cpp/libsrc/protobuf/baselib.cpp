@@ -283,6 +283,15 @@ uint8_t* deserializeLengthDelimitedFromString(std::string& value, uint8_t* buff)
     return buff + valueSize;
 }
 
+//MB
+uint8_t* serializeLengthDelimitedHeaderToString(int fieldNumber, size_t valueSize, uint8_t* buff)
+{
+    uint32_t key = (fieldNumber << 3) | WIRE_TYPE::LENGTH_DELIMITED;
+    buff = serializeToStringVariantUint64(key, buff);
+    return serializeToStringVariantUint64(valueSize, buff);
+}
+
+//MB
 size_t getVarIntSize(int64_t value)
 {
     uint64_t target = 0;

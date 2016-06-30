@@ -65,7 +65,7 @@ struct Character {
   vector<string> more_text;
   vector<int16_t> some_ints;
 
-//  Item item;
+  Item item;
 //  vector<Item> inventory;
 };
 

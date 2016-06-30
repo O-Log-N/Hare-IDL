@@ -43,6 +43,8 @@ message Character {
       more_text = 14; 
    repeated sint32
       some_ints = 15; 
+   optional Item
+      item = 16; 
 }
 
 

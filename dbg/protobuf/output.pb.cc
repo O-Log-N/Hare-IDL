@@ -54,7 +54,7 @@ void protobuf_AssignDesc_output_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Item));
   Character_descriptor_ = file->message_type(1);
-  static const int Character_offsets_[15] = {
+  static const int Character_offsets_[16] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, max_u8_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, max_u16_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, min_s8_),
@@ -70,6 +70,7 @@ void protobuf_AssignDesc_output_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, desc_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, more_text_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, some_ints_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, item_),
   };
   Character_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -117,13 +118,14 @@ void protobuf_AddDesc_output_2eproto() {
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014output.proto\022\002pb\"/\n\004Item\022\n\n\002id\030\001 \001(\021\022\014"
-    "\n\004name\030\002 \001(\t\022\r\n\005valid\030\003 \001(\010\"\363\001\n\tCharacte"
+    "\n\004name\030\002 \001(\t\022\r\n\005valid\030\003 \001(\010\"\213\002\n\tCharacte"
     "r\022\016\n\006max_u8\030\001 \001(\021\022\017\n\007max_u16\030\002 \001(\021\022\016\n\006mi"
     "n_s8\030\003 \001(\021\022\017\n\007min_s16\030\004 \001(\021\022\017\n\007min_s32\030\005"
     " \001(\021\022\016\n\006max_s8\030\006 \001(\021\022\017\n\007max_s16\030\007 \001(\021\022\017\n"
     "\007max_s32\030\010 \001(\021\022\t\n\001x\030\t \001(\001\022\t\n\001y\030\n \001(\001\022\t\n\001"
     "z\030\013 \001(\001\022\014\n\004flag\030\014 \001(\010\022\014\n\004desc\030\r \001(\t\022\021\n\tm"
-    "ore_text\030\016 \003(\t\022\021\n\tsome_ints\030\017 \003(\021", 313);
+    "ore_text\030\016 \003(\t\022\021\n\tsome_ints\030\017 \003(\021\022\026\n\004ite"
+    "m\030\020 \001(\0132\010.pb.Item", 337);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "output.proto", &protobuf_RegisterTypes);
   Item::default_instance_ = new Item();
@@ -492,6 +494,7 @@ const int Character::kFlagFieldNumber;
 const int Character::kDescFieldNumber;
 const int Character::kMoreTextFieldNumber;
 const int Character::kSomeIntsFieldNumber;
+const int Character::kItemFieldNumber;
 #endif  // !_MSC_VER
 
 Character::Character()
@@ -501,6 +504,7 @@ Character::Character()
 }
 
 void Character::InitAsDefaultInstance() {
+  item_ = const_cast< ::pb::Item*>(&::pb::Item::default_instance());
 }
 
 Character::Character(const Character& from)
@@ -526,6 +530,7 @@ void Character::SharedCtor() {
   z_ = 0;
   flag_ = false;
   desc_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  item_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -539,6 +544,7 @@ void Character::SharedDtor() {
     delete desc_;
   }
   if (this != default_instance_) {
+    delete item_;
   }
 }
 
@@ -577,13 +583,16 @@ void Character::Clear() {
   if (_has_bits_[0 / 32] & 255) {
     ZR_(max_u8_, max_s32_);
   }
-  if (_has_bits_[8 / 32] & 7936) {
+  if (_has_bits_[8 / 32] & 40704) {
     ZR_(x_, z_);
     flag_ = false;
     if (has_desc()) {
       if (desc_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         desc_->clear();
       }
+    }
+    if (has_item()) {
+      if (item_ != NULL) item_->::pb::Item::Clear();
     }
   }
 
@@ -602,7 +611,7 @@ bool Character::MergePartialFromCodedStream(
   ::google::protobuf::uint32 tag;
   // @@protoc_insertion_point(parse_start:pb.Character)
   for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(16383);
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
@@ -836,6 +845,19 @@ bool Character::MergePartialFromCodedStream(
           goto handle_unusual;
         }
         if (input->ExpectTag(120)) goto parse_some_ints;
+        if (input->ExpectTag(130)) goto parse_item;
+        break;
+      }
+
+      // optional .pb.Item item = 16;
+      case 16: {
+        if (tag == 130) {
+         parse_item:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_item()));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -951,6 +973,12 @@ void Character::SerializeWithCachedSizes(
       15, this->some_ints(i), output);
   }
 
+  // optional .pb.Item item = 16;
+  if (has_item()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      16, this->item(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1046,6 +1074,13 @@ void Character::SerializeWithCachedSizes(
   for (int i = 0; i < this->some_ints_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteSInt32ToArray(15, this->some_ints(i), target);
+  }
+
+  // optional .pb.Item item = 16;
+  if (has_item()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        16, this->item(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1145,6 +1180,13 @@ int Character::ByteSize() const {
           this->desc());
     }
 
+    // optional .pb.Item item = 16;
+    if (has_item()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->item());
+    }
+
   }
   // repeated string more_text = 14;
   total_size += 1 * this->more_text_size();
@@ -1232,6 +1274,9 @@ void Character::MergeFrom(const Character& from) {
     if (from.has_desc()) {
       set_desc(from.desc());
     }
+    if (from.has_item()) {
+      mutable_item()->::pb::Item::MergeFrom(from.item());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1270,6 +1315,7 @@ void Character::Swap(Character* other) {
     std::swap(desc_, other->desc_);
     more_text_.Swap(&other->more_text_);
     some_ints_.Swap(&other->some_ints_);
+    std::swap(item_, other->item_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

@@ -99,7 +99,10 @@ uint8_t* serializeLengthDelimitedToString(int fieldNumber, std::string& value, u
 uint8_t* deserializeLengthDelimitedFromString(uint8_t* valueStr, size_t& valueSize, uint8_t* buff);
 uint8_t* deserializeLengthDelimitedFromString(std::string& value, uint8_t* buff);
 
+//MB
+uint8_t* serializeLengthDelimitedHeaderToString(int fieldNumber, size_t valueSize, uint8_t* buff);
 
+//MB begin
 constexpr size_t getVarIntSize(uint64_t value)
 {
     return (value < (uint64_t(1) << 7)) ? 1 : (
@@ -126,7 +129,7 @@ constexpr size_t getVarIntSize(bool value) { return 1; }
 constexpr size_t getTagSize(uint64_t tag) { return getVarIntSize(tag << 3); }
 constexpr size_t getFixedSize(float) { return 4; }
 constexpr size_t getFixedSize(double) { return 8; }
-
+//MB end
 
 class OStream
 {
@@ -141,6 +144,16 @@ public:
 //        assert(ret - buff - 1 == getVarIntSize(x));
         fwrite(buff, ret - buff, 1, outstr);
     }
+    
+    //MB
+    void writeUInt(int fieldNumber, uint64_t x)
+    {
+        uint8_t buff[1000];
+        uint8_t* ret = serializeUnsignedVariantToString(fieldNumber, x, buff);
+        //        assert(ret - buff - 1 == getVarIntSize(x));
+        fwrite(buff, ret - buff, 1, outstr);
+    }
+
     void writeDouble(int fieldNumber, double x)
     {
         uint8_t buff[1000];
@@ -151,6 +164,14 @@ public:
     {
         uint8_t buff[1000];
         uint8_t* ret = serializeLengthDelimitedToString(fieldNumber, x, buff);
+        fwrite(buff, ret - buff, 1, outstr);
+    }
+
+    //MB
+    void writeObjectTagAndSize(int fieldNumber, size_t sz)
+    {
+        uint8_t buff[1000];
+        uint8_t* ret = serializeLengthDelimitedHeaderToString(fieldNumber, sz, buff);
         fwrite(buff, ret - buff, 1, outstr);
     }
 };
@@ -399,6 +420,31 @@ public:
         }
         return true;
     }
+    //MB copy and paste from readVariantInt64, 
+    // but calls deserializeUnsignedVariantFromString
+    FORCE_INLINE bool readVariantUInt64(uint64_t& x)
+    {
+        uint8_t buff[12];
+        memset(buff, 0, 12);
+        int pos = 0;
+        size_t readret;
+        uint32_t stringSz = 0;
+        for (;;)
+        {
+            //			readret = fread( buff + pos, 1, 1, instr );
+            readret = readData(buff + pos, 1);
+            if (readret == 0)
+                return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
+            if ((buff[pos] & 0x80) == 0)
+            {
+                deserializeUnsignedVariantFromString(x, buff);
+                break;
+            }
+            ++pos;
+        }
+        return true;
+    }
+
     FORCE_INLINE bool readFixed64Bit(double& x)
     {
         uint8_t buff[8];
@@ -463,6 +509,19 @@ public:
         return true;
 #endif // 1/0
     }
+
+    //MB check!
+    IStream makeSubStream(size_t cnt)
+    {
+        
+        if (readPos + cnt > buffSz)
+            cnt = buffSz - readPos;
+
+        size_t oldReadPos = readPos;
+        readPos += cnt;
+        return IStream(instr + oldReadPos, cnt);
+    }
+
 };
 
 #endif // 0

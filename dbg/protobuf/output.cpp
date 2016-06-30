@@ -30,6 +30,9 @@ void serializeCharacter( const Character& s, OStream& o ) {
     o.writeString(14, item);
     for(const auto& item:s.some_ints)
     o.writeInt(15, item);
+    size_t sz_16 = getSizeItem(s.item);
+    o.writeObjectTagAndSize(16, sz_16);
+    serializeItem(s.item, o);
 }
 
 
@@ -88,7 +91,7 @@ bool deserializeCharacter( Character& s, IStream& i ) {
    int type;
    int fieldNumber;
    bool readret;
-   const int memcnt = 15;
+   const int memcnt = 16;
    uint8_t initFlags[memcnt] = { 0 };
   initFlags[13] = true;
   initFlags[14] = true;
@@ -184,22 +187,26 @@ bool deserializeCharacter( Character& s, IStream& i ) {
     }
     case 14:
     {
-   {
       string temp2;
      initFlags[13] = i.readString( temp2 );
       s.more_text.push_back(temp2);
-   }
       break;
     }
     case 15:
     {
-   {
       int16_t temp2;
       int64_t temp = 0;
       initFlags[14] = i.readVariantInt64( temp );
       temp2 = temp;
       s.some_ints.push_back(temp2);
-   }
+      break;
+    }
+    case 16:
+    {
+    int64_t sz_15 = 0;
+    i.readVariantInt64(sz_15);
+    IStream is_15 = i.makeSubStream(sz_15);
+    initFlags[15] = deserializeItem(s.item, is_15);
       break;
     }
 		default:
@@ -316,6 +323,11 @@ void printCharacter( const Character& s ) {
     "TODO"
 	  ;
     cout << endl;
+    cout << "item: ";
+	cout << 
+  "TODO"
+	  ;
+    cout << endl;
 }
 
 
@@ -390,6 +402,11 @@ size_t getSizeCharacter( const Character& s ) {
   sz += getTagSize(15);
   sz += getVarIntSize(item);
     }
+      
+  sz += getTagSize(16);
+  size_t sz_16 = getSizeItem(s.item);
+  sz += getVarIntSize(sz_16);
+  sz += sz_16;
    
    return sz;
 }

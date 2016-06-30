@@ -319,6 +319,15 @@ class Character : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_some_ints();
 
+  // optional .pb.Item item = 16;
+  inline bool has_item() const;
+  inline void clear_item();
+  static const int kItemFieldNumber = 16;
+  inline const ::pb::Item& item() const;
+  inline ::pb::Item* mutable_item();
+  inline ::pb::Item* release_item();
+  inline void set_allocated_item(::pb::Item* item);
+
   // @@protoc_insertion_point(class_scope:pb.Character)
  private:
   inline void set_has_max_u8();
@@ -347,6 +356,8 @@ class Character : public ::google::protobuf::Message {
   inline void clear_has_flag();
   inline void set_has_desc();
   inline void clear_has_desc();
+  inline void set_has_item();
+  inline void clear_has_item();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -366,6 +377,7 @@ class Character : public ::google::protobuf::Message {
   ::std::string* desc_;
   ::google::protobuf::RepeatedPtrField< ::std::string> more_text_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > some_ints_;
+  ::pb::Item* item_;
   bool flag_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
@@ -955,6 +967,47 @@ inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
 Character::mutable_some_ints() {
   // @@protoc_insertion_point(field_mutable_list:pb.Character.some_ints)
   return &some_ints_;
+}
+
+// optional .pb.Item item = 16;
+inline bool Character::has_item() const {
+  return (_has_bits_[0] & 0x00008000u) != 0;
+}
+inline void Character::set_has_item() {
+  _has_bits_[0] |= 0x00008000u;
+}
+inline void Character::clear_has_item() {
+  _has_bits_[0] &= ~0x00008000u;
+}
+inline void Character::clear_item() {
+  if (item_ != NULL) item_->::pb::Item::Clear();
+  clear_has_item();
+}
+inline const ::pb::Item& Character::item() const {
+  // @@protoc_insertion_point(field_get:pb.Character.item)
+  return item_ != NULL ? *item_ : *default_instance_->item_;
+}
+inline ::pb::Item* Character::mutable_item() {
+  set_has_item();
+  if (item_ == NULL) item_ = new ::pb::Item;
+  // @@protoc_insertion_point(field_mutable:pb.Character.item)
+  return item_;
+}
+inline ::pb::Item* Character::release_item() {
+  clear_has_item();
+  ::pb::Item* temp = item_;
+  item_ = NULL;
+  return temp;
+}
+inline void Character::set_allocated_item(::pb::Item* item) {
+  delete item_;
+  item_ = item;
+  if (item) {
+    set_has_item();
+  } else {
+    clear_has_item();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.Character.item)
 }
 
 
