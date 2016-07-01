@@ -292,11 +292,11 @@ uint8_t* serializeLengthDelimitedHeaderToString(int fieldNumber, size_t valueSiz
 }
 
 //MB
-size_t getVarIntSize(int64_t value)
+size_t getSignedVarIntSize(int64_t value)
 {
     uint64_t target = 0;
     sint64ToUint64(value, target);
-    return getVarIntSize(target);
+    return getUnsignedVarIntSize(target);
 }
 
 

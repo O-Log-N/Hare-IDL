@@ -103,7 +103,7 @@ uint8_t* deserializeLengthDelimitedFromString(std::string& value, uint8_t* buff)
 uint8_t* serializeLengthDelimitedHeaderToString(int fieldNumber, size_t valueSize, uint8_t* buff);
 
 //MB begin
-constexpr size_t getVarIntSize(uint64_t value)
+constexpr size_t getUnsignedVarIntSize(uint64_t value)
 {
     return (value < (uint64_t(1) << 7)) ? 1 : (
         (value < (uint64_t(1) << 14)) ? 2 : (
@@ -115,18 +115,9 @@ constexpr size_t getVarIntSize(uint64_t value)
                                 (value < (uint64_t(1) << 56)) ? 8 : (
                                     (value < (uint64_t(1) << 63) ? 9 : 10)))))))));
 }
-size_t getVarIntSize(int64_t value);
+size_t getSignedVarIntSize(int64_t value);
 
-constexpr size_t getVarIntSize(uint32_t value) { return getVarIntSize(static_cast<uint64_t>(value)); }
-constexpr size_t getVarIntSize(uint16_t value) { return getVarIntSize(static_cast<uint64_t>(value)); }
-constexpr size_t getVarIntSize(uint8_t value) { return getVarIntSize(static_cast<uint64_t>(value)); }
-
-inline size_t getVarIntSize(int32_t value) { return getVarIntSize(static_cast<int64_t>(value)); }
-inline size_t getVarIntSize(int16_t value) { return getVarIntSize(static_cast<int64_t>(value)); }
-inline size_t getVarIntSize(int8_t value) { return getVarIntSize(static_cast<int64_t>(value)); } 
-
-constexpr size_t getVarIntSize(bool value) { return 1; }
-constexpr size_t getTagSize(uint64_t tag) { return getVarIntSize(tag << 3); }
+constexpr size_t getTagSize(uint64_t tag) { return getUnsignedVarIntSize(tag << 3); }
 constexpr size_t getFixedSize(float) { return 4; }
 constexpr size_t getFixedSize(double) { return 8; }
 //MB end
