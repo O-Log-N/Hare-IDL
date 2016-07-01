@@ -4,49 +4,29 @@ package pb;
 
 // PROTO MESSAGES
 message Item {
-     optional uint32 
-      id = 1; 
-     optional string 
-      name = 2; 
-     optional bool 
-      valid = 3; 
+  optional uint32 id = 1;
+  optional string name = 2;
+  optional bool valid = 3;
 }
 
 message Character {
-     optional uint32 
-      max_u8 = 1; 
-     optional uint32 
-      max_u16 = 2; 
-     optional uint32 
-      max_u32 = 3; 
-     optional sint32 
-      min_s8 = 4; 
-     optional sint32 
-      min_s16 = 5; 
-     optional sint32 
-      min_s32 = 6; 
-     optional sint32 
-      max_s8 = 7; 
-     optional sint32 
-      max_s16 = 8; 
-     optional sint32 
-      max_s32 = 9; 
-     optional double 
-      x = 10; 
-     optional double 
-      y = 11; 
-     optional double 
-      z = 12; 
-     optional bool 
-      flag = 13; 
-     optional string 
-      desc = 14; 
-   repeated string
-      more_text = 15; 
-   repeated sint32
-      some_ints = 16; 
-   repeated Item
-      inventory = 17; 
+  optional uint32 max_u8 = 1;
+  optional uint32 max_u16 = 2;
+  optional uint32 max_u32 = 3;
+  optional sint32 min_s8 = 4;
+  optional sint32 min_s16 = 5;
+  optional sint32 min_s32 = 6;
+  optional sint32 max_s8 = 7;
+  optional sint32 max_s16 = 8;
+  optional sint32 max_s32 = 9;
+  optional double x = 10;
+  optional double y = 11;
+  optional double z = 12;
+  optional bool flag = 13;
+  optional string desc = 14;
+  repeated string more_text = 15;
+  repeated sint32 some_ints = 16 [packed=false];
+  repeated Item inventory = 17;
 }
 
 

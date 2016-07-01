@@ -314,7 +314,7 @@ class Character : public ::google::protobuf::Message {
   inline const ::google::protobuf::RepeatedPtrField< ::std::string>& more_text() const;
   inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_more_text();
 
-  // repeated sint32 some_ints = 16;
+  // repeated sint32 some_ints = 16 [packed = false];
   inline int some_ints_size() const;
   inline void clear_some_ints();
   static const int kSomeIntsFieldNumber = 16;
@@ -974,7 +974,7 @@ Character::mutable_more_text() {
   return &more_text_;
 }
 
-// repeated sint32 some_ints = 16;
+// repeated sint32 some_ints = 16 [packed = false];
 inline int Character::some_ints_size() const {
   return some_ints_.size();
 }

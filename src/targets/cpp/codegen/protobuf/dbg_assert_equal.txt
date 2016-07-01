@@ -64,10 +64,7 @@ inline void assertEqual@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING
       assert(it2 == it2_end);
     }
 @@ELIF PARAM-TYPE.IS-DICTIONARY()
-    for(auto item:@PARAM-NAME@) {
-      @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item.first" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE2()
-      @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item.second" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
-    }
+  //TODO
 @@ELSE
   @@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
 @@ENDIF

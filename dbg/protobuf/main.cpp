@@ -81,11 +81,12 @@ unique_ptr<Character> createSample() {
     character->min_s8 = numeric_limits<int8_t>::min();
     character->min_s16 = numeric_limits<int16_t>::min();
     character->min_s32 = numeric_limits<int32_t>::min();
+    character->min_s32 = numeric_limits<int32_t>::max();
 
     character->max_s8 = numeric_limits<int8_t>::max();
     character->max_s16 = numeric_limits<int16_t>::max();
     character->max_s32 = numeric_limits<int32_t>::max();
-    ////character->idS64 = numeric_limits<int64_t>::min();
+    //character->idS64 = numeric_limits<int64_t>::min();
 
 
     character->x = 10.0;
@@ -94,11 +95,12 @@ unique_ptr<Character> createSample() {
 ////    character->angle = 45;
 ////    character->anim = Character::Walking;
     character->flag = true;
-    character->desc = "My description here";
-    //character->more_text.push_back("line1");
-    //character->more_text.push_back("line2");
-    //character->more_text.push_back("line3");
-
+    character->desc = "Hello";
+//    character->value = 127;
+//    //character->more_text.push_back("line1");
+//    //character->more_text.push_back("line2");
+//    //character->more_text.push_back("line3");
+//
     character->some_ints.push_back(10);
     character->some_ints.push_back(100);
     character->some_ints.push_back(1000);
@@ -133,7 +135,6 @@ int main(int argc, char* argv[])
 
   const char* sendFile = "character.send.bin";
   const char* recvFile = "character.recv.bin";
-
 
   unique_ptr<Character> toSend = createSample();
 

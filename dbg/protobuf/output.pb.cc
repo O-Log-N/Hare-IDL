@@ -119,14 +119,15 @@ void protobuf_AddDesc_output_2eproto() {
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014output.proto\022\002pb\"/\n\004Item\022\n\n\002id\030\001 \001(\r\022\014"
-    "\n\004name\030\002 \001(\t\022\r\n\005valid\030\003 \001(\010\"\241\002\n\tCharacte"
+    "\n\004name\030\002 \001(\t\022\r\n\005valid\030\003 \001(\010\"\245\002\n\tCharacte"
     "r\022\016\n\006max_u8\030\001 \001(\r\022\017\n\007max_u16\030\002 \001(\r\022\017\n\007ma"
     "x_u32\030\003 \001(\r\022\016\n\006min_s8\030\004 \001(\021\022\017\n\007min_s16\030\005"
     " \001(\021\022\017\n\007min_s32\030\006 \001(\021\022\016\n\006max_s8\030\007 \001(\021\022\017\n"
     "\007max_s16\030\010 \001(\021\022\017\n\007max_s32\030\t \001(\021\022\t\n\001x\030\n \001"
     "(\001\022\t\n\001y\030\013 \001(\001\022\t\n\001z\030\014 \001(\001\022\014\n\004flag\030\r \001(\010\022\014"
-    "\n\004desc\030\016 \001(\t\022\021\n\tmore_text\030\017 \003(\t\022\021\n\tsome_"
-    "ints\030\020 \003(\021\022\033\n\tinventory\030\021 \003(\0132\010.pb.Item", 359);
+    "\n\004desc\030\016 \001(\t\022\021\n\tmore_text\030\017 \003(\t\022\025\n\tsome_"
+    "ints\030\020 \003(\021B\002\020\000\022\033\n\tinventory\030\021 \003(\0132\010.pb.I"
+    "tem", 363);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "output.proto", &protobuf_RegisterTypes);
   Item::default_instance_ = new Item();
@@ -842,7 +843,7 @@ bool Character::MergePartialFromCodedStream(
         break;
       }
 
-      // repeated sint32 some_ints = 16;
+      // repeated sint32 some_ints = 16 [packed = false];
       case 16: {
         if (tag == 128) {
          parse_some_ints:
@@ -985,7 +986,7 @@ void Character::SerializeWithCachedSizes(
       15, this->more_text(i), output);
   }
 
-  // repeated sint32 some_ints = 16;
+  // repeated sint32 some_ints = 16 [packed = false];
   for (int i = 0; i < this->some_ints_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteSInt32(
       16, this->some_ints(i), output);
@@ -1093,7 +1094,7 @@ void Character::SerializeWithCachedSizes(
       WriteStringToArray(15, this->more_text(i), target);
   }
 
-  // repeated sint32 some_ints = 16;
+  // repeated sint32 some_ints = 16 [packed = false];
   for (int i = 0; i < this->some_ints_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteSInt32ToArray(16, this->some_ints(i), target);
@@ -1218,7 +1219,7 @@ int Character::ByteSize() const {
       this->more_text(i));
   }
 
-  // repeated sint32 some_ints = 16;
+  // repeated sint32 some_ints = 16 [packed = false];
   {
     int data_size = 0;
     for (int i = 0; i < this->some_ints_size(); i++) {

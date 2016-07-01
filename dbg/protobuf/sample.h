@@ -66,6 +66,7 @@ struct Character {
   vector<int16_t> some_ints;
 
   vector<Item> inventory;
+//  map<int16_t, Item> archive;
 };
 
 #endif // SAMPLE_H

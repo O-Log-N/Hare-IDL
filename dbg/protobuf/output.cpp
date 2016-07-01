@@ -357,14 +357,14 @@ size_t getSizeItem( const Item& s ) {
    size_t sz = 0;
       
   sz += getTagSize(1);
-  sz += getVarIntSize(s.id);
+  sz += getUnsignedVarIntSize(s.id);
       
   sz += getTagSize(2);
-  sz += getVarIntSize(s.name.size());
+  sz += getUnsignedVarIntSize(s.name.size());
   sz += s.name.size();
       
   sz += getTagSize(3);
-  sz += getVarIntSize(s.valid);
+  sz += getUnsignedVarIntSize(s.valid);
    
    return sz;
 }
@@ -373,31 +373,31 @@ size_t getSizeCharacter( const Character& s ) {
    size_t sz = 0;
       
   sz += getTagSize(1);
-  sz += getVarIntSize(s.max_u8);
+  sz += getUnsignedVarIntSize(s.max_u8);
       
   sz += getTagSize(2);
-  sz += getVarIntSize(s.max_u16);
+  sz += getUnsignedVarIntSize(s.max_u16);
       
   sz += getTagSize(3);
-  sz += getVarIntSize(s.max_u32);
+  sz += getUnsignedVarIntSize(s.max_u32);
       
   sz += getTagSize(4);
-  sz += getVarIntSize(s.min_s8);
+  sz += getSignedVarIntSize(s.min_s8);
       
   sz += getTagSize(5);
-  sz += getVarIntSize(s.min_s16);
+  sz += getSignedVarIntSize(s.min_s16);
       
   sz += getTagSize(6);
-  sz += getVarIntSize(s.min_s32);
+  sz += getSignedVarIntSize(s.min_s32);
       
   sz += getTagSize(7);
-  sz += getVarIntSize(s.max_s8);
+  sz += getSignedVarIntSize(s.max_s8);
       
   sz += getTagSize(8);
-  sz += getVarIntSize(s.max_s16);
+  sz += getSignedVarIntSize(s.max_s16);
       
   sz += getTagSize(9);
-  sz += getVarIntSize(s.max_s32);
+  sz += getSignedVarIntSize(s.max_s32);
       
   sz += getTagSize(10);
   sz += getFixedSize(s.x);
@@ -409,27 +409,27 @@ size_t getSizeCharacter( const Character& s ) {
   sz += getFixedSize(s.z);
       
   sz += getTagSize(13);
-  sz += getVarIntSize(s.flag);
+  sz += getUnsignedVarIntSize(s.flag);
       
   sz += getTagSize(14);
-  sz += getVarIntSize(s.desc.size());
+  sz += getUnsignedVarIntSize(s.desc.size());
   sz += s.desc.size();
       
     for(const auto& item:s.more_text) {
   sz += getTagSize(15);
-  sz += getVarIntSize(item.size());
+  sz += getUnsignedVarIntSize(item.size());
   sz += item.size();
     }
       
     for(const auto& item:s.some_ints) {
   sz += getTagSize(16);
-  sz += getVarIntSize(item);
+  sz += getSignedVarIntSize(item);
     }
       
     for(const auto& item:s.inventory) {
   sz += getTagSize(17);
   size_t sz_17 = getSizeItem(item);
-  sz += getVarIntSize(sz_17);
+  sz += getUnsignedVarIntSize(sz_17);
   sz += sz_17;
     }
    
