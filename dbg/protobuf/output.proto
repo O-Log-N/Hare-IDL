@@ -3,10 +3,14 @@ package pb;
 //syntax="proto2"
 
 // PROTO MESSAGES
-message Item {
+message ItemBase {
   optional uint32 id = 1;
-  optional string name = 2;
-  optional bool valid = 3;
+}
+
+message Item {
+  optional string name = 1;
+  optional bool valid = 2;
+  optional ItemBase  __parent = 3;
 }
 
 message Character {

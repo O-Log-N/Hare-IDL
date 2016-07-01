@@ -7,13 +7,18 @@
 #include "output.pb.h"
 
 // ASSERT-EQUAL
+inline void assertEqualItemBase( const ItemBase& left, const ItemBase& right );
 inline void assertEqualItem( const Item& left, const Item& right );
 inline void assertEqualCharacter( const Character& left, const Character& right );
 
-inline void assertEqualItem( const Item& left, const Item& right ) {
+inline void assertEqualItemBase( const ItemBase& left, const ItemBase& right ) {
     assert(left.id == right.id);
+}
+
+inline void assertEqualItem( const Item& left, const Item& right ) {
     assert(left.name == right.name);
     assert(left.valid == right.valid);
+    assertEqualItemBase(left , right);
 }
 
 inline void assertEqualCharacter( const Character& left, const Character& right ) {
@@ -65,13 +70,18 @@ inline void assertEqualCharacter( const Character& left, const Character& right 
 
 
 // ASSERT-EQUAL2
+inline void assertEqualItemBase( const ItemBase& left, const pb::ItemBase& right );
 inline void assertEqualItem( const Item& left, const pb::Item& right );
 inline void assertEqualCharacter( const Character& left, const pb::Character& right );
 
-inline void assertEqualItem( const Item& left, const pb::Item& right ) {
+inline void assertEqualItemBase( const ItemBase& left, const pb::ItemBase& right ) {
     assert(left.id == right.id());
+}
+
+inline void assertEqualItem( const Item& left, const pb::Item& right ) {
     assert(left.name == right.name());
     assert(left.valid == right.valid());
+    assertEqualItemBase(left , right.__parent());
 }
 
 inline void assertEqualCharacter( const Character& left, const pb::Character& right ) {

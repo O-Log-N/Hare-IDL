@@ -6,10 +6,16 @@
 
 // SERIALIZATION
 
-void serializeItem( const Item& s, OStream& o ) {
+void serializeItemBase( const ItemBase& s, OStream& o ) {
     o.writeUInt(1, s.id);
-    o.writeString(2, s.name);
-    o.writeUInt(3, s.valid);
+}
+
+void serializeItem( const Item& s, OStream& o ) {
+    o.writeString(1, s.name);
+    o.writeUInt(2, s.valid);
+    size_t sz_3 = getSizeItemBase(s);
+    o.writeObjectTagAndSize(3, sz_3);
+    serializeItemBase(s, o);
 }
 
 void serializeCharacter( const Character& s, OStream& o ) {
@@ -44,11 +50,11 @@ void serializeCharacter( const Character& s, OStream& o ) {
 
   
 // DESERIALIZATION
-bool deserializeItem( Item& s, IStream& i ) {
+bool deserializeItemBase( ItemBase& s, IStream& i ) {
    int type;
    int fieldNumber;
    bool readret;
-   const int memcnt = 3;
+   const int memcnt = 1;
    uint8_t initFlags[memcnt] = { 0 };
    do
    {
@@ -64,16 +70,53 @@ bool deserializeItem( Item& s, IStream& i ) {
       s.id = temp;
       break;
     }
+		default:
+		{
+			// TODO: what?
+			break;
+		}
+	  }
+   }
+   while ( 1 ); // TODO: stop criterion (except the end of the message?
+
+   bool OK = true;
+   for ( int i=0; i<memcnt; i++ )
+     OK = OK && initFlags[i] != 0;
+
+   return OK;
+}
+
+bool deserializeItem( Item& s, IStream& i ) {
+   int type;
+   int fieldNumber;
+   bool readret;
+   const int memcnt = 3;
+   uint8_t initFlags[memcnt] = { 0 };
+   do
+   {
+      readret = i.readFieldTypeAndID( type, fieldNumber );
+	  if ( !readret )
+		  break;
+	  switch ( fieldNumber )
+	  {
+    case 1:
+    {
+     initFlags[0] = i.readString( s.name );
+      break;
+    }
     case 2:
     {
-     initFlags[1] = i.readString( s.name );
+      uint64_t temp = 0;
+      initFlags[1] = i.readVariantUInt64( temp );
+      s.valid = static_cast<bool>( temp );
       break;
     }
     case 3:
     {
-      uint64_t temp = 0;
-      initFlags[2] = i.readVariantUInt64( temp );
-      s.valid = static_cast<bool>( temp );
+    uint64_t sz_2 = 0;
+    i.readVariantUInt64(sz_2);
+    IStream is_2 = i.makeSubStream(sz_2);
+    initFlags[2] = deserializeItemBase(s, is_2);
       break;
     }
 		default:
@@ -244,12 +287,15 @@ bool deserializeCharacter( Character& s, IStream& i ) {
   
   
 // PRINTING
-void printItem( const Item& s ) {
+void printItemBase( const ItemBase& s ) {
     cout << "id: ";
 	cout << 
    s.id 
 	  ;
     cout << endl;
+}
+
+void printItem( const Item& s ) {
     cout << "name: ";
 	cout << 
    s.name 
@@ -258,6 +304,11 @@ void printItem( const Item& s ) {
     cout << "valid: ";
 	cout << 
    s.valid 
+	  ;
+    cout << endl;
+    cout << "__parent: ";
+	cout << 
+  "TODO"
 	  ;
     cout << endl;
 }
@@ -353,18 +404,29 @@ void printCharacter( const Character& s ) {
 
 
 // GET-SIZE
-size_t getSizeItem( const Item& s ) {
+size_t getSizeItemBase( const ItemBase& s ) {
    size_t sz = 0;
       
   sz += getTagSize(1);
   sz += getUnsignedVarIntSize(s.id);
+   
+   return sz;
+}
+
+size_t getSizeItem( const Item& s ) {
+   size_t sz = 0;
       
-  sz += getTagSize(2);
+  sz += getTagSize(1);
   sz += getUnsignedVarIntSize(s.name.size());
   sz += s.name.size();
       
-  sz += getTagSize(3);
+  sz += getTagSize(2);
   sz += getUnsignedVarIntSize(s.valid);
+      
+  sz += getTagSize(3);
+  size_t sz_3 = getSizeItemBase(s);
+  sz += getUnsignedVarIntSize(sz_3);
+  sz += sz_3;
    
    return sz;
 }

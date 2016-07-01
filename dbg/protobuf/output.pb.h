@@ -33,10 +33,90 @@ void  protobuf_AddDesc_output_2eproto();
 void protobuf_AssignDesc_output_2eproto();
 void protobuf_ShutdownFile_output_2eproto();
 
+class ItemBase;
 class Item;
 class Character;
 
 // ===================================================================
+
+class ItemBase : public ::google::protobuf::Message {
+ public:
+  ItemBase();
+  virtual ~ItemBase();
+
+  ItemBase(const ItemBase& from);
+
+  inline ItemBase& operator=(const ItemBase& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ItemBase& default_instance();
+
+  void Swap(ItemBase* other);
+
+  // implements Message ----------------------------------------------
+
+  ItemBase* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ItemBase& from);
+  void MergeFrom(const ItemBase& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional uint32 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::uint32 id() const;
+  inline void set_id(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:pb.ItemBase)
+ private:
+  inline void set_has_id();
+  inline void clear_has_id();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 id_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static ItemBase* default_instance_;
+};
+// -------------------------------------------------------------------
 
 class Item : public ::google::protobuf::Message {
  public:
@@ -91,17 +171,10 @@ class Item : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional uint32 id = 1;
-  inline bool has_id() const;
-  inline void clear_id();
-  static const int kIdFieldNumber = 1;
-  inline ::google::protobuf::uint32 id() const;
-  inline void set_id(::google::protobuf::uint32 value);
-
-  // optional string name = 2;
+  // optional string name = 1;
   inline bool has_name() const;
   inline void clear_name();
-  static const int kNameFieldNumber = 2;
+  static const int kNameFieldNumber = 1;
   inline const ::std::string& name() const;
   inline void set_name(const ::std::string& value);
   inline void set_name(const char* value);
@@ -110,28 +183,37 @@ class Item : public ::google::protobuf::Message {
   inline ::std::string* release_name();
   inline void set_allocated_name(::std::string* name);
 
-  // optional bool valid = 3;
+  // optional bool valid = 2;
   inline bool has_valid() const;
   inline void clear_valid();
-  static const int kValidFieldNumber = 3;
+  static const int kValidFieldNumber = 2;
   inline bool valid() const;
   inline void set_valid(bool value);
 
+  // optional .pb.ItemBase __parent = 3;
+  inline bool has___parent() const;
+  inline void clear___parent();
+  static const int kParentFieldNumber = 3;
+  inline const ::pb::ItemBase& __parent() const;
+  inline ::pb::ItemBase* mutable___parent();
+  inline ::pb::ItemBase* release___parent();
+  inline void set_allocated___parent(::pb::ItemBase* __parent);
+
   // @@protoc_insertion_point(class_scope:pb.Item)
  private:
-  inline void set_has_id();
-  inline void clear_has_id();
   inline void set_has_name();
   inline void clear_has_name();
   inline void set_has_valid();
   inline void clear_has_valid();
+  inline void set_has___parent();
+  inline void clear_has___parent();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::std::string* name_;
-  ::google::protobuf::uint32 id_;
+  ::pb::ItemBase* __parent_;
   bool valid_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
@@ -402,41 +484,45 @@ class Character : public ::google::protobuf::Message {
 
 // ===================================================================
 
-// Item
+// ItemBase
 
 // optional uint32 id = 1;
-inline bool Item::has_id() const {
+inline bool ItemBase::has_id() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void Item::set_has_id() {
+inline void ItemBase::set_has_id() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void Item::clear_has_id() {
+inline void ItemBase::clear_has_id() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void Item::clear_id() {
+inline void ItemBase::clear_id() {
   id_ = 0u;
   clear_has_id();
 }
-inline ::google::protobuf::uint32 Item::id() const {
-  // @@protoc_insertion_point(field_get:pb.Item.id)
+inline ::google::protobuf::uint32 ItemBase::id() const {
+  // @@protoc_insertion_point(field_get:pb.ItemBase.id)
   return id_;
 }
-inline void Item::set_id(::google::protobuf::uint32 value) {
+inline void ItemBase::set_id(::google::protobuf::uint32 value) {
   set_has_id();
   id_ = value;
-  // @@protoc_insertion_point(field_set:pb.Item.id)
+  // @@protoc_insertion_point(field_set:pb.ItemBase.id)
 }
 
-// optional string name = 2;
+// -------------------------------------------------------------------
+
+// Item
+
+// optional string name = 1;
 inline bool Item::has_name() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
 inline void Item::set_has_name() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
 }
 inline void Item::clear_has_name() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void Item::clear_name() {
   if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -504,15 +590,15 @@ inline void Item::set_allocated_name(::std::string* name) {
   // @@protoc_insertion_point(field_set_allocated:pb.Item.name)
 }
 
-// optional bool valid = 3;
+// optional bool valid = 2;
 inline bool Item::has_valid() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void Item::set_has_valid() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void Item::clear_has_valid() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void Item::clear_valid() {
   valid_ = false;
@@ -526,6 +612,47 @@ inline void Item::set_valid(bool value) {
   set_has_valid();
   valid_ = value;
   // @@protoc_insertion_point(field_set:pb.Item.valid)
+}
+
+// optional .pb.ItemBase __parent = 3;
+inline bool Item::has___parent() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void Item::set_has___parent() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void Item::clear_has___parent() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void Item::clear___parent() {
+  if (__parent_ != NULL) __parent_->::pb::ItemBase::Clear();
+  clear_has___parent();
+}
+inline const ::pb::ItemBase& Item::__parent() const {
+  // @@protoc_insertion_point(field_get:pb.Item.__parent)
+  return __parent_ != NULL ? *__parent_ : *default_instance_->__parent_;
+}
+inline ::pb::ItemBase* Item::mutable___parent() {
+  set_has___parent();
+  if (__parent_ == NULL) __parent_ = new ::pb::ItemBase;
+  // @@protoc_insertion_point(field_mutable:pb.Item.__parent)
+  return __parent_;
+}
+inline ::pb::ItemBase* Item::release___parent() {
+  clear_has___parent();
+  ::pb::ItemBase* temp = __parent_;
+  __parent_ = NULL;
+  return temp;
+}
+inline void Item::set_allocated___parent(::pb::ItemBase* __parent) {
+  delete __parent_;
+  __parent_ = __parent;
+  if (__parent) {
+    set_has___parent();
+  } else {
+    clear_has___parent();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.Item.__parent)
 }
 
 // -------------------------------------------------------------------

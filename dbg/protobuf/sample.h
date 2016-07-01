@@ -26,9 +26,11 @@ Copyright (C) 2016 OLogN Technologies AG
 
 using namespace std;
 
+struct ItemBase {
+  uint8_t id;
+};
 
-struct Item {
-	uint8_t id;
+struct Item :ItemBase {
   string name;
   bool valid;
 };

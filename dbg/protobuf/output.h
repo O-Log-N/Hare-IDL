@@ -8,6 +8,7 @@
 
 // objects
 
+struct ItemBase;
 struct Item;
 struct Character;
 
@@ -16,15 +17,19 @@ struct Character;
 // functions
     
 // serialization
+void serializeItemBase( const ItemBase& s, OStream& o );
 void serializeItem( const Item& s, OStream& o );
 void serializeCharacter( const Character& s, OStream& o );
 // deserialization
+bool deserializeItemBase( ItemBase& s, IStream& i );
 bool deserializeItem( Item& s, IStream& i );
 bool deserializeCharacter( Character& s, IStream& i );
 // printing
+void printItemBase( const ItemBase& s );
 void printItem( const Item& s );
 void printCharacter( const Character& s );
 // GET-SIZE
+size_t getSizeItemBase( const ItemBase& s );
 size_t getSizeItem( const Item& s );
 size_t getSizeCharacter( const Character& s );
 
