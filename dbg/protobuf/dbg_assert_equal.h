@@ -66,6 +66,7 @@ inline void assertEqualCharacter( const Character& left, const Character& right 
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
+    assertEqualunique_ptr<ItemBase>(left.poly_ptr , right.poly_ptr);
 }
 
 
@@ -129,6 +130,7 @@ inline void assertEqualCharacter( const Character& left, const pb::Character& ri
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
+    assertEqualunique_ptr<ItemBase>(left.poly_ptr , right.poly_ptr());
 }
 
 

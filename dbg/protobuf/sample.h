@@ -21,6 +21,7 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "hare/hareidl.h"
 
@@ -33,6 +34,14 @@ struct ItemBase {
 struct Item :ItemBase {
   string name;
   bool valid;
+};
+
+struct SuperItem :Item {
+  bool isSuper;
+};
+
+struct MegaItem :Item {
+  bool isMega;
 };
 
 struct Character {
@@ -68,6 +77,9 @@ struct Character {
   vector<int16_t> some_ints;
 
   vector<Item> inventory;
+
+  unique_ptr<ItemBase> poly_ptr;
+
 //  map<int16_t, Item> archive;
 };
 
