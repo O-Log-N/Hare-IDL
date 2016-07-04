@@ -47,7 +47,7 @@ inline void assertEqual@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING
 @@IF ((PARAM-TYPE.IS-INTEGER()) || (PARAM-TYPE.IS-FIXED-POINT()) || (PARAM-TYPE.IS-FLOATING-POINT()) || (PARAM-TYPE.IS-CHARACTER-STRING()) || (PARAM-TYPE.IS-ENUM()))
     assert(@PARAM-NAME-LEFT@ == @PARAM-NAME-RIGHT@);
 @@ELIF PARAM-TYPE.IS-STRUCTURE()
-    assertEqual@PARAM-TYPE.MAPPING-MEMBER-TYPE()@(@PARAM-NAME-LEFT@ , @PARAM-NAME-RIGHT@);
+    assertEqual@PARAM-TYPE.ENCODING-MEMBER-TYPE()@(@PARAM-NAME-LEFT@ , @PARAM-NAME-RIGHT@);
 @@ELIF PARAM-TYPE.IS-SEQUENCE()
     {
       auto it1 = @PARAM-NAME-LEFT@.begin();
@@ -56,7 +56,7 @@ inline void assertEqual@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING
       auto it2_end = @PARAM-NAME-RIGHT@.end();
       for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2)
   @@IF PARAM-TYPE.COLLECTION-TYPE().IS-STRUCTURE()
-      assertEqual@PARAM-TYPE.COLLECTION-TYPE().MAPPING-MEMBER-TYPE()@(*it1, *it2);
+      assertEqual@PARAM-TYPE.COLLECTION-TYPE().ENCODING-MEMBER-TYPE()@(*it1, *it2);
   @@ELSE
       assert(*it1 == *it2);
   @@ENDIF

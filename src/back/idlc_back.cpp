@@ -146,7 +146,7 @@ void idlcBackEnd( Root& root2 )
 	processStructures( backRoot, nodeSpace );
 }
 
-void idlcBackEnd(Root& root, const string& path, const vector<string>& files)
+void idlcBackEnd(Root& root, const string& path, const vector<string>& files, bool dbgDump)
 {
     // further usage
     BackRoot backRoot;
@@ -176,10 +176,11 @@ void idlcBackEnd(Root& root, const string& path, const vector<string>& files)
         fmt::print("  done\n");
     }
 
-    fmt::print("\n\n");
-    dbgPrintTemplateTrees(nodeSpace);
-    fmt::print("\n\n");
-
+    if (dbgDump) {
+        fmt::print("\n\n");
+        dbgPrintTemplateTrees(nodeSpace);
+        fmt::print("\n\n");
+    }
     //	apply( backRoot, nodeSpace );
     processStructures(backRoot, nodeSpace);
 }
