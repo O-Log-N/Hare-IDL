@@ -44,9 +44,35 @@ void serializeCharacter( const Character& s, OStream& o ) {
     o.writeObjectTagAndSize(17, sz_17);
     serializeItem(item, o);
     }
+    size_t sz_18 = getSize__unique_ptr_ItemBase(s.poly_ptr);
+    o.writeObjectTagAndSize(18, sz_18);
+    serialize__unique_ptr_ItemBase(s.poly_ptr, o);
 }
 
 
+void serialize__unique_ptr_ItemBase( const unique_ptr<ItemBase>& s, OStream& o ) {
+  
+  if(s.get() == nullptr) {
+    return;
+  }
+       else if ( typeid( *s ) == typeid( Item ) ) {
+         auto ptr = dynamic_cast<Item*>(s.get());
+    size_t sz_1 = getSizeItem(*ptr);
+    o.writeObjectTagAndSize(1, sz_1);
+    serializeItem(*ptr, o);
+
+       }
+       else if ( typeid( *s ) == typeid( ItemBase ) ) {
+         auto ptr = dynamic_cast<ItemBase*>(s.get());
+    size_t sz_2 = getSizeItemBase(*ptr);
+    o.writeObjectTagAndSize(2, sz_2);
+    serializeItemBase(*ptr, o);
+
+       }
+   else {
+     ;// TODO assert?
+   }
+}
 
   
 // DESERIALIZATION
@@ -139,7 +165,7 @@ bool deserializeCharacter( Character& s, IStream& i ) {
    int type;
    int fieldNumber;
    bool readret;
-   const int memcnt = 17;
+   const int memcnt = 18;
    uint8_t initFlags[memcnt] = { 0 };
   initFlags[14] = true;
   initFlags[15] = true;
@@ -267,6 +293,14 @@ bool deserializeCharacter( Character& s, IStream& i ) {
       s.inventory.push_back(temp2);
       break;
     }
+    case 18:
+    {
+    uint64_t sz_17 = 0;
+    i.readVariantUInt64(sz_17);
+    IStream is_17 = i.makeSubStream(sz_17);
+    initFlags[17] = deserialize__unique_ptr_ItemBase(s.poly_ptr, is_17);
+      break;
+    }
 		default:
 		{
 			// TODO: what?
@@ -284,123 +318,196 @@ bool deserializeCharacter( Character& s, IStream& i ) {
 }
 
 
+bool deserialize__unique_ptr_ItemBase( unique_ptr<ItemBase>& s, IStream& i ) {
+   int type;
+   int fieldNumber;
+   bool readret;
+   const int memcnt = 3;
+   uint8_t initFlags[memcnt] = { 0 };
+   do
+   {
+      readret = i.readFieldTypeAndID( type, fieldNumber );
+    if ( !readret )
+      break;
+    switch ( fieldNumber )
+    {
+       case 1:
+       {
+       //else if ( typeid( *s ) == typeid( Item ) ) 
+         unique_ptr<Item> ptr(new Item);
+    uint64_t sz_1 = 0;
+    i.readVariantUInt64(sz_1);
+    IStream is_1 = i.makeSubStream(sz_1);
+    initFlags[1] = deserializeItem(*ptr, is_1);
+         s = move(ptr);
+       }
+       break;
+       case 2:
+       {
+       //else if ( typeid( *s ) == typeid( ItemBase ) ) 
+         unique_ptr<ItemBase> ptr(new ItemBase);
+    uint64_t sz_2 = 0;
+    i.readVariantUInt64(sz_2);
+    IStream is_2 = i.makeSubStream(sz_2);
+    initFlags[2] = deserializeItemBase(*ptr, is_2);
+         s = move(ptr);
+       }
+       break;
+
+    default:
+    {
+      // TODO: what?
+      break;
+    }
+    }
+   }
+   while ( 1 ); // TODO: stop criterion (except the end of the message?
+
+   bool OK = true;
+   for ( int i=0; i<memcnt; i++ )
+     OK = OK || initFlags[i] != 0;
+
+   return OK;
+}
   
   
 // PRINTING
 void printItemBase( const ItemBase& s ) {
-    cout << "id: ";
+/*    cout << "id: ";
 	cout << 
    s.id 
 	  ;
-    cout << endl;
+    cout << endl;*/
 }
 
 void printItem( const Item& s ) {
-    cout << "name: ";
+/*    cout << "name: ";
 	cout << 
    s.name 
 	  ;
-    cout << endl;
-    cout << "valid: ";
+    cout << endl;*/
+/*    cout << "valid: ";
 	cout << 
    s.valid 
 	  ;
-    cout << endl;
-    cout << "__parent: ";
+    cout << endl;*/
+/*    cout << "__parent: ";
 	cout << 
   "TODO"
 	  ;
-    cout << endl;
+    cout << endl;*/
 }
 
 void printCharacter( const Character& s ) {
-    cout << "max_u8: ";
+/*    cout << "max_u8: ";
 	cout << 
    s.max_u8 
 	  ;
-    cout << endl;
-    cout << "max_u16: ";
+    cout << endl;*/
+/*    cout << "max_u16: ";
 	cout << 
    s.max_u16 
 	  ;
-    cout << endl;
-    cout << "max_u32: ";
+    cout << endl;*/
+/*    cout << "max_u32: ";
 	cout << 
    s.max_u32 
 	  ;
-    cout << endl;
-    cout << "min_s8: ";
+    cout << endl;*/
+/*    cout << "min_s8: ";
 	cout << 
    s.min_s8 
 	  ;
-    cout << endl;
-    cout << "min_s16: ";
+    cout << endl;*/
+/*    cout << "min_s16: ";
 	cout << 
    s.min_s16 
 	  ;
-    cout << endl;
-    cout << "min_s32: ";
+    cout << endl;*/
+/*    cout << "min_s32: ";
 	cout << 
    s.min_s32 
 	  ;
-    cout << endl;
-    cout << "max_s8: ";
+    cout << endl;*/
+/*    cout << "max_s8: ";
 	cout << 
    s.max_s8 
 	  ;
-    cout << endl;
-    cout << "max_s16: ";
+    cout << endl;*/
+/*    cout << "max_s16: ";
 	cout << 
    s.max_s16 
 	  ;
-    cout << endl;
-    cout << "max_s32: ";
+    cout << endl;*/
+/*    cout << "max_s32: ";
 	cout << 
    s.max_s32 
 	  ;
-    cout << endl;
-    cout << "x: ";
+    cout << endl;*/
+/*    cout << "x: ";
 	cout << 
    s.x 
 	  ;
-    cout << endl;
-    cout << "y: ";
+    cout << endl;*/
+/*    cout << "y: ";
 	cout << 
    s.y 
 	  ;
-    cout << endl;
-    cout << "z: ";
+    cout << endl;*/
+/*    cout << "z: ";
 	cout << 
    s.z 
 	  ;
-    cout << endl;
-    cout << "flag: ";
+    cout << endl;*/
+/*    cout << "flag: ";
 	cout << 
    s.flag 
 	  ;
-    cout << endl;
-    cout << "desc: ";
+    cout << endl;*/
+/*    cout << "desc: ";
 	cout << 
    s.desc 
 	  ;
-    cout << endl;
-    cout << "more_text: ";
+    cout << endl;*/
+/*    cout << "more_text: ";
 	cout << 
     "TODO"
 	  ;
-    cout << endl;
-    cout << "some_ints: ";
+    cout << endl;*/
+/*    cout << "some_ints: ";
 	cout << 
     "TODO"
 	  ;
-    cout << endl;
-    cout << "inventory: ";
+    cout << endl;*/
+/*    cout << "inventory: ";
 	cout << 
     "TODO"
 	  ;
-    cout << endl;
+    cout << endl;*/
+/*    cout << "poly_ptr: ";
+	cout << 
+  "TODO"
+	  ;
+    cout << endl;*/
 }
 
+
+void print__unique_ptr_ItemBase( unique_ptr<ItemBase>& s ) {
+uint8_t TMP; if ( s == nullptr ) TMP = 2; else if ( typeid( *(s) ) == typeid( Item ) ) TMP = 0; else if ( typeid( *(s) ) == typeid( ItemBase ) ) TMP = 1; 
+/*   switch ( TMP )
+   {
+      case 2:
+	  {
+  "TODO"
+         break;
+      }
+      case 1:
+	  {
+  "TODO"
+         break;
+      }
+   }*/
+}
 
 
 // GET-SIZE
@@ -494,10 +601,43 @@ size_t getSizeCharacter( const Character& s ) {
   sz += getUnsignedVarIntSize(sz_17);
   sz += sz_17;
     }
+      
+  sz += getTagSize(18);
+  size_t sz_18 = getSize__unique_ptr_ItemBase(s.poly_ptr);
+  sz += getUnsignedVarIntSize(sz_18);
+  sz += sz_18;
    
    return sz;
 }
 
 
+size_t getSize__unique_ptr_ItemBase( const unique_ptr<ItemBase>& s ) {
+  
+
+     size_t sz = 0;
+  if(s.get() == nullptr) {
+    return sz;
+  }
+       else if ( typeid( *s ) == typeid( Item ) ) {
+         auto ptr = dynamic_cast<Item*>(s.get());
+  sz += getTagSize(1);
+  size_t sz_1 = getSizeItem(*ptr);
+  sz += getUnsignedVarIntSize(sz_1);
+  sz += sz_1;
+
+       }
+       else if ( typeid( *s ) == typeid( ItemBase ) ) {
+         auto ptr = dynamic_cast<ItemBase*>(s.get());
+  sz += getTagSize(2);
+  size_t sz_2 = getSizeItemBase(*ptr);
+  sz += getUnsignedVarIntSize(sz_2);
+  sz += sz_2;
+
+       }
+   else {
+     ;// TODO assert?
+   }
+   return sz;
+}
 
 

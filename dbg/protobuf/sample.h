@@ -29,6 +29,7 @@ using namespace std;
 
 struct ItemBase {
   uint8_t id;
+  virtual ~ItemBase() = default;
 };
 
 struct Item :ItemBase {

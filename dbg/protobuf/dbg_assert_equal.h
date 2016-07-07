@@ -10,6 +10,8 @@
 inline void assertEqualItemBase( const ItemBase& left, const ItemBase& right );
 inline void assertEqualItem( const Item& left, const Item& right );
 inline void assertEqualCharacter( const Character& left, const Character& right );
+inline void assertEqual__unique_ptr_ItemBase( const unique_ptr<ItemBase>& left, const unique_ptr<ItemBase>& right );
+
 
 inline void assertEqualItemBase( const ItemBase& left, const ItemBase& right ) {
     assert(left.id == right.id);
@@ -66,7 +68,33 @@ inline void assertEqualCharacter( const Character& left, const Character& right 
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
-    assertEqualunique_ptr<ItemBase>(left.poly_ptr , right.poly_ptr);
+    assertEqual__unique_ptr_ItemBase(left.poly_ptr , right.poly_ptr);
+}
+
+inline void assertEqual__unique_ptr_ItemBase( const unique_ptr<ItemBase>& left, const unique_ptr<ItemBase>& right ) {
+
+  if(left.get() == nullptr) {
+    assert(right.get() == nullptr);
+  }
+
+       else if ( typeid( *left ) == typeid( Item ) ) {
+         assert (typeid(*right) == typeid( Item ));
+         auto l = dynamic_cast<Item*>(left.get());
+         auto r = dynamic_cast<Item*>(right.get());
+
+         assertEqualItem(*l , *r);
+       }
+       else if ( typeid( *left ) == typeid( ItemBase ) ) {
+         assert (typeid(*right) == typeid( ItemBase ));
+         auto l = dynamic_cast<ItemBase*>(left.get());
+         auto r = dynamic_cast<ItemBase*>(right.get());
+
+         assertEqualItemBase(*l , *r);
+       }
+
+   else {
+     assert(false);
+   }
 }
 
 
@@ -74,6 +102,8 @@ inline void assertEqualCharacter( const Character& left, const Character& right 
 inline void assertEqualItemBase( const ItemBase& left, const pb::ItemBase& right );
 inline void assertEqualItem( const Item& left, const pb::Item& right );
 inline void assertEqualCharacter( const Character& left, const pb::Character& right );
+inline void assertEqual__unique_ptr_ItemBase( const unique_ptr<ItemBase>& left, const pb::__unique_ptr_ItemBase& right );
+
 
 inline void assertEqualItemBase( const ItemBase& left, const pb::ItemBase& right ) {
     assert(left.id == right.id());
@@ -130,7 +160,37 @@ inline void assertEqualCharacter( const Character& left, const pb::Character& ri
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
-    assertEqualunique_ptr<ItemBase>(left.poly_ptr , right.poly_ptr());
+    assertEqual__unique_ptr_ItemBase(left.poly_ptr , right.poly_ptr());
+}
+
+inline void assertEqual__unique_ptr_ItemBase( const unique_ptr<ItemBase>& left, const pb::__unique_ptr_ItemBase& right ) {
+
+
+  size_t du = 0;
+  if(left.get() == nullptr) {
+    ; // nothing
+  }
+
+       else if ( typeid( *left ) == typeid( Item ) ) {
+         auto l = dynamic_cast<Item*>(left.get());
+
+         assertEqualItem(*l , right.du_1());
+         du = 1;
+       }
+       else if ( typeid( *left ) == typeid( ItemBase ) ) {
+         auto l = dynamic_cast<ItemBase*>(left.get());
+
+         assertEqualItemBase(*l , right.du_2());
+         du = 2;
+       }
+
+   else {
+     assert(false);
+   }
+
+       if(du != 1) assert(!right.has_du_1());
+       if(du != 2) assert(!right.has_du_2());
+
 }
 
 

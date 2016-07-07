@@ -6,13 +6,11 @@ package pb;
 message ItemBase {
   optional uint32 id = 1;
 }
-
 message Item {
   optional string name = 1;
   optional bool valid = 2;
   optional ItemBase  __parent = 3;
 }
-
 message Character {
   optional uint32 max_u8 = 1;
   optional uint32 max_u16 = 2;
@@ -31,8 +29,11 @@ message Character {
   repeated string more_text = 15;
   repeated sint32 some_ints = 16 [packed=false];
   repeated Item inventory = 17;
+  optional __unique_ptr_ItemBase  poly_ptr = 18;
 }
-
-
+message __unique_ptr_ItemBase {
+  optional Item  du_1 = 1;
+  optional ItemBase  du_2 = 2;
+}
 
 

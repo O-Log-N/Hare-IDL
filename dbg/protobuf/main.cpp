@@ -118,6 +118,13 @@ unique_ptr<Character> createSample() {
     character->inventory.push_back(item1);
     character->inventory.push_back(item2);
 
+    Item* item = new Item;
+    item->id = 3;
+    item->name = "polymorphic pointer";
+    item->valid = true;
+
+    character->poly_ptr.reset(item);
+
     return character;
 }
 

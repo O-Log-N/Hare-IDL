@@ -36,6 +36,7 @@ void protobuf_ShutdownFile_output_2eproto();
 class ItemBase;
 class Item;
 class Character;
+class __unique_ptr_ItemBase;
 
 // ===================================================================
 
@@ -420,6 +421,15 @@ class Character : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::pb::Item >*
       mutable_inventory();
 
+  // optional .pb.__unique_ptr_ItemBase poly_ptr = 18;
+  inline bool has_poly_ptr() const;
+  inline void clear_poly_ptr();
+  static const int kPolyPtrFieldNumber = 18;
+  inline const ::pb::__unique_ptr_ItemBase& poly_ptr() const;
+  inline ::pb::__unique_ptr_ItemBase* mutable_poly_ptr();
+  inline ::pb::__unique_ptr_ItemBase* release_poly_ptr();
+  inline void set_allocated_poly_ptr(::pb::__unique_ptr_ItemBase* poly_ptr);
+
   // @@protoc_insertion_point(class_scope:pb.Character)
  private:
   inline void set_has_max_u8();
@@ -450,6 +460,8 @@ class Character : public ::google::protobuf::Message {
   inline void clear_has_flag();
   inline void set_has_desc();
   inline void clear_has_desc();
+  inline void set_has_poly_ptr();
+  inline void clear_has_poly_ptr();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -472,12 +484,106 @@ class Character : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::std::string> more_text_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > some_ints_;
   ::google::protobuf::RepeatedPtrField< ::pb::Item > inventory_;
+  ::pb::__unique_ptr_ItemBase* poly_ptr_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
 
   void InitAsDefaultInstance();
   static Character* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class __unique_ptr_ItemBase : public ::google::protobuf::Message {
+ public:
+  __unique_ptr_ItemBase();
+  virtual ~__unique_ptr_ItemBase();
+
+  __unique_ptr_ItemBase(const __unique_ptr_ItemBase& from);
+
+  inline __unique_ptr_ItemBase& operator=(const __unique_ptr_ItemBase& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const __unique_ptr_ItemBase& default_instance();
+
+  void Swap(__unique_ptr_ItemBase* other);
+
+  // implements Message ----------------------------------------------
+
+  __unique_ptr_ItemBase* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const __unique_ptr_ItemBase& from);
+  void MergeFrom(const __unique_ptr_ItemBase& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .pb.Item du_1 = 1;
+  inline bool has_du_1() const;
+  inline void clear_du_1();
+  static const int kDu1FieldNumber = 1;
+  inline const ::pb::Item& du_1() const;
+  inline ::pb::Item* mutable_du_1();
+  inline ::pb::Item* release_du_1();
+  inline void set_allocated_du_1(::pb::Item* du_1);
+
+  // optional .pb.ItemBase du_2 = 2;
+  inline bool has_du_2() const;
+  inline void clear_du_2();
+  static const int kDu2FieldNumber = 2;
+  inline const ::pb::ItemBase& du_2() const;
+  inline ::pb::ItemBase* mutable_du_2();
+  inline ::pb::ItemBase* release_du_2();
+  inline void set_allocated_du_2(::pb::ItemBase* du_2);
+
+  // @@protoc_insertion_point(class_scope:pb.__unique_ptr_ItemBase)
+ private:
+  inline void set_has_du_1();
+  inline void clear_has_du_1();
+  inline void set_has_du_2();
+  inline void clear_has_du_2();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::pb::Item* du_1_;
+  ::pb::ItemBase* du_2_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static __unique_ptr_ItemBase* default_instance_;
 };
 // ===================================================================
 
@@ -1159,6 +1265,133 @@ inline ::google::protobuf::RepeatedPtrField< ::pb::Item >*
 Character::mutable_inventory() {
   // @@protoc_insertion_point(field_mutable_list:pb.Character.inventory)
   return &inventory_;
+}
+
+// optional .pb.__unique_ptr_ItemBase poly_ptr = 18;
+inline bool Character::has_poly_ptr() const {
+  return (_has_bits_[0] & 0x00020000u) != 0;
+}
+inline void Character::set_has_poly_ptr() {
+  _has_bits_[0] |= 0x00020000u;
+}
+inline void Character::clear_has_poly_ptr() {
+  _has_bits_[0] &= ~0x00020000u;
+}
+inline void Character::clear_poly_ptr() {
+  if (poly_ptr_ != NULL) poly_ptr_->::pb::__unique_ptr_ItemBase::Clear();
+  clear_has_poly_ptr();
+}
+inline const ::pb::__unique_ptr_ItemBase& Character::poly_ptr() const {
+  // @@protoc_insertion_point(field_get:pb.Character.poly_ptr)
+  return poly_ptr_ != NULL ? *poly_ptr_ : *default_instance_->poly_ptr_;
+}
+inline ::pb::__unique_ptr_ItemBase* Character::mutable_poly_ptr() {
+  set_has_poly_ptr();
+  if (poly_ptr_ == NULL) poly_ptr_ = new ::pb::__unique_ptr_ItemBase;
+  // @@protoc_insertion_point(field_mutable:pb.Character.poly_ptr)
+  return poly_ptr_;
+}
+inline ::pb::__unique_ptr_ItemBase* Character::release_poly_ptr() {
+  clear_has_poly_ptr();
+  ::pb::__unique_ptr_ItemBase* temp = poly_ptr_;
+  poly_ptr_ = NULL;
+  return temp;
+}
+inline void Character::set_allocated_poly_ptr(::pb::__unique_ptr_ItemBase* poly_ptr) {
+  delete poly_ptr_;
+  poly_ptr_ = poly_ptr;
+  if (poly_ptr) {
+    set_has_poly_ptr();
+  } else {
+    clear_has_poly_ptr();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.Character.poly_ptr)
+}
+
+// -------------------------------------------------------------------
+
+// __unique_ptr_ItemBase
+
+// optional .pb.Item du_1 = 1;
+inline bool __unique_ptr_ItemBase::has_du_1() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void __unique_ptr_ItemBase::set_has_du_1() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void __unique_ptr_ItemBase::clear_has_du_1() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void __unique_ptr_ItemBase::clear_du_1() {
+  if (du_1_ != NULL) du_1_->::pb::Item::Clear();
+  clear_has_du_1();
+}
+inline const ::pb::Item& __unique_ptr_ItemBase::du_1() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_ItemBase.du_1)
+  return du_1_ != NULL ? *du_1_ : *default_instance_->du_1_;
+}
+inline ::pb::Item* __unique_ptr_ItemBase::mutable_du_1() {
+  set_has_du_1();
+  if (du_1_ == NULL) du_1_ = new ::pb::Item;
+  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_ItemBase.du_1)
+  return du_1_;
+}
+inline ::pb::Item* __unique_ptr_ItemBase::release_du_1() {
+  clear_has_du_1();
+  ::pb::Item* temp = du_1_;
+  du_1_ = NULL;
+  return temp;
+}
+inline void __unique_ptr_ItemBase::set_allocated_du_1(::pb::Item* du_1) {
+  delete du_1_;
+  du_1_ = du_1;
+  if (du_1) {
+    set_has_du_1();
+  } else {
+    clear_has_du_1();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_ItemBase.du_1)
+}
+
+// optional .pb.ItemBase du_2 = 2;
+inline bool __unique_ptr_ItemBase::has_du_2() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void __unique_ptr_ItemBase::set_has_du_2() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void __unique_ptr_ItemBase::clear_has_du_2() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void __unique_ptr_ItemBase::clear_du_2() {
+  if (du_2_ != NULL) du_2_->::pb::ItemBase::Clear();
+  clear_has_du_2();
+}
+inline const ::pb::ItemBase& __unique_ptr_ItemBase::du_2() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_ItemBase.du_2)
+  return du_2_ != NULL ? *du_2_ : *default_instance_->du_2_;
+}
+inline ::pb::ItemBase* __unique_ptr_ItemBase::mutable_du_2() {
+  set_has_du_2();
+  if (du_2_ == NULL) du_2_ = new ::pb::ItemBase;
+  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_ItemBase.du_2)
+  return du_2_;
+}
+inline ::pb::ItemBase* __unique_ptr_ItemBase::release_du_2() {
+  clear_has_du_2();
+  ::pb::ItemBase* temp = du_2_;
+  du_2_ = NULL;
+  return temp;
+}
+inline void __unique_ptr_ItemBase::set_allocated_du_2(::pb::ItemBase* du_2) {
+  delete du_2_;
+  du_2_ = du_2;
+  if (du_2) {
+    set_has_du_2();
+  } else {
+    clear_has_du_2();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_ItemBase.du_2)
 }
 
 
