@@ -23,6 +23,7 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
+#include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 // @@protoc_insertion_point(includes)
 
@@ -38,6 +39,26 @@ class Item;
 class Character;
 class __unique_ptr_ItemBase;
 
+enum Character_Animation {
+  Character_Animation_Running = 0,
+  Character_Animation_Standing = 1,
+  Character_Animation_Walking = 2
+};
+bool Character_Animation_IsValid(int value);
+const Character_Animation Character_Animation_Animation_MIN = Character_Animation_Running;
+const Character_Animation Character_Animation_Animation_MAX = Character_Animation_Walking;
+const int Character_Animation_Animation_ARRAYSIZE = Character_Animation_Animation_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* Character_Animation_descriptor();
+inline const ::std::string& Character_Animation_Name(Character_Animation value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    Character_Animation_descriptor(), value);
+}
+inline bool Character_Animation_Parse(
+    const ::std::string& name, Character_Animation* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<Character_Animation>(
+    Character_Animation_descriptor(), name, value);
+}
 // ===================================================================
 
 class ItemBase : public ::google::protobuf::Message {
@@ -276,6 +297,31 @@ class Character : public ::google::protobuf::Message {
 
   // nested types ----------------------------------------------------
 
+  typedef Character_Animation Animation;
+  static const Animation Running = Character_Animation_Running;
+  static const Animation Standing = Character_Animation_Standing;
+  static const Animation Walking = Character_Animation_Walking;
+  static inline bool Animation_IsValid(int value) {
+    return Character_Animation_IsValid(value);
+  }
+  static const Animation Animation_MIN =
+    Character_Animation_Animation_MIN;
+  static const Animation Animation_MAX =
+    Character_Animation_Animation_MAX;
+  static const int Animation_ARRAYSIZE =
+    Character_Animation_Animation_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  Animation_descriptor() {
+    return Character_Animation_descriptor();
+  }
+  static inline const ::std::string& Animation_Name(Animation value) {
+    return Character_Animation_Name(value);
+  }
+  static inline bool Animation_Parse(const ::std::string& name,
+      Animation* value) {
+    return Character_Animation_Parse(name, value);
+  }
+
   // accessors -------------------------------------------------------
 
   // optional uint32 max_u8 = 1;
@@ -362,17 +408,24 @@ class Character : public ::google::protobuf::Message {
   inline double z() const;
   inline void set_z(double value);
 
-  // optional bool flag = 13;
+  // optional .pb.Character.Animation anim = 13;
+  inline bool has_anim() const;
+  inline void clear_anim();
+  static const int kAnimFieldNumber = 13;
+  inline ::pb::Character_Animation anim() const;
+  inline void set_anim(::pb::Character_Animation value);
+
+  // optional bool flag = 14;
   inline bool has_flag() const;
   inline void clear_flag();
-  static const int kFlagFieldNumber = 13;
+  static const int kFlagFieldNumber = 14;
   inline bool flag() const;
   inline void set_flag(bool value);
 
-  // optional string desc = 14;
+  // optional string desc = 15;
   inline bool has_desc() const;
   inline void clear_desc();
-  static const int kDescFieldNumber = 14;
+  static const int kDescFieldNumber = 15;
   inline const ::std::string& desc() const;
   inline void set_desc(const ::std::string& value);
   inline void set_desc(const char* value);
@@ -381,10 +434,10 @@ class Character : public ::google::protobuf::Message {
   inline ::std::string* release_desc();
   inline void set_allocated_desc(::std::string* desc);
 
-  // repeated string more_text = 15;
+  // repeated string more_text = 16;
   inline int more_text_size() const;
   inline void clear_more_text();
-  static const int kMoreTextFieldNumber = 15;
+  static const int kMoreTextFieldNumber = 16;
   inline const ::std::string& more_text(int index) const;
   inline ::std::string* mutable_more_text(int index);
   inline void set_more_text(int index, const ::std::string& value);
@@ -397,10 +450,10 @@ class Character : public ::google::protobuf::Message {
   inline const ::google::protobuf::RepeatedPtrField< ::std::string>& more_text() const;
   inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_more_text();
 
-  // repeated sint32 some_ints = 16 [packed = false];
+  // repeated sint32 some_ints = 17 [packed = false];
   inline int some_ints_size() const;
   inline void clear_some_ints();
-  static const int kSomeIntsFieldNumber = 16;
+  static const int kSomeIntsFieldNumber = 17;
   inline ::google::protobuf::int32 some_ints(int index) const;
   inline void set_some_ints(int index, ::google::protobuf::int32 value);
   inline void add_some_ints(::google::protobuf::int32 value);
@@ -409,10 +462,10 @@ class Character : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_some_ints();
 
-  // repeated .pb.Item inventory = 17;
+  // repeated .pb.Item inventory = 18;
   inline int inventory_size() const;
   inline void clear_inventory();
-  static const int kInventoryFieldNumber = 17;
+  static const int kInventoryFieldNumber = 18;
   inline const ::pb::Item& inventory(int index) const;
   inline ::pb::Item* mutable_inventory(int index);
   inline ::pb::Item* add_inventory();
@@ -421,10 +474,10 @@ class Character : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::pb::Item >*
       mutable_inventory();
 
-  // optional .pb.__unique_ptr_ItemBase poly_ptr = 18;
+  // optional .pb.__unique_ptr_ItemBase poly_ptr = 19;
   inline bool has_poly_ptr() const;
   inline void clear_poly_ptr();
-  static const int kPolyPtrFieldNumber = 18;
+  static const int kPolyPtrFieldNumber = 19;
   inline const ::pb::__unique_ptr_ItemBase& poly_ptr() const;
   inline ::pb::__unique_ptr_ItemBase* mutable_poly_ptr();
   inline ::pb::__unique_ptr_ItemBase* release_poly_ptr();
@@ -456,6 +509,8 @@ class Character : public ::google::protobuf::Message {
   inline void clear_has_y();
   inline void set_has_z();
   inline void clear_has_z();
+  inline void set_has_anim();
+  inline void clear_has_anim();
   inline void set_has_flag();
   inline void clear_has_flag();
   inline void set_has_desc();
@@ -478,13 +533,14 @@ class Character : public ::google::protobuf::Message {
   double x_;
   double y_;
   ::google::protobuf::int32 max_s32_;
-  bool flag_;
+  int anim_;
   double z_;
   ::std::string* desc_;
   ::google::protobuf::RepeatedPtrField< ::std::string> more_text_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > some_ints_;
   ::google::protobuf::RepeatedPtrField< ::pb::Item > inventory_;
   ::pb::__unique_ptr_ItemBase* poly_ptr_;
+  bool flag_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
@@ -1053,15 +1109,40 @@ inline void Character::set_z(double value) {
   // @@protoc_insertion_point(field_set:pb.Character.z)
 }
 
-// optional bool flag = 13;
-inline bool Character::has_flag() const {
+// optional .pb.Character.Animation anim = 13;
+inline bool Character::has_anim() const {
   return (_has_bits_[0] & 0x00001000u) != 0;
 }
-inline void Character::set_has_flag() {
+inline void Character::set_has_anim() {
   _has_bits_[0] |= 0x00001000u;
 }
-inline void Character::clear_has_flag() {
+inline void Character::clear_has_anim() {
   _has_bits_[0] &= ~0x00001000u;
+}
+inline void Character::clear_anim() {
+  anim_ = 0;
+  clear_has_anim();
+}
+inline ::pb::Character_Animation Character::anim() const {
+  // @@protoc_insertion_point(field_get:pb.Character.anim)
+  return static_cast< ::pb::Character_Animation >(anim_);
+}
+inline void Character::set_anim(::pb::Character_Animation value) {
+  assert(::pb::Character_Animation_IsValid(value));
+  set_has_anim();
+  anim_ = value;
+  // @@protoc_insertion_point(field_set:pb.Character.anim)
+}
+
+// optional bool flag = 14;
+inline bool Character::has_flag() const {
+  return (_has_bits_[0] & 0x00002000u) != 0;
+}
+inline void Character::set_has_flag() {
+  _has_bits_[0] |= 0x00002000u;
+}
+inline void Character::clear_has_flag() {
+  _has_bits_[0] &= ~0x00002000u;
 }
 inline void Character::clear_flag() {
   flag_ = false;
@@ -1077,15 +1158,15 @@ inline void Character::set_flag(bool value) {
   // @@protoc_insertion_point(field_set:pb.Character.flag)
 }
 
-// optional string desc = 14;
+// optional string desc = 15;
 inline bool Character::has_desc() const {
-  return (_has_bits_[0] & 0x00002000u) != 0;
+  return (_has_bits_[0] & 0x00004000u) != 0;
 }
 inline void Character::set_has_desc() {
-  _has_bits_[0] |= 0x00002000u;
+  _has_bits_[0] |= 0x00004000u;
 }
 inline void Character::clear_has_desc() {
-  _has_bits_[0] &= ~0x00002000u;
+  _has_bits_[0] &= ~0x00004000u;
 }
 inline void Character::clear_desc() {
   if (desc_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -1153,7 +1234,7 @@ inline void Character::set_allocated_desc(::std::string* desc) {
   // @@protoc_insertion_point(field_set_allocated:pb.Character.desc)
 }
 
-// repeated string more_text = 15;
+// repeated string more_text = 16;
 inline int Character::more_text_size() const {
   return more_text_.size();
 }
@@ -1207,7 +1288,7 @@ Character::mutable_more_text() {
   return &more_text_;
 }
 
-// repeated sint32 some_ints = 16 [packed = false];
+// repeated sint32 some_ints = 17 [packed = false];
 inline int Character::some_ints_size() const {
   return some_ints_.size();
 }
@@ -1237,7 +1318,7 @@ Character::mutable_some_ints() {
   return &some_ints_;
 }
 
-// repeated .pb.Item inventory = 17;
+// repeated .pb.Item inventory = 18;
 inline int Character::inventory_size() const {
   return inventory_.size();
 }
@@ -1267,15 +1348,15 @@ Character::mutable_inventory() {
   return &inventory_;
 }
 
-// optional .pb.__unique_ptr_ItemBase poly_ptr = 18;
+// optional .pb.__unique_ptr_ItemBase poly_ptr = 19;
 inline bool Character::has_poly_ptr() const {
-  return (_has_bits_[0] & 0x00020000u) != 0;
+  return (_has_bits_[0] & 0x00040000u) != 0;
 }
 inline void Character::set_has_poly_ptr() {
-  _has_bits_[0] |= 0x00020000u;
+  _has_bits_[0] |= 0x00040000u;
 }
 inline void Character::clear_has_poly_ptr() {
-  _has_bits_[0] &= ~0x00020000u;
+  _has_bits_[0] &= ~0x00040000u;
 }
 inline void Character::clear_poly_ptr() {
   if (poly_ptr_ != NULL) poly_ptr_->::pb::__unique_ptr_ItemBase::Clear();
@@ -1403,6 +1484,11 @@ inline void __unique_ptr_ItemBase::set_allocated_du_2(::pb::ItemBase* du_2) {
 namespace google {
 namespace protobuf {
 
+template <> struct is_proto_enum< ::pb::Character_Animation> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::pb::Character_Animation>() {
+  return ::pb::Character_Animation_descriptor();
+}
 
 }  // namespace google
 }  // namespace protobuf

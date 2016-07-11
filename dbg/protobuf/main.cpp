@@ -93,7 +93,7 @@ unique_ptr<Character> createSample() {
     character->y = 10.0;
     character->z = 1.0;
 ////    character->angle = 45;
-////    character->anim = Character::Walking;
+    character->anim = Character::Walking;
     character->flag = true;
     character->desc = "Hello";
 //    character->value = 127;

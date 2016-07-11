@@ -31,21 +31,28 @@ void serializeCharacter( const Character& s, OStream& o ) {
     o.writeDouble(10, s.x);
     o.writeDouble(11, s.y);
     o.writeDouble(12, s.z);
-    o.writeUInt(13, s.flag);
-    o.writeString(14, s.desc);
+    switch ( s.anim )
+    {
+        case 2 /*Running*/: o.writeUInt(13, 0 ); break;
+        case 0 /*Standing*/: o.writeUInt(13, 1 ); break;
+        case 1 /*Walking*/: o.writeUInt(13, 2 ); break;
+        default: assert( 0 );
+    }
+    o.writeUInt(14, s.flag);
+    o.writeString(15, s.desc);
     for(const auto& item:s.more_text) {
-    o.writeString(15, item);
+    o.writeString(16, item);
     }
     for(const auto& item:s.some_ints) {
-    o.writeInt(16, item);
+    o.writeInt(17, item);
     }
     for(const auto& item:s.inventory) {
-    size_t sz_17 = getSizeItem(item);
-    o.writeObjectTagAndSize(17, sz_17);
+    size_t sz_18 = getSizeItem(item);
+    o.writeObjectTagAndSize(18, sz_18);
     serializeItem(item, o);
     }
-    size_t sz_18 = getSize__unique_ptr_ItemBase(s.poly_ptr);
-    o.writeObjectTagAndSize(18, sz_18);
+    size_t sz_19 = getSize__unique_ptr_ItemBase(s.poly_ptr);
+    o.writeObjectTagAndSize(19, sz_19);
     serialize__unique_ptr_ItemBase(s.poly_ptr, o);
 }
 
@@ -165,11 +172,11 @@ bool deserializeCharacter( Character& s, IStream& i ) {
    int type;
    int fieldNumber;
    bool readret;
-   const int memcnt = 18;
+   const int memcnt = 19;
    uint8_t initFlags[memcnt] = { 0 };
-  initFlags[14] = true;
   initFlags[15] = true;
   initFlags[16] = true;
+  initFlags[17] = true;
    do
    {
       readret = i.readFieldTypeAndID( type, fieldNumber );
@@ -257,48 +264,63 @@ bool deserializeCharacter( Character& s, IStream& i ) {
     }
     case 13:
     {
-      uint64_t temp = 0;
-      initFlags[12] = i.readVariantUInt64( temp );
-      s.flag = static_cast<bool>( temp );
+   {
+       uint64_t temp = 0;
+       initFlags[12] = i.readVariantUInt64( temp );
+       switch ( temp )
+       {
+	      case 0: s.anim = s.Running; break;
+	      case 1: s.anim = s.Standing; break;
+	      case 2: s.anim = s.Walking; break;
+          default: assert(0);
+       }
+   }
       break;
     }
     case 14:
     {
-     initFlags[13] = i.readString( s.desc );
+      uint64_t temp = 0;
+      initFlags[13] = i.readVariantUInt64( temp );
+      s.flag = static_cast<bool>( temp );
       break;
     }
     case 15:
     {
-      string temp2;
-     initFlags[14] = i.readString( temp2 );
-      s.more_text.push_back(temp2);
+     initFlags[14] = i.readString( s.desc );
       break;
     }
     case 16:
     {
-      int16_t temp2;
-      int64_t temp = 0;
-      initFlags[15] = i.readVariantInt64( temp );
-      temp2 = temp;
-      s.some_ints.push_back(temp2);
+      string temp2;
+     initFlags[15] = i.readString( temp2 );
+      s.more_text.push_back(temp2);
       break;
     }
     case 17:
     {
-      Item temp2;
-    uint64_t sz_16 = 0;
-    i.readVariantUInt64(sz_16);
-    IStream is_16 = i.makeSubStream(sz_16);
-    initFlags[16] = deserializeItem(temp2, is_16);
-      s.inventory.push_back(temp2);
+      int16_t temp2;
+      int64_t temp = 0;
+      initFlags[16] = i.readVariantInt64( temp );
+      temp2 = temp;
+      s.some_ints.push_back(temp2);
       break;
     }
     case 18:
     {
+      Item temp2;
     uint64_t sz_17 = 0;
     i.readVariantUInt64(sz_17);
     IStream is_17 = i.makeSubStream(sz_17);
-    initFlags[17] = deserialize__unique_ptr_ItemBase(s.poly_ptr, is_17);
+    initFlags[17] = deserializeItem(temp2, is_17);
+      s.inventory.push_back(temp2);
+      break;
+    }
+    case 19:
+    {
+    uint64_t sz_18 = 0;
+    i.readVariantUInt64(sz_18);
+    IStream is_18 = i.makeSubStream(sz_18);
+    initFlags[18] = deserialize__unique_ptr_ItemBase(s.poly_ptr, is_18);
       break;
     }
 		default:
@@ -459,6 +481,11 @@ void printCharacter( const Character& s ) {
    s.z 
 	  ;
     cout << endl;*/
+/*    cout << "anim: ";
+	cout << 
+   s.anim 
+	  ;
+    cout << endl;*/
 /*    cout << "flag: ";
 	cout << 
    s.flag 
@@ -578,34 +605,37 @@ size_t getSizeCharacter( const Character& s ) {
   sz += getFixedSize(s.z);
       
   sz += getTagSize(13);
-  sz += getUnsignedVarIntSize(s.flag);
+  sz += getUnsignedVarIntSize(s.anim);
       
   sz += getTagSize(14);
+  sz += getUnsignedVarIntSize(s.flag);
+      
+  sz += getTagSize(15);
   sz += getUnsignedVarIntSize(s.desc.size());
   sz += s.desc.size();
       
     for(const auto& item:s.more_text) {
-  sz += getTagSize(15);
+  sz += getTagSize(16);
   sz += getUnsignedVarIntSize(item.size());
   sz += item.size();
     }
       
     for(const auto& item:s.some_ints) {
-  sz += getTagSize(16);
+  sz += getTagSize(17);
   sz += getSignedVarIntSize(item);
     }
       
     for(const auto& item:s.inventory) {
-  sz += getTagSize(17);
-  size_t sz_17 = getSizeItem(item);
-  sz += getUnsignedVarIntSize(sz_17);
-  sz += sz_17;
-    }
-      
   sz += getTagSize(18);
-  size_t sz_18 = getSize__unique_ptr_ItemBase(s.poly_ptr);
+  size_t sz_18 = getSizeItem(item);
   sz += getUnsignedVarIntSize(sz_18);
   sz += sz_18;
+    }
+      
+  sz += getTagSize(19);
+  size_t sz_19 = getSize__unique_ptr_ItemBase(s.poly_ptr);
+  sz += getUnsignedVarIntSize(sz_19);
+  sz += sz_19;
    
    return sz;
 }

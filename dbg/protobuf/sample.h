@@ -68,7 +68,7 @@ struct Character {
 
 //  float angle;
 
-  //enum Animation {Standing=0,Walking=1, Running=2} anim;
+  enum Animation {Standing=0,Walking=1, Running=2} anim;
 
   bool flag;
 

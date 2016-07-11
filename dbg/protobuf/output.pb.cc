@@ -29,6 +29,7 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* Character_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Character_reflection_ = NULL;
+const ::google::protobuf::EnumDescriptor* Character_Animation_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* __unique_ptr_ItemBase_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   __unique_ptr_ItemBase_reflection_ = NULL;
@@ -75,7 +76,7 @@ void protobuf_AssignDesc_output_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Item));
   Character_descriptor_ = file->message_type(2);
-  static const int Character_offsets_[18] = {
+  static const int Character_offsets_[19] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, max_u8_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, max_u16_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, max_u32_),
@@ -88,6 +89,7 @@ void protobuf_AssignDesc_output_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, x_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, y_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, z_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, anim_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, flag_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, desc_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Character, more_text_),
@@ -106,6 +108,7 @@ void protobuf_AssignDesc_output_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Character));
+  Character_Animation_descriptor_ = Character_descriptor_->enum_type(0);
   __unique_ptr_ItemBase_descriptor_ = file->message_type(3);
   static const int __unique_ptr_ItemBase_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(__unique_ptr_ItemBase, du_1_),
@@ -166,18 +169,20 @@ void protobuf_AddDesc_output_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014output.proto\022\002pb\"\026\n\010ItemBase\022\n\n\002id\030\001 \001"
     "(\r\"C\n\004Item\022\014\n\004name\030\001 \001(\t\022\r\n\005valid\030\002 \001(\010\022"
-    "\036\n\010__parent\030\003 \001(\0132\014.pb.ItemBase\"\322\002\n\tChar"
+    "\036\n\010__parent\030\003 \001(\0132\014.pb.ItemBase\"\256\003\n\tChar"
     "acter\022\016\n\006max_u8\030\001 \001(\r\022\017\n\007max_u16\030\002 \001(\r\022\017"
     "\n\007max_u32\030\003 \001(\r\022\016\n\006min_s8\030\004 \001(\021\022\017\n\007min_s"
     "16\030\005 \001(\021\022\017\n\007min_s32\030\006 \001(\021\022\016\n\006max_s8\030\007 \001("
     "\021\022\017\n\007max_s16\030\010 \001(\021\022\017\n\007max_s32\030\t \001(\021\022\t\n\001x"
-    "\030\n \001(\001\022\t\n\001y\030\013 \001(\001\022\t\n\001z\030\014 \001(\001\022\014\n\004flag\030\r \001"
-    "(\010\022\014\n\004desc\030\016 \001(\t\022\021\n\tmore_text\030\017 \003(\t\022\025\n\ts"
-    "ome_ints\030\020 \003(\021B\002\020\000\022\033\n\tinventory\030\021 \003(\0132\010."
-    "pb.Item\022+\n\010poly_ptr\030\022 \001(\0132\031.pb.__unique_"
-    "ptr_ItemBase\"K\n\025__unique_ptr_ItemBase\022\026\n"
-    "\004du_1\030\001 \001(\0132\010.pb.Item\022\032\n\004du_2\030\002 \001(\0132\014.pb"
-    ".ItemBase", 529);
+    "\030\n \001(\001\022\t\n\001y\030\013 \001(\001\022\t\n\001z\030\014 \001(\001\022%\n\004anim\030\r \001"
+    "(\0162\027.pb.Character.Animation\022\014\n\004flag\030\016 \001("
+    "\010\022\014\n\004desc\030\017 \001(\t\022\021\n\tmore_text\030\020 \003(\t\022\025\n\tso"
+    "me_ints\030\021 \003(\021B\002\020\000\022\033\n\tinventory\030\022 \003(\0132\010.p"
+    "b.Item\022+\n\010poly_ptr\030\023 \001(\0132\031.pb.__unique_p"
+    "tr_ItemBase\"3\n\tAnimation\022\013\n\007Running\020\000\022\014\n"
+    "\010Standing\020\001\022\013\n\007Walking\020\002\"K\n\025__unique_ptr"
+    "_ItemBase\022\026\n\004du_1\030\001 \001(\0132\010.pb.Item\022\032\n\004du_"
+    "2\030\002 \001(\0132\014.pb.ItemBase", 621);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "output.proto", &protobuf_RegisterTypes);
   ItemBase::default_instance_ = new ItemBase();
@@ -748,6 +753,29 @@ void Item::Swap(Item* other) {
 
 // ===================================================================
 
+const ::google::protobuf::EnumDescriptor* Character_Animation_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Character_Animation_descriptor_;
+}
+bool Character_Animation_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+    case 2:
+      return true;
+    default:
+      return false;
+  }
+}
+
+#ifndef _MSC_VER
+const Character_Animation Character::Running;
+const Character_Animation Character::Standing;
+const Character_Animation Character::Walking;
+const Character_Animation Character::Animation_MIN;
+const Character_Animation Character::Animation_MAX;
+const int Character::Animation_ARRAYSIZE;
+#endif  // _MSC_VER
 #ifndef _MSC_VER
 const int Character::kMaxU8FieldNumber;
 const int Character::kMaxU16FieldNumber;
@@ -761,6 +789,7 @@ const int Character::kMaxS32FieldNumber;
 const int Character::kXFieldNumber;
 const int Character::kYFieldNumber;
 const int Character::kZFieldNumber;
+const int Character::kAnimFieldNumber;
 const int Character::kFlagFieldNumber;
 const int Character::kDescFieldNumber;
 const int Character::kMoreTextFieldNumber;
@@ -801,6 +830,7 @@ void Character::SharedCtor() {
   x_ = 0;
   y_ = 0;
   z_ = 0;
+  anim_ = 0;
   flag_ = false;
   desc_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   poly_ptr_ = NULL;
@@ -856,8 +886,9 @@ void Character::Clear() {
   if (_has_bits_[0 / 32] & 255) {
     ZR_(max_u8_, max_s16_);
   }
-  if (_has_bits_[8 / 32] & 16128) {
+  if (_has_bits_[8 / 32] & 32512) {
     ZR_(x_, z_);
+    flag_ = false;
     if (has_desc()) {
       if (desc_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         desc_->clear();
@@ -1063,13 +1094,33 @@ bool Character::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(104)) goto parse_flag;
+        if (input->ExpectTag(104)) goto parse_anim;
         break;
       }
 
-      // optional bool flag = 13;
+      // optional .pb.Character.Animation anim = 13;
       case 13: {
         if (tag == 104) {
+         parse_anim:
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          if (::pb::Character_Animation_IsValid(value)) {
+            set_anim(static_cast< ::pb::Character_Animation >(value));
+          } else {
+            mutable_unknown_fields()->AddVarint(13, value);
+          }
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(112)) goto parse_flag;
+        break;
+      }
+
+      // optional bool flag = 14;
+      case 14: {
+        if (tag == 112) {
          parse_flag:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
@@ -1078,13 +1129,13 @@ bool Character::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(114)) goto parse_desc;
+        if (input->ExpectTag(122)) goto parse_desc;
         break;
       }
 
-      // optional string desc = 14;
-      case 14: {
-        if (tag == 114) {
+      // optional string desc = 15;
+      case 15: {
+        if (tag == 122) {
          parse_desc:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_desc()));
@@ -1095,13 +1146,13 @@ bool Character::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(122)) goto parse_more_text;
+        if (input->ExpectTag(130)) goto parse_more_text;
         break;
       }
 
-      // repeated string more_text = 15;
-      case 15: {
-        if (tag == 122) {
+      // repeated string more_text = 16;
+      case 16: {
+        if (tag == 130) {
          parse_more_text:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->add_more_text()));
@@ -1113,47 +1164,47 @@ bool Character::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(122)) goto parse_more_text;
-        if (input->ExpectTag(128)) goto parse_some_ints;
+        if (input->ExpectTag(130)) goto parse_more_text;
+        if (input->ExpectTag(136)) goto parse_some_ints;
         break;
       }
 
-      // repeated sint32 some_ints = 16 [packed = false];
-      case 16: {
-        if (tag == 128) {
+      // repeated sint32 some_ints = 17 [packed = false];
+      case 17: {
+        if (tag == 136) {
          parse_some_ints:
           DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
-                 2, 128, input, this->mutable_some_ints())));
-        } else if (tag == 130) {
+                 2, 136, input, this->mutable_some_ints())));
+        } else if (tag == 138) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
                  input, this->mutable_some_ints())));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(128)) goto parse_some_ints;
-        if (input->ExpectTag(138)) goto parse_inventory;
+        if (input->ExpectTag(136)) goto parse_some_ints;
+        if (input->ExpectTag(146)) goto parse_inventory;
         break;
       }
 
-      // repeated .pb.Item inventory = 17;
-      case 17: {
-        if (tag == 138) {
+      // repeated .pb.Item inventory = 18;
+      case 18: {
+        if (tag == 146) {
          parse_inventory:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_inventory()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(138)) goto parse_inventory;
-        if (input->ExpectTag(146)) goto parse_poly_ptr;
+        if (input->ExpectTag(146)) goto parse_inventory;
+        if (input->ExpectTag(154)) goto parse_poly_ptr;
         break;
       }
 
-      // optional .pb.__unique_ptr_ItemBase poly_ptr = 18;
-      case 18: {
-        if (tag == 146) {
+      // optional .pb.__unique_ptr_ItemBase poly_ptr = 19;
+      case 19: {
+        if (tag == 154) {
          parse_poly_ptr:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_poly_ptr()));
@@ -1249,47 +1300,53 @@ void Character::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteDouble(12, this->z(), output);
   }
 
-  // optional bool flag = 13;
-  if (has_flag()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(13, this->flag(), output);
+  // optional .pb.Character.Animation anim = 13;
+  if (has_anim()) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      13, this->anim(), output);
   }
 
-  // optional string desc = 14;
+  // optional bool flag = 14;
+  if (has_flag()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(14, this->flag(), output);
+  }
+
+  // optional string desc = 15;
   if (has_desc()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->desc().data(), this->desc().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "desc");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      14, this->desc(), output);
+      15, this->desc(), output);
   }
 
-  // repeated string more_text = 15;
+  // repeated string more_text = 16;
   for (int i = 0; i < this->more_text_size(); i++) {
   ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
     this->more_text(i).data(), this->more_text(i).length(),
     ::google::protobuf::internal::WireFormat::SERIALIZE,
     "more_text");
     ::google::protobuf::internal::WireFormatLite::WriteString(
-      15, this->more_text(i), output);
+      16, this->more_text(i), output);
   }
 
-  // repeated sint32 some_ints = 16 [packed = false];
+  // repeated sint32 some_ints = 17 [packed = false];
   for (int i = 0; i < this->some_ints_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteSInt32(
-      16, this->some_ints(i), output);
+      17, this->some_ints(i), output);
   }
 
-  // repeated .pb.Item inventory = 17;
+  // repeated .pb.Item inventory = 18;
   for (int i = 0; i < this->inventory_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      17, this->inventory(i), output);
+      18, this->inventory(i), output);
   }
 
-  // optional .pb.__unique_ptr_ItemBase poly_ptr = 18;
+  // optional .pb.__unique_ptr_ItemBase poly_ptr = 19;
   if (has_poly_ptr()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      18, this->poly_ptr(), output);
+      19, this->poly_ptr(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -1362,12 +1419,18 @@ void Character::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteDoubleToArray(12, this->z(), target);
   }
 
-  // optional bool flag = 13;
-  if (has_flag()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(13, this->flag(), target);
+  // optional .pb.Character.Animation anim = 13;
+  if (has_anim()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      13, this->anim(), target);
   }
 
-  // optional string desc = 14;
+  // optional bool flag = 14;
+  if (has_flag()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(14, this->flag(), target);
+  }
+
+  // optional string desc = 15;
   if (has_desc()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->desc().data(), this->desc().length(),
@@ -1375,37 +1438,37 @@ void Character::SerializeWithCachedSizes(
       "desc");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        14, this->desc(), target);
+        15, this->desc(), target);
   }
 
-  // repeated string more_text = 15;
+  // repeated string more_text = 16;
   for (int i = 0; i < this->more_text_size(); i++) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->more_text(i).data(), this->more_text(i).length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "more_text");
     target = ::google::protobuf::internal::WireFormatLite::
-      WriteStringToArray(15, this->more_text(i), target);
+      WriteStringToArray(16, this->more_text(i), target);
   }
 
-  // repeated sint32 some_ints = 16 [packed = false];
+  // repeated sint32 some_ints = 17 [packed = false];
   for (int i = 0; i < this->some_ints_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
-      WriteSInt32ToArray(16, this->some_ints(i), target);
+      WriteSInt32ToArray(17, this->some_ints(i), target);
   }
 
-  // repeated .pb.Item inventory = 17;
+  // repeated .pb.Item inventory = 18;
   for (int i = 0; i < this->inventory_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        17, this->inventory(i), target);
+        18, this->inventory(i), target);
   }
 
-  // optional .pb.__unique_ptr_ItemBase poly_ptr = 18;
+  // optional .pb.__unique_ptr_ItemBase poly_ptr = 19;
   if (has_poly_ptr()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        18, this->poly_ptr(), target);
+        19, this->poly_ptr(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1500,12 +1563,18 @@ int Character::ByteSize() const {
       total_size += 1 + 8;
     }
 
-    // optional bool flag = 13;
+    // optional .pb.Character.Animation anim = 13;
+    if (has_anim()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::EnumSize(this->anim());
+    }
+
+    // optional bool flag = 14;
     if (has_flag()) {
       total_size += 1 + 1;
     }
 
-    // optional string desc = 14;
+    // optional string desc = 15;
     if (has_desc()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
@@ -1513,8 +1582,8 @@ int Character::ByteSize() const {
     }
 
   }
-  if (_has_bits_[17 / 32] & (0xffu << (17 % 32))) {
-    // optional .pb.__unique_ptr_ItemBase poly_ptr = 18;
+  if (_has_bits_[18 / 32] & (0xffu << (18 % 32))) {
+    // optional .pb.__unique_ptr_ItemBase poly_ptr = 19;
     if (has_poly_ptr()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
@@ -1522,14 +1591,14 @@ int Character::ByteSize() const {
     }
 
   }
-  // repeated string more_text = 15;
-  total_size += 1 * this->more_text_size();
+  // repeated string more_text = 16;
+  total_size += 2 * this->more_text_size();
   for (int i = 0; i < this->more_text_size(); i++) {
     total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
       this->more_text(i));
   }
 
-  // repeated sint32 some_ints = 16 [packed = false];
+  // repeated sint32 some_ints = 17 [packed = false];
   {
     int data_size = 0;
     for (int i = 0; i < this->some_ints_size(); i++) {
@@ -1539,7 +1608,7 @@ int Character::ByteSize() const {
     total_size += 2 * this->some_ints_size() + data_size;
   }
 
-  // repeated .pb.Item inventory = 17;
+  // repeated .pb.Item inventory = 18;
   total_size += 2 * this->inventory_size();
   for (int i = 0; i < this->inventory_size(); i++) {
     total_size +=
@@ -1614,6 +1683,9 @@ void Character::MergeFrom(const Character& from) {
     if (from.has_z()) {
       set_z(from.z());
     }
+    if (from.has_anim()) {
+      set_anim(from.anim());
+    }
     if (from.has_flag()) {
       set_flag(from.flag());
     }
@@ -1621,7 +1693,7 @@ void Character::MergeFrom(const Character& from) {
       set_desc(from.desc());
     }
   }
-  if (from._has_bits_[17 / 32] & (0xffu << (17 % 32))) {
+  if (from._has_bits_[18 / 32] & (0xffu << (18 % 32))) {
     if (from.has_poly_ptr()) {
       mutable_poly_ptr()->::pb::__unique_ptr_ItemBase::MergeFrom(from.poly_ptr());
     }
@@ -1660,6 +1732,7 @@ void Character::Swap(Character* other) {
     std::swap(x_, other->x_);
     std::swap(y_, other->y_);
     std::swap(z_, other->z_);
+    std::swap(anim_, other->anim_);
     std::swap(flag_, other->flag_);
     std::swap(desc_, other->desc_);
     more_text_.Swap(&other->more_text_);

@@ -36,6 +36,7 @@ inline void assertEqualCharacter( const Character& left, const Character& right 
     assert(left.x == right.x);
     assert(left.y == right.y);
     assert(left.z == right.z);
+    assert(left.anim == right.anim);
     assert(left.flag == right.flag);
     assert(left.desc == right.desc);
     {
@@ -128,6 +129,7 @@ inline void assertEqualCharacter( const Character& left, const pb::Character& ri
     assert(left.x == right.x());
     assert(left.y == right.y());
     assert(left.z == right.z());
+       // can't compare enum anim
     assert(left.flag == right.flag());
     assert(left.desc == right.desc());
     {

@@ -24,12 +24,18 @@ message Character {
   optional double x = 10;
   optional double y = 11;
   optional double z = 12;
-  optional bool flag = 13;
-  optional string desc = 14;
-  repeated string more_text = 15;
-  repeated sint32 some_ints = 16 [packed=false];
-  repeated Item inventory = 17;
-  optional __unique_ptr_ItemBase  poly_ptr = 18;
+  enum Animation {
+    Running = 0;
+    Standing = 1;
+    Walking = 2;
+  }
+  optional Animation  anim = 13;
+  optional bool flag = 14;
+  optional string desc = 15;
+  repeated string more_text = 16;
+  repeated sint32 some_ints = 17 [packed=false];
+  repeated Item inventory = 18;
+  optional __unique_ptr_ItemBase  poly_ptr = 19;
 }
 message __unique_ptr_ItemBase {
   optional Item  du_1 = 1;

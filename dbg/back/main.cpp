@@ -94,7 +94,7 @@ int main()
 
         // Roughly: back end
         //idlcBackEnd(*root, "../../Hare-IDL/src/targets/cpp/codegen/protobuf/", 
-        //    {"main.txt", "mapping.txt", "encoding.txt", "proto.txt" , "dbg_assert_equal.txt"});
+        //    {"main.txt", "mapping.txt", "encoding.txt", "proto.txt" , "dbg_assert_equal.txt"}, false);
         idlcBackEnd(*root, "../../src/targets/cpp/codegen/protobuf/",
         { "main.txt", "mapping.txt", "encoding.txt", "proto.txt", "dbg_assert_equal.txt" }, false);
     }
