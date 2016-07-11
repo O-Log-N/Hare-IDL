@@ -97,17 +97,37 @@ inline void assertEqual@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING
       auto it1_end = @PARAM-NAME-LEFT@.end();
       auto it2 = @PARAM-NAME-RIGHT@.begin();
       auto it2_end = @PARAM-NAME-RIGHT@.end();
-      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2)
+      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
   @@IF PARAM-TYPE.COLLECTION-TYPE().IS-STRUCTURE()
       assertEqual@PARAM-TYPE.COLLECTION-TYPE().ENCODING-MEMBER-TYPE()@(*it1, *it2);
   @@ELSE
       assert(*it1 == *it2);
   @@ENDIF
+      }
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
 @@ELIF PARAM-TYPE.IS-DICTIONARY()
-  //TODO
+    {
+      auto it1 = @PARAM-NAME-LEFT@.begin();
+      auto it1_end = @PARAM-NAME-LEFT@.end();
+      auto it2 = @PARAM-NAME-RIGHT@.begin();
+      auto it2_end = @PARAM-NAME-RIGHT@.end();
+      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
+  @@IF PARAM-TYPE.COLLECTION-TYPE2().IS-STRUCTURE()
+      assertEqual@PARAM-TYPE.COLLECTION-TYPE2().ENCODING-MEMBER-TYPE()@(it1->first, it2->first);
+  @@ELSE
+      assert(it1->first == it2->first);
+  @@ENDIF
+  @@IF PARAM-TYPE.COLLECTION-TYPE().IS-STRUCTURE()
+      assertEqual@PARAM-TYPE.COLLECTION-TYPE().ENCODING-MEMBER-TYPE()@(it1->second, it2->second);
+  @@ELSE
+      assert(it1->second == it2->second);
+  @@ENDIF
+      }
+      assert(it1 == it1_end);
+      assert(it2 == it2_end);
+    }
 @@ELSE
   @@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
 @@ENDIF
@@ -207,6 +227,8 @@ inline void assertEqual@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING
    @@FOR-EACH LOCAL-MEMBER IN PARAM-STRUCT.MEMBERS()
      @@IF LOCAL-MEMBER.MEMBER-TYPE().IS-ENUM()
        // can't compare enum @LOCAL-MEMBER.MAPPING-MEMBER-NAME()@
+     @@ELIF LOCAL-MEMBER.MEMBER-TYPE().IS-DICTIONARY()
+       // can't compare dictionary @LOCAL-MEMBER.MAPPING-MEMBER-NAME()@
      @@ELSE
       @@INCLUDE TEMPLATE="ASSERT-EQUAL-S-FOR-EACH-OF-MEMBERS" PARAM-NAME-LEFT=FUNCTION-GET-REF-TO-MEMBER("left", LOCAL-MEMBER) PARAM-NAME-RIGHT=FUNCTION-GET-REF-TO-MEMBER-PROTO("right", LOCAL-MEMBER) PARAM-MEMBER=LOCAL-MEMBER PARAM-TYPE="@LOCAL-MEMBER.ENCODING-MEMBER-TYPE()@"
      @@ENDIF

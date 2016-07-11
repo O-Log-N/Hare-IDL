@@ -54,6 +54,24 @@ void serializeCharacter( const Character& s, OStream& o ) {
     size_t sz_19 = getSize__unique_ptr_ItemBase(s.poly_ptr);
     o.writeObjectTagAndSize(19, sz_19);
     serialize__unique_ptr_ItemBase(s.poly_ptr, o);
+    for(const auto& item:s.archive) {
+      {
+      size_t sz = 0;
+  sz += getTagSize(1);
+  sz += getSignedVarIntSize(item.first);
+  sz += getTagSize(2);
+  size_t sz_2 = getSizeItem(item.second);
+  sz += getUnsignedVarIntSize(sz_2);
+  sz += sz_2;
+//      sz += getUnsignedVarIntSize(sz);
+      o.writeObjectTagAndSize(20, sz);
+      }
+    o.writeInt(1, item.first);
+    size_t sz_2 = getSizeItem(item.second);
+    o.writeObjectTagAndSize(2, sz_2);
+    serializeItem(item.second, o);
+    }
+
 }
 
 
@@ -172,11 +190,12 @@ bool deserializeCharacter( Character& s, IStream& i ) {
    int type;
    int fieldNumber;
    bool readret;
-   const int memcnt = 19;
+   const int memcnt = 20;
    uint8_t initFlags[memcnt] = { 0 };
   initFlags[15] = true;
   initFlags[16] = true;
   initFlags[17] = true;
+  initFlags[19] = true;
    do
    {
       readret = i.readFieldTypeAndID( type, fieldNumber );
@@ -294,6 +313,7 @@ bool deserializeCharacter( Character& s, IStream& i ) {
       string temp2;
      initFlags[15] = i.readString( temp2 );
       s.more_text.push_back(temp2);
+
       break;
     }
     case 17:
@@ -303,6 +323,7 @@ bool deserializeCharacter( Character& s, IStream& i ) {
       initFlags[16] = i.readVariantInt64( temp );
       temp2 = temp;
       s.some_ints.push_back(temp2);
+
       break;
     }
     case 18:
@@ -313,6 +334,7 @@ bool deserializeCharacter( Character& s, IStream& i ) {
     IStream is_17 = i.makeSubStream(sz_17);
     initFlags[17] = deserializeItem(temp2, is_17);
       s.inventory.push_back(temp2);
+
       break;
     }
     case 19:
@@ -321,6 +343,57 @@ bool deserializeCharacter( Character& s, IStream& i ) {
     i.readVariantUInt64(sz_18);
     IStream is_18 = i.makeSubStream(sz_18);
     initFlags[18] = deserialize__unique_ptr_ItemBase(s.poly_ptr, is_18);
+      break;
+    }
+    case 20:
+    {
+  bool ok = false;
+  {
+    uint64_t sz_19 = 0;
+    i.readVariantUInt64(sz_19);
+    IStream is_19 = i.makeSubStream(sz_19);
+    IStream& i = is_19;
+    int16_t key;
+    Item value;
+    bool initFlags[3] = { false };
+   do
+   {
+      readret = i.readFieldTypeAndID( type, fieldNumber );
+    if ( !readret )
+      break;
+    switch ( fieldNumber )
+    {
+        case 1:
+    {
+      int64_t temp = 0;
+      initFlags[1] = i.readVariantInt64( temp );
+      key = temp;
+     break;
+    }
+
+    case 2:
+    {
+    uint64_t sz_2 = 0;
+    i.readVariantUInt64(sz_2);
+    IStream is_2 = i.makeSubStream(sz_2);
+    initFlags[2] = deserializeItem(value, is_2);
+      break;
+    }
+
+    default:
+    {
+      // TODO: what?
+      break;
+    }
+    }
+   }
+   while ( 1 ); // TODO: stop criterion (except the end of the message?
+   
+   ok = initFlags[1] && initFlags[2];
+   if(ok)
+     s.archive[key] = value;
+  }
+  initFlags[19] = ok;
       break;
     }
 		default:
@@ -385,11 +458,11 @@ bool deserialize__unique_ptr_ItemBase( unique_ptr<ItemBase>& s, IStream& i ) {
    }
    while ( 1 ); // TODO: stop criterion (except the end of the message?
 
-   bool OK = true;
+   bool OK = false;
    for ( int i=0; i<memcnt; i++ )
      OK = OK || initFlags[i] != 0;
 
-   return OK;
+   return true; //TODO
 }
   
   
@@ -516,6 +589,11 @@ void printCharacter( const Character& s ) {
   "TODO"
 	  ;
     cout << endl;*/
+/*    cout << "archive: ";
+	cout << 
+    "TODO"
+	  ;
+    cout << endl;*/
 }
 
 
@@ -636,6 +714,18 @@ size_t getSizeCharacter( const Character& s ) {
   size_t sz_19 = getSize__unique_ptr_ItemBase(s.poly_ptr);
   sz += getUnsignedVarIntSize(sz_19);
   sz += sz_19;
+      
+    for(const auto& item:s.archive) {
+      sz += getTagSize(20);
+      size_t sz_begin_20 = sz;
+  sz += getTagSize(1);
+  sz += getSignedVarIntSize(item.first);
+  sz += getTagSize(2);
+  size_t sz_2 = getSizeItem(item.second);
+  sz += getUnsignedVarIntSize(sz_2);
+  sz += sz_2;
+      sz += getUnsignedVarIntSize(sz - sz_begin_20);
+    }
    
    return sz;
 }

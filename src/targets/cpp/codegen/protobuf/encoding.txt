@@ -130,9 +130,17 @@ void serialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& 
     }
 @@ELIF PARAM-TYPE.IS-DICTIONARY()
     for(const auto& item:@PARAM-NAME@) {
-      @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-MEMCTR=PARAM-MEMCTR PARAM-NAME="item.first" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE2()
-      @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-MEMCTR=PARAM-MEMCTR PARAM-NAME="item.second" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
+      {
+      size_t sz = 0;
+      @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-NAME="item.first" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE2() PARAM-MEMCTR="1"
+      @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-NAME="item.second" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE() PARAM-MEMCTR="2"
+//      sz += getUnsignedVarIntSize(sz);
+      o.writeObjectTagAndSize(@PARAM-MEMCTR@, sz);
+      }
+      @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item.first" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE2() PARAM-MEMCTR="1"
+      @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item.second" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE() PARAM-MEMCTR="2"
     }
+
 @@ELSE
   @@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
 @@ENDIF
@@ -233,11 +241,11 @@ bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, I
    }
    while ( 1 ); // TODO: stop criterion (except the end of the message?
 
-   bool OK = true;
+   bool OK = false;
    for ( int i=0; i<memcnt; i++ )
      OK = OK || initFlags[i] != 0;
 
-   return OK;
+   return true; //TODO
 }
 @@END-TEMPLATE NAME="DESERIALIZE-DU"
 
@@ -390,6 +398,50 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
       @PARAM-TYPE.COLLECTION-TYPE().ENCODING-MEMBER-TYPE()@ temp2;
       @@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="temp2" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE() PARAM-MEMCTR=PARAM-MEMCTR
       @PARAM-NAME@.push_back(temp2);
+
+@@ELIF PARAM-TYPE.IS-DICTIONARY()
+  bool ok = false;
+  {
+    uint64_t sz_@PARAM-MEMCTR@ = 0;
+    i.readVariantUInt64(sz_@PARAM-MEMCTR@);
+    IStream is_@PARAM-MEMCTR@ = i.makeSubStream(sz_@PARAM-MEMCTR@);
+    IStream& i = is_@PARAM-MEMCTR@;
+    @PARAM-TYPE.COLLECTION-TYPE2().ENCODING-MEMBER-TYPE()@ key;
+    @PARAM-TYPE.COLLECTION-TYPE().ENCODING-MEMBER-TYPE()@ value;
+    bool initFlags[3] = { false };
+   do
+   {
+      readret = i.readFieldTypeAndID( type, fieldNumber );
+    if ( !readret )
+      break;
+    switch ( fieldNumber )
+    {
+        case 1:
+    {
+@@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="key" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE2() PARAM-MEMCTR="1"
+     break;
+    }
+
+    case 2:
+    {
+@@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="value" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE() PARAM-MEMCTR="2"
+      break;
+    }
+
+    default:
+    {
+      // TODO: what?
+      break;
+    }
+    }
+   }
+   while ( 1 ); // TODO: stop criterion (except the end of the message?
+   
+   ok = initFlags[1] && initFlags[2];
+   if(ok)
+     @PARAM-NAME@[key] = value;
+  }
+  initFlags[@PARAM-MEMCTR@] = ok;
 @@ELSE
   @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
 @@ENDIF
@@ -656,9 +708,12 @@ size_t getSize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& 
       @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-MEMCTR=PARAM-MEMCTR PARAM-NAME="item" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
     }
 @@ELIF PARAM-TYPE.IS-DICTIONARY()
-    for(auto item:@PARAM-NAME@) {
-      @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-MEMCTR=PARAM-MEMCTR PARAM-NAME="item.first" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE2()
-      @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-MEMCTR=PARAM-MEMCTR PARAM-NAME="item.second" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
+    for(const auto& item:@PARAM-NAME@) {
+      sz += getTagSize(@PARAM-MEMCTR@);
+      size_t sz_begin_@PARAM-MEMCTR@ = sz;
+      @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-NAME="item.first" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE2() PARAM-MEMCTR="1"
+      @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-NAME="item.second" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE() PARAM-MEMCTR="2"
+      sz += getUnsignedVarIntSize(sz - sz_begin_@PARAM-MEMCTR@);
     }
 @@ELSE
   @@ASSERT "0" MSG="Cannot process member for size: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"

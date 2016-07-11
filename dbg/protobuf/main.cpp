@@ -125,6 +125,10 @@ unique_ptr<Character> createSample() {
 
     character->poly_ptr.reset(item);
 
+    character->archive[1] = item1;
+    character->archive[2] = item2;
+
+
     return character;
 }
 

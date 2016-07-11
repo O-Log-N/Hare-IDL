@@ -44,8 +44,9 @@ inline void assertEqualCharacter( const Character& left, const Character& right 
       auto it1_end = left.more_text.end();
       auto it2 = right.more_text.begin();
       auto it2_end = right.more_text.end();
-      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2)
+      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
       assert(*it1 == *it2);
+      }
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
@@ -54,8 +55,9 @@ inline void assertEqualCharacter( const Character& left, const Character& right 
       auto it1_end = left.some_ints.end();
       auto it2 = right.some_ints.begin();
       auto it2_end = right.some_ints.end();
-      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2)
+      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
       assert(*it1 == *it2);
+      }
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
@@ -64,12 +66,25 @@ inline void assertEqualCharacter( const Character& left, const Character& right 
       auto it1_end = left.inventory.end();
       auto it2 = right.inventory.begin();
       auto it2_end = right.inventory.end();
-      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2)
+      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
       assertEqualItem(*it1, *it2);
+      }
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
     assertEqual__unique_ptr_ItemBase(left.poly_ptr , right.poly_ptr);
+    {
+      auto it1 = left.archive.begin();
+      auto it1_end = left.archive.end();
+      auto it2 = right.archive.begin();
+      auto it2_end = right.archive.end();
+      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
+      assert(it1->first == it2->first);
+      assertEqualItem(it1->second, it2->second);
+      }
+      assert(it1 == it1_end);
+      assert(it2 == it2_end);
+    }
 }
 
 inline void assertEqual__unique_ptr_ItemBase( const unique_ptr<ItemBase>& left, const unique_ptr<ItemBase>& right ) {
@@ -137,8 +152,9 @@ inline void assertEqualCharacter( const Character& left, const pb::Character& ri
       auto it1_end = left.more_text.end();
       auto it2 = right.more_text().begin();
       auto it2_end = right.more_text().end();
-      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2)
+      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
       assert(*it1 == *it2);
+      }
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
@@ -147,8 +163,9 @@ inline void assertEqualCharacter( const Character& left, const pb::Character& ri
       auto it1_end = left.some_ints.end();
       auto it2 = right.some_ints().begin();
       auto it2_end = right.some_ints().end();
-      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2)
+      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
       assert(*it1 == *it2);
+      }
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
@@ -157,12 +174,14 @@ inline void assertEqualCharacter( const Character& left, const pb::Character& ri
       auto it1_end = left.inventory.end();
       auto it2 = right.inventory().begin();
       auto it2_end = right.inventory().end();
-      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2)
+      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
       assertEqualItem(*it1, *it2);
+      }
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
     assertEqual__unique_ptr_ItemBase(left.poly_ptr , right.poly_ptr());
+       // can't compare dictionary archive
 }
 
 inline void assertEqual__unique_ptr_ItemBase( const unique_ptr<ItemBase>& left, const pb::__unique_ptr_ItemBase& right ) {

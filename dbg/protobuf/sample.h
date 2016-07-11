@@ -81,7 +81,7 @@ struct Character {
 
   unique_ptr<ItemBase> poly_ptr;
 
-//  map<int16_t, Item> archive;
+  map<int16_t, Item> archive;
 };
 
 #endif // SAMPLE_H

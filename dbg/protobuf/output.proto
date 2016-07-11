@@ -36,6 +36,7 @@ message Character {
   repeated sint32 some_ints = 17 [packed=false];
   repeated Item inventory = 18;
   optional __unique_ptr_ItemBase  poly_ptr = 19;
+  //  map< sint32 , Item > archive = 20;
 }
 message __unique_ptr_ItemBase {
   optional Item  du_1 = 1;
