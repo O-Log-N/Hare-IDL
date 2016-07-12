@@ -122,12 +122,12 @@ constexpr size_t getFixedSize(float) { return 4; }
 constexpr size_t getFixedSize(double) { return 8; }
 //MB end
 
-class OStream
+class OProtobufStream
 {
 protected:
     FILE* outstr;
 public:
-    OStream(FILE* outStr) : outstr(outStr) {}
+    OProtobufStream(FILE* outStr) : outstr(outStr) {}
     void writeInt(int fieldNumber, int x)
     {
         uint8_t buff[1000];
@@ -292,7 +292,7 @@ public:
 
 #else
 
-class IStream
+class IProtobufStream
 {
 protected:
     uint8_t* instr;
@@ -315,7 +315,7 @@ protected:
         }
     }
 public:
-    IStream(uint8_t* inStr, size_t buffSz_) : instr(inStr), buffSz(buffSz_) { readPos = 0; }
+    IProtobufStream(uint8_t* inStr, size_t buffSz_) : instr(inStr), buffSz(buffSz_) { readPos = 0; }
     bool readFieldTypeAndID(int& type, int& fieldNumber)
     {
         uint8_t buff[12];
@@ -502,7 +502,7 @@ public:
     }
 
     //MB check!
-    IStream makeSubStream(size_t cnt)
+    IProtobufStream makeSubStream(size_t cnt)
     {
         
         if (readPos + cnt > buffSz)
@@ -510,7 +510,7 @@ public:
 
         size_t oldReadPos = readPos;
         readPos += cnt;
-        return IStream(instr + oldReadPos, cnt);
+        return IProtobufStream(instr + oldReadPos, cnt);
     }
 
 };
