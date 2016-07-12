@@ -161,6 +161,7 @@ enum class PREDEFINED_FUNCTION
 	FIND_IN_MAP,
 	CREATE_LIST,
 	APPEND_TO_LIST,
+    CAMEL_CASE_TO_LOWER_UNDERSCORE,
 };
 
 struct PredefindedFunction

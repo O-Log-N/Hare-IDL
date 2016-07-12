@@ -266,7 +266,34 @@ void TemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunctio
 				stack.pop_back();
 				break;
 			}
-			default:
+            case PREDEFINED_FUNCTION::CAMEL_CASE_TO_LOWER_UNDERSCORE:
+            {
+                assert(stack.size() >= 1); // TODO: it's a common check. Think about generalization
+                auto arg1 = stack.begin() + stack.size() - 1;
+                assert(arg1->argtype == ARGTYPE::STRING); // TODO: report an error
+
+                bool first = true;
+                for (auto& line : arg1->lineParts) {
+                    assert(line.isVerbatim);
+                    string replacement = line.verbatim;
+                    size_t i = 0;
+                    while (i < line.verbatim.size()) {
+                        char ch = line.verbatim[i];
+                        if (ch >= 'A' && ch <= 'Z') {
+                            string rep = (first ? string("") : string("_")) + static_cast<char>(ch - 'A' + 'a');
+                            line.verbatim.replace(i, 1, rep);
+                        }
+                        first = false;
+                        ++i;
+                    }
+                }
+
+                //stack.pop_back();
+                //stack.push_back(elem);
+
+                break;
+            }
+            default:
 			{
 				// TODO: report an error
 				assert( 0 );

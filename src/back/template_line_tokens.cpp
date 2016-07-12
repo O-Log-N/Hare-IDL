@@ -144,6 +144,9 @@ Copyright (C) 2016 OLogN Technologies AG
 // object creation and manipulation: list
 #define FUNCTION_STRING_CREATE_LIST "CREATE-LIST"
 #define FUNCTION_STRING_APPEND_TO_LIST "APPEND-TO-LIST"
+// object creation and manipulation: string
+#define FUNCTION_STRING_CAMEL_CASE_TO_LOWER_UNDERSCORE "CAMEL-CASE-TO-LOWER-UNDERSCORE"
+
 
 // operators
 #define OPERATOR_STRING_EQ "=="
@@ -341,7 +344,9 @@ const PredefinedFunctionDetails functions[]
 // list creation and manipulation
 	{FUNCTION_STRING_CREATE_LIST, sizeof(FUNCTION_STRING_CREATE_LIST)-1, PREDEFINED_FUNCTION::CREATE_LIST, 0, false, false},
 	{FUNCTION_STRING_APPEND_TO_LIST, sizeof(FUNCTION_STRING_APPEND_TO_LIST)-1, PREDEFINED_FUNCTION::APPEND_TO_LIST, 1, true, false},
-	{NULL, 0, PREDEFINED_FUNCTION::NOT_A_BUILTIN_FUNCTION, 0, false, false},
+// string manipulation
+    { FUNCTION_STRING_CAMEL_CASE_TO_LOWER_UNDERSCORE, sizeof(FUNCTION_STRING_CAMEL_CASE_TO_LOWER_UNDERSCORE) - 1, PREDEFINED_FUNCTION::CAMEL_CASE_TO_LOWER_UNDERSCORE, 0, true, false },
+    {NULL, 0, PREDEFINED_FUNCTION::NOT_A_BUILTIN_FUNCTION, 0, false, false},
 };
 
 const Operator operators[]
