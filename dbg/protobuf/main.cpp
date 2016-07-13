@@ -5,7 +5,8 @@
 #include <iomanip>
 #include <limits>
 
-#include "sample.h"
+#include "front-back/idl_tree.h"
+#include "front-back/idl_tree_serializer.h"
 #include "output.pb.h"
 #include "output.h"
 #include "protobuf/baselib.h"
@@ -14,17 +15,17 @@
 using namespace std;
 
 
-void protobufReadAndReply(istream& is, ostream& os, const Character& our)
+void protobufReadAndReply(istream& is, ostream& os, const Root& our)
 {
-    pb::Character character;
-    if (!character.ParseFromIstream(&is)) {
+    pb::Root root;
+    if (!root.ParseFromIstream(&is)) {
         cerr << "Failed to parse." << endl;
         throw std::runtime_error("Failed to parse.");
     }
 
-    assertEqualCharacter(our, character);
+    assertEqualRoot(our, root);
 
-    if (!character.SerializeToOstream(&os)) {
+    if (!root.SerializeToOstream(&os)) {
         cerr << "Failed to write." << endl;
         throw std::runtime_error("Failed to write.");
     }
@@ -46,90 +47,38 @@ void protobufReadAndReply(istream& is, ostream& os, const Character& our)
 //    serializeCharacter(root, o);
 //}
 
-unique_ptr<Character> deserializeFromFile(const char* fileName) {
-    unique_ptr<Character> root(new Character);
+unique_ptr<Root> protobufDeserializeFromFile(const char* fileName) {
+    unique_ptr<Root> root(new Root);
+    uint8_t baseBuff[0x10000];
+    FILE* in = fopen(fileName, "rb");
+    size_t sz = fread(baseBuff, 1, 0x10000, in);
+    fclose(in);
+    IProtobufStream i(baseBuff, sz);
+    deserializeRoot(*root, i);
+
+    return root;
+}
+
+void protobufSerializeToFile(const char* fileName, Root& root) {
+
+    FILE* out = fopen(fileName, "wb");
+    assert(out);
+    OProtobufStream o(out);
+
+    serializeRoot(root, o);
+    fclose(out);
+}
+
+unique_ptr<Root> deserializeFile(const char* fileName) {
+    unique_ptr<Root> root(new Root());
     uint8_t baseBuff[0x10000];
     FILE* in = fopen(fileName, "rb");
     size_t sz = fread(baseBuff, 1, 0x10000, in);
     fclose(in);
     IStream i(baseBuff, sz);
-    deserializeCharacter(*root, i);
+    deserializeRoot(*root, i);
 
     return root;
-}
-
-void serializeToFile(const char* fileName, Character& root) {
-
-    FILE* out = fopen(fileName, "wb");
-    assert(out);
-    OStream o(out);
-
-    serializeCharacter(root, o);
-    fclose(out);
-}
-
-
-unique_ptr<Character> createSample() {
-
-    unique_ptr<Character> character(new Character);
-
-    character->max_u8 = numeric_limits<uint8_t>::max();
-    character->max_u16 = numeric_limits<uint16_t>::max();
-    character->max_u32 = numeric_limits<uint32_t>::max();
-//    //character->idU64 = numeric_limits<uint64_t>::max();
-
-    character->min_s8 = numeric_limits<int8_t>::min();
-    character->min_s16 = numeric_limits<int16_t>::min();
-    character->min_s32 = numeric_limits<int32_t>::min();
-    character->min_s32 = numeric_limits<int32_t>::max();
-
-    character->max_s8 = numeric_limits<int8_t>::max();
-    character->max_s16 = numeric_limits<int16_t>::max();
-    character->max_s32 = numeric_limits<int32_t>::max();
-    //character->idS64 = numeric_limits<int64_t>::min();
-
-
-    character->x = 10.0;
-    character->y = 10.0;
-    character->z = 1.0;
-////    character->angle = 45;
-    character->anim = Character::Walking;
-    character->flag = true;
-    character->desc = "Hello";
-//    character->value = 127;
-//    //character->more_text.push_back("line1");
-//    //character->more_text.push_back("line2");
-//    //character->more_text.push_back("line3");
-//
-    character->some_ints.push_back(10);
-    character->some_ints.push_back(100);
-    character->some_ints.push_back(1000);
-
-    Item item1;
-    item1.id = 1;
-    item1.name = "main item";
-    item1.valid = true;
-
-    Item item2;
-    item2.id = 2;
-    item2.name = "other item";
-    item2.valid = false;
-
-    character->inventory.push_back(item1);
-    character->inventory.push_back(item2);
-
-    Item* item = new Item;
-    item->id = 3;
-    item->name = "polymorphic pointer";
-    item->valid = true;
-
-    character->poly_ptr.reset(item);
-
-    character->archive[1] = item1;
-    character->archive[2] = item2;
-
-
-    return character;
 }
 
 
@@ -147,9 +96,10 @@ int main(int argc, char* argv[])
   const char* sendFile = "character.send.bin";
   const char* recvFile = "character.recv.bin";
 
-  unique_ptr<Character> toSend = createSample();
+  unique_ptr<Root> toSend = deserializeFile("../../Hare-IDL/dbg/protobuf/idl_tree.h.idlbin");
+//  unique_ptr<Root> toSend = deserializeFile("idl_tree.h.idlbin");
 
-    serializeToFile(sendFile, *toSend);
+    protobufSerializeToFile(sendFile, *toSend);
 
     {
         fstream is(sendFile, ios::in | ios::binary);
@@ -157,10 +107,10 @@ int main(int argc, char* argv[])
 
         protobufReadAndReply(is, os, *toSend);
     }
-  unique_ptr<Character> recv = deserializeFromFile(sendFile);
+  unique_ptr<Root> recv = protobufDeserializeFromFile(sendFile);
 
   assert(recv);
-  assertEqualCharacter(*toSend, *recv);
+  assertEqualRoot(*toSend, *recv);
 
   google::protobuf::ShutdownProtobufLibrary();
 

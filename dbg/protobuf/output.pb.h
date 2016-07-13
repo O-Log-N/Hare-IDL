@@ -34,41 +34,123 @@ void  protobuf_AddDesc_output_2eproto();
 void protobuf_AssignDesc_output_2eproto();
 void protobuf_ShutdownFile_output_2eproto();
 
-class ItemBase;
-class Item;
-class Character;
-class __unique_ptr_ItemBase;
+class Limit;
+class Location;
+class CharacterRange;
+class CharacterSet;
+class Variant;
+class DataType;
+class EncodingSpecifics;
+class EncodedOrMember;
+class DataMember;
+class EncodedMembers;
+class Structure;
+class Typedef;
+class Root;
+class __unique_ptr_DataType;
+class __unique_ptr_EncodedOrMember;
+class __unique_ptr_Structure;
 
-enum Character_Animation {
-  Character_Animation_Running = 0,
-  Character_Animation_Standing = 1,
-  Character_Animation_Walking = 2
+enum Variant_KIND {
+  Variant_KIND_NONE = 0,
+  Variant_KIND_NUMBER = 1,
+  Variant_KIND_STRING = 2
 };
-bool Character_Animation_IsValid(int value);
-const Character_Animation Character_Animation_Animation_MIN = Character_Animation_Running;
-const Character_Animation Character_Animation_Animation_MAX = Character_Animation_Walking;
-const int Character_Animation_Animation_ARRAYSIZE = Character_Animation_Animation_MAX + 1;
+bool Variant_KIND_IsValid(int value);
+const Variant_KIND Variant_KIND_KIND_MIN = Variant_KIND_NONE;
+const Variant_KIND Variant_KIND_KIND_MAX = Variant_KIND_STRING;
+const int Variant_KIND_KIND_ARRAYSIZE = Variant_KIND_KIND_MAX + 1;
 
-const ::google::protobuf::EnumDescriptor* Character_Animation_descriptor();
-inline const ::std::string& Character_Animation_Name(Character_Animation value) {
+const ::google::protobuf::EnumDescriptor* Variant_KIND_descriptor();
+inline const ::std::string& Variant_KIND_Name(Variant_KIND value) {
   return ::google::protobuf::internal::NameOfEnum(
-    Character_Animation_descriptor(), value);
+    Variant_KIND_descriptor(), value);
 }
-inline bool Character_Animation_Parse(
-    const ::std::string& name, Character_Animation* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<Character_Animation>(
-    Character_Animation_descriptor(), name, value);
+inline bool Variant_KIND_Parse(
+    const ::std::string& name, Variant_KIND* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<Variant_KIND>(
+    Variant_KIND_descriptor(), name, value);
+}
+enum DataType_KIND {
+  DataType_KIND_BIT_STRING = 0,
+  DataType_KIND_CHARACTER = 1,
+  DataType_KIND_CHARACTER_STRING = 2,
+  DataType_KIND_DICTIONARY = 3,
+  DataType_KIND_DISCRIMINATED_UNION = 4,
+  DataType_KIND_ENCODING_SPECIFIC = 5,
+  DataType_KIND_ENUM = 6,
+  DataType_KIND_FIXED_POINT = 7,
+  DataType_KIND_FLOATING_POINT = 8,
+  DataType_KIND_INTEGER = 9,
+  DataType_KIND_MAPPING_SPECIFIC = 10,
+  DataType_KIND_NAMED_TYPE = 11,
+  DataType_KIND_SEQUENCE = 12
+};
+bool DataType_KIND_IsValid(int value);
+const DataType_KIND DataType_KIND_KIND_MIN = DataType_KIND_BIT_STRING;
+const DataType_KIND DataType_KIND_KIND_MAX = DataType_KIND_SEQUENCE;
+const int DataType_KIND_KIND_ARRAYSIZE = DataType_KIND_KIND_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* DataType_KIND_descriptor();
+inline const ::std::string& DataType_KIND_Name(DataType_KIND value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    DataType_KIND_descriptor(), value);
+}
+inline bool DataType_KIND_Parse(
+    const ::std::string& name, DataType_KIND* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<DataType_KIND>(
+    DataType_KIND_descriptor(), name, value);
+}
+enum Structure_DECLTYPE {
+  Structure_DECLTYPE_ENCODING = 0,
+  Structure_DECLTYPE_IDL = 1,
+  Structure_DECLTYPE_MAPPING = 2
+};
+bool Structure_DECLTYPE_IsValid(int value);
+const Structure_DECLTYPE Structure_DECLTYPE_DECLTYPE_MIN = Structure_DECLTYPE_ENCODING;
+const Structure_DECLTYPE Structure_DECLTYPE_DECLTYPE_MAX = Structure_DECLTYPE_MAPPING;
+const int Structure_DECLTYPE_DECLTYPE_ARRAYSIZE = Structure_DECLTYPE_DECLTYPE_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* Structure_DECLTYPE_descriptor();
+inline const ::std::string& Structure_DECLTYPE_Name(Structure_DECLTYPE value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    Structure_DECLTYPE_descriptor(), value);
+}
+inline bool Structure_DECLTYPE_Parse(
+    const ::std::string& name, Structure_DECLTYPE* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<Structure_DECLTYPE>(
+    Structure_DECLTYPE_descriptor(), name, value);
+}
+enum Structure_TYPE {
+  Structure_TYPE_DISCRIMINATED_UNION = 0,
+  Structure_TYPE_RPC = 1,
+  Structure_TYPE_STRUCT = 2
+};
+bool Structure_TYPE_IsValid(int value);
+const Structure_TYPE Structure_TYPE_TYPE_MIN = Structure_TYPE_DISCRIMINATED_UNION;
+const Structure_TYPE Structure_TYPE_TYPE_MAX = Structure_TYPE_STRUCT;
+const int Structure_TYPE_TYPE_ARRAYSIZE = Structure_TYPE_TYPE_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* Structure_TYPE_descriptor();
+inline const ::std::string& Structure_TYPE_Name(Structure_TYPE value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    Structure_TYPE_descriptor(), value);
+}
+inline bool Structure_TYPE_Parse(
+    const ::std::string& name, Structure_TYPE* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<Structure_TYPE>(
+    Structure_TYPE_descriptor(), name, value);
 }
 // ===================================================================
 
-class ItemBase : public ::google::protobuf::Message {
+class Limit : public ::google::protobuf::Message {
  public:
-  ItemBase();
-  virtual ~ItemBase();
+  Limit();
+  virtual ~Limit();
 
-  ItemBase(const ItemBase& from);
+  Limit(const Limit& from);
 
-  inline ItemBase& operator=(const ItemBase& from) {
+  inline Limit& operator=(const Limit& from) {
     CopyFrom(from);
     return *this;
   }
@@ -82,17 +164,17 @@ class ItemBase : public ::google::protobuf::Message {
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const ItemBase& default_instance();
+  static const Limit& default_instance();
 
-  void Swap(ItemBase* other);
+  void Swap(Limit* other);
 
   // implements Message ----------------------------------------------
 
-  ItemBase* New() const;
+  Limit* New() const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ItemBase& from);
-  void MergeFrom(const ItemBase& from);
+  void CopyFrom(const Limit& from);
+  void MergeFrom(const Limit& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -114,40 +196,50 @@ class ItemBase : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional uint32 id = 1;
-  inline bool has_id() const;
-  inline void clear_id();
-  static const int kIdFieldNumber = 1;
-  inline ::google::protobuf::uint32 id() const;
-  inline void set_id(::google::protobuf::uint32 value);
+  // optional bool inclusive = 1;
+  inline bool has_inclusive() const;
+  inline void clear_inclusive();
+  static const int kInclusiveFieldNumber = 1;
+  inline bool inclusive() const;
+  inline void set_inclusive(bool value);
 
-  // @@protoc_insertion_point(class_scope:pb.ItemBase)
+  // optional double value = 2;
+  inline bool has_value() const;
+  inline void clear_value();
+  static const int kValueFieldNumber = 2;
+  inline double value() const;
+  inline void set_value(double value);
+
+  // @@protoc_insertion_point(class_scope:pb.Limit)
  private:
-  inline void set_has_id();
-  inline void clear_has_id();
+  inline void set_has_inclusive();
+  inline void clear_has_inclusive();
+  inline void set_has_value();
+  inline void clear_has_value();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::google::protobuf::uint32 id_;
+  double value_;
+  bool inclusive_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
 
   void InitAsDefaultInstance();
-  static ItemBase* default_instance_;
+  static Limit* default_instance_;
 };
 // -------------------------------------------------------------------
 
-class Item : public ::google::protobuf::Message {
+class Location : public ::google::protobuf::Message {
  public:
-  Item();
-  virtual ~Item();
+  Location();
+  virtual ~Location();
 
-  Item(const Item& from);
+  Location(const Location& from);
 
-  inline Item& operator=(const Item& from) {
+  inline Location& operator=(const Location& from) {
     CopyFrom(from);
     return *this;
   }
@@ -161,17 +253,680 @@ class Item : public ::google::protobuf::Message {
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const Item& default_instance();
+  static const Location& default_instance();
 
-  void Swap(Item* other);
+  void Swap(Location* other);
 
   // implements Message ----------------------------------------------
 
-  Item* New() const;
+  Location* New() const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const Item& from);
-  void MergeFrom(const Item& from);
+  void CopyFrom(const Location& from);
+  void MergeFrom(const Location& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string file_name = 1;
+  inline bool has_file_name() const;
+  inline void clear_file_name();
+  static const int kFileNameFieldNumber = 1;
+  inline const ::std::string& file_name() const;
+  inline void set_file_name(const ::std::string& value);
+  inline void set_file_name(const char* value);
+  inline void set_file_name(const char* value, size_t size);
+  inline ::std::string* mutable_file_name();
+  inline ::std::string* release_file_name();
+  inline void set_allocated_file_name(::std::string* file_name);
+
+  // optional sint32 line_number = 2;
+  inline bool has_line_number() const;
+  inline void clear_line_number();
+  static const int kLineNumberFieldNumber = 2;
+  inline ::google::protobuf::int32 line_number() const;
+  inline void set_line_number(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:pb.Location)
+ private:
+  inline void set_has_file_name();
+  inline void clear_has_file_name();
+  inline void set_has_line_number();
+  inline void clear_has_line_number();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* file_name_;
+  ::google::protobuf::int32 line_number_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static Location* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class CharacterRange : public ::google::protobuf::Message {
+ public:
+  CharacterRange();
+  virtual ~CharacterRange();
+
+  CharacterRange(const CharacterRange& from);
+
+  inline CharacterRange& operator=(const CharacterRange& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CharacterRange& default_instance();
+
+  void Swap(CharacterRange* other);
+
+  // implements Message ----------------------------------------------
+
+  CharacterRange* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const CharacterRange& from);
+  void MergeFrom(const CharacterRange& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional uint32 from = 1;
+  inline bool has_from() const;
+  inline void clear_from();
+  static const int kFromFieldNumber = 1;
+  inline ::google::protobuf::uint32 from() const;
+  inline void set_from(::google::protobuf::uint32 value);
+
+  // optional uint32 to = 2;
+  inline bool has_to() const;
+  inline void clear_to();
+  static const int kToFieldNumber = 2;
+  inline ::google::protobuf::uint32 to() const;
+  inline void set_to(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:pb.CharacterRange)
+ private:
+  inline void set_has_from();
+  inline void clear_has_from();
+  inline void set_has_to();
+  inline void clear_has_to();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 from_;
+  ::google::protobuf::uint32 to_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static CharacterRange* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class CharacterSet : public ::google::protobuf::Message {
+ public:
+  CharacterSet();
+  virtual ~CharacterSet();
+
+  CharacterSet(const CharacterSet& from);
+
+  inline CharacterSet& operator=(const CharacterSet& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CharacterSet& default_instance();
+
+  void Swap(CharacterSet* other);
+
+  // implements Message ----------------------------------------------
+
+  CharacterSet* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const CharacterSet& from);
+  void MergeFrom(const CharacterSet& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .pb.CharacterRange ranges = 1;
+  inline int ranges_size() const;
+  inline void clear_ranges();
+  static const int kRangesFieldNumber = 1;
+  inline const ::pb::CharacterRange& ranges(int index) const;
+  inline ::pb::CharacterRange* mutable_ranges(int index);
+  inline ::pb::CharacterRange* add_ranges();
+  inline const ::google::protobuf::RepeatedPtrField< ::pb::CharacterRange >&
+      ranges() const;
+  inline ::google::protobuf::RepeatedPtrField< ::pb::CharacterRange >*
+      mutable_ranges();
+
+  // @@protoc_insertion_point(class_scope:pb.CharacterSet)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::pb::CharacterRange > ranges_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static CharacterSet* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class Variant : public ::google::protobuf::Message {
+ public:
+  Variant();
+  virtual ~Variant();
+
+  Variant(const Variant& from);
+
+  inline Variant& operator=(const Variant& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Variant& default_instance();
+
+  void Swap(Variant* other);
+
+  // implements Message ----------------------------------------------
+
+  Variant* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Variant& from);
+  void MergeFrom(const Variant& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  typedef Variant_KIND KIND;
+  static const KIND NONE = Variant_KIND_NONE;
+  static const KIND NUMBER = Variant_KIND_NUMBER;
+  static const KIND STRING = Variant_KIND_STRING;
+  static inline bool KIND_IsValid(int value) {
+    return Variant_KIND_IsValid(value);
+  }
+  static const KIND KIND_MIN =
+    Variant_KIND_KIND_MIN;
+  static const KIND KIND_MAX =
+    Variant_KIND_KIND_MAX;
+  static const int KIND_ARRAYSIZE =
+    Variant_KIND_KIND_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  KIND_descriptor() {
+    return Variant_KIND_descriptor();
+  }
+  static inline const ::std::string& KIND_Name(KIND value) {
+    return Variant_KIND_Name(value);
+  }
+  static inline bool KIND_Parse(const ::std::string& name,
+      KIND* value) {
+    return Variant_KIND_Parse(name, value);
+  }
+
+  // accessors -------------------------------------------------------
+
+  // optional .pb.Variant.KIND kind = 1;
+  inline bool has_kind() const;
+  inline void clear_kind();
+  static const int kKindFieldNumber = 1;
+  inline ::pb::Variant_KIND kind() const;
+  inline void set_kind(::pb::Variant_KIND value);
+
+  // optional double number_value = 2;
+  inline bool has_number_value() const;
+  inline void clear_number_value();
+  static const int kNumberValueFieldNumber = 2;
+  inline double number_value() const;
+  inline void set_number_value(double value);
+
+  // optional string string_value = 3;
+  inline bool has_string_value() const;
+  inline void clear_string_value();
+  static const int kStringValueFieldNumber = 3;
+  inline const ::std::string& string_value() const;
+  inline void set_string_value(const ::std::string& value);
+  inline void set_string_value(const char* value);
+  inline void set_string_value(const char* value, size_t size);
+  inline ::std::string* mutable_string_value();
+  inline ::std::string* release_string_value();
+  inline void set_allocated_string_value(::std::string* string_value);
+
+  // @@protoc_insertion_point(class_scope:pb.Variant)
+ private:
+  inline void set_has_kind();
+  inline void clear_has_kind();
+  inline void set_has_number_value();
+  inline void clear_has_number_value();
+  inline void set_has_string_value();
+  inline void clear_has_string_value();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  double number_value_;
+  ::std::string* string_value_;
+  int kind_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static Variant* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class DataType : public ::google::protobuf::Message {
+ public:
+  DataType();
+  virtual ~DataType();
+
+  DataType(const DataType& from);
+
+  inline DataType& operator=(const DataType& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const DataType& default_instance();
+
+  void Swap(DataType* other);
+
+  // implements Message ----------------------------------------------
+
+  DataType* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const DataType& from);
+  void MergeFrom(const DataType& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  typedef DataType_KIND KIND;
+  static const KIND BIT_STRING = DataType_KIND_BIT_STRING;
+  static const KIND CHARACTER = DataType_KIND_CHARACTER;
+  static const KIND CHARACTER_STRING = DataType_KIND_CHARACTER_STRING;
+  static const KIND DICTIONARY = DataType_KIND_DICTIONARY;
+  static const KIND DISCRIMINATED_UNION = DataType_KIND_DISCRIMINATED_UNION;
+  static const KIND ENCODING_SPECIFIC = DataType_KIND_ENCODING_SPECIFIC;
+  static const KIND ENUM = DataType_KIND_ENUM;
+  static const KIND FIXED_POINT = DataType_KIND_FIXED_POINT;
+  static const KIND FLOATING_POINT = DataType_KIND_FLOATING_POINT;
+  static const KIND INTEGER = DataType_KIND_INTEGER;
+  static const KIND MAPPING_SPECIFIC = DataType_KIND_MAPPING_SPECIFIC;
+  static const KIND NAMED_TYPE = DataType_KIND_NAMED_TYPE;
+  static const KIND SEQUENCE = DataType_KIND_SEQUENCE;
+  static inline bool KIND_IsValid(int value) {
+    return DataType_KIND_IsValid(value);
+  }
+  static const KIND KIND_MIN =
+    DataType_KIND_KIND_MIN;
+  static const KIND KIND_MAX =
+    DataType_KIND_KIND_MAX;
+  static const int KIND_ARRAYSIZE =
+    DataType_KIND_KIND_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  KIND_descriptor() {
+    return DataType_KIND_descriptor();
+  }
+  static inline const ::std::string& KIND_Name(KIND value) {
+    return DataType_KIND_Name(value);
+  }
+  static inline bool KIND_Parse(const ::std::string& name,
+      KIND* value) {
+    return DataType_KIND_Parse(name, value);
+  }
+
+  // accessors -------------------------------------------------------
+
+  // optional .pb.DataType.KIND kind = 1;
+  inline bool has_kind() const;
+  inline void clear_kind();
+  static const int kKindFieldNumber = 1;
+  inline ::pb::DataType_KIND kind() const;
+  inline void set_kind(::pb::DataType_KIND value);
+
+  // optional string name = 2;
+  inline bool has_name() const;
+  inline void clear_name();
+  static const int kNameFieldNumber = 2;
+  inline const ::std::string& name() const;
+  inline void set_name(const ::std::string& value);
+  inline void set_name(const char* value);
+  inline void set_name(const char* value, size_t size);
+  inline ::std::string* mutable_name();
+  inline ::std::string* release_name();
+  inline void set_allocated_name(::std::string* name);
+
+  // optional string mapping_name = 3;
+  inline bool has_mapping_name() const;
+  inline void clear_mapping_name();
+  static const int kMappingNameFieldNumber = 3;
+  inline const ::std::string& mapping_name() const;
+  inline void set_mapping_name(const ::std::string& value);
+  inline void set_mapping_name(const char* value);
+  inline void set_mapping_name(const char* value, size_t size);
+  inline ::std::string* mutable_mapping_name();
+  inline ::std::string* release_mapping_name();
+  inline void set_allocated_mapping_name(::std::string* mapping_name);
+
+  // optional string encoding_name = 4;
+  inline bool has_encoding_name() const;
+  inline void clear_encoding_name();
+  static const int kEncodingNameFieldNumber = 4;
+  inline const ::std::string& encoding_name() const;
+  inline void set_encoding_name(const ::std::string& value);
+  inline void set_encoding_name(const char* value);
+  inline void set_encoding_name(const char* value, size_t size);
+  inline ::std::string* mutable_encoding_name();
+  inline ::std::string* release_encoding_name();
+  inline void set_allocated_encoding_name(::std::string* encoding_name);
+
+  // optional .pb.__unique_ptr_DataType key_type = 5;
+  inline bool has_key_type() const;
+  inline void clear_key_type();
+  static const int kKeyTypeFieldNumber = 5;
+  inline const ::pb::__unique_ptr_DataType& key_type() const;
+  inline ::pb::__unique_ptr_DataType* mutable_key_type();
+  inline ::pb::__unique_ptr_DataType* release_key_type();
+  inline void set_allocated_key_type(::pb::__unique_ptr_DataType* key_type);
+
+  // optional .pb.__unique_ptr_DataType param_type = 6;
+  inline bool has_param_type() const;
+  inline void clear_param_type();
+  static const int kParamTypeFieldNumber = 6;
+  inline const ::pb::__unique_ptr_DataType& param_type() const;
+  inline ::pb::__unique_ptr_DataType* mutable_param_type();
+  inline ::pb::__unique_ptr_DataType* release_param_type();
+  inline void set_allocated_param_type(::pb::__unique_ptr_DataType* param_type);
+
+  // optional .pb.Limit low_limit = 7;
+  inline bool has_low_limit() const;
+  inline void clear_low_limit();
+  static const int kLowLimitFieldNumber = 7;
+  inline const ::pb::Limit& low_limit() const;
+  inline ::pb::Limit* mutable_low_limit();
+  inline ::pb::Limit* release_low_limit();
+  inline void set_allocated_low_limit(::pb::Limit* low_limit);
+
+  // optional .pb.Limit high_limit = 8;
+  inline bool has_high_limit() const;
+  inline void clear_high_limit();
+  static const int kHighLimitFieldNumber = 8;
+  inline const ::pb::Limit& high_limit() const;
+  inline ::pb::Limit* mutable_high_limit();
+  inline ::pb::Limit* release_high_limit();
+  inline void set_allocated_high_limit(::pb::Limit* high_limit);
+
+  // optional double fixed_precision = 9;
+  inline bool has_fixed_precision() const;
+  inline void clear_fixed_precision();
+  static const int kFixedPrecisionFieldNumber = 9;
+  inline double fixed_precision() const;
+  inline void set_fixed_precision(double value);
+
+  // optional uint32 floating_significand_bits = 10;
+  inline bool has_floating_significand_bits() const;
+  inline void clear_floating_significand_bits();
+  static const int kFloatingSignificandBitsFieldNumber = 10;
+  inline ::google::protobuf::uint32 floating_significand_bits() const;
+  inline void set_floating_significand_bits(::google::protobuf::uint32 value);
+
+  // optional uint32 floating_exponent_bits = 11;
+  inline bool has_floating_exponent_bits() const;
+  inline void clear_floating_exponent_bits();
+  static const int kFloatingExponentBitsFieldNumber = 11;
+  inline ::google::protobuf::uint32 floating_exponent_bits() const;
+  inline void set_floating_exponent_bits(::google::protobuf::uint32 value);
+
+  // optional .pb.CharacterSet character_set = 12;
+  inline bool has_character_set() const;
+  inline void clear_character_set();
+  static const int kCharacterSetFieldNumber = 12;
+  inline const ::pb::CharacterSet& character_set() const;
+  inline ::pb::CharacterSet* mutable_character_set();
+  inline ::pb::CharacterSet* release_character_set();
+  inline void set_allocated_character_set(::pb::CharacterSet* character_set);
+
+  // optional uint32 string_min_size = 13;
+  inline bool has_string_min_size() const;
+  inline void clear_string_min_size();
+  static const int kStringMinSizeFieldNumber = 13;
+  inline ::google::protobuf::uint32 string_min_size() const;
+  inline void set_string_min_size(::google::protobuf::uint32 value);
+
+  // optional uint32 string_max_size = 14;
+  inline bool has_string_max_size() const;
+  inline void clear_string_max_size();
+  static const int kStringMaxSizeFieldNumber = 14;
+  inline ::google::protobuf::uint32 string_max_size() const;
+  inline void set_string_max_size(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:pb.DataType)
+ private:
+  inline void set_has_kind();
+  inline void clear_has_kind();
+  inline void set_has_name();
+  inline void clear_has_name();
+  inline void set_has_mapping_name();
+  inline void clear_has_mapping_name();
+  inline void set_has_encoding_name();
+  inline void clear_has_encoding_name();
+  inline void set_has_key_type();
+  inline void clear_has_key_type();
+  inline void set_has_param_type();
+  inline void clear_has_param_type();
+  inline void set_has_low_limit();
+  inline void clear_has_low_limit();
+  inline void set_has_high_limit();
+  inline void clear_has_high_limit();
+  inline void set_has_fixed_precision();
+  inline void clear_has_fixed_precision();
+  inline void set_has_floating_significand_bits();
+  inline void clear_has_floating_significand_bits();
+  inline void set_has_floating_exponent_bits();
+  inline void clear_has_floating_exponent_bits();
+  inline void set_has_character_set();
+  inline void clear_has_character_set();
+  inline void set_has_string_min_size();
+  inline void clear_has_string_min_size();
+  inline void set_has_string_max_size();
+  inline void clear_has_string_max_size();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* name_;
+  ::std::string* mapping_name_;
+  ::std::string* encoding_name_;
+  ::pb::__unique_ptr_DataType* key_type_;
+  int kind_;
+  ::google::protobuf::uint32 floating_significand_bits_;
+  ::pb::__unique_ptr_DataType* param_type_;
+  ::pb::Limit* low_limit_;
+  ::pb::Limit* high_limit_;
+  double fixed_precision_;
+  ::pb::CharacterSet* character_set_;
+  ::google::protobuf::uint32 floating_exponent_bits_;
+  ::google::protobuf::uint32 string_min_size_;
+  ::google::protobuf::uint32 string_max_size_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static DataType* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class EncodingSpecifics : public ::google::protobuf::Message {
+ public:
+  EncodingSpecifics();
+  virtual ~EncodingSpecifics();
+
+  EncodingSpecifics(const EncodingSpecifics& from);
+
+  inline EncodingSpecifics& operator=(const EncodingSpecifics& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const EncodingSpecifics& default_instance();
+
+  void Swap(EncodingSpecifics* other);
+
+  // implements Message ----------------------------------------------
+
+  EncodingSpecifics* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const EncodingSpecifics& from);
+  void MergeFrom(const EncodingSpecifics& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -205,28 +960,231 @@ class Item : public ::google::protobuf::Message {
   inline ::std::string* release_name();
   inline void set_allocated_name(::std::string* name);
 
-  // optional bool valid = 2;
-  inline bool has_valid() const;
-  inline void clear_valid();
-  static const int kValidFieldNumber = 2;
-  inline bool valid() const;
-  inline void set_valid(bool value);
-
-  // optional .pb.ItemBase __parent = 3;
-  inline bool has___parent() const;
-  inline void clear___parent();
-  static const int kParentFieldNumber = 3;
-  inline const ::pb::ItemBase& __parent() const;
-  inline ::pb::ItemBase* mutable___parent();
-  inline ::pb::ItemBase* release___parent();
-  inline void set_allocated___parent(::pb::ItemBase* __parent);
-
-  // @@protoc_insertion_point(class_scope:pb.Item)
+  // @@protoc_insertion_point(class_scope:pb.EncodingSpecifics)
  private:
   inline void set_has_name();
   inline void clear_has_name();
-  inline void set_has_valid();
-  inline void clear_has_valid();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* name_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static EncodingSpecifics* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class EncodedOrMember : public ::google::protobuf::Message {
+ public:
+  EncodedOrMember();
+  virtual ~EncodedOrMember();
+
+  EncodedOrMember(const EncodedOrMember& from);
+
+  inline EncodedOrMember& operator=(const EncodedOrMember& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const EncodedOrMember& default_instance();
+
+  void Swap(EncodedOrMember* other);
+
+  // implements Message ----------------------------------------------
+
+  EncodedOrMember* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const EncodedOrMember& from);
+  void MergeFrom(const EncodedOrMember& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .pb.Location location = 1;
+  inline bool has_location() const;
+  inline void clear_location();
+  static const int kLocationFieldNumber = 1;
+  inline const ::pb::Location& location() const;
+  inline ::pb::Location* mutable_location();
+  inline ::pb::Location* release_location();
+  inline void set_allocated_location(::pb::Location* location);
+
+  // @@protoc_insertion_point(class_scope:pb.EncodedOrMember)
+ private:
+  inline void set_has_location();
+  inline void clear_has_location();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::pb::Location* location_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static EncodedOrMember* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class DataMember : public ::google::protobuf::Message {
+ public:
+  DataMember();
+  virtual ~DataMember();
+
+  DataMember(const DataMember& from);
+
+  inline DataMember& operator=(const DataMember& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const DataMember& default_instance();
+
+  void Swap(DataMember* other);
+
+  // implements Message ----------------------------------------------
+
+  DataMember* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const DataMember& from);
+  void MergeFrom(const DataMember& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .pb.DataType type = 1;
+  inline bool has_type() const;
+  inline void clear_type();
+  static const int kTypeFieldNumber = 1;
+  inline const ::pb::DataType& type() const;
+  inline ::pb::DataType* mutable_type();
+  inline ::pb::DataType* release_type();
+  inline void set_allocated_type(::pb::DataType* type);
+
+  // optional string name = 2;
+  inline bool has_name() const;
+  inline void clear_name();
+  static const int kNameFieldNumber = 2;
+  inline const ::std::string& name() const;
+  inline void set_name(const ::std::string& value);
+  inline void set_name(const char* value);
+  inline void set_name(const char* value, size_t size);
+  inline ::std::string* mutable_name();
+  inline ::std::string* release_name();
+  inline void set_allocated_name(::std::string* name);
+
+  // optional bool extend_to = 3;
+  inline bool has_extend_to() const;
+  inline void clear_extend_to();
+  static const int kExtendToFieldNumber = 3;
+  inline bool extend_to() const;
+  inline void set_extend_to(bool value);
+
+  // optional .pb.Variant default_value = 4;
+  inline bool has_default_value() const;
+  inline void clear_default_value();
+  static const int kDefaultValueFieldNumber = 4;
+  inline const ::pb::Variant& default_value() const;
+  inline ::pb::Variant* mutable_default_value();
+  inline ::pb::Variant* release_default_value();
+  inline void set_allocated_default_value(::pb::Variant* default_value);
+
+  // repeated string when_discriminant = 5;
+  inline int when_discriminant_size() const;
+  inline void clear_when_discriminant();
+  static const int kWhenDiscriminantFieldNumber = 5;
+  inline const ::std::string& when_discriminant(int index) const;
+  inline ::std::string* mutable_when_discriminant(int index);
+  inline void set_when_discriminant(int index, const ::std::string& value);
+  inline void set_when_discriminant(int index, const char* value);
+  inline void set_when_discriminant(int index, const char* value, size_t size);
+  inline ::std::string* add_when_discriminant();
+  inline void add_when_discriminant(const ::std::string& value);
+  inline void add_when_discriminant(const char* value);
+  inline void add_when_discriminant(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& when_discriminant() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_when_discriminant();
+
+  // optional .pb.EncodedOrMember __parent = 6;
+  inline bool has___parent() const;
+  inline void clear___parent();
+  static const int kParentFieldNumber = 6;
+  inline const ::pb::EncodedOrMember& __parent() const;
+  inline ::pb::EncodedOrMember* mutable___parent();
+  inline ::pb::EncodedOrMember* release___parent();
+  inline void set_allocated___parent(::pb::EncodedOrMember* __parent);
+
+  // @@protoc_insertion_point(class_scope:pb.DataMember)
+ private:
+  inline void set_has_type();
+  inline void clear_has_type();
+  inline void set_has_name();
+  inline void clear_has_name();
+  inline void set_has_extend_to();
+  inline void clear_has_extend_to();
+  inline void set_has_default_value();
+  inline void clear_has_default_value();
   inline void set_has___parent();
   inline void clear_has___parent();
 
@@ -234,26 +1192,29 @@ class Item : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
+  ::pb::DataType* type_;
   ::std::string* name_;
-  ::pb::ItemBase* __parent_;
-  bool valid_;
+  ::pb::Variant* default_value_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> when_discriminant_;
+  ::pb::EncodedOrMember* __parent_;
+  bool extend_to_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
 
   void InitAsDefaultInstance();
-  static Item* default_instance_;
+  static DataMember* default_instance_;
 };
 // -------------------------------------------------------------------
 
-class Character : public ::google::protobuf::Message {
+class EncodedMembers : public ::google::protobuf::Message {
  public:
-  Character();
-  virtual ~Character();
+  EncodedMembers();
+  virtual ~EncodedMembers();
 
-  Character(const Character& from);
+  EncodedMembers(const EncodedMembers& from);
 
-  inline Character& operator=(const Character& from) {
+  inline EncodedMembers& operator=(const EncodedMembers& from) {
     CopyFrom(from);
     return *this;
   }
@@ -267,17 +1228,17 @@ class Character : public ::google::protobuf::Message {
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const Character& default_instance();
+  static const EncodedMembers& default_instance();
 
-  void Swap(Character* other);
+  void Swap(EncodedMembers* other);
 
   // implements Message ----------------------------------------------
 
-  Character* New() const;
+  EncodedMembers* New() const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const Character& from);
-  void MergeFrom(const Character& from);
+  void CopyFrom(const EncodedMembers& from);
+  void MergeFrom(const EncodedMembers& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -297,267 +1258,69 @@ class Character : public ::google::protobuf::Message {
 
   // nested types ----------------------------------------------------
 
-  typedef Character_Animation Animation;
-  static const Animation Running = Character_Animation_Running;
-  static const Animation Standing = Character_Animation_Standing;
-  static const Animation Walking = Character_Animation_Walking;
-  static inline bool Animation_IsValid(int value) {
-    return Character_Animation_IsValid(value);
-  }
-  static const Animation Animation_MIN =
-    Character_Animation_Animation_MIN;
-  static const Animation Animation_MAX =
-    Character_Animation_Animation_MAX;
-  static const int Animation_ARRAYSIZE =
-    Character_Animation_Animation_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  Animation_descriptor() {
-    return Character_Animation_descriptor();
-  }
-  static inline const ::std::string& Animation_Name(Animation value) {
-    return Character_Animation_Name(value);
-  }
-  static inline bool Animation_Parse(const ::std::string& name,
-      Animation* value) {
-    return Character_Animation_Parse(name, value);
-  }
-
   // accessors -------------------------------------------------------
 
-  // optional uint32 max_u8 = 1;
-  inline bool has_max_u8() const;
-  inline void clear_max_u8();
-  static const int kMaxU8FieldNumber = 1;
-  inline ::google::protobuf::uint32 max_u8() const;
-  inline void set_max_u8(::google::protobuf::uint32 value);
+  // optional .pb.EncodingSpecifics encoding_specifics = 1;
+  inline bool has_encoding_specifics() const;
+  inline void clear_encoding_specifics();
+  static const int kEncodingSpecificsFieldNumber = 1;
+  inline const ::pb::EncodingSpecifics& encoding_specifics() const;
+  inline ::pb::EncodingSpecifics* mutable_encoding_specifics();
+  inline ::pb::EncodingSpecifics* release_encoding_specifics();
+  inline void set_allocated_encoding_specifics(::pb::EncodingSpecifics* encoding_specifics);
 
-  // optional uint32 max_u16 = 2;
-  inline bool has_max_u16() const;
-  inline void clear_max_u16();
-  static const int kMaxU16FieldNumber = 2;
-  inline ::google::protobuf::uint32 max_u16() const;
-  inline void set_max_u16(::google::protobuf::uint32 value);
+  // repeated .pb.__unique_ptr_EncodedOrMember members = 2;
+  inline int members_size() const;
+  inline void clear_members();
+  static const int kMembersFieldNumber = 2;
+  inline const ::pb::__unique_ptr_EncodedOrMember& members(int index) const;
+  inline ::pb::__unique_ptr_EncodedOrMember* mutable_members(int index);
+  inline ::pb::__unique_ptr_EncodedOrMember* add_members();
+  inline const ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_EncodedOrMember >&
+      members() const;
+  inline ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_EncodedOrMember >*
+      mutable_members();
 
-  // optional uint32 max_u32 = 3;
-  inline bool has_max_u32() const;
-  inline void clear_max_u32();
-  static const int kMaxU32FieldNumber = 3;
-  inline ::google::protobuf::uint32 max_u32() const;
-  inline void set_max_u32(::google::protobuf::uint32 value);
+  // optional .pb.EncodedOrMember __parent = 3;
+  inline bool has___parent() const;
+  inline void clear___parent();
+  static const int kParentFieldNumber = 3;
+  inline const ::pb::EncodedOrMember& __parent() const;
+  inline ::pb::EncodedOrMember* mutable___parent();
+  inline ::pb::EncodedOrMember* release___parent();
+  inline void set_allocated___parent(::pb::EncodedOrMember* __parent);
 
-  // optional sint32 min_s8 = 4;
-  inline bool has_min_s8() const;
-  inline void clear_min_s8();
-  static const int kMinS8FieldNumber = 4;
-  inline ::google::protobuf::int32 min_s8() const;
-  inline void set_min_s8(::google::protobuf::int32 value);
-
-  // optional sint32 min_s16 = 5;
-  inline bool has_min_s16() const;
-  inline void clear_min_s16();
-  static const int kMinS16FieldNumber = 5;
-  inline ::google::protobuf::int32 min_s16() const;
-  inline void set_min_s16(::google::protobuf::int32 value);
-
-  // optional sint32 min_s32 = 6;
-  inline bool has_min_s32() const;
-  inline void clear_min_s32();
-  static const int kMinS32FieldNumber = 6;
-  inline ::google::protobuf::int32 min_s32() const;
-  inline void set_min_s32(::google::protobuf::int32 value);
-
-  // optional sint32 max_s8 = 7;
-  inline bool has_max_s8() const;
-  inline void clear_max_s8();
-  static const int kMaxS8FieldNumber = 7;
-  inline ::google::protobuf::int32 max_s8() const;
-  inline void set_max_s8(::google::protobuf::int32 value);
-
-  // optional sint32 max_s16 = 8;
-  inline bool has_max_s16() const;
-  inline void clear_max_s16();
-  static const int kMaxS16FieldNumber = 8;
-  inline ::google::protobuf::int32 max_s16() const;
-  inline void set_max_s16(::google::protobuf::int32 value);
-
-  // optional sint32 max_s32 = 9;
-  inline bool has_max_s32() const;
-  inline void clear_max_s32();
-  static const int kMaxS32FieldNumber = 9;
-  inline ::google::protobuf::int32 max_s32() const;
-  inline void set_max_s32(::google::protobuf::int32 value);
-
-  // optional double x = 10;
-  inline bool has_x() const;
-  inline void clear_x();
-  static const int kXFieldNumber = 10;
-  inline double x() const;
-  inline void set_x(double value);
-
-  // optional double y = 11;
-  inline bool has_y() const;
-  inline void clear_y();
-  static const int kYFieldNumber = 11;
-  inline double y() const;
-  inline void set_y(double value);
-
-  // optional double z = 12;
-  inline bool has_z() const;
-  inline void clear_z();
-  static const int kZFieldNumber = 12;
-  inline double z() const;
-  inline void set_z(double value);
-
-  // optional .pb.Character.Animation anim = 13;
-  inline bool has_anim() const;
-  inline void clear_anim();
-  static const int kAnimFieldNumber = 13;
-  inline ::pb::Character_Animation anim() const;
-  inline void set_anim(::pb::Character_Animation value);
-
-  // optional bool flag = 14;
-  inline bool has_flag() const;
-  inline void clear_flag();
-  static const int kFlagFieldNumber = 14;
-  inline bool flag() const;
-  inline void set_flag(bool value);
-
-  // optional string desc = 15;
-  inline bool has_desc() const;
-  inline void clear_desc();
-  static const int kDescFieldNumber = 15;
-  inline const ::std::string& desc() const;
-  inline void set_desc(const ::std::string& value);
-  inline void set_desc(const char* value);
-  inline void set_desc(const char* value, size_t size);
-  inline ::std::string* mutable_desc();
-  inline ::std::string* release_desc();
-  inline void set_allocated_desc(::std::string* desc);
-
-  // repeated string more_text = 16;
-  inline int more_text_size() const;
-  inline void clear_more_text();
-  static const int kMoreTextFieldNumber = 16;
-  inline const ::std::string& more_text(int index) const;
-  inline ::std::string* mutable_more_text(int index);
-  inline void set_more_text(int index, const ::std::string& value);
-  inline void set_more_text(int index, const char* value);
-  inline void set_more_text(int index, const char* value, size_t size);
-  inline ::std::string* add_more_text();
-  inline void add_more_text(const ::std::string& value);
-  inline void add_more_text(const char* value);
-  inline void add_more_text(const char* value, size_t size);
-  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& more_text() const;
-  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_more_text();
-
-  // repeated sint32 some_ints = 17 [packed = false];
-  inline int some_ints_size() const;
-  inline void clear_some_ints();
-  static const int kSomeIntsFieldNumber = 17;
-  inline ::google::protobuf::int32 some_ints(int index) const;
-  inline void set_some_ints(int index, ::google::protobuf::int32 value);
-  inline void add_some_ints(::google::protobuf::int32 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
-      some_ints() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
-      mutable_some_ints();
-
-  // repeated .pb.Item inventory = 18;
-  inline int inventory_size() const;
-  inline void clear_inventory();
-  static const int kInventoryFieldNumber = 18;
-  inline const ::pb::Item& inventory(int index) const;
-  inline ::pb::Item* mutable_inventory(int index);
-  inline ::pb::Item* add_inventory();
-  inline const ::google::protobuf::RepeatedPtrField< ::pb::Item >&
-      inventory() const;
-  inline ::google::protobuf::RepeatedPtrField< ::pb::Item >*
-      mutable_inventory();
-
-  // optional .pb.__unique_ptr_ItemBase poly_ptr = 19;
-  inline bool has_poly_ptr() const;
-  inline void clear_poly_ptr();
-  static const int kPolyPtrFieldNumber = 19;
-  inline const ::pb::__unique_ptr_ItemBase& poly_ptr() const;
-  inline ::pb::__unique_ptr_ItemBase* mutable_poly_ptr();
-  inline ::pb::__unique_ptr_ItemBase* release_poly_ptr();
-  inline void set_allocated_poly_ptr(::pb::__unique_ptr_ItemBase* poly_ptr);
-
-  // @@protoc_insertion_point(class_scope:pb.Character)
+  // @@protoc_insertion_point(class_scope:pb.EncodedMembers)
  private:
-  inline void set_has_max_u8();
-  inline void clear_has_max_u8();
-  inline void set_has_max_u16();
-  inline void clear_has_max_u16();
-  inline void set_has_max_u32();
-  inline void clear_has_max_u32();
-  inline void set_has_min_s8();
-  inline void clear_has_min_s8();
-  inline void set_has_min_s16();
-  inline void clear_has_min_s16();
-  inline void set_has_min_s32();
-  inline void clear_has_min_s32();
-  inline void set_has_max_s8();
-  inline void clear_has_max_s8();
-  inline void set_has_max_s16();
-  inline void clear_has_max_s16();
-  inline void set_has_max_s32();
-  inline void clear_has_max_s32();
-  inline void set_has_x();
-  inline void clear_has_x();
-  inline void set_has_y();
-  inline void clear_has_y();
-  inline void set_has_z();
-  inline void clear_has_z();
-  inline void set_has_anim();
-  inline void clear_has_anim();
-  inline void set_has_flag();
-  inline void clear_has_flag();
-  inline void set_has_desc();
-  inline void clear_has_desc();
-  inline void set_has_poly_ptr();
-  inline void clear_has_poly_ptr();
+  inline void set_has_encoding_specifics();
+  inline void clear_has_encoding_specifics();
+  inline void set_has___parent();
+  inline void clear_has___parent();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::google::protobuf::uint32 max_u8_;
-  ::google::protobuf::uint32 max_u16_;
-  ::google::protobuf::uint32 max_u32_;
-  ::google::protobuf::int32 min_s8_;
-  ::google::protobuf::int32 min_s16_;
-  ::google::protobuf::int32 min_s32_;
-  ::google::protobuf::int32 max_s8_;
-  ::google::protobuf::int32 max_s16_;
-  double x_;
-  double y_;
-  ::google::protobuf::int32 max_s32_;
-  int anim_;
-  double z_;
-  ::std::string* desc_;
-  ::google::protobuf::RepeatedPtrField< ::std::string> more_text_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > some_ints_;
-  ::google::protobuf::RepeatedPtrField< ::pb::Item > inventory_;
-  ::pb::__unique_ptr_ItemBase* poly_ptr_;
-  bool flag_;
+  ::pb::EncodingSpecifics* encoding_specifics_;
+  ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_EncodedOrMember > members_;
+  ::pb::EncodedOrMember* __parent_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
 
   void InitAsDefaultInstance();
-  static Character* default_instance_;
+  static EncodedMembers* default_instance_;
 };
 // -------------------------------------------------------------------
 
-class __unique_ptr_ItemBase : public ::google::protobuf::Message {
+class Structure : public ::google::protobuf::Message {
  public:
-  __unique_ptr_ItemBase();
-  virtual ~__unique_ptr_ItemBase();
+  Structure();
+  virtual ~Structure();
 
-  __unique_ptr_ItemBase(const __unique_ptr_ItemBase& from);
+  Structure(const Structure& from);
 
-  inline __unique_ptr_ItemBase& operator=(const __unique_ptr_ItemBase& from) {
+  inline Structure& operator=(const Structure& from) {
     CopyFrom(from);
     return *this;
   }
@@ -571,17 +1334,213 @@ class __unique_ptr_ItemBase : public ::google::protobuf::Message {
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const __unique_ptr_ItemBase& default_instance();
+  static const Structure& default_instance();
 
-  void Swap(__unique_ptr_ItemBase* other);
+  void Swap(Structure* other);
 
   // implements Message ----------------------------------------------
 
-  __unique_ptr_ItemBase* New() const;
+  Structure* New() const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const __unique_ptr_ItemBase& from);
-  void MergeFrom(const __unique_ptr_ItemBase& from);
+  void CopyFrom(const Structure& from);
+  void MergeFrom(const Structure& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  typedef Structure_DECLTYPE DECLTYPE;
+  static const DECLTYPE ENCODING = Structure_DECLTYPE_ENCODING;
+  static const DECLTYPE IDL = Structure_DECLTYPE_IDL;
+  static const DECLTYPE MAPPING = Structure_DECLTYPE_MAPPING;
+  static inline bool DECLTYPE_IsValid(int value) {
+    return Structure_DECLTYPE_IsValid(value);
+  }
+  static const DECLTYPE DECLTYPE_MIN =
+    Structure_DECLTYPE_DECLTYPE_MIN;
+  static const DECLTYPE DECLTYPE_MAX =
+    Structure_DECLTYPE_DECLTYPE_MAX;
+  static const int DECLTYPE_ARRAYSIZE =
+    Structure_DECLTYPE_DECLTYPE_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  DECLTYPE_descriptor() {
+    return Structure_DECLTYPE_descriptor();
+  }
+  static inline const ::std::string& DECLTYPE_Name(DECLTYPE value) {
+    return Structure_DECLTYPE_Name(value);
+  }
+  static inline bool DECLTYPE_Parse(const ::std::string& name,
+      DECLTYPE* value) {
+    return Structure_DECLTYPE_Parse(name, value);
+  }
+
+  typedef Structure_TYPE TYPE;
+  static const TYPE DISCRIMINATED_UNION = Structure_TYPE_DISCRIMINATED_UNION;
+  static const TYPE RPC = Structure_TYPE_RPC;
+  static const TYPE STRUCT = Structure_TYPE_STRUCT;
+  static inline bool TYPE_IsValid(int value) {
+    return Structure_TYPE_IsValid(value);
+  }
+  static const TYPE TYPE_MIN =
+    Structure_TYPE_TYPE_MIN;
+  static const TYPE TYPE_MAX =
+    Structure_TYPE_TYPE_MAX;
+  static const int TYPE_ARRAYSIZE =
+    Structure_TYPE_TYPE_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  TYPE_descriptor() {
+    return Structure_TYPE_descriptor();
+  }
+  static inline const ::std::string& TYPE_Name(TYPE value) {
+    return Structure_TYPE_Name(value);
+  }
+  static inline bool TYPE_Parse(const ::std::string& name,
+      TYPE* value) {
+    return Structure_TYPE_Parse(name, value);
+  }
+
+  // accessors -------------------------------------------------------
+
+  // optional .pb.Structure.DECLTYPE decl_type = 1;
+  inline bool has_decl_type() const;
+  inline void clear_decl_type();
+  static const int kDeclTypeFieldNumber = 1;
+  inline ::pb::Structure_DECLTYPE decl_type() const;
+  inline void set_decl_type(::pb::Structure_DECLTYPE value);
+
+  // optional .pb.Structure.TYPE type = 2;
+  inline bool has_type() const;
+  inline void clear_type();
+  static const int kTypeFieldNumber = 2;
+  inline ::pb::Structure_TYPE type() const;
+  inline void set_type(::pb::Structure_TYPE value);
+
+  // optional string name = 3;
+  inline bool has_name() const;
+  inline void clear_name();
+  static const int kNameFieldNumber = 3;
+  inline const ::std::string& name() const;
+  inline void set_name(const ::std::string& value);
+  inline void set_name(const char* value);
+  inline void set_name(const char* value, size_t size);
+  inline ::std::string* mutable_name();
+  inline ::std::string* release_name();
+  inline void set_allocated_name(::std::string* name);
+
+  // optional string discriminant = 4;
+  inline bool has_discriminant() const;
+  inline void clear_discriminant();
+  static const int kDiscriminantFieldNumber = 4;
+  inline const ::std::string& discriminant() const;
+  inline void set_discriminant(const ::std::string& value);
+  inline void set_discriminant(const char* value);
+  inline void set_discriminant(const char* value, size_t size);
+  inline ::std::string* mutable_discriminant();
+  inline ::std::string* release_discriminant();
+  inline void set_allocated_discriminant(::std::string* discriminant);
+
+  // optional string inherited_from = 5;
+  inline bool has_inherited_from() const;
+  inline void clear_inherited_from();
+  static const int kInheritedFromFieldNumber = 5;
+  inline const ::std::string& inherited_from() const;
+  inline void set_inherited_from(const ::std::string& value);
+  inline void set_inherited_from(const char* value);
+  inline void set_inherited_from(const char* value, size_t size);
+  inline ::std::string* mutable_inherited_from();
+  inline ::std::string* release_inherited_from();
+  inline void set_allocated_inherited_from(::std::string* inherited_from);
+
+  // optional .pb.EncodedMembers __parent = 6;
+  inline bool has___parent() const;
+  inline void clear___parent();
+  static const int kParentFieldNumber = 6;
+  inline const ::pb::EncodedMembers& __parent() const;
+  inline ::pb::EncodedMembers* mutable___parent();
+  inline ::pb::EncodedMembers* release___parent();
+  inline void set_allocated___parent(::pb::EncodedMembers* __parent);
+
+  // @@protoc_insertion_point(class_scope:pb.Structure)
+ private:
+  inline void set_has_decl_type();
+  inline void clear_has_decl_type();
+  inline void set_has_type();
+  inline void clear_has_type();
+  inline void set_has_name();
+  inline void clear_has_name();
+  inline void set_has_discriminant();
+  inline void clear_has_discriminant();
+  inline void set_has_inherited_from();
+  inline void clear_has_inherited_from();
+  inline void set_has___parent();
+  inline void clear_has___parent();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  int decl_type_;
+  int type_;
+  ::std::string* name_;
+  ::std::string* discriminant_;
+  ::std::string* inherited_from_;
+  ::pb::EncodedMembers* __parent_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static Structure* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class Typedef : public ::google::protobuf::Message {
+ public:
+  Typedef();
+  virtual ~Typedef();
+
+  Typedef(const Typedef& from);
+
+  inline Typedef& operator=(const Typedef& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Typedef& default_instance();
+
+  void Swap(Typedef* other);
+
+  // implements Message ----------------------------------------------
+
+  Typedef* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Typedef& from);
+  void MergeFrom(const Typedef& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -603,132 +1562,877 @@ class __unique_ptr_ItemBase : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional .pb.Item du_1 = 1;
+  // optional .pb.Location location = 1;
+  inline bool has_location() const;
+  inline void clear_location();
+  static const int kLocationFieldNumber = 1;
+  inline const ::pb::Location& location() const;
+  inline ::pb::Location* mutable_location();
+  inline ::pb::Location* release_location();
+  inline void set_allocated_location(::pb::Location* location);
+
+  // optional .pb.DataType type = 2;
+  inline bool has_type() const;
+  inline void clear_type();
+  static const int kTypeFieldNumber = 2;
+  inline const ::pb::DataType& type() const;
+  inline ::pb::DataType* mutable_type();
+  inline ::pb::DataType* release_type();
+  inline void set_allocated_type(::pb::DataType* type);
+
+  // optional string name = 3;
+  inline bool has_name() const;
+  inline void clear_name();
+  static const int kNameFieldNumber = 3;
+  inline const ::std::string& name() const;
+  inline void set_name(const ::std::string& value);
+  inline void set_name(const char* value);
+  inline void set_name(const char* value, size_t size);
+  inline ::std::string* mutable_name();
+  inline ::std::string* release_name();
+  inline void set_allocated_name(::std::string* name);
+
+  // @@protoc_insertion_point(class_scope:pb.Typedef)
+ private:
+  inline void set_has_location();
+  inline void clear_has_location();
+  inline void set_has_type();
+  inline void clear_has_type();
+  inline void set_has_name();
+  inline void clear_has_name();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::pb::Location* location_;
+  ::pb::DataType* type_;
+  ::std::string* name_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static Typedef* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class Root : public ::google::protobuf::Message {
+ public:
+  Root();
+  virtual ~Root();
+
+  Root(const Root& from);
+
+  inline Root& operator=(const Root& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Root& default_instance();
+
+  void Swap(Root* other);
+
+  // implements Message ----------------------------------------------
+
+  Root* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Root& from);
+  void MergeFrom(const Root& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .pb.Typedef typedefs = 1;
+  inline int typedefs_size() const;
+  inline void clear_typedefs();
+  static const int kTypedefsFieldNumber = 1;
+  inline const ::pb::Typedef& typedefs(int index) const;
+  inline ::pb::Typedef* mutable_typedefs(int index);
+  inline ::pb::Typedef* add_typedefs();
+  inline const ::google::protobuf::RepeatedPtrField< ::pb::Typedef >&
+      typedefs() const;
+  inline ::google::protobuf::RepeatedPtrField< ::pb::Typedef >*
+      mutable_typedefs();
+
+  // repeated .pb.__unique_ptr_Structure structures = 2;
+  inline int structures_size() const;
+  inline void clear_structures();
+  static const int kStructuresFieldNumber = 2;
+  inline const ::pb::__unique_ptr_Structure& structures(int index) const;
+  inline ::pb::__unique_ptr_Structure* mutable_structures(int index);
+  inline ::pb::__unique_ptr_Structure* add_structures();
+  inline const ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_Structure >&
+      structures() const;
+  inline ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_Structure >*
+      mutable_structures();
+
+  // @@protoc_insertion_point(class_scope:pb.Root)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::pb::Typedef > typedefs_;
+  ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_Structure > structures_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static Root* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class __unique_ptr_DataType : public ::google::protobuf::Message {
+ public:
+  __unique_ptr_DataType();
+  virtual ~__unique_ptr_DataType();
+
+  __unique_ptr_DataType(const __unique_ptr_DataType& from);
+
+  inline __unique_ptr_DataType& operator=(const __unique_ptr_DataType& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const __unique_ptr_DataType& default_instance();
+
+  void Swap(__unique_ptr_DataType* other);
+
+  // implements Message ----------------------------------------------
+
+  __unique_ptr_DataType* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const __unique_ptr_DataType& from);
+  void MergeFrom(const __unique_ptr_DataType& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .pb.DataType du_1 = 1;
   inline bool has_du_1() const;
   inline void clear_du_1();
   static const int kDu1FieldNumber = 1;
-  inline const ::pb::Item& du_1() const;
-  inline ::pb::Item* mutable_du_1();
-  inline ::pb::Item* release_du_1();
-  inline void set_allocated_du_1(::pb::Item* du_1);
+  inline const ::pb::DataType& du_1() const;
+  inline ::pb::DataType* mutable_du_1();
+  inline ::pb::DataType* release_du_1();
+  inline void set_allocated_du_1(::pb::DataType* du_1);
 
-  // optional .pb.ItemBase du_2 = 2;
+  // @@protoc_insertion_point(class_scope:pb.__unique_ptr_DataType)
+ private:
+  inline void set_has_du_1();
+  inline void clear_has_du_1();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::pb::DataType* du_1_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static __unique_ptr_DataType* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class __unique_ptr_EncodedOrMember : public ::google::protobuf::Message {
+ public:
+  __unique_ptr_EncodedOrMember();
+  virtual ~__unique_ptr_EncodedOrMember();
+
+  __unique_ptr_EncodedOrMember(const __unique_ptr_EncodedOrMember& from);
+
+  inline __unique_ptr_EncodedOrMember& operator=(const __unique_ptr_EncodedOrMember& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const __unique_ptr_EncodedOrMember& default_instance();
+
+  void Swap(__unique_ptr_EncodedOrMember* other);
+
+  // implements Message ----------------------------------------------
+
+  __unique_ptr_EncodedOrMember* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const __unique_ptr_EncodedOrMember& from);
+  void MergeFrom(const __unique_ptr_EncodedOrMember& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .pb.DataMember du_1 = 1;
+  inline bool has_du_1() const;
+  inline void clear_du_1();
+  static const int kDu1FieldNumber = 1;
+  inline const ::pb::DataMember& du_1() const;
+  inline ::pb::DataMember* mutable_du_1();
+  inline ::pb::DataMember* release_du_1();
+  inline void set_allocated_du_1(::pb::DataMember* du_1);
+
+  // optional .pb.EncodedMembers du_2 = 2;
   inline bool has_du_2() const;
   inline void clear_du_2();
   static const int kDu2FieldNumber = 2;
-  inline const ::pb::ItemBase& du_2() const;
-  inline ::pb::ItemBase* mutable_du_2();
-  inline ::pb::ItemBase* release_du_2();
-  inline void set_allocated_du_2(::pb::ItemBase* du_2);
+  inline const ::pb::EncodedMembers& du_2() const;
+  inline ::pb::EncodedMembers* mutable_du_2();
+  inline ::pb::EncodedMembers* release_du_2();
+  inline void set_allocated_du_2(::pb::EncodedMembers* du_2);
 
-  // @@protoc_insertion_point(class_scope:pb.__unique_ptr_ItemBase)
+  // optional .pb.EncodedOrMember du_3 = 3;
+  inline bool has_du_3() const;
+  inline void clear_du_3();
+  static const int kDu3FieldNumber = 3;
+  inline const ::pb::EncodedOrMember& du_3() const;
+  inline ::pb::EncodedOrMember* mutable_du_3();
+  inline ::pb::EncodedOrMember* release_du_3();
+  inline void set_allocated_du_3(::pb::EncodedOrMember* du_3);
+
+  // @@protoc_insertion_point(class_scope:pb.__unique_ptr_EncodedOrMember)
  private:
   inline void set_has_du_1();
   inline void clear_has_du_1();
   inline void set_has_du_2();
   inline void clear_has_du_2();
+  inline void set_has_du_3();
+  inline void clear_has_du_3();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::pb::Item* du_1_;
-  ::pb::ItemBase* du_2_;
+  ::pb::DataMember* du_1_;
+  ::pb::EncodedMembers* du_2_;
+  ::pb::EncodedOrMember* du_3_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
 
   void InitAsDefaultInstance();
-  static __unique_ptr_ItemBase* default_instance_;
+  static __unique_ptr_EncodedOrMember* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class __unique_ptr_Structure : public ::google::protobuf::Message {
+ public:
+  __unique_ptr_Structure();
+  virtual ~__unique_ptr_Structure();
+
+  __unique_ptr_Structure(const __unique_ptr_Structure& from);
+
+  inline __unique_ptr_Structure& operator=(const __unique_ptr_Structure& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const __unique_ptr_Structure& default_instance();
+
+  void Swap(__unique_ptr_Structure* other);
+
+  // implements Message ----------------------------------------------
+
+  __unique_ptr_Structure* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const __unique_ptr_Structure& from);
+  void MergeFrom(const __unique_ptr_Structure& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .pb.Structure du_1 = 1;
+  inline bool has_du_1() const;
+  inline void clear_du_1();
+  static const int kDu1FieldNumber = 1;
+  inline const ::pb::Structure& du_1() const;
+  inline ::pb::Structure* mutable_du_1();
+  inline ::pb::Structure* release_du_1();
+  inline void set_allocated_du_1(::pb::Structure* du_1);
+
+  // @@protoc_insertion_point(class_scope:pb.__unique_ptr_Structure)
+ private:
+  inline void set_has_du_1();
+  inline void clear_has_du_1();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::pb::Structure* du_1_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static __unique_ptr_Structure* default_instance_;
 };
 // ===================================================================
 
 
 // ===================================================================
 
-// ItemBase
+// Limit
 
-// optional uint32 id = 1;
-inline bool ItemBase::has_id() const {
+// optional bool inclusive = 1;
+inline bool Limit::has_inclusive() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void ItemBase::set_has_id() {
+inline void Limit::set_has_inclusive() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void ItemBase::clear_has_id() {
+inline void Limit::clear_has_inclusive() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void ItemBase::clear_id() {
-  id_ = 0u;
-  clear_has_id();
+inline void Limit::clear_inclusive() {
+  inclusive_ = false;
+  clear_has_inclusive();
 }
-inline ::google::protobuf::uint32 ItemBase::id() const {
-  // @@protoc_insertion_point(field_get:pb.ItemBase.id)
-  return id_;
+inline bool Limit::inclusive() const {
+  // @@protoc_insertion_point(field_get:pb.Limit.inclusive)
+  return inclusive_;
 }
-inline void ItemBase::set_id(::google::protobuf::uint32 value) {
-  set_has_id();
-  id_ = value;
-  // @@protoc_insertion_point(field_set:pb.ItemBase.id)
+inline void Limit::set_inclusive(bool value) {
+  set_has_inclusive();
+  inclusive_ = value;
+  // @@protoc_insertion_point(field_set:pb.Limit.inclusive)
+}
+
+// optional double value = 2;
+inline bool Limit::has_value() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void Limit::set_has_value() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void Limit::clear_has_value() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void Limit::clear_value() {
+  value_ = 0;
+  clear_has_value();
+}
+inline double Limit::value() const {
+  // @@protoc_insertion_point(field_get:pb.Limit.value)
+  return value_;
+}
+inline void Limit::set_value(double value) {
+  set_has_value();
+  value_ = value;
+  // @@protoc_insertion_point(field_set:pb.Limit.value)
 }
 
 // -------------------------------------------------------------------
 
-// Item
+// Location
 
-// optional string name = 1;
-inline bool Item::has_name() const {
+// optional string file_name = 1;
+inline bool Location::has_file_name() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void Item::set_has_name() {
+inline void Location::set_has_file_name() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void Item::clear_has_name() {
+inline void Location::clear_has_file_name() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void Item::clear_name() {
+inline void Location::clear_file_name() {
+  if (file_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    file_name_->clear();
+  }
+  clear_has_file_name();
+}
+inline const ::std::string& Location::file_name() const {
+  // @@protoc_insertion_point(field_get:pb.Location.file_name)
+  return *file_name_;
+}
+inline void Location::set_file_name(const ::std::string& value) {
+  set_has_file_name();
+  if (file_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    file_name_ = new ::std::string;
+  }
+  file_name_->assign(value);
+  // @@protoc_insertion_point(field_set:pb.Location.file_name)
+}
+inline void Location::set_file_name(const char* value) {
+  set_has_file_name();
+  if (file_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    file_name_ = new ::std::string;
+  }
+  file_name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.Location.file_name)
+}
+inline void Location::set_file_name(const char* value, size_t size) {
+  set_has_file_name();
+  if (file_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    file_name_ = new ::std::string;
+  }
+  file_name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.Location.file_name)
+}
+inline ::std::string* Location::mutable_file_name() {
+  set_has_file_name();
+  if (file_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    file_name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.Location.file_name)
+  return file_name_;
+}
+inline ::std::string* Location::release_file_name() {
+  clear_has_file_name();
+  if (file_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = file_name_;
+    file_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Location::set_allocated_file_name(::std::string* file_name) {
+  if (file_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete file_name_;
+  }
+  if (file_name) {
+    set_has_file_name();
+    file_name_ = file_name;
+  } else {
+    clear_has_file_name();
+    file_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.Location.file_name)
+}
+
+// optional sint32 line_number = 2;
+inline bool Location::has_line_number() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void Location::set_has_line_number() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void Location::clear_has_line_number() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void Location::clear_line_number() {
+  line_number_ = 0;
+  clear_has_line_number();
+}
+inline ::google::protobuf::int32 Location::line_number() const {
+  // @@protoc_insertion_point(field_get:pb.Location.line_number)
+  return line_number_;
+}
+inline void Location::set_line_number(::google::protobuf::int32 value) {
+  set_has_line_number();
+  line_number_ = value;
+  // @@protoc_insertion_point(field_set:pb.Location.line_number)
+}
+
+// -------------------------------------------------------------------
+
+// CharacterRange
+
+// optional uint32 from = 1;
+inline bool CharacterRange::has_from() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void CharacterRange::set_has_from() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void CharacterRange::clear_has_from() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void CharacterRange::clear_from() {
+  from_ = 0u;
+  clear_has_from();
+}
+inline ::google::protobuf::uint32 CharacterRange::from() const {
+  // @@protoc_insertion_point(field_get:pb.CharacterRange.from)
+  return from_;
+}
+inline void CharacterRange::set_from(::google::protobuf::uint32 value) {
+  set_has_from();
+  from_ = value;
+  // @@protoc_insertion_point(field_set:pb.CharacterRange.from)
+}
+
+// optional uint32 to = 2;
+inline bool CharacterRange::has_to() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void CharacterRange::set_has_to() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void CharacterRange::clear_has_to() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void CharacterRange::clear_to() {
+  to_ = 0u;
+  clear_has_to();
+}
+inline ::google::protobuf::uint32 CharacterRange::to() const {
+  // @@protoc_insertion_point(field_get:pb.CharacterRange.to)
+  return to_;
+}
+inline void CharacterRange::set_to(::google::protobuf::uint32 value) {
+  set_has_to();
+  to_ = value;
+  // @@protoc_insertion_point(field_set:pb.CharacterRange.to)
+}
+
+// -------------------------------------------------------------------
+
+// CharacterSet
+
+// repeated .pb.CharacterRange ranges = 1;
+inline int CharacterSet::ranges_size() const {
+  return ranges_.size();
+}
+inline void CharacterSet::clear_ranges() {
+  ranges_.Clear();
+}
+inline const ::pb::CharacterRange& CharacterSet::ranges(int index) const {
+  // @@protoc_insertion_point(field_get:pb.CharacterSet.ranges)
+  return ranges_.Get(index);
+}
+inline ::pb::CharacterRange* CharacterSet::mutable_ranges(int index) {
+  // @@protoc_insertion_point(field_mutable:pb.CharacterSet.ranges)
+  return ranges_.Mutable(index);
+}
+inline ::pb::CharacterRange* CharacterSet::add_ranges() {
+  // @@protoc_insertion_point(field_add:pb.CharacterSet.ranges)
+  return ranges_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::pb::CharacterRange >&
+CharacterSet::ranges() const {
+  // @@protoc_insertion_point(field_list:pb.CharacterSet.ranges)
+  return ranges_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::pb::CharacterRange >*
+CharacterSet::mutable_ranges() {
+  // @@protoc_insertion_point(field_mutable_list:pb.CharacterSet.ranges)
+  return &ranges_;
+}
+
+// -------------------------------------------------------------------
+
+// Variant
+
+// optional .pb.Variant.KIND kind = 1;
+inline bool Variant::has_kind() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void Variant::set_has_kind() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void Variant::clear_has_kind() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void Variant::clear_kind() {
+  kind_ = 0;
+  clear_has_kind();
+}
+inline ::pb::Variant_KIND Variant::kind() const {
+  // @@protoc_insertion_point(field_get:pb.Variant.kind)
+  return static_cast< ::pb::Variant_KIND >(kind_);
+}
+inline void Variant::set_kind(::pb::Variant_KIND value) {
+  assert(::pb::Variant_KIND_IsValid(value));
+  set_has_kind();
+  kind_ = value;
+  // @@protoc_insertion_point(field_set:pb.Variant.kind)
+}
+
+// optional double number_value = 2;
+inline bool Variant::has_number_value() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void Variant::set_has_number_value() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void Variant::clear_has_number_value() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void Variant::clear_number_value() {
+  number_value_ = 0;
+  clear_has_number_value();
+}
+inline double Variant::number_value() const {
+  // @@protoc_insertion_point(field_get:pb.Variant.number_value)
+  return number_value_;
+}
+inline void Variant::set_number_value(double value) {
+  set_has_number_value();
+  number_value_ = value;
+  // @@protoc_insertion_point(field_set:pb.Variant.number_value)
+}
+
+// optional string string_value = 3;
+inline bool Variant::has_string_value() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void Variant::set_has_string_value() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void Variant::clear_has_string_value() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void Variant::clear_string_value() {
+  if (string_value_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    string_value_->clear();
+  }
+  clear_has_string_value();
+}
+inline const ::std::string& Variant::string_value() const {
+  // @@protoc_insertion_point(field_get:pb.Variant.string_value)
+  return *string_value_;
+}
+inline void Variant::set_string_value(const ::std::string& value) {
+  set_has_string_value();
+  if (string_value_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    string_value_ = new ::std::string;
+  }
+  string_value_->assign(value);
+  // @@protoc_insertion_point(field_set:pb.Variant.string_value)
+}
+inline void Variant::set_string_value(const char* value) {
+  set_has_string_value();
+  if (string_value_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    string_value_ = new ::std::string;
+  }
+  string_value_->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.Variant.string_value)
+}
+inline void Variant::set_string_value(const char* value, size_t size) {
+  set_has_string_value();
+  if (string_value_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    string_value_ = new ::std::string;
+  }
+  string_value_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.Variant.string_value)
+}
+inline ::std::string* Variant::mutable_string_value() {
+  set_has_string_value();
+  if (string_value_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    string_value_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.Variant.string_value)
+  return string_value_;
+}
+inline ::std::string* Variant::release_string_value() {
+  clear_has_string_value();
+  if (string_value_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = string_value_;
+    string_value_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Variant::set_allocated_string_value(::std::string* string_value) {
+  if (string_value_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete string_value_;
+  }
+  if (string_value) {
+    set_has_string_value();
+    string_value_ = string_value;
+  } else {
+    clear_has_string_value();
+    string_value_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.Variant.string_value)
+}
+
+// -------------------------------------------------------------------
+
+// DataType
+
+// optional .pb.DataType.KIND kind = 1;
+inline bool DataType::has_kind() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void DataType::set_has_kind() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void DataType::clear_has_kind() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void DataType::clear_kind() {
+  kind_ = 0;
+  clear_has_kind();
+}
+inline ::pb::DataType_KIND DataType::kind() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.kind)
+  return static_cast< ::pb::DataType_KIND >(kind_);
+}
+inline void DataType::set_kind(::pb::DataType_KIND value) {
+  assert(::pb::DataType_KIND_IsValid(value));
+  set_has_kind();
+  kind_ = value;
+  // @@protoc_insertion_point(field_set:pb.DataType.kind)
+}
+
+// optional string name = 2;
+inline bool DataType::has_name() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void DataType::set_has_name() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void DataType::clear_has_name() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void DataType::clear_name() {
   if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     name_->clear();
   }
   clear_has_name();
 }
-inline const ::std::string& Item::name() const {
-  // @@protoc_insertion_point(field_get:pb.Item.name)
+inline const ::std::string& DataType::name() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.name)
   return *name_;
 }
-inline void Item::set_name(const ::std::string& value) {
+inline void DataType::set_name(const ::std::string& value) {
   set_has_name();
   if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     name_ = new ::std::string;
   }
   name_->assign(value);
-  // @@protoc_insertion_point(field_set:pb.Item.name)
+  // @@protoc_insertion_point(field_set:pb.DataType.name)
 }
-inline void Item::set_name(const char* value) {
+inline void DataType::set_name(const char* value) {
   set_has_name();
   if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     name_ = new ::std::string;
   }
   name_->assign(value);
-  // @@protoc_insertion_point(field_set_char:pb.Item.name)
+  // @@protoc_insertion_point(field_set_char:pb.DataType.name)
 }
-inline void Item::set_name(const char* value, size_t size) {
+inline void DataType::set_name(const char* value, size_t size) {
   set_has_name();
   if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     name_ = new ::std::string;
   }
   name_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:pb.Item.name)
+  // @@protoc_insertion_point(field_set_pointer:pb.DataType.name)
 }
-inline ::std::string* Item::mutable_name() {
+inline ::std::string* DataType::mutable_name() {
   set_has_name();
   if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     name_ = new ::std::string;
   }
-  // @@protoc_insertion_point(field_mutable:pb.Item.name)
+  // @@protoc_insertion_point(field_mutable:pb.DataType.name)
   return name_;
 }
-inline ::std::string* Item::release_name() {
+inline ::std::string* DataType::release_name() {
   clear_has_name();
   if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     return NULL;
@@ -738,7 +2442,7 @@ inline ::std::string* Item::release_name() {
     return temp;
   }
 }
-inline void Item::set_allocated_name(::std::string* name) {
+inline void DataType::set_allocated_name(::std::string* name) {
   if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete name_;
   }
@@ -749,64 +2453,882 @@ inline void Item::set_allocated_name(::std::string* name) {
     clear_has_name();
     name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
-  // @@protoc_insertion_point(field_set_allocated:pb.Item.name)
+  // @@protoc_insertion_point(field_set_allocated:pb.DataType.name)
 }
 
-// optional bool valid = 2;
-inline bool Item::has_valid() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void Item::set_has_valid() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void Item::clear_has_valid() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void Item::clear_valid() {
-  valid_ = false;
-  clear_has_valid();
-}
-inline bool Item::valid() const {
-  // @@protoc_insertion_point(field_get:pb.Item.valid)
-  return valid_;
-}
-inline void Item::set_valid(bool value) {
-  set_has_valid();
-  valid_ = value;
-  // @@protoc_insertion_point(field_set:pb.Item.valid)
-}
-
-// optional .pb.ItemBase __parent = 3;
-inline bool Item::has___parent() const {
+// optional string mapping_name = 3;
+inline bool DataType::has_mapping_name() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void Item::set_has___parent() {
+inline void DataType::set_has_mapping_name() {
   _has_bits_[0] |= 0x00000004u;
 }
-inline void Item::clear_has___parent() {
+inline void DataType::clear_has_mapping_name() {
   _has_bits_[0] &= ~0x00000004u;
 }
-inline void Item::clear___parent() {
-  if (__parent_ != NULL) __parent_->::pb::ItemBase::Clear();
+inline void DataType::clear_mapping_name() {
+  if (mapping_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    mapping_name_->clear();
+  }
+  clear_has_mapping_name();
+}
+inline const ::std::string& DataType::mapping_name() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.mapping_name)
+  return *mapping_name_;
+}
+inline void DataType::set_mapping_name(const ::std::string& value) {
+  set_has_mapping_name();
+  if (mapping_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    mapping_name_ = new ::std::string;
+  }
+  mapping_name_->assign(value);
+  // @@protoc_insertion_point(field_set:pb.DataType.mapping_name)
+}
+inline void DataType::set_mapping_name(const char* value) {
+  set_has_mapping_name();
+  if (mapping_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    mapping_name_ = new ::std::string;
+  }
+  mapping_name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.DataType.mapping_name)
+}
+inline void DataType::set_mapping_name(const char* value, size_t size) {
+  set_has_mapping_name();
+  if (mapping_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    mapping_name_ = new ::std::string;
+  }
+  mapping_name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.DataType.mapping_name)
+}
+inline ::std::string* DataType::mutable_mapping_name() {
+  set_has_mapping_name();
+  if (mapping_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    mapping_name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.DataType.mapping_name)
+  return mapping_name_;
+}
+inline ::std::string* DataType::release_mapping_name() {
+  clear_has_mapping_name();
+  if (mapping_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = mapping_name_;
+    mapping_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void DataType::set_allocated_mapping_name(::std::string* mapping_name) {
+  if (mapping_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete mapping_name_;
+  }
+  if (mapping_name) {
+    set_has_mapping_name();
+    mapping_name_ = mapping_name;
+  } else {
+    clear_has_mapping_name();
+    mapping_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.DataType.mapping_name)
+}
+
+// optional string encoding_name = 4;
+inline bool DataType::has_encoding_name() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void DataType::set_has_encoding_name() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void DataType::clear_has_encoding_name() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void DataType::clear_encoding_name() {
+  if (encoding_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    encoding_name_->clear();
+  }
+  clear_has_encoding_name();
+}
+inline const ::std::string& DataType::encoding_name() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.encoding_name)
+  return *encoding_name_;
+}
+inline void DataType::set_encoding_name(const ::std::string& value) {
+  set_has_encoding_name();
+  if (encoding_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    encoding_name_ = new ::std::string;
+  }
+  encoding_name_->assign(value);
+  // @@protoc_insertion_point(field_set:pb.DataType.encoding_name)
+}
+inline void DataType::set_encoding_name(const char* value) {
+  set_has_encoding_name();
+  if (encoding_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    encoding_name_ = new ::std::string;
+  }
+  encoding_name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.DataType.encoding_name)
+}
+inline void DataType::set_encoding_name(const char* value, size_t size) {
+  set_has_encoding_name();
+  if (encoding_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    encoding_name_ = new ::std::string;
+  }
+  encoding_name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.DataType.encoding_name)
+}
+inline ::std::string* DataType::mutable_encoding_name() {
+  set_has_encoding_name();
+  if (encoding_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    encoding_name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.DataType.encoding_name)
+  return encoding_name_;
+}
+inline ::std::string* DataType::release_encoding_name() {
+  clear_has_encoding_name();
+  if (encoding_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = encoding_name_;
+    encoding_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void DataType::set_allocated_encoding_name(::std::string* encoding_name) {
+  if (encoding_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete encoding_name_;
+  }
+  if (encoding_name) {
+    set_has_encoding_name();
+    encoding_name_ = encoding_name;
+  } else {
+    clear_has_encoding_name();
+    encoding_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.DataType.encoding_name)
+}
+
+// optional .pb.__unique_ptr_DataType key_type = 5;
+inline bool DataType::has_key_type() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void DataType::set_has_key_type() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void DataType::clear_has_key_type() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void DataType::clear_key_type() {
+  if (key_type_ != NULL) key_type_->::pb::__unique_ptr_DataType::Clear();
+  clear_has_key_type();
+}
+inline const ::pb::__unique_ptr_DataType& DataType::key_type() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.key_type)
+  return key_type_ != NULL ? *key_type_ : *default_instance_->key_type_;
+}
+inline ::pb::__unique_ptr_DataType* DataType::mutable_key_type() {
+  set_has_key_type();
+  if (key_type_ == NULL) key_type_ = new ::pb::__unique_ptr_DataType;
+  // @@protoc_insertion_point(field_mutable:pb.DataType.key_type)
+  return key_type_;
+}
+inline ::pb::__unique_ptr_DataType* DataType::release_key_type() {
+  clear_has_key_type();
+  ::pb::__unique_ptr_DataType* temp = key_type_;
+  key_type_ = NULL;
+  return temp;
+}
+inline void DataType::set_allocated_key_type(::pb::__unique_ptr_DataType* key_type) {
+  delete key_type_;
+  key_type_ = key_type;
+  if (key_type) {
+    set_has_key_type();
+  } else {
+    clear_has_key_type();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.DataType.key_type)
+}
+
+// optional .pb.__unique_ptr_DataType param_type = 6;
+inline bool DataType::has_param_type() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void DataType::set_has_param_type() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void DataType::clear_has_param_type() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void DataType::clear_param_type() {
+  if (param_type_ != NULL) param_type_->::pb::__unique_ptr_DataType::Clear();
+  clear_has_param_type();
+}
+inline const ::pb::__unique_ptr_DataType& DataType::param_type() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.param_type)
+  return param_type_ != NULL ? *param_type_ : *default_instance_->param_type_;
+}
+inline ::pb::__unique_ptr_DataType* DataType::mutable_param_type() {
+  set_has_param_type();
+  if (param_type_ == NULL) param_type_ = new ::pb::__unique_ptr_DataType;
+  // @@protoc_insertion_point(field_mutable:pb.DataType.param_type)
+  return param_type_;
+}
+inline ::pb::__unique_ptr_DataType* DataType::release_param_type() {
+  clear_has_param_type();
+  ::pb::__unique_ptr_DataType* temp = param_type_;
+  param_type_ = NULL;
+  return temp;
+}
+inline void DataType::set_allocated_param_type(::pb::__unique_ptr_DataType* param_type) {
+  delete param_type_;
+  param_type_ = param_type;
+  if (param_type) {
+    set_has_param_type();
+  } else {
+    clear_has_param_type();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.DataType.param_type)
+}
+
+// optional .pb.Limit low_limit = 7;
+inline bool DataType::has_low_limit() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void DataType::set_has_low_limit() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void DataType::clear_has_low_limit() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void DataType::clear_low_limit() {
+  if (low_limit_ != NULL) low_limit_->::pb::Limit::Clear();
+  clear_has_low_limit();
+}
+inline const ::pb::Limit& DataType::low_limit() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.low_limit)
+  return low_limit_ != NULL ? *low_limit_ : *default_instance_->low_limit_;
+}
+inline ::pb::Limit* DataType::mutable_low_limit() {
+  set_has_low_limit();
+  if (low_limit_ == NULL) low_limit_ = new ::pb::Limit;
+  // @@protoc_insertion_point(field_mutable:pb.DataType.low_limit)
+  return low_limit_;
+}
+inline ::pb::Limit* DataType::release_low_limit() {
+  clear_has_low_limit();
+  ::pb::Limit* temp = low_limit_;
+  low_limit_ = NULL;
+  return temp;
+}
+inline void DataType::set_allocated_low_limit(::pb::Limit* low_limit) {
+  delete low_limit_;
+  low_limit_ = low_limit;
+  if (low_limit) {
+    set_has_low_limit();
+  } else {
+    clear_has_low_limit();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.DataType.low_limit)
+}
+
+// optional .pb.Limit high_limit = 8;
+inline bool DataType::has_high_limit() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void DataType::set_has_high_limit() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void DataType::clear_has_high_limit() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void DataType::clear_high_limit() {
+  if (high_limit_ != NULL) high_limit_->::pb::Limit::Clear();
+  clear_has_high_limit();
+}
+inline const ::pb::Limit& DataType::high_limit() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.high_limit)
+  return high_limit_ != NULL ? *high_limit_ : *default_instance_->high_limit_;
+}
+inline ::pb::Limit* DataType::mutable_high_limit() {
+  set_has_high_limit();
+  if (high_limit_ == NULL) high_limit_ = new ::pb::Limit;
+  // @@protoc_insertion_point(field_mutable:pb.DataType.high_limit)
+  return high_limit_;
+}
+inline ::pb::Limit* DataType::release_high_limit() {
+  clear_has_high_limit();
+  ::pb::Limit* temp = high_limit_;
+  high_limit_ = NULL;
+  return temp;
+}
+inline void DataType::set_allocated_high_limit(::pb::Limit* high_limit) {
+  delete high_limit_;
+  high_limit_ = high_limit;
+  if (high_limit) {
+    set_has_high_limit();
+  } else {
+    clear_has_high_limit();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.DataType.high_limit)
+}
+
+// optional double fixed_precision = 9;
+inline bool DataType::has_fixed_precision() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void DataType::set_has_fixed_precision() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void DataType::clear_has_fixed_precision() {
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline void DataType::clear_fixed_precision() {
+  fixed_precision_ = 0;
+  clear_has_fixed_precision();
+}
+inline double DataType::fixed_precision() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.fixed_precision)
+  return fixed_precision_;
+}
+inline void DataType::set_fixed_precision(double value) {
+  set_has_fixed_precision();
+  fixed_precision_ = value;
+  // @@protoc_insertion_point(field_set:pb.DataType.fixed_precision)
+}
+
+// optional uint32 floating_significand_bits = 10;
+inline bool DataType::has_floating_significand_bits() const {
+  return (_has_bits_[0] & 0x00000200u) != 0;
+}
+inline void DataType::set_has_floating_significand_bits() {
+  _has_bits_[0] |= 0x00000200u;
+}
+inline void DataType::clear_has_floating_significand_bits() {
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline void DataType::clear_floating_significand_bits() {
+  floating_significand_bits_ = 0u;
+  clear_has_floating_significand_bits();
+}
+inline ::google::protobuf::uint32 DataType::floating_significand_bits() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.floating_significand_bits)
+  return floating_significand_bits_;
+}
+inline void DataType::set_floating_significand_bits(::google::protobuf::uint32 value) {
+  set_has_floating_significand_bits();
+  floating_significand_bits_ = value;
+  // @@protoc_insertion_point(field_set:pb.DataType.floating_significand_bits)
+}
+
+// optional uint32 floating_exponent_bits = 11;
+inline bool DataType::has_floating_exponent_bits() const {
+  return (_has_bits_[0] & 0x00000400u) != 0;
+}
+inline void DataType::set_has_floating_exponent_bits() {
+  _has_bits_[0] |= 0x00000400u;
+}
+inline void DataType::clear_has_floating_exponent_bits() {
+  _has_bits_[0] &= ~0x00000400u;
+}
+inline void DataType::clear_floating_exponent_bits() {
+  floating_exponent_bits_ = 0u;
+  clear_has_floating_exponent_bits();
+}
+inline ::google::protobuf::uint32 DataType::floating_exponent_bits() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.floating_exponent_bits)
+  return floating_exponent_bits_;
+}
+inline void DataType::set_floating_exponent_bits(::google::protobuf::uint32 value) {
+  set_has_floating_exponent_bits();
+  floating_exponent_bits_ = value;
+  // @@protoc_insertion_point(field_set:pb.DataType.floating_exponent_bits)
+}
+
+// optional .pb.CharacterSet character_set = 12;
+inline bool DataType::has_character_set() const {
+  return (_has_bits_[0] & 0x00000800u) != 0;
+}
+inline void DataType::set_has_character_set() {
+  _has_bits_[0] |= 0x00000800u;
+}
+inline void DataType::clear_has_character_set() {
+  _has_bits_[0] &= ~0x00000800u;
+}
+inline void DataType::clear_character_set() {
+  if (character_set_ != NULL) character_set_->::pb::CharacterSet::Clear();
+  clear_has_character_set();
+}
+inline const ::pb::CharacterSet& DataType::character_set() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.character_set)
+  return character_set_ != NULL ? *character_set_ : *default_instance_->character_set_;
+}
+inline ::pb::CharacterSet* DataType::mutable_character_set() {
+  set_has_character_set();
+  if (character_set_ == NULL) character_set_ = new ::pb::CharacterSet;
+  // @@protoc_insertion_point(field_mutable:pb.DataType.character_set)
+  return character_set_;
+}
+inline ::pb::CharacterSet* DataType::release_character_set() {
+  clear_has_character_set();
+  ::pb::CharacterSet* temp = character_set_;
+  character_set_ = NULL;
+  return temp;
+}
+inline void DataType::set_allocated_character_set(::pb::CharacterSet* character_set) {
+  delete character_set_;
+  character_set_ = character_set;
+  if (character_set) {
+    set_has_character_set();
+  } else {
+    clear_has_character_set();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.DataType.character_set)
+}
+
+// optional uint32 string_min_size = 13;
+inline bool DataType::has_string_min_size() const {
+  return (_has_bits_[0] & 0x00001000u) != 0;
+}
+inline void DataType::set_has_string_min_size() {
+  _has_bits_[0] |= 0x00001000u;
+}
+inline void DataType::clear_has_string_min_size() {
+  _has_bits_[0] &= ~0x00001000u;
+}
+inline void DataType::clear_string_min_size() {
+  string_min_size_ = 0u;
+  clear_has_string_min_size();
+}
+inline ::google::protobuf::uint32 DataType::string_min_size() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.string_min_size)
+  return string_min_size_;
+}
+inline void DataType::set_string_min_size(::google::protobuf::uint32 value) {
+  set_has_string_min_size();
+  string_min_size_ = value;
+  // @@protoc_insertion_point(field_set:pb.DataType.string_min_size)
+}
+
+// optional uint32 string_max_size = 14;
+inline bool DataType::has_string_max_size() const {
+  return (_has_bits_[0] & 0x00002000u) != 0;
+}
+inline void DataType::set_has_string_max_size() {
+  _has_bits_[0] |= 0x00002000u;
+}
+inline void DataType::clear_has_string_max_size() {
+  _has_bits_[0] &= ~0x00002000u;
+}
+inline void DataType::clear_string_max_size() {
+  string_max_size_ = 0u;
+  clear_has_string_max_size();
+}
+inline ::google::protobuf::uint32 DataType::string_max_size() const {
+  // @@protoc_insertion_point(field_get:pb.DataType.string_max_size)
+  return string_max_size_;
+}
+inline void DataType::set_string_max_size(::google::protobuf::uint32 value) {
+  set_has_string_max_size();
+  string_max_size_ = value;
+  // @@protoc_insertion_point(field_set:pb.DataType.string_max_size)
+}
+
+// -------------------------------------------------------------------
+
+// EncodingSpecifics
+
+// optional string name = 1;
+inline bool EncodingSpecifics::has_name() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void EncodingSpecifics::set_has_name() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void EncodingSpecifics::clear_has_name() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void EncodingSpecifics::clear_name() {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_->clear();
+  }
+  clear_has_name();
+}
+inline const ::std::string& EncodingSpecifics::name() const {
+  // @@protoc_insertion_point(field_get:pb.EncodingSpecifics.name)
+  return *name_;
+}
+inline void EncodingSpecifics::set_name(const ::std::string& value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set:pb.EncodingSpecifics.name)
+}
+inline void EncodingSpecifics::set_name(const char* value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.EncodingSpecifics.name)
+}
+inline void EncodingSpecifics::set_name(const char* value, size_t size) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.EncodingSpecifics.name)
+}
+inline ::std::string* EncodingSpecifics::mutable_name() {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.EncodingSpecifics.name)
+  return name_;
+}
+inline ::std::string* EncodingSpecifics::release_name() {
+  clear_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = name_;
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void EncodingSpecifics::set_allocated_name(::std::string* name) {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete name_;
+  }
+  if (name) {
+    set_has_name();
+    name_ = name;
+  } else {
+    clear_has_name();
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.EncodingSpecifics.name)
+}
+
+// -------------------------------------------------------------------
+
+// EncodedOrMember
+
+// optional .pb.Location location = 1;
+inline bool EncodedOrMember::has_location() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void EncodedOrMember::set_has_location() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void EncodedOrMember::clear_has_location() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void EncodedOrMember::clear_location() {
+  if (location_ != NULL) location_->::pb::Location::Clear();
+  clear_has_location();
+}
+inline const ::pb::Location& EncodedOrMember::location() const {
+  // @@protoc_insertion_point(field_get:pb.EncodedOrMember.location)
+  return location_ != NULL ? *location_ : *default_instance_->location_;
+}
+inline ::pb::Location* EncodedOrMember::mutable_location() {
+  set_has_location();
+  if (location_ == NULL) location_ = new ::pb::Location;
+  // @@protoc_insertion_point(field_mutable:pb.EncodedOrMember.location)
+  return location_;
+}
+inline ::pb::Location* EncodedOrMember::release_location() {
+  clear_has_location();
+  ::pb::Location* temp = location_;
+  location_ = NULL;
+  return temp;
+}
+inline void EncodedOrMember::set_allocated_location(::pb::Location* location) {
+  delete location_;
+  location_ = location;
+  if (location) {
+    set_has_location();
+  } else {
+    clear_has_location();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.EncodedOrMember.location)
+}
+
+// -------------------------------------------------------------------
+
+// DataMember
+
+// optional .pb.DataType type = 1;
+inline bool DataMember::has_type() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void DataMember::set_has_type() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void DataMember::clear_has_type() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void DataMember::clear_type() {
+  if (type_ != NULL) type_->::pb::DataType::Clear();
+  clear_has_type();
+}
+inline const ::pb::DataType& DataMember::type() const {
+  // @@protoc_insertion_point(field_get:pb.DataMember.type)
+  return type_ != NULL ? *type_ : *default_instance_->type_;
+}
+inline ::pb::DataType* DataMember::mutable_type() {
+  set_has_type();
+  if (type_ == NULL) type_ = new ::pb::DataType;
+  // @@protoc_insertion_point(field_mutable:pb.DataMember.type)
+  return type_;
+}
+inline ::pb::DataType* DataMember::release_type() {
+  clear_has_type();
+  ::pb::DataType* temp = type_;
+  type_ = NULL;
+  return temp;
+}
+inline void DataMember::set_allocated_type(::pb::DataType* type) {
+  delete type_;
+  type_ = type;
+  if (type) {
+    set_has_type();
+  } else {
+    clear_has_type();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.DataMember.type)
+}
+
+// optional string name = 2;
+inline bool DataMember::has_name() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void DataMember::set_has_name() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void DataMember::clear_has_name() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void DataMember::clear_name() {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_->clear();
+  }
+  clear_has_name();
+}
+inline const ::std::string& DataMember::name() const {
+  // @@protoc_insertion_point(field_get:pb.DataMember.name)
+  return *name_;
+}
+inline void DataMember::set_name(const ::std::string& value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set:pb.DataMember.name)
+}
+inline void DataMember::set_name(const char* value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.DataMember.name)
+}
+inline void DataMember::set_name(const char* value, size_t size) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.DataMember.name)
+}
+inline ::std::string* DataMember::mutable_name() {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.DataMember.name)
+  return name_;
+}
+inline ::std::string* DataMember::release_name() {
+  clear_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = name_;
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void DataMember::set_allocated_name(::std::string* name) {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete name_;
+  }
+  if (name) {
+    set_has_name();
+    name_ = name;
+  } else {
+    clear_has_name();
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.DataMember.name)
+}
+
+// optional bool extend_to = 3;
+inline bool DataMember::has_extend_to() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void DataMember::set_has_extend_to() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void DataMember::clear_has_extend_to() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void DataMember::clear_extend_to() {
+  extend_to_ = false;
+  clear_has_extend_to();
+}
+inline bool DataMember::extend_to() const {
+  // @@protoc_insertion_point(field_get:pb.DataMember.extend_to)
+  return extend_to_;
+}
+inline void DataMember::set_extend_to(bool value) {
+  set_has_extend_to();
+  extend_to_ = value;
+  // @@protoc_insertion_point(field_set:pb.DataMember.extend_to)
+}
+
+// optional .pb.Variant default_value = 4;
+inline bool DataMember::has_default_value() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void DataMember::set_has_default_value() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void DataMember::clear_has_default_value() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void DataMember::clear_default_value() {
+  if (default_value_ != NULL) default_value_->::pb::Variant::Clear();
+  clear_has_default_value();
+}
+inline const ::pb::Variant& DataMember::default_value() const {
+  // @@protoc_insertion_point(field_get:pb.DataMember.default_value)
+  return default_value_ != NULL ? *default_value_ : *default_instance_->default_value_;
+}
+inline ::pb::Variant* DataMember::mutable_default_value() {
+  set_has_default_value();
+  if (default_value_ == NULL) default_value_ = new ::pb::Variant;
+  // @@protoc_insertion_point(field_mutable:pb.DataMember.default_value)
+  return default_value_;
+}
+inline ::pb::Variant* DataMember::release_default_value() {
+  clear_has_default_value();
+  ::pb::Variant* temp = default_value_;
+  default_value_ = NULL;
+  return temp;
+}
+inline void DataMember::set_allocated_default_value(::pb::Variant* default_value) {
+  delete default_value_;
+  default_value_ = default_value;
+  if (default_value) {
+    set_has_default_value();
+  } else {
+    clear_has_default_value();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.DataMember.default_value)
+}
+
+// repeated string when_discriminant = 5;
+inline int DataMember::when_discriminant_size() const {
+  return when_discriminant_.size();
+}
+inline void DataMember::clear_when_discriminant() {
+  when_discriminant_.Clear();
+}
+inline const ::std::string& DataMember::when_discriminant(int index) const {
+  // @@protoc_insertion_point(field_get:pb.DataMember.when_discriminant)
+  return when_discriminant_.Get(index);
+}
+inline ::std::string* DataMember::mutable_when_discriminant(int index) {
+  // @@protoc_insertion_point(field_mutable:pb.DataMember.when_discriminant)
+  return when_discriminant_.Mutable(index);
+}
+inline void DataMember::set_when_discriminant(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:pb.DataMember.when_discriminant)
+  when_discriminant_.Mutable(index)->assign(value);
+}
+inline void DataMember::set_when_discriminant(int index, const char* value) {
+  when_discriminant_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.DataMember.when_discriminant)
+}
+inline void DataMember::set_when_discriminant(int index, const char* value, size_t size) {
+  when_discriminant_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.DataMember.when_discriminant)
+}
+inline ::std::string* DataMember::add_when_discriminant() {
+  return when_discriminant_.Add();
+}
+inline void DataMember::add_when_discriminant(const ::std::string& value) {
+  when_discriminant_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:pb.DataMember.when_discriminant)
+}
+inline void DataMember::add_when_discriminant(const char* value) {
+  when_discriminant_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:pb.DataMember.when_discriminant)
+}
+inline void DataMember::add_when_discriminant(const char* value, size_t size) {
+  when_discriminant_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:pb.DataMember.when_discriminant)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+DataMember::when_discriminant() const {
+  // @@protoc_insertion_point(field_list:pb.DataMember.when_discriminant)
+  return when_discriminant_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+DataMember::mutable_when_discriminant() {
+  // @@protoc_insertion_point(field_mutable_list:pb.DataMember.when_discriminant)
+  return &when_discriminant_;
+}
+
+// optional .pb.EncodedOrMember __parent = 6;
+inline bool DataMember::has___parent() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void DataMember::set_has___parent() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void DataMember::clear_has___parent() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void DataMember::clear___parent() {
+  if (__parent_ != NULL) __parent_->::pb::EncodedOrMember::Clear();
   clear_has___parent();
 }
-inline const ::pb::ItemBase& Item::__parent() const {
-  // @@protoc_insertion_point(field_get:pb.Item.__parent)
+inline const ::pb::EncodedOrMember& DataMember::__parent() const {
+  // @@protoc_insertion_point(field_get:pb.DataMember.__parent)
   return __parent_ != NULL ? *__parent_ : *default_instance_->__parent_;
 }
-inline ::pb::ItemBase* Item::mutable___parent() {
+inline ::pb::EncodedOrMember* DataMember::mutable___parent() {
   set_has___parent();
-  if (__parent_ == NULL) __parent_ = new ::pb::ItemBase;
-  // @@protoc_insertion_point(field_mutable:pb.Item.__parent)
+  if (__parent_ == NULL) __parent_ = new ::pb::EncodedOrMember;
+  // @@protoc_insertion_point(field_mutable:pb.DataMember.__parent)
   return __parent_;
 }
-inline ::pb::ItemBase* Item::release___parent() {
+inline ::pb::EncodedOrMember* DataMember::release___parent() {
   clear_has___parent();
-  ::pb::ItemBase* temp = __parent_;
+  ::pb::EncodedOrMember* temp = __parent_;
   __parent_ = NULL;
   return temp;
 }
-inline void Item::set_allocated___parent(::pb::ItemBase* __parent) {
+inline void DataMember::set_allocated___parent(::pb::EncodedOrMember* __parent) {
   delete __parent_;
   __parent_ = __parent;
   if (__parent) {
@@ -814,616 +3336,709 @@ inline void Item::set_allocated___parent(::pb::ItemBase* __parent) {
   } else {
     clear_has___parent();
   }
-  // @@protoc_insertion_point(field_set_allocated:pb.Item.__parent)
+  // @@protoc_insertion_point(field_set_allocated:pb.DataMember.__parent)
 }
 
 // -------------------------------------------------------------------
 
-// Character
+// EncodedMembers
 
-// optional uint32 max_u8 = 1;
-inline bool Character::has_max_u8() const {
+// optional .pb.EncodingSpecifics encoding_specifics = 1;
+inline bool EncodedMembers::has_encoding_specifics() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void Character::set_has_max_u8() {
+inline void EncodedMembers::set_has_encoding_specifics() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void Character::clear_has_max_u8() {
+inline void EncodedMembers::clear_has_encoding_specifics() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void Character::clear_max_u8() {
-  max_u8_ = 0u;
-  clear_has_max_u8();
+inline void EncodedMembers::clear_encoding_specifics() {
+  if (encoding_specifics_ != NULL) encoding_specifics_->::pb::EncodingSpecifics::Clear();
+  clear_has_encoding_specifics();
 }
-inline ::google::protobuf::uint32 Character::max_u8() const {
-  // @@protoc_insertion_point(field_get:pb.Character.max_u8)
-  return max_u8_;
+inline const ::pb::EncodingSpecifics& EncodedMembers::encoding_specifics() const {
+  // @@protoc_insertion_point(field_get:pb.EncodedMembers.encoding_specifics)
+  return encoding_specifics_ != NULL ? *encoding_specifics_ : *default_instance_->encoding_specifics_;
 }
-inline void Character::set_max_u8(::google::protobuf::uint32 value) {
-  set_has_max_u8();
-  max_u8_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.max_u8)
+inline ::pb::EncodingSpecifics* EncodedMembers::mutable_encoding_specifics() {
+  set_has_encoding_specifics();
+  if (encoding_specifics_ == NULL) encoding_specifics_ = new ::pb::EncodingSpecifics;
+  // @@protoc_insertion_point(field_mutable:pb.EncodedMembers.encoding_specifics)
+  return encoding_specifics_;
 }
-
-// optional uint32 max_u16 = 2;
-inline bool Character::has_max_u16() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+inline ::pb::EncodingSpecifics* EncodedMembers::release_encoding_specifics() {
+  clear_has_encoding_specifics();
+  ::pb::EncodingSpecifics* temp = encoding_specifics_;
+  encoding_specifics_ = NULL;
+  return temp;
 }
-inline void Character::set_has_max_u16() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void Character::clear_has_max_u16() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void Character::clear_max_u16() {
-  max_u16_ = 0u;
-  clear_has_max_u16();
-}
-inline ::google::protobuf::uint32 Character::max_u16() const {
-  // @@protoc_insertion_point(field_get:pb.Character.max_u16)
-  return max_u16_;
-}
-inline void Character::set_max_u16(::google::protobuf::uint32 value) {
-  set_has_max_u16();
-  max_u16_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.max_u16)
+inline void EncodedMembers::set_allocated_encoding_specifics(::pb::EncodingSpecifics* encoding_specifics) {
+  delete encoding_specifics_;
+  encoding_specifics_ = encoding_specifics;
+  if (encoding_specifics) {
+    set_has_encoding_specifics();
+  } else {
+    clear_has_encoding_specifics();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.EncodedMembers.encoding_specifics)
 }
 
-// optional uint32 max_u32 = 3;
-inline bool Character::has_max_u32() const {
+// repeated .pb.__unique_ptr_EncodedOrMember members = 2;
+inline int EncodedMembers::members_size() const {
+  return members_.size();
+}
+inline void EncodedMembers::clear_members() {
+  members_.Clear();
+}
+inline const ::pb::__unique_ptr_EncodedOrMember& EncodedMembers::members(int index) const {
+  // @@protoc_insertion_point(field_get:pb.EncodedMembers.members)
+  return members_.Get(index);
+}
+inline ::pb::__unique_ptr_EncodedOrMember* EncodedMembers::mutable_members(int index) {
+  // @@protoc_insertion_point(field_mutable:pb.EncodedMembers.members)
+  return members_.Mutable(index);
+}
+inline ::pb::__unique_ptr_EncodedOrMember* EncodedMembers::add_members() {
+  // @@protoc_insertion_point(field_add:pb.EncodedMembers.members)
+  return members_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_EncodedOrMember >&
+EncodedMembers::members() const {
+  // @@protoc_insertion_point(field_list:pb.EncodedMembers.members)
+  return members_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_EncodedOrMember >*
+EncodedMembers::mutable_members() {
+  // @@protoc_insertion_point(field_mutable_list:pb.EncodedMembers.members)
+  return &members_;
+}
+
+// optional .pb.EncodedOrMember __parent = 3;
+inline bool EncodedMembers::has___parent() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void Character::set_has_max_u32() {
+inline void EncodedMembers::set_has___parent() {
   _has_bits_[0] |= 0x00000004u;
 }
-inline void Character::clear_has_max_u32() {
+inline void EncodedMembers::clear_has___parent() {
   _has_bits_[0] &= ~0x00000004u;
 }
-inline void Character::clear_max_u32() {
-  max_u32_ = 0u;
-  clear_has_max_u32();
-}
-inline ::google::protobuf::uint32 Character::max_u32() const {
-  // @@protoc_insertion_point(field_get:pb.Character.max_u32)
-  return max_u32_;
-}
-inline void Character::set_max_u32(::google::protobuf::uint32 value) {
-  set_has_max_u32();
-  max_u32_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.max_u32)
-}
-
-// optional sint32 min_s8 = 4;
-inline bool Character::has_min_s8() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
-}
-inline void Character::set_has_min_s8() {
-  _has_bits_[0] |= 0x00000008u;
-}
-inline void Character::clear_has_min_s8() {
-  _has_bits_[0] &= ~0x00000008u;
-}
-inline void Character::clear_min_s8() {
-  min_s8_ = 0;
-  clear_has_min_s8();
-}
-inline ::google::protobuf::int32 Character::min_s8() const {
-  // @@protoc_insertion_point(field_get:pb.Character.min_s8)
-  return min_s8_;
-}
-inline void Character::set_min_s8(::google::protobuf::int32 value) {
-  set_has_min_s8();
-  min_s8_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.min_s8)
-}
-
-// optional sint32 min_s16 = 5;
-inline bool Character::has_min_s16() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
-}
-inline void Character::set_has_min_s16() {
-  _has_bits_[0] |= 0x00000010u;
-}
-inline void Character::clear_has_min_s16() {
-  _has_bits_[0] &= ~0x00000010u;
-}
-inline void Character::clear_min_s16() {
-  min_s16_ = 0;
-  clear_has_min_s16();
-}
-inline ::google::protobuf::int32 Character::min_s16() const {
-  // @@protoc_insertion_point(field_get:pb.Character.min_s16)
-  return min_s16_;
-}
-inline void Character::set_min_s16(::google::protobuf::int32 value) {
-  set_has_min_s16();
-  min_s16_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.min_s16)
-}
-
-// optional sint32 min_s32 = 6;
-inline bool Character::has_min_s32() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
-}
-inline void Character::set_has_min_s32() {
-  _has_bits_[0] |= 0x00000020u;
-}
-inline void Character::clear_has_min_s32() {
-  _has_bits_[0] &= ~0x00000020u;
-}
-inline void Character::clear_min_s32() {
-  min_s32_ = 0;
-  clear_has_min_s32();
-}
-inline ::google::protobuf::int32 Character::min_s32() const {
-  // @@protoc_insertion_point(field_get:pb.Character.min_s32)
-  return min_s32_;
-}
-inline void Character::set_min_s32(::google::protobuf::int32 value) {
-  set_has_min_s32();
-  min_s32_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.min_s32)
-}
-
-// optional sint32 max_s8 = 7;
-inline bool Character::has_max_s8() const {
-  return (_has_bits_[0] & 0x00000040u) != 0;
-}
-inline void Character::set_has_max_s8() {
-  _has_bits_[0] |= 0x00000040u;
-}
-inline void Character::clear_has_max_s8() {
-  _has_bits_[0] &= ~0x00000040u;
-}
-inline void Character::clear_max_s8() {
-  max_s8_ = 0;
-  clear_has_max_s8();
-}
-inline ::google::protobuf::int32 Character::max_s8() const {
-  // @@protoc_insertion_point(field_get:pb.Character.max_s8)
-  return max_s8_;
-}
-inline void Character::set_max_s8(::google::protobuf::int32 value) {
-  set_has_max_s8();
-  max_s8_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.max_s8)
-}
-
-// optional sint32 max_s16 = 8;
-inline bool Character::has_max_s16() const {
-  return (_has_bits_[0] & 0x00000080u) != 0;
-}
-inline void Character::set_has_max_s16() {
-  _has_bits_[0] |= 0x00000080u;
-}
-inline void Character::clear_has_max_s16() {
-  _has_bits_[0] &= ~0x00000080u;
-}
-inline void Character::clear_max_s16() {
-  max_s16_ = 0;
-  clear_has_max_s16();
-}
-inline ::google::protobuf::int32 Character::max_s16() const {
-  // @@protoc_insertion_point(field_get:pb.Character.max_s16)
-  return max_s16_;
-}
-inline void Character::set_max_s16(::google::protobuf::int32 value) {
-  set_has_max_s16();
-  max_s16_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.max_s16)
-}
-
-// optional sint32 max_s32 = 9;
-inline bool Character::has_max_s32() const {
-  return (_has_bits_[0] & 0x00000100u) != 0;
-}
-inline void Character::set_has_max_s32() {
-  _has_bits_[0] |= 0x00000100u;
-}
-inline void Character::clear_has_max_s32() {
-  _has_bits_[0] &= ~0x00000100u;
-}
-inline void Character::clear_max_s32() {
-  max_s32_ = 0;
-  clear_has_max_s32();
-}
-inline ::google::protobuf::int32 Character::max_s32() const {
-  // @@protoc_insertion_point(field_get:pb.Character.max_s32)
-  return max_s32_;
-}
-inline void Character::set_max_s32(::google::protobuf::int32 value) {
-  set_has_max_s32();
-  max_s32_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.max_s32)
-}
-
-// optional double x = 10;
-inline bool Character::has_x() const {
-  return (_has_bits_[0] & 0x00000200u) != 0;
-}
-inline void Character::set_has_x() {
-  _has_bits_[0] |= 0x00000200u;
-}
-inline void Character::clear_has_x() {
-  _has_bits_[0] &= ~0x00000200u;
-}
-inline void Character::clear_x() {
-  x_ = 0;
-  clear_has_x();
-}
-inline double Character::x() const {
-  // @@protoc_insertion_point(field_get:pb.Character.x)
-  return x_;
-}
-inline void Character::set_x(double value) {
-  set_has_x();
-  x_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.x)
-}
-
-// optional double y = 11;
-inline bool Character::has_y() const {
-  return (_has_bits_[0] & 0x00000400u) != 0;
-}
-inline void Character::set_has_y() {
-  _has_bits_[0] |= 0x00000400u;
-}
-inline void Character::clear_has_y() {
-  _has_bits_[0] &= ~0x00000400u;
-}
-inline void Character::clear_y() {
-  y_ = 0;
-  clear_has_y();
-}
-inline double Character::y() const {
-  // @@protoc_insertion_point(field_get:pb.Character.y)
-  return y_;
-}
-inline void Character::set_y(double value) {
-  set_has_y();
-  y_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.y)
-}
-
-// optional double z = 12;
-inline bool Character::has_z() const {
-  return (_has_bits_[0] & 0x00000800u) != 0;
-}
-inline void Character::set_has_z() {
-  _has_bits_[0] |= 0x00000800u;
-}
-inline void Character::clear_has_z() {
-  _has_bits_[0] &= ~0x00000800u;
-}
-inline void Character::clear_z() {
-  z_ = 0;
-  clear_has_z();
-}
-inline double Character::z() const {
-  // @@protoc_insertion_point(field_get:pb.Character.z)
-  return z_;
-}
-inline void Character::set_z(double value) {
-  set_has_z();
-  z_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.z)
-}
-
-// optional .pb.Character.Animation anim = 13;
-inline bool Character::has_anim() const {
-  return (_has_bits_[0] & 0x00001000u) != 0;
-}
-inline void Character::set_has_anim() {
-  _has_bits_[0] |= 0x00001000u;
-}
-inline void Character::clear_has_anim() {
-  _has_bits_[0] &= ~0x00001000u;
-}
-inline void Character::clear_anim() {
-  anim_ = 0;
-  clear_has_anim();
-}
-inline ::pb::Character_Animation Character::anim() const {
-  // @@protoc_insertion_point(field_get:pb.Character.anim)
-  return static_cast< ::pb::Character_Animation >(anim_);
-}
-inline void Character::set_anim(::pb::Character_Animation value) {
-  assert(::pb::Character_Animation_IsValid(value));
-  set_has_anim();
-  anim_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.anim)
-}
-
-// optional bool flag = 14;
-inline bool Character::has_flag() const {
-  return (_has_bits_[0] & 0x00002000u) != 0;
-}
-inline void Character::set_has_flag() {
-  _has_bits_[0] |= 0x00002000u;
-}
-inline void Character::clear_has_flag() {
-  _has_bits_[0] &= ~0x00002000u;
-}
-inline void Character::clear_flag() {
-  flag_ = false;
-  clear_has_flag();
-}
-inline bool Character::flag() const {
-  // @@protoc_insertion_point(field_get:pb.Character.flag)
-  return flag_;
-}
-inline void Character::set_flag(bool value) {
-  set_has_flag();
-  flag_ = value;
-  // @@protoc_insertion_point(field_set:pb.Character.flag)
-}
-
-// optional string desc = 15;
-inline bool Character::has_desc() const {
-  return (_has_bits_[0] & 0x00004000u) != 0;
-}
-inline void Character::set_has_desc() {
-  _has_bits_[0] |= 0x00004000u;
-}
-inline void Character::clear_has_desc() {
-  _has_bits_[0] &= ~0x00004000u;
-}
-inline void Character::clear_desc() {
-  if (desc_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    desc_->clear();
+inline void EncodedMembers::clear___parent() {
+  if (__parent_ != NULL) __parent_->::pb::EncodedOrMember::Clear();
+  clear_has___parent();
+}
+inline const ::pb::EncodedOrMember& EncodedMembers::__parent() const {
+  // @@protoc_insertion_point(field_get:pb.EncodedMembers.__parent)
+  return __parent_ != NULL ? *__parent_ : *default_instance_->__parent_;
+}
+inline ::pb::EncodedOrMember* EncodedMembers::mutable___parent() {
+  set_has___parent();
+  if (__parent_ == NULL) __parent_ = new ::pb::EncodedOrMember;
+  // @@protoc_insertion_point(field_mutable:pb.EncodedMembers.__parent)
+  return __parent_;
+}
+inline ::pb::EncodedOrMember* EncodedMembers::release___parent() {
+  clear_has___parent();
+  ::pb::EncodedOrMember* temp = __parent_;
+  __parent_ = NULL;
+  return temp;
+}
+inline void EncodedMembers::set_allocated___parent(::pb::EncodedOrMember* __parent) {
+  delete __parent_;
+  __parent_ = __parent;
+  if (__parent) {
+    set_has___parent();
+  } else {
+    clear_has___parent();
   }
-  clear_has_desc();
+  // @@protoc_insertion_point(field_set_allocated:pb.EncodedMembers.__parent)
 }
-inline const ::std::string& Character::desc() const {
-  // @@protoc_insertion_point(field_get:pb.Character.desc)
-  return *desc_;
+
+// -------------------------------------------------------------------
+
+// Structure
+
+// optional .pb.Structure.DECLTYPE decl_type = 1;
+inline bool Structure::has_decl_type() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void Character::set_desc(const ::std::string& value) {
-  set_has_desc();
-  if (desc_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    desc_ = new ::std::string;
+inline void Structure::set_has_decl_type() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void Structure::clear_has_decl_type() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void Structure::clear_decl_type() {
+  decl_type_ = 0;
+  clear_has_decl_type();
+}
+inline ::pb::Structure_DECLTYPE Structure::decl_type() const {
+  // @@protoc_insertion_point(field_get:pb.Structure.decl_type)
+  return static_cast< ::pb::Structure_DECLTYPE >(decl_type_);
+}
+inline void Structure::set_decl_type(::pb::Structure_DECLTYPE value) {
+  assert(::pb::Structure_DECLTYPE_IsValid(value));
+  set_has_decl_type();
+  decl_type_ = value;
+  // @@protoc_insertion_point(field_set:pb.Structure.decl_type)
+}
+
+// optional .pb.Structure.TYPE type = 2;
+inline bool Structure::has_type() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void Structure::set_has_type() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void Structure::clear_has_type() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void Structure::clear_type() {
+  type_ = 0;
+  clear_has_type();
+}
+inline ::pb::Structure_TYPE Structure::type() const {
+  // @@protoc_insertion_point(field_get:pb.Structure.type)
+  return static_cast< ::pb::Structure_TYPE >(type_);
+}
+inline void Structure::set_type(::pb::Structure_TYPE value) {
+  assert(::pb::Structure_TYPE_IsValid(value));
+  set_has_type();
+  type_ = value;
+  // @@protoc_insertion_point(field_set:pb.Structure.type)
+}
+
+// optional string name = 3;
+inline bool Structure::has_name() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void Structure::set_has_name() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void Structure::clear_has_name() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void Structure::clear_name() {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_->clear();
   }
-  desc_->assign(value);
-  // @@protoc_insertion_point(field_set:pb.Character.desc)
+  clear_has_name();
 }
-inline void Character::set_desc(const char* value) {
-  set_has_desc();
-  if (desc_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    desc_ = new ::std::string;
+inline const ::std::string& Structure::name() const {
+  // @@protoc_insertion_point(field_get:pb.Structure.name)
+  return *name_;
+}
+inline void Structure::set_name(const ::std::string& value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
   }
-  desc_->assign(value);
-  // @@protoc_insertion_point(field_set_char:pb.Character.desc)
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set:pb.Structure.name)
 }
-inline void Character::set_desc(const char* value, size_t size) {
-  set_has_desc();
-  if (desc_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    desc_ = new ::std::string;
+inline void Structure::set_name(const char* value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
   }
-  desc_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:pb.Character.desc)
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.Structure.name)
 }
-inline ::std::string* Character::mutable_desc() {
-  set_has_desc();
-  if (desc_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    desc_ = new ::std::string;
+inline void Structure::set_name(const char* value, size_t size) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
   }
-  // @@protoc_insertion_point(field_mutable:pb.Character.desc)
-  return desc_;
+  name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.Structure.name)
 }
-inline ::std::string* Character::release_desc() {
-  clear_has_desc();
-  if (desc_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+inline ::std::string* Structure::mutable_name() {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.Structure.name)
+  return name_;
+}
+inline ::std::string* Structure::release_name() {
+  clear_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     return NULL;
   } else {
-    ::std::string* temp = desc_;
-    desc_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    ::std::string* temp = name_;
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
     return temp;
   }
 }
-inline void Character::set_allocated_desc(::std::string* desc) {
-  if (desc_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete desc_;
+inline void Structure::set_allocated_name(::std::string* name) {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete name_;
   }
-  if (desc) {
-    set_has_desc();
-    desc_ = desc;
+  if (name) {
+    set_has_name();
+    name_ = name;
   } else {
-    clear_has_desc();
-    desc_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    clear_has_name();
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
-  // @@protoc_insertion_point(field_set_allocated:pb.Character.desc)
+  // @@protoc_insertion_point(field_set_allocated:pb.Structure.name)
 }
 
-// repeated string more_text = 16;
-inline int Character::more_text_size() const {
-  return more_text_.size();
+// optional string discriminant = 4;
+inline bool Structure::has_discriminant() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
-inline void Character::clear_more_text() {
-  more_text_.Clear();
+inline void Structure::set_has_discriminant() {
+  _has_bits_[0] |= 0x00000008u;
 }
-inline const ::std::string& Character::more_text(int index) const {
-  // @@protoc_insertion_point(field_get:pb.Character.more_text)
-  return more_text_.Get(index);
+inline void Structure::clear_has_discriminant() {
+  _has_bits_[0] &= ~0x00000008u;
 }
-inline ::std::string* Character::mutable_more_text(int index) {
-  // @@protoc_insertion_point(field_mutable:pb.Character.more_text)
-  return more_text_.Mutable(index);
+inline void Structure::clear_discriminant() {
+  if (discriminant_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    discriminant_->clear();
+  }
+  clear_has_discriminant();
 }
-inline void Character::set_more_text(int index, const ::std::string& value) {
-  // @@protoc_insertion_point(field_set:pb.Character.more_text)
-  more_text_.Mutable(index)->assign(value);
+inline const ::std::string& Structure::discriminant() const {
+  // @@protoc_insertion_point(field_get:pb.Structure.discriminant)
+  return *discriminant_;
 }
-inline void Character::set_more_text(int index, const char* value) {
-  more_text_.Mutable(index)->assign(value);
-  // @@protoc_insertion_point(field_set_char:pb.Character.more_text)
+inline void Structure::set_discriminant(const ::std::string& value) {
+  set_has_discriminant();
+  if (discriminant_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    discriminant_ = new ::std::string;
+  }
+  discriminant_->assign(value);
+  // @@protoc_insertion_point(field_set:pb.Structure.discriminant)
 }
-inline void Character::set_more_text(int index, const char* value, size_t size) {
-  more_text_.Mutable(index)->assign(
-    reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:pb.Character.more_text)
+inline void Structure::set_discriminant(const char* value) {
+  set_has_discriminant();
+  if (discriminant_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    discriminant_ = new ::std::string;
+  }
+  discriminant_->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.Structure.discriminant)
 }
-inline ::std::string* Character::add_more_text() {
-  return more_text_.Add();
+inline void Structure::set_discriminant(const char* value, size_t size) {
+  set_has_discriminant();
+  if (discriminant_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    discriminant_ = new ::std::string;
+  }
+  discriminant_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.Structure.discriminant)
 }
-inline void Character::add_more_text(const ::std::string& value) {
-  more_text_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add:pb.Character.more_text)
+inline ::std::string* Structure::mutable_discriminant() {
+  set_has_discriminant();
+  if (discriminant_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    discriminant_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.Structure.discriminant)
+  return discriminant_;
 }
-inline void Character::add_more_text(const char* value) {
-  more_text_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add_char:pb.Character.more_text)
+inline ::std::string* Structure::release_discriminant() {
+  clear_has_discriminant();
+  if (discriminant_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = discriminant_;
+    discriminant_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
 }
-inline void Character::add_more_text(const char* value, size_t size) {
-  more_text_.Add()->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_add_pointer:pb.Character.more_text)
-}
-inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
-Character::more_text() const {
-  // @@protoc_insertion_point(field_list:pb.Character.more_text)
-  return more_text_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::std::string>*
-Character::mutable_more_text() {
-  // @@protoc_insertion_point(field_mutable_list:pb.Character.more_text)
-  return &more_text_;
-}
-
-// repeated sint32 some_ints = 17 [packed = false];
-inline int Character::some_ints_size() const {
-  return some_ints_.size();
-}
-inline void Character::clear_some_ints() {
-  some_ints_.Clear();
-}
-inline ::google::protobuf::int32 Character::some_ints(int index) const {
-  // @@protoc_insertion_point(field_get:pb.Character.some_ints)
-  return some_ints_.Get(index);
-}
-inline void Character::set_some_ints(int index, ::google::protobuf::int32 value) {
-  some_ints_.Set(index, value);
-  // @@protoc_insertion_point(field_set:pb.Character.some_ints)
-}
-inline void Character::add_some_ints(::google::protobuf::int32 value) {
-  some_ints_.Add(value);
-  // @@protoc_insertion_point(field_add:pb.Character.some_ints)
-}
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
-Character::some_ints() const {
-  // @@protoc_insertion_point(field_list:pb.Character.some_ints)
-  return some_ints_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
-Character::mutable_some_ints() {
-  // @@protoc_insertion_point(field_mutable_list:pb.Character.some_ints)
-  return &some_ints_;
+inline void Structure::set_allocated_discriminant(::std::string* discriminant) {
+  if (discriminant_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete discriminant_;
+  }
+  if (discriminant) {
+    set_has_discriminant();
+    discriminant_ = discriminant;
+  } else {
+    clear_has_discriminant();
+    discriminant_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.Structure.discriminant)
 }
 
-// repeated .pb.Item inventory = 18;
-inline int Character::inventory_size() const {
-  return inventory_.size();
+// optional string inherited_from = 5;
+inline bool Structure::has_inherited_from() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
-inline void Character::clear_inventory() {
-  inventory_.Clear();
+inline void Structure::set_has_inherited_from() {
+  _has_bits_[0] |= 0x00000010u;
 }
-inline const ::pb::Item& Character::inventory(int index) const {
-  // @@protoc_insertion_point(field_get:pb.Character.inventory)
-  return inventory_.Get(index);
+inline void Structure::clear_has_inherited_from() {
+  _has_bits_[0] &= ~0x00000010u;
 }
-inline ::pb::Item* Character::mutable_inventory(int index) {
-  // @@protoc_insertion_point(field_mutable:pb.Character.inventory)
-  return inventory_.Mutable(index);
+inline void Structure::clear_inherited_from() {
+  if (inherited_from_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    inherited_from_->clear();
+  }
+  clear_has_inherited_from();
 }
-inline ::pb::Item* Character::add_inventory() {
-  // @@protoc_insertion_point(field_add:pb.Character.inventory)
-  return inventory_.Add();
+inline const ::std::string& Structure::inherited_from() const {
+  // @@protoc_insertion_point(field_get:pb.Structure.inherited_from)
+  return *inherited_from_;
 }
-inline const ::google::protobuf::RepeatedPtrField< ::pb::Item >&
-Character::inventory() const {
-  // @@protoc_insertion_point(field_list:pb.Character.inventory)
-  return inventory_;
+inline void Structure::set_inherited_from(const ::std::string& value) {
+  set_has_inherited_from();
+  if (inherited_from_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    inherited_from_ = new ::std::string;
+  }
+  inherited_from_->assign(value);
+  // @@protoc_insertion_point(field_set:pb.Structure.inherited_from)
 }
-inline ::google::protobuf::RepeatedPtrField< ::pb::Item >*
-Character::mutable_inventory() {
-  // @@protoc_insertion_point(field_mutable_list:pb.Character.inventory)
-  return &inventory_;
+inline void Structure::set_inherited_from(const char* value) {
+  set_has_inherited_from();
+  if (inherited_from_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    inherited_from_ = new ::std::string;
+  }
+  inherited_from_->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.Structure.inherited_from)
+}
+inline void Structure::set_inherited_from(const char* value, size_t size) {
+  set_has_inherited_from();
+  if (inherited_from_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    inherited_from_ = new ::std::string;
+  }
+  inherited_from_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.Structure.inherited_from)
+}
+inline ::std::string* Structure::mutable_inherited_from() {
+  set_has_inherited_from();
+  if (inherited_from_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    inherited_from_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.Structure.inherited_from)
+  return inherited_from_;
+}
+inline ::std::string* Structure::release_inherited_from() {
+  clear_has_inherited_from();
+  if (inherited_from_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = inherited_from_;
+    inherited_from_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Structure::set_allocated_inherited_from(::std::string* inherited_from) {
+  if (inherited_from_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete inherited_from_;
+  }
+  if (inherited_from) {
+    set_has_inherited_from();
+    inherited_from_ = inherited_from;
+  } else {
+    clear_has_inherited_from();
+    inherited_from_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.Structure.inherited_from)
 }
 
-// optional .pb.__unique_ptr_ItemBase poly_ptr = 19;
-inline bool Character::has_poly_ptr() const {
-  return (_has_bits_[0] & 0x00040000u) != 0;
+// optional .pb.EncodedMembers __parent = 6;
+inline bool Structure::has___parent() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
 }
-inline void Character::set_has_poly_ptr() {
-  _has_bits_[0] |= 0x00040000u;
+inline void Structure::set_has___parent() {
+  _has_bits_[0] |= 0x00000020u;
 }
-inline void Character::clear_has_poly_ptr() {
-  _has_bits_[0] &= ~0x00040000u;
+inline void Structure::clear_has___parent() {
+  _has_bits_[0] &= ~0x00000020u;
 }
-inline void Character::clear_poly_ptr() {
-  if (poly_ptr_ != NULL) poly_ptr_->::pb::__unique_ptr_ItemBase::Clear();
-  clear_has_poly_ptr();
+inline void Structure::clear___parent() {
+  if (__parent_ != NULL) __parent_->::pb::EncodedMembers::Clear();
+  clear_has___parent();
 }
-inline const ::pb::__unique_ptr_ItemBase& Character::poly_ptr() const {
-  // @@protoc_insertion_point(field_get:pb.Character.poly_ptr)
-  return poly_ptr_ != NULL ? *poly_ptr_ : *default_instance_->poly_ptr_;
+inline const ::pb::EncodedMembers& Structure::__parent() const {
+  // @@protoc_insertion_point(field_get:pb.Structure.__parent)
+  return __parent_ != NULL ? *__parent_ : *default_instance_->__parent_;
 }
-inline ::pb::__unique_ptr_ItemBase* Character::mutable_poly_ptr() {
-  set_has_poly_ptr();
-  if (poly_ptr_ == NULL) poly_ptr_ = new ::pb::__unique_ptr_ItemBase;
-  // @@protoc_insertion_point(field_mutable:pb.Character.poly_ptr)
-  return poly_ptr_;
+inline ::pb::EncodedMembers* Structure::mutable___parent() {
+  set_has___parent();
+  if (__parent_ == NULL) __parent_ = new ::pb::EncodedMembers;
+  // @@protoc_insertion_point(field_mutable:pb.Structure.__parent)
+  return __parent_;
 }
-inline ::pb::__unique_ptr_ItemBase* Character::release_poly_ptr() {
-  clear_has_poly_ptr();
-  ::pb::__unique_ptr_ItemBase* temp = poly_ptr_;
-  poly_ptr_ = NULL;
+inline ::pb::EncodedMembers* Structure::release___parent() {
+  clear_has___parent();
+  ::pb::EncodedMembers* temp = __parent_;
+  __parent_ = NULL;
   return temp;
 }
-inline void Character::set_allocated_poly_ptr(::pb::__unique_ptr_ItemBase* poly_ptr) {
-  delete poly_ptr_;
-  poly_ptr_ = poly_ptr;
-  if (poly_ptr) {
-    set_has_poly_ptr();
+inline void Structure::set_allocated___parent(::pb::EncodedMembers* __parent) {
+  delete __parent_;
+  __parent_ = __parent;
+  if (__parent) {
+    set_has___parent();
   } else {
-    clear_has_poly_ptr();
+    clear_has___parent();
   }
-  // @@protoc_insertion_point(field_set_allocated:pb.Character.poly_ptr)
+  // @@protoc_insertion_point(field_set_allocated:pb.Structure.__parent)
 }
 
 // -------------------------------------------------------------------
 
-// __unique_ptr_ItemBase
+// Typedef
 
-// optional .pb.Item du_1 = 1;
-inline bool __unique_ptr_ItemBase::has_du_1() const {
+// optional .pb.Location location = 1;
+inline bool Typedef::has_location() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void __unique_ptr_ItemBase::set_has_du_1() {
+inline void Typedef::set_has_location() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void __unique_ptr_ItemBase::clear_has_du_1() {
+inline void Typedef::clear_has_location() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void __unique_ptr_ItemBase::clear_du_1() {
-  if (du_1_ != NULL) du_1_->::pb::Item::Clear();
+inline void Typedef::clear_location() {
+  if (location_ != NULL) location_->::pb::Location::Clear();
+  clear_has_location();
+}
+inline const ::pb::Location& Typedef::location() const {
+  // @@protoc_insertion_point(field_get:pb.Typedef.location)
+  return location_ != NULL ? *location_ : *default_instance_->location_;
+}
+inline ::pb::Location* Typedef::mutable_location() {
+  set_has_location();
+  if (location_ == NULL) location_ = new ::pb::Location;
+  // @@protoc_insertion_point(field_mutable:pb.Typedef.location)
+  return location_;
+}
+inline ::pb::Location* Typedef::release_location() {
+  clear_has_location();
+  ::pb::Location* temp = location_;
+  location_ = NULL;
+  return temp;
+}
+inline void Typedef::set_allocated_location(::pb::Location* location) {
+  delete location_;
+  location_ = location;
+  if (location) {
+    set_has_location();
+  } else {
+    clear_has_location();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.Typedef.location)
+}
+
+// optional .pb.DataType type = 2;
+inline bool Typedef::has_type() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void Typedef::set_has_type() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void Typedef::clear_has_type() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void Typedef::clear_type() {
+  if (type_ != NULL) type_->::pb::DataType::Clear();
+  clear_has_type();
+}
+inline const ::pb::DataType& Typedef::type() const {
+  // @@protoc_insertion_point(field_get:pb.Typedef.type)
+  return type_ != NULL ? *type_ : *default_instance_->type_;
+}
+inline ::pb::DataType* Typedef::mutable_type() {
+  set_has_type();
+  if (type_ == NULL) type_ = new ::pb::DataType;
+  // @@protoc_insertion_point(field_mutable:pb.Typedef.type)
+  return type_;
+}
+inline ::pb::DataType* Typedef::release_type() {
+  clear_has_type();
+  ::pb::DataType* temp = type_;
+  type_ = NULL;
+  return temp;
+}
+inline void Typedef::set_allocated_type(::pb::DataType* type) {
+  delete type_;
+  type_ = type;
+  if (type) {
+    set_has_type();
+  } else {
+    clear_has_type();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.Typedef.type)
+}
+
+// optional string name = 3;
+inline bool Typedef::has_name() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void Typedef::set_has_name() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void Typedef::clear_has_name() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void Typedef::clear_name() {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_->clear();
+  }
+  clear_has_name();
+}
+inline const ::std::string& Typedef::name() const {
+  // @@protoc_insertion_point(field_get:pb.Typedef.name)
+  return *name_;
+}
+inline void Typedef::set_name(const ::std::string& value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set:pb.Typedef.name)
+}
+inline void Typedef::set_name(const char* value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.Typedef.name)
+}
+inline void Typedef::set_name(const char* value, size_t size) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.Typedef.name)
+}
+inline ::std::string* Typedef::mutable_name() {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.Typedef.name)
+  return name_;
+}
+inline ::std::string* Typedef::release_name() {
+  clear_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = name_;
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Typedef::set_allocated_name(::std::string* name) {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete name_;
+  }
+  if (name) {
+    set_has_name();
+    name_ = name;
+  } else {
+    clear_has_name();
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.Typedef.name)
+}
+
+// -------------------------------------------------------------------
+
+// Root
+
+// repeated .pb.Typedef typedefs = 1;
+inline int Root::typedefs_size() const {
+  return typedefs_.size();
+}
+inline void Root::clear_typedefs() {
+  typedefs_.Clear();
+}
+inline const ::pb::Typedef& Root::typedefs(int index) const {
+  // @@protoc_insertion_point(field_get:pb.Root.typedefs)
+  return typedefs_.Get(index);
+}
+inline ::pb::Typedef* Root::mutable_typedefs(int index) {
+  // @@protoc_insertion_point(field_mutable:pb.Root.typedefs)
+  return typedefs_.Mutable(index);
+}
+inline ::pb::Typedef* Root::add_typedefs() {
+  // @@protoc_insertion_point(field_add:pb.Root.typedefs)
+  return typedefs_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::pb::Typedef >&
+Root::typedefs() const {
+  // @@protoc_insertion_point(field_list:pb.Root.typedefs)
+  return typedefs_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::pb::Typedef >*
+Root::mutable_typedefs() {
+  // @@protoc_insertion_point(field_mutable_list:pb.Root.typedefs)
+  return &typedefs_;
+}
+
+// repeated .pb.__unique_ptr_Structure structures = 2;
+inline int Root::structures_size() const {
+  return structures_.size();
+}
+inline void Root::clear_structures() {
+  structures_.Clear();
+}
+inline const ::pb::__unique_ptr_Structure& Root::structures(int index) const {
+  // @@protoc_insertion_point(field_get:pb.Root.structures)
+  return structures_.Get(index);
+}
+inline ::pb::__unique_ptr_Structure* Root::mutable_structures(int index) {
+  // @@protoc_insertion_point(field_mutable:pb.Root.structures)
+  return structures_.Mutable(index);
+}
+inline ::pb::__unique_ptr_Structure* Root::add_structures() {
+  // @@protoc_insertion_point(field_add:pb.Root.structures)
+  return structures_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_Structure >&
+Root::structures() const {
+  // @@protoc_insertion_point(field_list:pb.Root.structures)
+  return structures_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_Structure >*
+Root::mutable_structures() {
+  // @@protoc_insertion_point(field_mutable_list:pb.Root.structures)
+  return &structures_;
+}
+
+// -------------------------------------------------------------------
+
+// __unique_ptr_DataType
+
+// optional .pb.DataType du_1 = 1;
+inline bool __unique_ptr_DataType::has_du_1() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void __unique_ptr_DataType::set_has_du_1() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void __unique_ptr_DataType::clear_has_du_1() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void __unique_ptr_DataType::clear_du_1() {
+  if (du_1_ != NULL) du_1_->::pb::DataType::Clear();
   clear_has_du_1();
 }
-inline const ::pb::Item& __unique_ptr_ItemBase::du_1() const {
-  // @@protoc_insertion_point(field_get:pb.__unique_ptr_ItemBase.du_1)
+inline const ::pb::DataType& __unique_ptr_DataType::du_1() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_DataType.du_1)
   return du_1_ != NULL ? *du_1_ : *default_instance_->du_1_;
 }
-inline ::pb::Item* __unique_ptr_ItemBase::mutable_du_1() {
+inline ::pb::DataType* __unique_ptr_DataType::mutable_du_1() {
   set_has_du_1();
-  if (du_1_ == NULL) du_1_ = new ::pb::Item;
-  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_ItemBase.du_1)
+  if (du_1_ == NULL) du_1_ = new ::pb::DataType;
+  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_DataType.du_1)
   return du_1_;
 }
-inline ::pb::Item* __unique_ptr_ItemBase::release_du_1() {
+inline ::pb::DataType* __unique_ptr_DataType::release_du_1() {
   clear_has_du_1();
-  ::pb::Item* temp = du_1_;
+  ::pb::DataType* temp = du_1_;
   du_1_ = NULL;
   return temp;
 }
-inline void __unique_ptr_ItemBase::set_allocated_du_1(::pb::Item* du_1) {
+inline void __unique_ptr_DataType::set_allocated_du_1(::pb::DataType* du_1) {
   delete du_1_;
   du_1_ = du_1;
   if (du_1) {
@@ -1431,40 +4046,85 @@ inline void __unique_ptr_ItemBase::set_allocated_du_1(::pb::Item* du_1) {
   } else {
     clear_has_du_1();
   }
-  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_ItemBase.du_1)
+  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_DataType.du_1)
 }
 
-// optional .pb.ItemBase du_2 = 2;
-inline bool __unique_ptr_ItemBase::has_du_2() const {
+// -------------------------------------------------------------------
+
+// __unique_ptr_EncodedOrMember
+
+// optional .pb.DataMember du_1 = 1;
+inline bool __unique_ptr_EncodedOrMember::has_du_1() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void __unique_ptr_EncodedOrMember::set_has_du_1() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void __unique_ptr_EncodedOrMember::clear_has_du_1() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void __unique_ptr_EncodedOrMember::clear_du_1() {
+  if (du_1_ != NULL) du_1_->::pb::DataMember::Clear();
+  clear_has_du_1();
+}
+inline const ::pb::DataMember& __unique_ptr_EncodedOrMember::du_1() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_EncodedOrMember.du_1)
+  return du_1_ != NULL ? *du_1_ : *default_instance_->du_1_;
+}
+inline ::pb::DataMember* __unique_ptr_EncodedOrMember::mutable_du_1() {
+  set_has_du_1();
+  if (du_1_ == NULL) du_1_ = new ::pb::DataMember;
+  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_EncodedOrMember.du_1)
+  return du_1_;
+}
+inline ::pb::DataMember* __unique_ptr_EncodedOrMember::release_du_1() {
+  clear_has_du_1();
+  ::pb::DataMember* temp = du_1_;
+  du_1_ = NULL;
+  return temp;
+}
+inline void __unique_ptr_EncodedOrMember::set_allocated_du_1(::pb::DataMember* du_1) {
+  delete du_1_;
+  du_1_ = du_1;
+  if (du_1) {
+    set_has_du_1();
+  } else {
+    clear_has_du_1();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_EncodedOrMember.du_1)
+}
+
+// optional .pb.EncodedMembers du_2 = 2;
+inline bool __unique_ptr_EncodedOrMember::has_du_2() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void __unique_ptr_ItemBase::set_has_du_2() {
+inline void __unique_ptr_EncodedOrMember::set_has_du_2() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void __unique_ptr_ItemBase::clear_has_du_2() {
+inline void __unique_ptr_EncodedOrMember::clear_has_du_2() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void __unique_ptr_ItemBase::clear_du_2() {
-  if (du_2_ != NULL) du_2_->::pb::ItemBase::Clear();
+inline void __unique_ptr_EncodedOrMember::clear_du_2() {
+  if (du_2_ != NULL) du_2_->::pb::EncodedMembers::Clear();
   clear_has_du_2();
 }
-inline const ::pb::ItemBase& __unique_ptr_ItemBase::du_2() const {
-  // @@protoc_insertion_point(field_get:pb.__unique_ptr_ItemBase.du_2)
+inline const ::pb::EncodedMembers& __unique_ptr_EncodedOrMember::du_2() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_EncodedOrMember.du_2)
   return du_2_ != NULL ? *du_2_ : *default_instance_->du_2_;
 }
-inline ::pb::ItemBase* __unique_ptr_ItemBase::mutable_du_2() {
+inline ::pb::EncodedMembers* __unique_ptr_EncodedOrMember::mutable_du_2() {
   set_has_du_2();
-  if (du_2_ == NULL) du_2_ = new ::pb::ItemBase;
-  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_ItemBase.du_2)
+  if (du_2_ == NULL) du_2_ = new ::pb::EncodedMembers;
+  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_EncodedOrMember.du_2)
   return du_2_;
 }
-inline ::pb::ItemBase* __unique_ptr_ItemBase::release_du_2() {
+inline ::pb::EncodedMembers* __unique_ptr_EncodedOrMember::release_du_2() {
   clear_has_du_2();
-  ::pb::ItemBase* temp = du_2_;
+  ::pb::EncodedMembers* temp = du_2_;
   du_2_ = NULL;
   return temp;
 }
-inline void __unique_ptr_ItemBase::set_allocated_du_2(::pb::ItemBase* du_2) {
+inline void __unique_ptr_EncodedOrMember::set_allocated_du_2(::pb::EncodedMembers* du_2) {
   delete du_2_;
   du_2_ = du_2;
   if (du_2) {
@@ -1472,7 +4132,93 @@ inline void __unique_ptr_ItemBase::set_allocated_du_2(::pb::ItemBase* du_2) {
   } else {
     clear_has_du_2();
   }
-  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_ItemBase.du_2)
+  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_EncodedOrMember.du_2)
+}
+
+// optional .pb.EncodedOrMember du_3 = 3;
+inline bool __unique_ptr_EncodedOrMember::has_du_3() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void __unique_ptr_EncodedOrMember::set_has_du_3() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void __unique_ptr_EncodedOrMember::clear_has_du_3() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void __unique_ptr_EncodedOrMember::clear_du_3() {
+  if (du_3_ != NULL) du_3_->::pb::EncodedOrMember::Clear();
+  clear_has_du_3();
+}
+inline const ::pb::EncodedOrMember& __unique_ptr_EncodedOrMember::du_3() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_EncodedOrMember.du_3)
+  return du_3_ != NULL ? *du_3_ : *default_instance_->du_3_;
+}
+inline ::pb::EncodedOrMember* __unique_ptr_EncodedOrMember::mutable_du_3() {
+  set_has_du_3();
+  if (du_3_ == NULL) du_3_ = new ::pb::EncodedOrMember;
+  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_EncodedOrMember.du_3)
+  return du_3_;
+}
+inline ::pb::EncodedOrMember* __unique_ptr_EncodedOrMember::release_du_3() {
+  clear_has_du_3();
+  ::pb::EncodedOrMember* temp = du_3_;
+  du_3_ = NULL;
+  return temp;
+}
+inline void __unique_ptr_EncodedOrMember::set_allocated_du_3(::pb::EncodedOrMember* du_3) {
+  delete du_3_;
+  du_3_ = du_3;
+  if (du_3) {
+    set_has_du_3();
+  } else {
+    clear_has_du_3();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_EncodedOrMember.du_3)
+}
+
+// -------------------------------------------------------------------
+
+// __unique_ptr_Structure
+
+// optional .pb.Structure du_1 = 1;
+inline bool __unique_ptr_Structure::has_du_1() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void __unique_ptr_Structure::set_has_du_1() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void __unique_ptr_Structure::clear_has_du_1() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void __unique_ptr_Structure::clear_du_1() {
+  if (du_1_ != NULL) du_1_->::pb::Structure::Clear();
+  clear_has_du_1();
+}
+inline const ::pb::Structure& __unique_ptr_Structure::du_1() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_Structure.du_1)
+  return du_1_ != NULL ? *du_1_ : *default_instance_->du_1_;
+}
+inline ::pb::Structure* __unique_ptr_Structure::mutable_du_1() {
+  set_has_du_1();
+  if (du_1_ == NULL) du_1_ = new ::pb::Structure;
+  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_Structure.du_1)
+  return du_1_;
+}
+inline ::pb::Structure* __unique_ptr_Structure::release_du_1() {
+  clear_has_du_1();
+  ::pb::Structure* temp = du_1_;
+  du_1_ = NULL;
+  return temp;
+}
+inline void __unique_ptr_Structure::set_allocated_du_1(::pb::Structure* du_1) {
+  delete du_1_;
+  du_1_ = du_1;
+  if (du_1) {
+    set_has_du_1();
+  } else {
+    clear_has_du_1();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_Structure.du_1)
 }
 
 
@@ -1484,10 +4230,25 @@ inline void __unique_ptr_ItemBase::set_allocated_du_2(::pb::ItemBase* du_2) {
 namespace google {
 namespace protobuf {
 
-template <> struct is_proto_enum< ::pb::Character_Animation> : ::google::protobuf::internal::true_type {};
+template <> struct is_proto_enum< ::pb::Variant_KIND> : ::google::protobuf::internal::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::pb::Character_Animation>() {
-  return ::pb::Character_Animation_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::pb::Variant_KIND>() {
+  return ::pb::Variant_KIND_descriptor();
+}
+template <> struct is_proto_enum< ::pb::DataType_KIND> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::pb::DataType_KIND>() {
+  return ::pb::DataType_KIND_descriptor();
+}
+template <> struct is_proto_enum< ::pb::Structure_DECLTYPE> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::pb::Structure_DECLTYPE>() {
+  return ::pb::Structure_DECLTYPE_descriptor();
+}
+template <> struct is_proto_enum< ::pb::Structure_TYPE> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::pb::Structure_TYPE>() {
+  return ::pb::Structure_TYPE_descriptor();
 }
 
 }  // namespace google

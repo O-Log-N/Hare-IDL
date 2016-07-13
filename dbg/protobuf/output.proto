@@ -3,44 +3,122 @@ package pb;
 //syntax="proto2"
 
 // PROTO MESSAGES
-message ItemBase {
-  optional uint32 id = 1;
+message Limit {
+  optional bool inclusive = 1;
+  optional double value = 2;
 }
-message Item {
-  optional string name = 1;
-  optional bool valid = 2;
-  optional ItemBase  __parent = 3;
+message Location {
+  optional string file_name = 1;
+  optional sint32 line_number = 2;
 }
-message Character {
-  optional uint32 max_u8 = 1;
-  optional uint32 max_u16 = 2;
-  optional uint32 max_u32 = 3;
-  optional sint32 min_s8 = 4;
-  optional sint32 min_s16 = 5;
-  optional sint32 min_s32 = 6;
-  optional sint32 max_s8 = 7;
-  optional sint32 max_s16 = 8;
-  optional sint32 max_s32 = 9;
-  optional double x = 10;
-  optional double y = 11;
-  optional double z = 12;
-  enum Animation {
-    Running = 0;
-    Standing = 1;
-    Walking = 2;
+message CharacterRange {
+  optional uint32 from = 1;
+  optional uint32 to = 2;
+}
+message CharacterSet {
+  repeated CharacterRange ranges = 1;
+}
+message Variant {
+  enum KIND {
+    NONE = 0;
+    NUMBER = 1;
+    STRING = 2;
   }
-  optional Animation  anim = 13;
-  optional bool flag = 14;
-  optional string desc = 15;
-  repeated string more_text = 16;
-  repeated sint32 some_ints = 17 [packed=false];
-  repeated Item inventory = 18;
-  optional __unique_ptr_ItemBase  poly_ptr = 19;
-  //  map< sint32 , Item > archive = 20;
+  optional KIND  kind = 1;
+  optional double number_value = 2;
+  optional string string_value = 3;
 }
-message __unique_ptr_ItemBase {
-  optional Item  du_1 = 1;
-  optional ItemBase  du_2 = 2;
+message DataType {
+  enum KIND {
+    BIT_STRING = 0;
+    CHARACTER = 1;
+    CHARACTER_STRING = 2;
+    DICTIONARY = 3;
+    DISCRIMINATED_UNION = 4;
+    ENCODING_SPECIFIC = 5;
+    ENUM = 6;
+    FIXED_POINT = 7;
+    FLOATING_POINT = 8;
+    INTEGER = 9;
+    MAPPING_SPECIFIC = 10;
+    NAMED_TYPE = 11;
+    SEQUENCE = 12;
+  }
+  optional KIND  kind = 1;
+  optional string name = 2;
+  optional string mapping_name = 3;
+  optional string encoding_name = 4;
+  optional __unique_ptr_DataType  key_type = 5;
+  optional __unique_ptr_DataType  param_type = 6;
+  optional Limit  low_limit = 7;
+  optional Limit  high_limit = 8;
+  optional double fixed_precision = 9;
+  optional uint32 floating_significand_bits = 10;
+  optional uint32 floating_exponent_bits = 11;
+  optional CharacterSet  character_set = 12;
+  optional uint32 string_min_size = 13;
+  optional uint32 string_max_size = 14;
+  //  map< string , Variant > encoding_attrs = 15;
+  //  map< string , Variant > mapping_attrs = 16;
+  //  map< string , uint32 > enum_values = 17;
+}
+message EncodingSpecifics {
+  optional string name = 1;
+  //  map< string , Variant > attrs = 2;
+}
+message EncodedOrMember {
+  optional Location  location = 1;
+}
+message DataMember {
+  optional DataType  type = 1;
+  optional string name = 2;
+  optional bool extend_to = 3;
+  optional Variant  default_value = 4;
+  repeated string when_discriminant = 5;
+  optional EncodedOrMember  __parent = 6;
+}
+message EncodedMembers {
+  optional EncodingSpecifics  encoding_specifics = 1;
+  repeated __unique_ptr_EncodedOrMember members = 2;
+  optional EncodedOrMember  __parent = 3;
+}
+message Structure {
+  enum DECLTYPE {
+    ENCODING = 0;
+    IDL = 1;
+    MAPPING = 2;
+  }
+  optional DECLTYPE  decl_type = 1;
+  enum TYPE {
+    DISCRIMINATED_UNION = 0;
+    RPC = 1;
+    STRUCT = 2;
+  }
+  optional TYPE  type = 2;
+  optional string name = 3;
+  optional string discriminant = 4;
+  optional string inherited_from = 5;
+  optional EncodedMembers  __parent = 6;
+}
+message Typedef {
+  optional Location  location = 1;
+  optional DataType  type = 2;
+  optional string name = 3;
+}
+message Root {
+  repeated Typedef typedefs = 1;
+  repeated __unique_ptr_Structure structures = 2;
+}
+message __unique_ptr_DataType {
+  optional DataType  du_1 = 1;
+}
+message __unique_ptr_EncodedOrMember {
+  optional DataMember  du_1 = 1;
+  optional EncodedMembers  du_2 = 2;
+  optional EncodedOrMember  du_3 = 3;
+}
+message __unique_ptr_Structure {
+  optional Structure  du_1 = 1;
 }
 
 
