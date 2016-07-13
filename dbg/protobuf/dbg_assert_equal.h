@@ -327,13 +327,35 @@ inline void assertEqualCharacterSet( const CharacterSet& left, const pb::Charact
 }
 
 inline void assertEqualVariant( const Variant& left, const pb::Variant& right ) {
-       // can't compare enum kind
+    switch ( left.kind )
+    {
+        case 0 /* NONE */: assert(right.kind() == 0 ); break;
+        case 1 /* NUMBER */: assert(right.kind() == 1 ); break;
+        case 2 /* STRING */: assert(right.kind() == 2 ); break;
+        default: assert( false );
+    }
     assert(left.numberValue == right.number_value());
     assert(left.stringValue == right.string_value());
 }
 
 inline void assertEqualDataType( const DataType& left, const pb::DataType& right ) {
-       // can't compare enum kind
+    switch ( left.kind )
+    {
+        case 10 /* BIT_STRING */: assert(right.kind() == 0 ); break;
+        case 8 /* CHARACTER */: assert(right.kind() == 1 ); break;
+        case 9 /* CHARACTER_STRING */: assert(right.kind() == 2 ); break;
+        case 11 /* DICTIONARY */: assert(right.kind() == 3 ); break;
+        case 12 /* DISCRIMINATED_UNION */: assert(right.kind() == 4 ); break;
+        case 3 /* ENCODING_SPECIFIC */: assert(right.kind() == 5 ); break;
+        case 0 /* ENUM */: assert(right.kind() == 6 ); break;
+        case 6 /* FIXED_POINT */: assert(right.kind() == 7 ); break;
+        case 7 /* FLOATING_POINT */: assert(right.kind() == 8 ); break;
+        case 5 /* INTEGER */: assert(right.kind() == 9 ); break;
+        case 4 /* MAPPING_SPECIFIC */: assert(right.kind() == 10 ); break;
+        case 1 /* NAMED_TYPE */: assert(right.kind() == 11 ); break;
+        case 2 /* SEQUENCE */: assert(right.kind() == 12 ); break;
+        default: assert( false );
+    }
     assert(left.name == right.name());
     assert(left.mappingName == right.mapping_name());
     assert(left.encodingName == right.encoding_name());
@@ -397,8 +419,20 @@ inline void assertEqualEncodedMembers( const EncodedMembers& left, const pb::Enc
 }
 
 inline void assertEqualStructure( const Structure& left, const pb::Structure& right ) {
-       // can't compare enum declType
-       // can't compare enum type
+    switch ( left.declType )
+    {
+        case 2 /* ENCODING */: assert(right.decl_type() == 0 ); break;
+        case 0 /* IDL */: assert(right.decl_type() == 1 ); break;
+        case 1 /* MAPPING */: assert(right.decl_type() == 2 ); break;
+        default: assert( false );
+    }
+    switch ( left.type )
+    {
+        case 2 /* DISCRIMINATED_UNION */: assert(right.type() == 0 ); break;
+        case 1 /* RPC */: assert(right.type() == 1 ); break;
+        case 0 /* STRUCT */: assert(right.type() == 2 ); break;
+        default: assert( false );
+    }
     assert(left.name == right.name());
     assert(left.discriminant == right.discriminant());
     assert(left.inheritedFrom == right.inherited_from());
