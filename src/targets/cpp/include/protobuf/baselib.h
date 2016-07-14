@@ -316,6 +316,13 @@ protected:
     }
 public:
     IProtobufStream(uint8_t* inStr, size_t buffSz_) : instr(inStr), buffSz(buffSz_) { readPos = 0; }
+
+    //mb: need to diferentiate a 'clean' end of stream (at the end of a field),
+    // from a stream ending in the middle of a read.
+    FORCE_INLINE bool isEndOfStream() const {
+        return readPos == buffSz;
+    }
+
     bool readFieldTypeAndID(int& type, int& fieldNumber)
     {
         uint8_t buff[12];
