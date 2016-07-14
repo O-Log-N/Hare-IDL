@@ -259,7 +259,7 @@ void serialize__unique_ptr_DataType( const unique_ptr<DataType>& s, OProtobufStr
 
        }
    else {
-     ;// TODO assert?
+     assert( false );
    }
 }
 void serialize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& s, OProtobufStream& o ) {
@@ -289,7 +289,7 @@ void serialize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& s
 
        }
    else {
-     ;// TODO assert?
+     assert( false );
    }
 }
 void serialize__unique_ptr_Structure( const unique_ptr<Structure>& s, OProtobufStream& o ) {
@@ -305,255 +305,427 @@ void serialize__unique_ptr_Structure( const unique_ptr<Structure>& s, OProtobufS
 
        }
    else {
-     ;// TODO assert?
+     assert( false );
    }
 }
 
   
 // DESERIALIZATION
 bool deserializeLimit( Limit& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    const int memcnt = 2;
-   uint8_t initFlags[memcnt] = { 0 };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+   bool initFlags[memcnt] = { false };
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
     case 1:
     {
       uint64_t temp = 0;
-      initFlags[0] = i.readVariantUInt64( temp );
+      readOk = i.readVariantUInt64( temp );
       s.inclusive = static_cast<bool>( temp );
-      break;
     }
+    initFlags[0] = true;
+    break;
     case 2:
     {
-      initFlags[1] = i.readFixed64Bit( s.value );
-      break;
+      readOk = i.readFixed64Bit( s.value );
     }
+    initFlags[1] = true;
+    break;
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 bool deserializeLocation( Location& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    const int memcnt = 2;
-   uint8_t initFlags[memcnt] = { 0 };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+   bool initFlags[memcnt] = { false };
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
     case 1:
     {
-     initFlags[0] = i.readString( s.fileName );
-      break;
+      readOk = i.readString( s.fileName );
     }
+    initFlags[0] = true;
+    break;
     case 2:
     {
       int64_t temp = 0;
-      initFlags[1] = i.readVariantInt64( temp );
+      readOk = i.readVariantInt64( temp );
       s.lineNumber = temp;
-      break;
     }
+    initFlags[1] = true;
+    break;
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 bool deserializeCharacterRange( CharacterRange& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    const int memcnt = 2;
-   uint8_t initFlags[memcnt] = { 0 };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+   bool initFlags[memcnt] = { false };
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
     case 1:
     {
       uint64_t temp = 0;
-      initFlags[0] = i.readVariantUInt64( temp );
+      readOk = i.readVariantUInt64( temp );
       s.from = temp;
-      break;
     }
+    initFlags[0] = true;
+    break;
     case 2:
     {
       uint64_t temp = 0;
-      initFlags[1] = i.readVariantUInt64( temp );
+      readOk = i.readVariantUInt64( temp );
       s.to = temp;
-      break;
     }
+    initFlags[1] = true;
+    break;
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 bool deserializeCharacterSet( CharacterSet& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    const int memcnt = 1;
-   uint8_t initFlags[memcnt] = { 0 };
+   bool initFlags[memcnt] = { false };
   initFlags[0] = true;
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
     case 1:
     {
-      CharacterRange temp2;
-    uint64_t sz_0 = 0;
-    i.readVariantUInt64(sz_0);
-    IProtobufStream is_0 = i.makeSubStream(sz_0);
-    initFlags[0] = deserializeCharacterRange(temp2, is_0);
-      s.ranges.push_back(std::move(temp2));
-
-      break;
+      CharacterRange temp;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeCharacterRange(temp, is);
+      s.ranges.push_back(std::move(temp));
     }
+    initFlags[0] = true;
+    break;
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 bool deserializeVariant( Variant& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    const int memcnt = 3;
-   uint8_t initFlags[memcnt] = { 0 };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+   bool initFlags[memcnt] = { false };
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
     case 1:
     {
-   {
-       uint64_t temp = 0;
-       initFlags[0] = i.readVariantUInt64( temp );
-       switch ( temp )
-       {
+     uint64_t temp = 0;
+     readOk = i.readVariantUInt64( temp );
+     switch ( temp )
+     {
 	      case 0: s.kind = s.NONE; break;
 	      case 1: s.kind = s.NUMBER; break;
 	      case 2: s.kind = s.STRING; break;
-          default: assert(0);
-       }
-   }
-      break;
+        default: return false;
+     }
     }
+    initFlags[0] = true;
+    break;
     case 2:
     {
-      initFlags[1] = i.readFixed64Bit( s.numberValue );
-      break;
+      readOk = i.readFixed64Bit( s.numberValue );
     }
+    initFlags[1] = true;
+    break;
     case 3:
     {
-     initFlags[2] = i.readString( s.stringValue );
-      break;
+      readOk = i.readString( s.stringValue );
     }
+    initFlags[2] = true;
+    break;
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 bool deserializeDataType( DataType& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    const int memcnt = 17;
-   uint8_t initFlags[memcnt] = { 0 };
+   bool initFlags[memcnt] = { false };
   initFlags[14] = true;
   initFlags[15] = true;
   initFlags[16] = true;
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
     case 1:
     {
-   {
-       uint64_t temp = 0;
-       initFlags[0] = i.readVariantUInt64( temp );
-       switch ( temp )
-       {
+     uint64_t temp = 0;
+     readOk = i.readVariantUInt64( temp );
+     switch ( temp )
+     {
 	      case 0: s.kind = s.BIT_STRING; break;
 	      case 1: s.kind = s.CHARACTER; break;
 	      case 2: s.kind = s.CHARACTER_STRING; break;
@@ -567,840 +739,1386 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
 	      case 10: s.kind = s.MAPPING_SPECIFIC; break;
 	      case 11: s.kind = s.NAMED_TYPE; break;
 	      case 12: s.kind = s.SEQUENCE; break;
-          default: assert(0);
-       }
-   }
-      break;
+        default: return false;
+     }
     }
+    initFlags[0] = true;
+    break;
     case 2:
     {
-     initFlags[1] = i.readString( s.name );
-      break;
+      readOk = i.readString( s.name );
     }
+    initFlags[1] = true;
+    break;
     case 3:
     {
-     initFlags[2] = i.readString( s.mappingName );
-      break;
+      readOk = i.readString( s.mappingName );
     }
+    initFlags[2] = true;
+    break;
     case 4:
     {
-     initFlags[3] = i.readString( s.encodingName );
-      break;
+      readOk = i.readString( s.encodingName );
     }
+    initFlags[3] = true;
+    break;
     case 5:
     {
-    uint64_t sz_4 = 0;
-    i.readVariantUInt64(sz_4);
-    IProtobufStream is_4 = i.makeSubStream(sz_4);
-    initFlags[4] = deserialize__unique_ptr_DataType(s.keyType, is_4);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserialize__unique_ptr_DataType(s.keyType, is);
     }
+    initFlags[4] = true;
+    break;
     case 6:
     {
-    uint64_t sz_5 = 0;
-    i.readVariantUInt64(sz_5);
-    IProtobufStream is_5 = i.makeSubStream(sz_5);
-    initFlags[5] = deserialize__unique_ptr_DataType(s.paramType, is_5);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserialize__unique_ptr_DataType(s.paramType, is);
     }
+    initFlags[5] = true;
+    break;
     case 7:
     {
-    uint64_t sz_6 = 0;
-    i.readVariantUInt64(sz_6);
-    IProtobufStream is_6 = i.makeSubStream(sz_6);
-    initFlags[6] = deserializeLimit(s.lowLimit, is_6);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeLimit(s.lowLimit, is);
     }
+    initFlags[6] = true;
+    break;
     case 8:
     {
-    uint64_t sz_7 = 0;
-    i.readVariantUInt64(sz_7);
-    IProtobufStream is_7 = i.makeSubStream(sz_7);
-    initFlags[7] = deserializeLimit(s.highLimit, is_7);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeLimit(s.highLimit, is);
     }
+    initFlags[7] = true;
+    break;
     case 9:
     {
-      initFlags[8] = i.readFixed64Bit( s.fixedPrecision );
-      break;
+      readOk = i.readFixed64Bit( s.fixedPrecision );
     }
+    initFlags[8] = true;
+    break;
     case 10:
     {
       uint64_t temp = 0;
-      initFlags[9] = i.readVariantUInt64( temp );
+      readOk = i.readVariantUInt64( temp );
       s.floatingSignificandBits = temp;
-      break;
     }
+    initFlags[9] = true;
+    break;
     case 11:
     {
       uint64_t temp = 0;
-      initFlags[10] = i.readVariantUInt64( temp );
+      readOk = i.readVariantUInt64( temp );
       s.floatingExponentBits = temp;
-      break;
     }
+    initFlags[10] = true;
+    break;
     case 12:
     {
-    uint64_t sz_11 = 0;
-    i.readVariantUInt64(sz_11);
-    IProtobufStream is_11 = i.makeSubStream(sz_11);
-    initFlags[11] = deserializeCharacterSet(s.characterSet, is_11);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeCharacterSet(s.characterSet, is);
     }
+    initFlags[11] = true;
+    break;
     case 13:
     {
       uint64_t temp = 0;
-      initFlags[12] = i.readVariantUInt64( temp );
+      readOk = i.readVariantUInt64( temp );
       s.stringMinSize = temp;
-      break;
     }
+    initFlags[12] = true;
+    break;
     case 14:
     {
       uint64_t temp = 0;
-      initFlags[13] = i.readVariantUInt64( temp );
+      readOk = i.readVariantUInt64( temp );
       s.stringMaxSize = temp;
-      break;
     }
+    initFlags[13] = true;
+    break;
     case 15:
     {
-  bool ok = false;
+  uint64_t sz = 0;
+  i.readVariantUInt64(sz);
+  IProtobufStream is = i.makeSubStream(sz);
+  IProtobufStream& i = is;
+  string key;
+  Variant value;
+  bool initFlags[2] = { false };
+
+  while(!i.isEndOfStream())
   {
-    uint64_t sz_14 = 0;
-    i.readVariantUInt64(sz_14);
-    IProtobufStream is_14 = i.makeSubStream(sz_14);
-    IProtobufStream& i = is_14;
-    string key;
-    Variant value;
-    bool initFlags[3] = { false };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-    if ( !readret )
-      break;
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    if ( !readOk )
+      return false;
+  
     switch ( fieldNumber )
     {
         case 1:
     {
-     initFlags[1] = i.readString( key );
-     break;
+      readOk = i.readString( key );
     }
+     initFlags[0] = true;
+     break;
 
     case 2:
     {
-    uint64_t sz_2 = 0;
-    i.readVariantUInt64(sz_2);
-    IProtobufStream is_2 = i.makeSubStream(sz_2);
-    initFlags[2] = deserializeVariant(value, is_2);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeVariant(value, is);
     }
+     initFlags[1] = true;
+      break;
 
     default:
-    {
-      // TODO: what?
-      break;
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
     }
-    }
+
+    if ( !readOk )
+      return false;
    }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
    
-   ok = initFlags[1] && initFlags[2];
-   if(ok)
+   readOk = initFlags[0] && initFlags[1];
+   if(readOk)
      s.encodingAttrs[key] = value;
-  }
-  initFlags[14] = ok;
-      break;
+
     }
+    initFlags[14] = true;
+    break;
     case 16:
     {
-  bool ok = false;
+  uint64_t sz = 0;
+  i.readVariantUInt64(sz);
+  IProtobufStream is = i.makeSubStream(sz);
+  IProtobufStream& i = is;
+  string key;
+  Variant value;
+  bool initFlags[2] = { false };
+
+  while(!i.isEndOfStream())
   {
-    uint64_t sz_15 = 0;
-    i.readVariantUInt64(sz_15);
-    IProtobufStream is_15 = i.makeSubStream(sz_15);
-    IProtobufStream& i = is_15;
-    string key;
-    Variant value;
-    bool initFlags[3] = { false };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-    if ( !readret )
-      break;
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    if ( !readOk )
+      return false;
+  
     switch ( fieldNumber )
     {
         case 1:
     {
-     initFlags[1] = i.readString( key );
-     break;
+      readOk = i.readString( key );
     }
+     initFlags[0] = true;
+     break;
 
     case 2:
     {
-    uint64_t sz_2 = 0;
-    i.readVariantUInt64(sz_2);
-    IProtobufStream is_2 = i.makeSubStream(sz_2);
-    initFlags[2] = deserializeVariant(value, is_2);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeVariant(value, is);
     }
+     initFlags[1] = true;
+      break;
 
     default:
-    {
-      // TODO: what?
-      break;
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
     }
-    }
+
+    if ( !readOk )
+      return false;
    }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
    
-   ok = initFlags[1] && initFlags[2];
-   if(ok)
+   readOk = initFlags[0] && initFlags[1];
+   if(readOk)
      s.mappingAttrs[key] = value;
-  }
-  initFlags[15] = ok;
-      break;
+
     }
+    initFlags[15] = true;
+    break;
     case 17:
     {
-  bool ok = false;
+  uint64_t sz = 0;
+  i.readVariantUInt64(sz);
+  IProtobufStream is = i.makeSubStream(sz);
+  IProtobufStream& i = is;
+  string key;
+  uint32_t value;
+  bool initFlags[2] = { false };
+
+  while(!i.isEndOfStream())
   {
-    uint64_t sz_16 = 0;
-    i.readVariantUInt64(sz_16);
-    IProtobufStream is_16 = i.makeSubStream(sz_16);
-    IProtobufStream& i = is_16;
-    string key;
-    uint32_t value;
-    bool initFlags[3] = { false };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-    if ( !readret )
-      break;
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    if ( !readOk )
+      return false;
+  
     switch ( fieldNumber )
     {
         case 1:
     {
-     initFlags[1] = i.readString( key );
-     break;
+      readOk = i.readString( key );
     }
+     initFlags[0] = true;
+     break;
 
     case 2:
     {
       uint64_t temp = 0;
-      initFlags[2] = i.readVariantUInt64( temp );
+      readOk = i.readVariantUInt64( temp );
       value = temp;
-      break;
     }
+     initFlags[1] = true;
+      break;
 
     default:
-    {
-      // TODO: what?
-      break;
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
     }
-    }
+
+    if ( !readOk )
+      return false;
    }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
    
-   ok = initFlags[1] && initFlags[2];
-   if(ok)
+   readOk = initFlags[0] && initFlags[1];
+   if(readOk)
      s.enumValues[key] = value;
-  }
-  initFlags[16] = ok;
-      break;
+
     }
+    initFlags[16] = true;
+    break;
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 bool deserializeEncodingSpecifics( EncodingSpecifics& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    const int memcnt = 2;
-   uint8_t initFlags[memcnt] = { 0 };
+   bool initFlags[memcnt] = { false };
   initFlags[1] = true;
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
     case 1:
     {
-     initFlags[0] = i.readString( s.name );
-      break;
+      readOk = i.readString( s.name );
     }
+    initFlags[0] = true;
+    break;
     case 2:
     {
-  bool ok = false;
+  uint64_t sz = 0;
+  i.readVariantUInt64(sz);
+  IProtobufStream is = i.makeSubStream(sz);
+  IProtobufStream& i = is;
+  string key;
+  Variant value;
+  bool initFlags[2] = { false };
+
+  while(!i.isEndOfStream())
   {
-    uint64_t sz_1 = 0;
-    i.readVariantUInt64(sz_1);
-    IProtobufStream is_1 = i.makeSubStream(sz_1);
-    IProtobufStream& i = is_1;
-    string key;
-    Variant value;
-    bool initFlags[3] = { false };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-    if ( !readret )
-      break;
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    if ( !readOk )
+      return false;
+  
     switch ( fieldNumber )
     {
         case 1:
     {
-     initFlags[1] = i.readString( key );
-     break;
+      readOk = i.readString( key );
     }
+     initFlags[0] = true;
+     break;
 
     case 2:
     {
-    uint64_t sz_2 = 0;
-    i.readVariantUInt64(sz_2);
-    IProtobufStream is_2 = i.makeSubStream(sz_2);
-    initFlags[2] = deserializeVariant(value, is_2);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeVariant(value, is);
     }
+     initFlags[1] = true;
+      break;
 
     default:
-    {
-      // TODO: what?
-      break;
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
     }
-    }
+
+    if ( !readOk )
+      return false;
    }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
    
-   ok = initFlags[1] && initFlags[2];
-   if(ok)
+   readOk = initFlags[0] && initFlags[1];
+   if(readOk)
      s.attrs[key] = value;
-  }
-  initFlags[1] = ok;
-      break;
+
     }
+    initFlags[1] = true;
+    break;
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 bool deserializeEncodedOrMember( EncodedOrMember& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    const int memcnt = 1;
-   uint8_t initFlags[memcnt] = { 0 };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+   bool initFlags[memcnt] = { false };
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
     case 1:
     {
-    uint64_t sz_0 = 0;
-    i.readVariantUInt64(sz_0);
-    IProtobufStream is_0 = i.makeSubStream(sz_0);
-    initFlags[0] = deserializeLocation(s.location, is_0);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeLocation(s.location, is);
     }
+    initFlags[0] = true;
+    break;
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 bool deserializeDataMember( DataMember& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    const int memcnt = 6;
-   uint8_t initFlags[memcnt] = { 0 };
+   bool initFlags[memcnt] = { false };
   initFlags[4] = true;
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
     case 1:
     {
-    uint64_t sz_0 = 0;
-    i.readVariantUInt64(sz_0);
-    IProtobufStream is_0 = i.makeSubStream(sz_0);
-    initFlags[0] = deserializeDataType(s.type, is_0);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeDataType(s.type, is);
     }
+    initFlags[0] = true;
+    break;
     case 2:
     {
-     initFlags[1] = i.readString( s.name );
-      break;
+      readOk = i.readString( s.name );
     }
+    initFlags[1] = true;
+    break;
     case 3:
     {
       uint64_t temp = 0;
-      initFlags[2] = i.readVariantUInt64( temp );
+      readOk = i.readVariantUInt64( temp );
       s.extendTo = static_cast<bool>( temp );
-      break;
     }
+    initFlags[2] = true;
+    break;
     case 4:
     {
-    uint64_t sz_3 = 0;
-    i.readVariantUInt64(sz_3);
-    IProtobufStream is_3 = i.makeSubStream(sz_3);
-    initFlags[3] = deserializeVariant(s.defaultValue, is_3);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeVariant(s.defaultValue, is);
     }
+    initFlags[3] = true;
+    break;
     case 5:
     {
-      string temp2;
-     initFlags[4] = i.readString( temp2 );
-      s.whenDiscriminant.push_back(std::move(temp2));
-
-      break;
+      string temp;
+      readOk = i.readString( temp );
+      s.whenDiscriminant.push_back(std::move(temp));
     }
+    initFlags[4] = true;
+    break;
     case 6:
     {
-    uint64_t sz_5 = 0;
-    i.readVariantUInt64(sz_5);
-    IProtobufStream is_5 = i.makeSubStream(sz_5);
-    initFlags[5] = deserializeEncodedOrMember(s, is_5);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeEncodedOrMember(s, is);
     }
+    initFlags[5] = true;
+    break;
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 bool deserializeEncodedMembers( EncodedMembers& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    const int memcnt = 3;
-   uint8_t initFlags[memcnt] = { 0 };
+   bool initFlags[memcnt] = { false };
   initFlags[1] = true;
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
     case 1:
     {
-    uint64_t sz_0 = 0;
-    i.readVariantUInt64(sz_0);
-    IProtobufStream is_0 = i.makeSubStream(sz_0);
-    initFlags[0] = deserializeEncodingSpecifics(s.encodingSpecifics, is_0);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeEncodingSpecifics(s.encodingSpecifics, is);
     }
+    initFlags[0] = true;
+    break;
     case 2:
     {
-      unique_ptr<EncodedOrMember> temp2;
-    uint64_t sz_1 = 0;
-    i.readVariantUInt64(sz_1);
-    IProtobufStream is_1 = i.makeSubStream(sz_1);
-    initFlags[1] = deserialize__unique_ptr_EncodedOrMember(temp2, is_1);
-      s.members.push_back(std::move(temp2));
-
-      break;
+      unique_ptr<EncodedOrMember> temp;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserialize__unique_ptr_EncodedOrMember(temp, is);
+      s.members.push_back(std::move(temp));
     }
+    initFlags[1] = true;
+    break;
     case 3:
     {
-    uint64_t sz_2 = 0;
-    i.readVariantUInt64(sz_2);
-    IProtobufStream is_2 = i.makeSubStream(sz_2);
-    initFlags[2] = deserializeEncodedOrMember(s, is_2);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeEncodedOrMember(s, is);
     }
+    initFlags[2] = true;
+    break;
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 bool deserializeStructure( Structure& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    const int memcnt = 6;
-   uint8_t initFlags[memcnt] = { 0 };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+   bool initFlags[memcnt] = { false };
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
     case 1:
     {
-   {
-       uint64_t temp = 0;
-       initFlags[0] = i.readVariantUInt64( temp );
-       switch ( temp )
-       {
+     uint64_t temp = 0;
+     readOk = i.readVariantUInt64( temp );
+     switch ( temp )
+     {
 	      case 0: s.declType = s.ENCODING; break;
 	      case 1: s.declType = s.IDL; break;
 	      case 2: s.declType = s.MAPPING; break;
-          default: assert(0);
-       }
-   }
-      break;
+        default: return false;
+     }
     }
+    initFlags[0] = true;
+    break;
     case 2:
     {
-   {
-       uint64_t temp = 0;
-       initFlags[1] = i.readVariantUInt64( temp );
-       switch ( temp )
-       {
+     uint64_t temp = 0;
+     readOk = i.readVariantUInt64( temp );
+     switch ( temp )
+     {
 	      case 0: s.type = s.DISCRIMINATED_UNION; break;
 	      case 1: s.type = s.RPC; break;
 	      case 2: s.type = s.STRUCT; break;
-          default: assert(0);
-       }
-   }
-      break;
+        default: return false;
+     }
     }
+    initFlags[1] = true;
+    break;
     case 3:
     {
-     initFlags[2] = i.readString( s.name );
-      break;
+      readOk = i.readString( s.name );
     }
+    initFlags[2] = true;
+    break;
     case 4:
     {
-     initFlags[3] = i.readString( s.discriminant );
-      break;
+      readOk = i.readString( s.discriminant );
     }
+    initFlags[3] = true;
+    break;
     case 5:
     {
-     initFlags[4] = i.readString( s.inheritedFrom );
-      break;
+      readOk = i.readString( s.inheritedFrom );
     }
+    initFlags[4] = true;
+    break;
     case 6:
     {
-    uint64_t sz_5 = 0;
-    i.readVariantUInt64(sz_5);
-    IProtobufStream is_5 = i.makeSubStream(sz_5);
-    initFlags[5] = deserializeEncodedMembers(s, is_5);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeEncodedMembers(s, is);
     }
+    initFlags[5] = true;
+    break;
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 bool deserializeTypedef( Typedef& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    const int memcnt = 3;
-   uint8_t initFlags[memcnt] = { 0 };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+   bool initFlags[memcnt] = { false };
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
     case 1:
     {
-    uint64_t sz_0 = 0;
-    i.readVariantUInt64(sz_0);
-    IProtobufStream is_0 = i.makeSubStream(sz_0);
-    initFlags[0] = deserializeLocation(s.location, is_0);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeLocation(s.location, is);
     }
+    initFlags[0] = true;
+    break;
     case 2:
     {
-    uint64_t sz_1 = 0;
-    i.readVariantUInt64(sz_1);
-    IProtobufStream is_1 = i.makeSubStream(sz_1);
-    initFlags[1] = deserializeDataType(s.type, is_1);
-      break;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeDataType(s.type, is);
     }
+    initFlags[1] = true;
+    break;
     case 3:
     {
-     initFlags[2] = i.readString( s.name );
-      break;
+      readOk = i.readString( s.name );
     }
+    initFlags[2] = true;
+    break;
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 bool deserializeRoot( Root& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    const int memcnt = 2;
-   uint8_t initFlags[memcnt] = { 0 };
+   bool initFlags[memcnt] = { false };
   initFlags[0] = true;
   initFlags[1] = true;
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
     case 1:
     {
-      Typedef temp2;
-    uint64_t sz_0 = 0;
-    i.readVariantUInt64(sz_0);
-    IProtobufStream is_0 = i.makeSubStream(sz_0);
-    initFlags[0] = deserializeTypedef(temp2, is_0);
-      s.typedefs.push_back(std::move(temp2));
-
-      break;
+      Typedef temp;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeTypedef(temp, is);
+      s.typedefs.push_back(std::move(temp));
     }
+    initFlags[0] = true;
+    break;
     case 2:
     {
-      unique_ptr<Structure> temp2;
-    uint64_t sz_1 = 0;
-    i.readVariantUInt64(sz_1);
-    IProtobufStream is_1 = i.makeSubStream(sz_1);
-    initFlags[1] = deserialize__unique_ptr_Structure(temp2, is_1);
-      s.structures.push_back(std::move(temp2));
-
-      break;
+      unique_ptr<Structure> temp;
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserialize__unique_ptr_Structure(temp, is);
+      s.structures.push_back(std::move(temp));
     }
+    initFlags[1] = true;
+    break;
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 
 bool deserialize__unique_ptr_DataType( unique_ptr<DataType>& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
+
    const int memcnt = 2;
-   uint8_t initFlags[memcnt] = { 0 };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-    if ( !readret )
-      break;
+   bool initFlags[memcnt] = { false };
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    if ( !readOk )
+      return false;
     switch ( fieldNumber )
     {
-       case 1:
-       {
-       //else if ( typeid( *s ) == typeid( DataType ) ) 
-         unique_ptr<DataType> ptr(new DataType);
-    uint64_t sz_1 = 0;
-    i.readVariantUInt64(sz_1);
-    IProtobufStream is_1 = i.makeSubStream(sz_1);
-    initFlags[1] = deserializeDataType(*ptr, is_1);
-         s = move(ptr);
-       }
-       break;
+      case 1:
+      {
+        std::unique_ptr<DataType> ptr(new DataType);
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeDataType(*ptr, is);
+        s = std::move(ptr);
+   
+      }
+      initFlags[0] = true;
+      break;
 
     default:
-    {
-      // TODO: what?
-      break;
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
     }
-    }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if ( !readOk )
+      return false;
+  }
 
-   bool OK = false;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK || initFlags[i] != 0;
+  // TODO, this is only valid for OWNING-PTR
+  // since any combination (including empty) is valid
 
-   return true; //TODO
+  return true;
 }
 bool deserialize__unique_ptr_EncodedOrMember( unique_ptr<EncodedOrMember>& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
+
    const int memcnt = 4;
-   uint8_t initFlags[memcnt] = { 0 };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-    if ( !readret )
-      break;
+   bool initFlags[memcnt] = { false };
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    if ( !readOk )
+      return false;
     switch ( fieldNumber )
     {
-       case 1:
-       {
-       //else if ( typeid( *s ) == typeid( DataMember ) ) 
-         unique_ptr<DataMember> ptr(new DataMember);
-    uint64_t sz_1 = 0;
-    i.readVariantUInt64(sz_1);
-    IProtobufStream is_1 = i.makeSubStream(sz_1);
-    initFlags[1] = deserializeDataMember(*ptr, is_1);
-         s = move(ptr);
-       }
-       break;
-       case 2:
-       {
-       //else if ( typeid( *s ) == typeid( EncodedMembers ) ) 
-         unique_ptr<EncodedMembers> ptr(new EncodedMembers);
-    uint64_t sz_2 = 0;
-    i.readVariantUInt64(sz_2);
-    IProtobufStream is_2 = i.makeSubStream(sz_2);
-    initFlags[2] = deserializeEncodedMembers(*ptr, is_2);
-         s = move(ptr);
-       }
-       break;
-       case 3:
-       {
-       //else if ( typeid( *s ) == typeid( EncodedOrMember ) ) 
-         unique_ptr<EncodedOrMember> ptr(new EncodedOrMember);
-    uint64_t sz_3 = 0;
-    i.readVariantUInt64(sz_3);
-    IProtobufStream is_3 = i.makeSubStream(sz_3);
-    initFlags[3] = deserializeEncodedOrMember(*ptr, is_3);
-         s = move(ptr);
-       }
-       break;
+      case 1:
+      {
+        std::unique_ptr<DataMember> ptr(new DataMember);
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeDataMember(*ptr, is);
+        s = std::move(ptr);
+   
+      }
+      initFlags[0] = true;
+      break;
+      case 2:
+      {
+        std::unique_ptr<EncodedMembers> ptr(new EncodedMembers);
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeEncodedMembers(*ptr, is);
+        s = std::move(ptr);
+   
+      }
+      initFlags[1] = true;
+      break;
+      case 3:
+      {
+        std::unique_ptr<EncodedOrMember> ptr(new EncodedOrMember);
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeEncodedOrMember(*ptr, is);
+        s = std::move(ptr);
+   
+      }
+      initFlags[2] = true;
+      break;
 
     default:
-    {
-      // TODO: what?
-      break;
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
     }
-    }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if ( !readOk )
+      return false;
+  }
 
-   bool OK = false;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK || initFlags[i] != 0;
+  // TODO, this is only valid for OWNING-PTR
+  // since any combination (including empty) is valid
 
-   return true; //TODO
+  return true;
 }
 bool deserialize__unique_ptr_Structure( unique_ptr<Structure>& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
+
    const int memcnt = 2;
-   uint8_t initFlags[memcnt] = { 0 };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-    if ( !readret )
-      break;
+   bool initFlags[memcnt] = { false };
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    if ( !readOk )
+      return false;
     switch ( fieldNumber )
     {
-       case 1:
-       {
-       //else if ( typeid( *s ) == typeid( Structure ) ) 
-         unique_ptr<Structure> ptr(new Structure);
-    uint64_t sz_1 = 0;
-    i.readVariantUInt64(sz_1);
-    IProtobufStream is_1 = i.makeSubStream(sz_1);
-    initFlags[1] = deserializeStructure(*ptr, is_1);
-         s = move(ptr);
-       }
-       break;
+      case 1:
+      {
+        std::unique_ptr<Structure> ptr(new Structure);
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserializeStructure(*ptr, is);
+        s = std::move(ptr);
+   
+      }
+      initFlags[0] = true;
+      break;
 
     default:
-    {
-      // TODO: what?
-      break;
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
     }
-    }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if ( !readOk )
+      return false;
+  }
 
-   bool OK = false;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK || initFlags[i] != 0;
+  // TODO, this is only valid for OWNING-PTR
+  // since any combination (including empty) is valid
 
-   return true; //TODO
+  return true;
 }
   
   
@@ -1734,9 +2452,7 @@ size_t protobufGetSizeRoot( const Root& s ) {
 
 
 size_t protobufGetSize__unique_ptr_DataType( const unique_ptr<DataType>& s ) {
-  
-
-     size_t sz = 0;
+  size_t sz = 0;
   if(s.get() == nullptr) {
     return sz;
   }
@@ -1749,14 +2465,12 @@ size_t protobufGetSize__unique_ptr_DataType( const unique_ptr<DataType>& s ) {
 
        }
    else {
-     ;// TODO assert?
+     assert( false );
    }
    return sz;
 }
 size_t protobufGetSize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& s ) {
-  
-
-     size_t sz = 0;
+  size_t sz = 0;
   if(s.get() == nullptr) {
     return sz;
   }
@@ -1785,14 +2499,12 @@ size_t protobufGetSize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMe
 
        }
    else {
-     ;// TODO assert?
+     assert( false );
    }
    return sz;
 }
 size_t protobufGetSize__unique_ptr_Structure( const unique_ptr<Structure>& s ) {
-  
-
-     size_t sz = 0;
+  size_t sz = 0;
   if(s.get() == nullptr) {
     return sz;
   }
@@ -1805,7 +2517,7 @@ size_t protobufGetSize__unique_ptr_Structure( const unique_ptr<Structure>& s ) {
 
        }
    else {
-     ;// TODO assert?
+     assert( false );
    }
    return sz;
 }

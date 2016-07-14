@@ -54,9 +54,9 @@ unique_ptr<Root> protobufDeserializeFromFile(const char* fileName) {
     size_t sz = fread(baseBuff, 1, 0x10000, in);
     fclose(in);
     IProtobufStream i(baseBuff, sz);
-    deserializeRoot(*root, i);
+    bool ok = deserializeRoot(*root, i);
 
-    return root;
+    return ok ? std::move(root) : nullptr;
 }
 
 void protobufSerializeToFile(const char* fileName, Root& root) {
@@ -76,9 +76,9 @@ unique_ptr<Root> deserializeFile(const char* fileName) {
     size_t sz = fread(baseBuff, 1, 0x10000, in);
     fclose(in);
     IStream i(baseBuff, sz);
-    deserializeRoot(*root, i);
+    bool ok = deserializeRoot(*root, i);
 
-    return root;
+    return ok ? std::move(root) : nullptr;
 }
 
 

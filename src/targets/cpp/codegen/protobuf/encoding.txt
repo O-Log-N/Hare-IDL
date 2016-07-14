@@ -1,4 +1,17 @@
 
+
+@@--------   COMMON FUNCTIONS   --------
+
+@@BEGIN-FUNCTION NAME="FUNCTION-GET-REF-TO-MEMBER" PARAM-STRUCT-NAME PARAM-MEMBER
+@@ASSERT IS-MEMBER(PARAM-MEMBER)
+@@LET LOCAL-IS-PARENT = PARAM-MEMBER.GET-MAPPING-ANNOTATION( "PARENT" )
+@@IF LOCAL-IS-PARENT.HAS-VALUE()
+   @@RETURN "@PARAM-STRUCT-NAME@"
+@@ENDIF
+   @@RETURN "@PARAM-STRUCT-NAME@.@PARAM-MEMBER.MAPPING-MEMBER-NAME()@"
+@@END-FUNCTION NAME="FUNCTION-GET-REF-TO-MEMBER"
+
+
 @@--------   SERIALIZATION   --------
 
 
@@ -57,7 +70,7 @@ void serialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& 
    @@FOR-EACH END
    @@FOR-EACH END
    else {
-     ;// TODO assert?
+     assert( false );
    }
 @@ELSE
    @@ASSERT "0" MSG="Cannot process discriminated union for serialization: name=@PARAM-DU.STRUCT-NAME()@"
@@ -193,69 +206,64 @@ bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, I
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-DU"
 @@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
 bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
+
    @@LET LOCAL-MEMCTR=0
    @@FOR-EACH LOCAL-MEMBER IN PARAM-DU.MEMBERS()
       @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
    @@FOR-EACH END
    const int memcnt = @LOCAL-MEMCTR@;
-   uint8_t initFlags[memcnt] = { 0 };
+   bool initFlags[memcnt] = { false };
    @@LET LOCAL-MEMCTR=0
    @@FOR-EACH LOCAL-MEMBER IN PARAM-DU.MEMBERS()
-      @@INCLUDE TEMPLATE="DESERIALIZE-TYPE-INIT" PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-MEMCTR=LOCAL-MEMCTR
+      @@INCLUDE TEMPLATE="DESERIALIZE-TYPE-INIT" PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-FLAG="initFlags[@LOCAL-MEMCTR@]"
    @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
    @@FOR-EACH END
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-    if ( !readret )
-      break;
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    if ( !readOk )
+      return false;
     switch ( fieldNumber )
     {
-  @@LET LOCAL-MEMCTR=1
-   @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
-   @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
-     @@LET LOCAL-POLY-PTR = LOCAL-MEMBER.GET-MAPPING-ANNOTATION( "POLY-POINTER-TYPE" )
-     @@IF LOCAL-POLY-PTR.HAS-VALUE()
-       case @LOCAL-MEMCTR@:
-       {
-       //else if ( typeid( *s ) == typeid( @LOCAL-POLY-PTR@ ) ) 
-         unique_ptr<@LOCAL-POLY-PTR@> ptr(new @LOCAL-POLY-PTR@);
-         @@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="*ptr" PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-MEMCTR=LOCAL-MEMCTR
-         s = move(ptr);
-       }
-       break;
-    @@ENDIF
-   @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
-   @@FOR-EACH END
-   @@FOR-EACH END
+  @@LET LOCAL-MEMCTR=0
+    @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
+    @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
+      @@LET LOCAL-TMP1=LOCAL-MEMCTR+1
+      case @LOCAL-TMP1@:
+      {
+      @@LET LOCAL-POLY-PTR = LOCAL-MEMBER.GET-MAPPING-ANNOTATION( "POLY-POINTER-TYPE" )
+      @@IF LOCAL-POLY-PTR.HAS-VALUE()
+        std::unique_ptr<@LOCAL-POLY-PTR@> ptr(new @LOCAL-POLY-PTR@);
+        @@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="*ptr" PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE()
+        s = std::move(ptr);
+      @@ELSE
+        @@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="*ptr" PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE()
+      @@ENDIF
+   
+      }
+      initFlags[@LOCAL-MEMCTR@] = true;
+      break;
+      @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
+    @@FOR-EACH END
+    @@FOR-EACH END
 
     default:
-    {
-      // TODO: what?
-      break;
+      @@INCLUDE TEMPLATE="DESERIALIZE-CASE-DEFAULT"
     }
-    }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if ( !readOk )
+      return false;
+  }
 
-   bool OK = false;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK || initFlags[i] != 0;
+  // TODO, this is only valid for OWNING-PTR
+  // since any combination (including empty) is valid
 
-   return true; //TODO
+  return true;
 }
 @@END-TEMPLATE NAME="DESERIALIZE-DU"
-
-
-@@BEGIN-TEMPLATE NAME="DESERIALIZE-DU-OPTION"
-@@ASSERT IS-DU-OPTION(PARAM-DU-OPTION)
-   @@FOR-EACH LOCAL-MEMBER IN PARAM-DU-OPTION.MEMBERS()
-      @@INCLUDE TEMPLATE="DESERIALIZE-S-FOR-EACH-OF-MEMBERS" PARAM-NAME=FUNCTION-GET-REF-TO-MEMBER("s", LOCAL-MEMBER) PARAM-TYPE=LOCAL-MEMBER.ENCODING-MEMBER-TYPE() PARAM-MEMBER=LOCAL-MEMBER PARAM-MEMCTR=PARAM-MEMCTR
-   @@FOR-EACH END
-@@END-TEMPLATE NAME="DESERIALIZE-DU-OPTION"
 
 
 
@@ -268,60 +276,55 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-STRUCT"
 @@ASSERT IS-SERIALIZABLE-STRUCT(PARAM-STRUCT)
 bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i ) {
-   int type;
-   int fieldNumber;
-   bool readret;
    @@LET LOCAL-MEMCTR=0
    @@FOR-EACH LOCAL-MEMBER IN PARAM-STRUCT.MEMBERS()
       @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
    @@FOR-EACH END
    const int memcnt = @LOCAL-MEMCTR@;
-   uint8_t initFlags[memcnt] = { 0 };
+   bool initFlags[memcnt] = { false };
    @@LET LOCAL-MEMCTR=0
    @@FOR-EACH LOCAL-MEMBER IN PARAM-STRUCT.MEMBERS()
-      @@INCLUDE TEMPLATE="DESERIALIZE-TYPE-INIT" PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-MEMCTR=LOCAL-MEMCTR
+      @@INCLUDE TEMPLATE="DESERIALIZE-TYPE-INIT" PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-FLAG="initFlags[@LOCAL-MEMCTR@]"
    @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
    @@FOR-EACH END
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-	  if ( !readret )
-		  break;
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+	  if ( !readOk )
+		  return false;
 	  switch ( fieldNumber )
 	  {
    @@LET LOCAL-MEMCTR=0
    @@FOR-EACH LOCAL-MEMBER IN PARAM-STRUCT.MEMBERS()
-      @@INCLUDE TEMPLATE="DESERIALIZE-S-FOR-EACH-OF-MEMBERS" PARAM-NAME=FUNCTION-GET-REF-TO-MEMBER("s", LOCAL-MEMBER) PARAM-TYPE=LOCAL-MEMBER.ENCODING-MEMBER-TYPE() PARAM-MEMBER=LOCAL-MEMBER PARAM-MEMCTR=LOCAL-MEMCTR
+     @@LET LOCAL-TMP1=LOCAL-MEMCTR+1
+    case @LOCAL-TMP1@:
+    {
+      @@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME=FUNCTION-GET-REF-TO-MEMBER("s", LOCAL-MEMBER) PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE()
+    }
+    initFlags[@LOCAL-MEMCTR@] = true;
+    break;
    @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
    @@FOR-EACH END
 		default:
-		{
-			// TODO: what?
-			break;
-		}
+      @@INCLUDE TEMPLATE="DESERIALIZE-CASE-DEFAULT"
 	  }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
+    if( !readOk )
+      return false;
+  }
 
-   bool OK = true;
-   for ( int i=0; i<memcnt; i++ )
-     OK = OK && initFlags[i] != 0;
+  bool OK = true;
+  for ( int i=0; i<memcnt; i++ )
+    OK = OK && initFlags[i] != 0;
 
-   return OK;
+  return OK;
 }
 
 @@END-TEMPLATE NAME="DESERIALIZE-STRUCT"
 
-
-@@BEGIN-TEMPLATE NAME="DESERIALIZE-S-FOR-EACH-OF-MEMBERS"
-@@ASSERT IS-MEMBER(PARAM-MEMBER)
-@@LET LOCAL-TMP1=PARAM-MEMCTR+1
-    case @LOCAL-TMP1@:
-    {
-@@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="@PARAM-NAME@" PARAM-TYPE=PARAM-MEMBER.MEMBER-TYPE() PARAM-MEMCTR=PARAM-MEMCTR
-      break;
-    }
-@@END-TEMPLATE NAME="DESERIALIZE-S-FOR-EACH-OF-MEMBERS"
 
 
 @@BEGIN-TEMPLATE NAME="DECLARE-PTR-TO-OBJECT-OF-TYPE"
@@ -333,7 +336,7 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-TYPE-INIT"
 @@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
 @@IF (PARAM-TYPE.IS-SEQUENCE()) || (PARAM-TYPE.IS-DICTIONARY())
-  initFlags[@PARAM-MEMCTR@] = true;
+  @PARAM-FLAG@ = true;
 @@ENDIF
 @@END-TEMPLATE NAME="DESERIALIZE-TYPE-INIT"
 
@@ -345,24 +348,24 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
   @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER()
     @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(1)
       uint64_t temp = 0;
-      initFlags[@PARAM-MEMCTR@] = i.readVariantUInt64( temp );
+      readOk = i.readVariantUInt64( temp );
       @PARAM-NAME@ = static_cast<bool>( temp );
     @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(63)
       uint64_t temp = 0;
-      initFlags[@PARAM-MEMCTR@] = i.readVariantUInt64( temp );
+      readOk = i.readVariantUInt64( temp );
       @PARAM-NAME@ = temp;
     @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(64)
-      initFlags[@PARAM-MEMCTR@] = i.readVariantUInt64( @PARAM-NAME@ );
+      readOk = i.readVariantUInt64( @PARAM-NAME@ );
     @@ELSE
       @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
     @@ENDIF
   @@ELSE
     @@IF PARAM-TYPE.IS-SIGNED-INTEGER-FITTING-INT(63)
       int64_t temp = 0;
-      initFlags[@PARAM-MEMCTR@] = i.readVariantInt64( temp );
+      readOk = i.readVariantInt64( temp );
       @PARAM-NAME@ = temp;
     @@ELIF PARAM-TYPE.IS-SIGNED-INTEGER-FITTING-INT(64)
-      initFlags[@PARAM-MEMCTR@] = i.readVariantInt64( @PARAM-NAME@ );
+      readOk = i.readVariantInt64( @PARAM-NAME@ );
     @@ELSE
       @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
     @@ENDIF
@@ -371,81 +374,87 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
    @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
 @@ELIF PARAM-TYPE.IS-FLOATING-POINT()
   @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
-      initFlags[@PARAM-MEMCTR@] = i.readFixed64Bit( @PARAM-NAME@ );
+      readOk = i.readFixed64Bit( @PARAM-NAME@ );
   @@ELSE
     @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
   @@ENDIF
 @@ELIF PARAM-TYPE.IS-CHARACTER-STRING()
-     initFlags[@PARAM-MEMCTR@] = i.readString( @PARAM-NAME@ );
+      readOk = i.readString( @PARAM-NAME@ );
 @@ELIF PARAM-TYPE.IS-STRUCTURE()
-    uint64_t sz_@PARAM-MEMCTR@ = 0;
-    i.readVariantUInt64(sz_@PARAM-MEMCTR@);
-    IProtobufStream is_@PARAM-MEMCTR@ = i.makeSubStream(sz_@PARAM-MEMCTR@);
-    initFlags[@PARAM-MEMCTR@] = deserialize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@(@PARAM-NAME@, is_@PARAM-MEMCTR@);
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      readOk = deserialize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@(@PARAM-NAME@, is);
 @@ELIF PARAM-TYPE.IS-ENUM()
-   {
-       uint64_t temp = 0;
-       initFlags[@PARAM-MEMCTR@] = i.readVariantUInt64( temp );
-       switch ( temp )
-       {
+     uint64_t temp = 0;
+     readOk = i.readVariantUInt64( temp );
+     switch ( temp )
+     {
    @@FOR-EACH LOCAL-ENUM-VALUE IN PARAM-TYPE.ENUM-VALUES()
       @@INCLUDE TEMPLATE="DESERIALIZE-ENUM-VALUE" PARAM-NAME="@PARAM-NAME@" PARAM-ENUM-VALUE=LOCAL-ENUM-VALUE
    @@FOR-EACH END
-          default: assert(0);
-       }
-   }
+        default: return false;
+     }
 @@ELIF PARAM-TYPE.IS-SEQUENCE()
-      @PARAM-TYPE.COLLECTION-TYPE().MAPPING-MEMBER-TYPE()@ temp2;
-      @@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="temp2" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE() PARAM-MEMCTR=PARAM-MEMCTR
-      @PARAM-NAME@.push_back(std::move(temp2));
-
+      @PARAM-TYPE.COLLECTION-TYPE().MAPPING-MEMBER-TYPE()@ temp;
+      @@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="temp" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
+      @PARAM-NAME@.push_back(std::move(temp));
 @@ELIF PARAM-TYPE.IS-DICTIONARY()
-  bool ok = false;
-  {
-    uint64_t sz_@PARAM-MEMCTR@ = 0;
-    i.readVariantUInt64(sz_@PARAM-MEMCTR@);
-    IProtobufStream is_@PARAM-MEMCTR@ = i.makeSubStream(sz_@PARAM-MEMCTR@);
-    IProtobufStream& i = is_@PARAM-MEMCTR@;
-    @PARAM-TYPE.COLLECTION-TYPE2().ENCODING-MEMBER-TYPE()@ key;
-    @PARAM-TYPE.COLLECTION-TYPE().ENCODING-MEMBER-TYPE()@ value;
-    bool initFlags[3] = { false };
-   do
-   {
-      readret = i.readFieldTypeAndID( type, fieldNumber );
-    if ( !readret )
-      break;
-    switch ( fieldNumber )
-    {
-        case 1:
-    {
-@@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="key" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE2() PARAM-MEMCTR="1"
-     break;
-    }
-
-    case 2:
-    {
-@@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="value" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE() PARAM-MEMCTR="2"
-      break;
-    }
-
-    default:
-    {
-      // TODO: what?
-      break;
-    }
-    }
-   }
-   while ( 1 ); // TODO: stop criterion (except the end of the message?
-   
-   ok = initFlags[1] && initFlags[2];
-   if(ok)
-     @PARAM-NAME@[key] = value;
-  }
-  initFlags[@PARAM-MEMCTR@] = ok;
+  @@INCLUDE TEMPLATE="DESERIALIZE-DICTIONARY" PARAM-NAME=PARAM-NAME PARAM-TYPE=PARAM-TYPE
 @@ELSE
   @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
 @@ENDIF
 @@END-TEMPLATE NAME="DESERIALIZE-TYPE"
+
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-DICTIONARY"
+@@ASSERT PARAM-TYPE.IS-DICTIONARY()
+  uint64_t sz = 0;
+  i.readVariantUInt64(sz);
+  IProtobufStream is = i.makeSubStream(sz);
+  IProtobufStream& i = is;
+  @PARAM-TYPE.COLLECTION-TYPE2().ENCODING-MEMBER-TYPE()@ key;
+  @PARAM-TYPE.COLLECTION-TYPE().ENCODING-MEMBER-TYPE()@ value;
+  bool initFlags[2] = { false };
+
+  while(!i.isEndOfStream())
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    if ( !readOk )
+      return false;
+  
+    switch ( fieldNumber )
+    {
+        case 1:
+    {
+@@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="key" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE2()
+    }
+     initFlags[0] = true;
+     break;
+
+    case 2:
+    {
+@@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="value" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
+    }
+     initFlags[1] = true;
+      break;
+
+    default:
+      @@INCLUDE TEMPLATE="DESERIALIZE-CASE-DEFAULT"
+    }
+
+    if ( !readOk )
+      return false;
+   }
+   
+   readOk = initFlags[0] && initFlags[1];
+   if(readOk)
+     @PARAM-NAME@[key] = value;
+
+@@END-TEMPLATE NAME="DESERIALIZE-DICTIONARY"
 
 
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-ENUM-VALUE"
@@ -453,6 +462,43 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 	      case @PARAM-ENUM-VALUE.ENCODING-ENUM-VALUE-VALUE()@: @PARAM-NAME@ = s.@PARAM-ENUM-VALUE.ENUM-VALUE-NAME()@; break;
 @@END-TEMPLATE NAME="DESERIALIZE-ENUM-VALUE"
 
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-CASE-DEFAULT"
+      // Unexpected field, just read and discard
+      // TODO all this code can be a helper function, maybe inside IProtobufStream
+      switch(fieldType)
+      {
+      case VARINT:
+        {
+          uint64_t temp;
+          readOk = i.readVariantUInt64( temp );
+        }
+        break;
+      case FIXED_64_BIT:
+        {
+          double temp;
+          readOk = i.readFixed64Bit( temp );
+        }
+        break;
+      case LENGTH_DELIMITED:
+        {
+          uint64_t sz;
+          i.readVariantUInt64( sz );
+          IProtobufStream is = i.makeSubStream( sz );
+          string temp;
+          readOk = is.readString( temp );
+        }
+        break;
+      case FIXED_32_BIT:
+        {
+          float temp;
+//          readOk = i.readFixed32Bit( temp );
+          return false;
+        }
+        break;
+      default:
+        return false;
+      }
+@@END-TEMPLATE NAME="DESERIALIZE-CASE-DEFAULT"
 
 
 
@@ -495,9 +541,7 @@ size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-N
 size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& s ) {
 @@LET LOCAL-IS-OWNING-PTR = PARAM-DU.GET-MAPPING-ANNOTATION( "OWNING-PTR" )
 @@IF LOCAL-IS-OWNING-PTR.HAS-VALUE()
-  
-
-     size_t sz = 0;
+  size_t sz = 0;
   if(s.get() == nullptr) {
     return sz;
   }
@@ -516,7 +560,7 @@ size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-N
    @@FOR-EACH END
    @@FOR-EACH END
    else {
-     ;// TODO assert?
+     assert( false );
    }
    return sz;
 @@ELSE
