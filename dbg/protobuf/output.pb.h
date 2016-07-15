@@ -141,6 +141,65 @@ inline bool Structure_TYPE_Parse(
   return ::google::protobuf::internal::ParseNamedEnum<Structure_TYPE>(
     Structure_TYPE_descriptor(), name, value);
 }
+enum __unique_ptr_DataType_Discriminator {
+  __unique_ptr_DataType_Discriminator_OPT_DataType = 0,
+  __unique_ptr_DataType_Discriminator_OPT_nullptr = 1
+};
+bool __unique_ptr_DataType_Discriminator_IsValid(int value);
+const __unique_ptr_DataType_Discriminator __unique_ptr_DataType_Discriminator_Discriminator_MIN = __unique_ptr_DataType_Discriminator_OPT_DataType;
+const __unique_ptr_DataType_Discriminator __unique_ptr_DataType_Discriminator_Discriminator_MAX = __unique_ptr_DataType_Discriminator_OPT_nullptr;
+const int __unique_ptr_DataType_Discriminator_Discriminator_ARRAYSIZE = __unique_ptr_DataType_Discriminator_Discriminator_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* __unique_ptr_DataType_Discriminator_descriptor();
+inline const ::std::string& __unique_ptr_DataType_Discriminator_Name(__unique_ptr_DataType_Discriminator value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    __unique_ptr_DataType_Discriminator_descriptor(), value);
+}
+inline bool __unique_ptr_DataType_Discriminator_Parse(
+    const ::std::string& name, __unique_ptr_DataType_Discriminator* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<__unique_ptr_DataType_Discriminator>(
+    __unique_ptr_DataType_Discriminator_descriptor(), name, value);
+}
+enum __unique_ptr_EncodedOrMember_Discriminator {
+  __unique_ptr_EncodedOrMember_Discriminator_OPT_DataMember = 0,
+  __unique_ptr_EncodedOrMember_Discriminator_OPT_EncodedMembers = 1,
+  __unique_ptr_EncodedOrMember_Discriminator_OPT_EncodedOrMember = 2,
+  __unique_ptr_EncodedOrMember_Discriminator_OPT_nullptr = 3
+};
+bool __unique_ptr_EncodedOrMember_Discriminator_IsValid(int value);
+const __unique_ptr_EncodedOrMember_Discriminator __unique_ptr_EncodedOrMember_Discriminator_Discriminator_MIN = __unique_ptr_EncodedOrMember_Discriminator_OPT_DataMember;
+const __unique_ptr_EncodedOrMember_Discriminator __unique_ptr_EncodedOrMember_Discriminator_Discriminator_MAX = __unique_ptr_EncodedOrMember_Discriminator_OPT_nullptr;
+const int __unique_ptr_EncodedOrMember_Discriminator_Discriminator_ARRAYSIZE = __unique_ptr_EncodedOrMember_Discriminator_Discriminator_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* __unique_ptr_EncodedOrMember_Discriminator_descriptor();
+inline const ::std::string& __unique_ptr_EncodedOrMember_Discriminator_Name(__unique_ptr_EncodedOrMember_Discriminator value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    __unique_ptr_EncodedOrMember_Discriminator_descriptor(), value);
+}
+inline bool __unique_ptr_EncodedOrMember_Discriminator_Parse(
+    const ::std::string& name, __unique_ptr_EncodedOrMember_Discriminator* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<__unique_ptr_EncodedOrMember_Discriminator>(
+    __unique_ptr_EncodedOrMember_Discriminator_descriptor(), name, value);
+}
+enum __unique_ptr_Structure_Discriminator {
+  __unique_ptr_Structure_Discriminator_OPT_Structure = 0,
+  __unique_ptr_Structure_Discriminator_OPT_nullptr = 1
+};
+bool __unique_ptr_Structure_Discriminator_IsValid(int value);
+const __unique_ptr_Structure_Discriminator __unique_ptr_Structure_Discriminator_Discriminator_MIN = __unique_ptr_Structure_Discriminator_OPT_Structure;
+const __unique_ptr_Structure_Discriminator __unique_ptr_Structure_Discriminator_Discriminator_MAX = __unique_ptr_Structure_Discriminator_OPT_nullptr;
+const int __unique_ptr_Structure_Discriminator_Discriminator_ARRAYSIZE = __unique_ptr_Structure_Discriminator_Discriminator_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* __unique_ptr_Structure_Discriminator_descriptor();
+inline const ::std::string& __unique_ptr_Structure_Discriminator_Name(__unique_ptr_Structure_Discriminator value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    __unique_ptr_Structure_Discriminator_descriptor(), value);
+}
+inline bool __unique_ptr_Structure_Discriminator_Parse(
+    const ::std::string& name, __unique_ptr_Structure_Discriminator* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<__unique_ptr_Structure_Discriminator>(
+    __unique_ptr_Structure_Discriminator_descriptor(), name, value);
+}
 // ===================================================================
 
 class Limit : public ::google::protobuf::Message {
@@ -1763,27 +1822,61 @@ class __unique_ptr_DataType : public ::google::protobuf::Message {
 
   // nested types ----------------------------------------------------
 
+  typedef __unique_ptr_DataType_Discriminator Discriminator;
+  static const Discriminator OPT_DataType = __unique_ptr_DataType_Discriminator_OPT_DataType;
+  static const Discriminator OPT_nullptr = __unique_ptr_DataType_Discriminator_OPT_nullptr;
+  static inline bool Discriminator_IsValid(int value) {
+    return __unique_ptr_DataType_Discriminator_IsValid(value);
+  }
+  static const Discriminator Discriminator_MIN =
+    __unique_ptr_DataType_Discriminator_Discriminator_MIN;
+  static const Discriminator Discriminator_MAX =
+    __unique_ptr_DataType_Discriminator_Discriminator_MAX;
+  static const int Discriminator_ARRAYSIZE =
+    __unique_ptr_DataType_Discriminator_Discriminator_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  Discriminator_descriptor() {
+    return __unique_ptr_DataType_Discriminator_descriptor();
+  }
+  static inline const ::std::string& Discriminator_Name(Discriminator value) {
+    return __unique_ptr_DataType_Discriminator_Name(value);
+  }
+  static inline bool Discriminator_Parse(const ::std::string& name,
+      Discriminator* value) {
+    return __unique_ptr_DataType_Discriminator_Parse(name, value);
+  }
+
   // accessors -------------------------------------------------------
 
-  // optional .pb.DataType du_1 = 1;
-  inline bool has_du_1() const;
-  inline void clear_du_1();
-  static const int kDu1FieldNumber = 1;
-  inline const ::pb::DataType& du_1() const;
-  inline ::pb::DataType* mutable_du_1();
-  inline ::pb::DataType* release_du_1();
-  inline void set_allocated_du_1(::pb::DataType* du_1);
+  // optional .pb.__unique_ptr_DataType.Discriminator discriminator = 1;
+  inline bool has_discriminator() const;
+  inline void clear_discriminator();
+  static const int kDiscriminatorFieldNumber = 1;
+  inline ::pb::__unique_ptr_DataType_Discriminator discriminator() const;
+  inline void set_discriminator(::pb::__unique_ptr_DataType_Discriminator value);
+
+  // optional .pb.DataType du_data_type = 2;
+  inline bool has_du_data_type() const;
+  inline void clear_du_data_type();
+  static const int kDuDataTypeFieldNumber = 2;
+  inline const ::pb::DataType& du_data_type() const;
+  inline ::pb::DataType* mutable_du_data_type();
+  inline ::pb::DataType* release_du_data_type();
+  inline void set_allocated_du_data_type(::pb::DataType* du_data_type);
 
   // @@protoc_insertion_point(class_scope:pb.__unique_ptr_DataType)
  private:
-  inline void set_has_du_1();
-  inline void clear_has_du_1();
+  inline void set_has_discriminator();
+  inline void clear_has_discriminator();
+  inline void set_has_du_data_type();
+  inline void clear_has_du_data_type();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::pb::DataType* du_1_;
+  ::pb::DataType* du_data_type_;
+  int discriminator_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
@@ -1844,51 +1937,87 @@ class __unique_ptr_EncodedOrMember : public ::google::protobuf::Message {
 
   // nested types ----------------------------------------------------
 
+  typedef __unique_ptr_EncodedOrMember_Discriminator Discriminator;
+  static const Discriminator OPT_DataMember = __unique_ptr_EncodedOrMember_Discriminator_OPT_DataMember;
+  static const Discriminator OPT_EncodedMembers = __unique_ptr_EncodedOrMember_Discriminator_OPT_EncodedMembers;
+  static const Discriminator OPT_EncodedOrMember = __unique_ptr_EncodedOrMember_Discriminator_OPT_EncodedOrMember;
+  static const Discriminator OPT_nullptr = __unique_ptr_EncodedOrMember_Discriminator_OPT_nullptr;
+  static inline bool Discriminator_IsValid(int value) {
+    return __unique_ptr_EncodedOrMember_Discriminator_IsValid(value);
+  }
+  static const Discriminator Discriminator_MIN =
+    __unique_ptr_EncodedOrMember_Discriminator_Discriminator_MIN;
+  static const Discriminator Discriminator_MAX =
+    __unique_ptr_EncodedOrMember_Discriminator_Discriminator_MAX;
+  static const int Discriminator_ARRAYSIZE =
+    __unique_ptr_EncodedOrMember_Discriminator_Discriminator_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  Discriminator_descriptor() {
+    return __unique_ptr_EncodedOrMember_Discriminator_descriptor();
+  }
+  static inline const ::std::string& Discriminator_Name(Discriminator value) {
+    return __unique_ptr_EncodedOrMember_Discriminator_Name(value);
+  }
+  static inline bool Discriminator_Parse(const ::std::string& name,
+      Discriminator* value) {
+    return __unique_ptr_EncodedOrMember_Discriminator_Parse(name, value);
+  }
+
   // accessors -------------------------------------------------------
 
-  // optional .pb.DataMember du_1 = 1;
-  inline bool has_du_1() const;
-  inline void clear_du_1();
-  static const int kDu1FieldNumber = 1;
-  inline const ::pb::DataMember& du_1() const;
-  inline ::pb::DataMember* mutable_du_1();
-  inline ::pb::DataMember* release_du_1();
-  inline void set_allocated_du_1(::pb::DataMember* du_1);
+  // optional .pb.__unique_ptr_EncodedOrMember.Discriminator discriminator = 1;
+  inline bool has_discriminator() const;
+  inline void clear_discriminator();
+  static const int kDiscriminatorFieldNumber = 1;
+  inline ::pb::__unique_ptr_EncodedOrMember_Discriminator discriminator() const;
+  inline void set_discriminator(::pb::__unique_ptr_EncodedOrMember_Discriminator value);
 
-  // optional .pb.EncodedMembers du_2 = 2;
-  inline bool has_du_2() const;
-  inline void clear_du_2();
-  static const int kDu2FieldNumber = 2;
-  inline const ::pb::EncodedMembers& du_2() const;
-  inline ::pb::EncodedMembers* mutable_du_2();
-  inline ::pb::EncodedMembers* release_du_2();
-  inline void set_allocated_du_2(::pb::EncodedMembers* du_2);
+  // optional .pb.DataMember du_data_member = 2;
+  inline bool has_du_data_member() const;
+  inline void clear_du_data_member();
+  static const int kDuDataMemberFieldNumber = 2;
+  inline const ::pb::DataMember& du_data_member() const;
+  inline ::pb::DataMember* mutable_du_data_member();
+  inline ::pb::DataMember* release_du_data_member();
+  inline void set_allocated_du_data_member(::pb::DataMember* du_data_member);
 
-  // optional .pb.EncodedOrMember du_3 = 3;
-  inline bool has_du_3() const;
-  inline void clear_du_3();
-  static const int kDu3FieldNumber = 3;
-  inline const ::pb::EncodedOrMember& du_3() const;
-  inline ::pb::EncodedOrMember* mutable_du_3();
-  inline ::pb::EncodedOrMember* release_du_3();
-  inline void set_allocated_du_3(::pb::EncodedOrMember* du_3);
+  // optional .pb.EncodedMembers du_encoded_members = 3;
+  inline bool has_du_encoded_members() const;
+  inline void clear_du_encoded_members();
+  static const int kDuEncodedMembersFieldNumber = 3;
+  inline const ::pb::EncodedMembers& du_encoded_members() const;
+  inline ::pb::EncodedMembers* mutable_du_encoded_members();
+  inline ::pb::EncodedMembers* release_du_encoded_members();
+  inline void set_allocated_du_encoded_members(::pb::EncodedMembers* du_encoded_members);
+
+  // optional .pb.EncodedOrMember du_encoded_or_member = 4;
+  inline bool has_du_encoded_or_member() const;
+  inline void clear_du_encoded_or_member();
+  static const int kDuEncodedOrMemberFieldNumber = 4;
+  inline const ::pb::EncodedOrMember& du_encoded_or_member() const;
+  inline ::pb::EncodedOrMember* mutable_du_encoded_or_member();
+  inline ::pb::EncodedOrMember* release_du_encoded_or_member();
+  inline void set_allocated_du_encoded_or_member(::pb::EncodedOrMember* du_encoded_or_member);
 
   // @@protoc_insertion_point(class_scope:pb.__unique_ptr_EncodedOrMember)
  private:
-  inline void set_has_du_1();
-  inline void clear_has_du_1();
-  inline void set_has_du_2();
-  inline void clear_has_du_2();
-  inline void set_has_du_3();
-  inline void clear_has_du_3();
+  inline void set_has_discriminator();
+  inline void clear_has_discriminator();
+  inline void set_has_du_data_member();
+  inline void clear_has_du_data_member();
+  inline void set_has_du_encoded_members();
+  inline void clear_has_du_encoded_members();
+  inline void set_has_du_encoded_or_member();
+  inline void clear_has_du_encoded_or_member();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::pb::DataMember* du_1_;
-  ::pb::EncodedMembers* du_2_;
-  ::pb::EncodedOrMember* du_3_;
+  ::pb::DataMember* du_data_member_;
+  ::pb::EncodedMembers* du_encoded_members_;
+  ::pb::EncodedOrMember* du_encoded_or_member_;
+  int discriminator_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
@@ -1949,27 +2078,61 @@ class __unique_ptr_Structure : public ::google::protobuf::Message {
 
   // nested types ----------------------------------------------------
 
+  typedef __unique_ptr_Structure_Discriminator Discriminator;
+  static const Discriminator OPT_Structure = __unique_ptr_Structure_Discriminator_OPT_Structure;
+  static const Discriminator OPT_nullptr = __unique_ptr_Structure_Discriminator_OPT_nullptr;
+  static inline bool Discriminator_IsValid(int value) {
+    return __unique_ptr_Structure_Discriminator_IsValid(value);
+  }
+  static const Discriminator Discriminator_MIN =
+    __unique_ptr_Structure_Discriminator_Discriminator_MIN;
+  static const Discriminator Discriminator_MAX =
+    __unique_ptr_Structure_Discriminator_Discriminator_MAX;
+  static const int Discriminator_ARRAYSIZE =
+    __unique_ptr_Structure_Discriminator_Discriminator_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  Discriminator_descriptor() {
+    return __unique_ptr_Structure_Discriminator_descriptor();
+  }
+  static inline const ::std::string& Discriminator_Name(Discriminator value) {
+    return __unique_ptr_Structure_Discriminator_Name(value);
+  }
+  static inline bool Discriminator_Parse(const ::std::string& name,
+      Discriminator* value) {
+    return __unique_ptr_Structure_Discriminator_Parse(name, value);
+  }
+
   // accessors -------------------------------------------------------
 
-  // optional .pb.Structure du_1 = 1;
-  inline bool has_du_1() const;
-  inline void clear_du_1();
-  static const int kDu1FieldNumber = 1;
-  inline const ::pb::Structure& du_1() const;
-  inline ::pb::Structure* mutable_du_1();
-  inline ::pb::Structure* release_du_1();
-  inline void set_allocated_du_1(::pb::Structure* du_1);
+  // optional .pb.__unique_ptr_Structure.Discriminator discriminator = 1;
+  inline bool has_discriminator() const;
+  inline void clear_discriminator();
+  static const int kDiscriminatorFieldNumber = 1;
+  inline ::pb::__unique_ptr_Structure_Discriminator discriminator() const;
+  inline void set_discriminator(::pb::__unique_ptr_Structure_Discriminator value);
+
+  // optional .pb.Structure du_structure = 2;
+  inline bool has_du_structure() const;
+  inline void clear_du_structure();
+  static const int kDuStructureFieldNumber = 2;
+  inline const ::pb::Structure& du_structure() const;
+  inline ::pb::Structure* mutable_du_structure();
+  inline ::pb::Structure* release_du_structure();
+  inline void set_allocated_du_structure(::pb::Structure* du_structure);
 
   // @@protoc_insertion_point(class_scope:pb.__unique_ptr_Structure)
  private:
-  inline void set_has_du_1();
-  inline void clear_has_du_1();
+  inline void set_has_discriminator();
+  inline void clear_has_discriminator();
+  inline void set_has_du_structure();
+  inline void clear_has_du_structure();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::pb::Structure* du_1_;
+  ::pb::Structure* du_structure_;
+  int discriminator_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
@@ -4008,217 +4171,292 @@ Root::mutable_structures() {
 
 // __unique_ptr_DataType
 
-// optional .pb.DataType du_1 = 1;
-inline bool __unique_ptr_DataType::has_du_1() const {
+// optional .pb.__unique_ptr_DataType.Discriminator discriminator = 1;
+inline bool __unique_ptr_DataType::has_discriminator() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void __unique_ptr_DataType::set_has_du_1() {
+inline void __unique_ptr_DataType::set_has_discriminator() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void __unique_ptr_DataType::clear_has_du_1() {
+inline void __unique_ptr_DataType::clear_has_discriminator() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void __unique_ptr_DataType::clear_du_1() {
-  if (du_1_ != NULL) du_1_->::pb::DataType::Clear();
-  clear_has_du_1();
+inline void __unique_ptr_DataType::clear_discriminator() {
+  discriminator_ = 0;
+  clear_has_discriminator();
 }
-inline const ::pb::DataType& __unique_ptr_DataType::du_1() const {
-  // @@protoc_insertion_point(field_get:pb.__unique_ptr_DataType.du_1)
-  return du_1_ != NULL ? *du_1_ : *default_instance_->du_1_;
+inline ::pb::__unique_ptr_DataType_Discriminator __unique_ptr_DataType::discriminator() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_DataType.discriminator)
+  return static_cast< ::pb::__unique_ptr_DataType_Discriminator >(discriminator_);
 }
-inline ::pb::DataType* __unique_ptr_DataType::mutable_du_1() {
-  set_has_du_1();
-  if (du_1_ == NULL) du_1_ = new ::pb::DataType;
-  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_DataType.du_1)
-  return du_1_;
+inline void __unique_ptr_DataType::set_discriminator(::pb::__unique_ptr_DataType_Discriminator value) {
+  assert(::pb::__unique_ptr_DataType_Discriminator_IsValid(value));
+  set_has_discriminator();
+  discriminator_ = value;
+  // @@protoc_insertion_point(field_set:pb.__unique_ptr_DataType.discriminator)
 }
-inline ::pb::DataType* __unique_ptr_DataType::release_du_1() {
-  clear_has_du_1();
-  ::pb::DataType* temp = du_1_;
-  du_1_ = NULL;
+
+// optional .pb.DataType du_data_type = 2;
+inline bool __unique_ptr_DataType::has_du_data_type() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void __unique_ptr_DataType::set_has_du_data_type() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void __unique_ptr_DataType::clear_has_du_data_type() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void __unique_ptr_DataType::clear_du_data_type() {
+  if (du_data_type_ != NULL) du_data_type_->::pb::DataType::Clear();
+  clear_has_du_data_type();
+}
+inline const ::pb::DataType& __unique_ptr_DataType::du_data_type() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_DataType.du_data_type)
+  return du_data_type_ != NULL ? *du_data_type_ : *default_instance_->du_data_type_;
+}
+inline ::pb::DataType* __unique_ptr_DataType::mutable_du_data_type() {
+  set_has_du_data_type();
+  if (du_data_type_ == NULL) du_data_type_ = new ::pb::DataType;
+  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_DataType.du_data_type)
+  return du_data_type_;
+}
+inline ::pb::DataType* __unique_ptr_DataType::release_du_data_type() {
+  clear_has_du_data_type();
+  ::pb::DataType* temp = du_data_type_;
+  du_data_type_ = NULL;
   return temp;
 }
-inline void __unique_ptr_DataType::set_allocated_du_1(::pb::DataType* du_1) {
-  delete du_1_;
-  du_1_ = du_1;
-  if (du_1) {
-    set_has_du_1();
+inline void __unique_ptr_DataType::set_allocated_du_data_type(::pb::DataType* du_data_type) {
+  delete du_data_type_;
+  du_data_type_ = du_data_type;
+  if (du_data_type) {
+    set_has_du_data_type();
   } else {
-    clear_has_du_1();
+    clear_has_du_data_type();
   }
-  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_DataType.du_1)
+  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_DataType.du_data_type)
 }
 
 // -------------------------------------------------------------------
 
 // __unique_ptr_EncodedOrMember
 
-// optional .pb.DataMember du_1 = 1;
-inline bool __unique_ptr_EncodedOrMember::has_du_1() const {
+// optional .pb.__unique_ptr_EncodedOrMember.Discriminator discriminator = 1;
+inline bool __unique_ptr_EncodedOrMember::has_discriminator() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void __unique_ptr_EncodedOrMember::set_has_du_1() {
+inline void __unique_ptr_EncodedOrMember::set_has_discriminator() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void __unique_ptr_EncodedOrMember::clear_has_du_1() {
+inline void __unique_ptr_EncodedOrMember::clear_has_discriminator() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void __unique_ptr_EncodedOrMember::clear_du_1() {
-  if (du_1_ != NULL) du_1_->::pb::DataMember::Clear();
-  clear_has_du_1();
+inline void __unique_ptr_EncodedOrMember::clear_discriminator() {
+  discriminator_ = 0;
+  clear_has_discriminator();
 }
-inline const ::pb::DataMember& __unique_ptr_EncodedOrMember::du_1() const {
-  // @@protoc_insertion_point(field_get:pb.__unique_ptr_EncodedOrMember.du_1)
-  return du_1_ != NULL ? *du_1_ : *default_instance_->du_1_;
+inline ::pb::__unique_ptr_EncodedOrMember_Discriminator __unique_ptr_EncodedOrMember::discriminator() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_EncodedOrMember.discriminator)
+  return static_cast< ::pb::__unique_ptr_EncodedOrMember_Discriminator >(discriminator_);
 }
-inline ::pb::DataMember* __unique_ptr_EncodedOrMember::mutable_du_1() {
-  set_has_du_1();
-  if (du_1_ == NULL) du_1_ = new ::pb::DataMember;
-  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_EncodedOrMember.du_1)
-  return du_1_;
-}
-inline ::pb::DataMember* __unique_ptr_EncodedOrMember::release_du_1() {
-  clear_has_du_1();
-  ::pb::DataMember* temp = du_1_;
-  du_1_ = NULL;
-  return temp;
-}
-inline void __unique_ptr_EncodedOrMember::set_allocated_du_1(::pb::DataMember* du_1) {
-  delete du_1_;
-  du_1_ = du_1;
-  if (du_1) {
-    set_has_du_1();
-  } else {
-    clear_has_du_1();
-  }
-  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_EncodedOrMember.du_1)
+inline void __unique_ptr_EncodedOrMember::set_discriminator(::pb::__unique_ptr_EncodedOrMember_Discriminator value) {
+  assert(::pb::__unique_ptr_EncodedOrMember_Discriminator_IsValid(value));
+  set_has_discriminator();
+  discriminator_ = value;
+  // @@protoc_insertion_point(field_set:pb.__unique_ptr_EncodedOrMember.discriminator)
 }
 
-// optional .pb.EncodedMembers du_2 = 2;
-inline bool __unique_ptr_EncodedOrMember::has_du_2() const {
+// optional .pb.DataMember du_data_member = 2;
+inline bool __unique_ptr_EncodedOrMember::has_du_data_member() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void __unique_ptr_EncodedOrMember::set_has_du_2() {
+inline void __unique_ptr_EncodedOrMember::set_has_du_data_member() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void __unique_ptr_EncodedOrMember::clear_has_du_2() {
+inline void __unique_ptr_EncodedOrMember::clear_has_du_data_member() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void __unique_ptr_EncodedOrMember::clear_du_2() {
-  if (du_2_ != NULL) du_2_->::pb::EncodedMembers::Clear();
-  clear_has_du_2();
+inline void __unique_ptr_EncodedOrMember::clear_du_data_member() {
+  if (du_data_member_ != NULL) du_data_member_->::pb::DataMember::Clear();
+  clear_has_du_data_member();
 }
-inline const ::pb::EncodedMembers& __unique_ptr_EncodedOrMember::du_2() const {
-  // @@protoc_insertion_point(field_get:pb.__unique_ptr_EncodedOrMember.du_2)
-  return du_2_ != NULL ? *du_2_ : *default_instance_->du_2_;
+inline const ::pb::DataMember& __unique_ptr_EncodedOrMember::du_data_member() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_EncodedOrMember.du_data_member)
+  return du_data_member_ != NULL ? *du_data_member_ : *default_instance_->du_data_member_;
 }
-inline ::pb::EncodedMembers* __unique_ptr_EncodedOrMember::mutable_du_2() {
-  set_has_du_2();
-  if (du_2_ == NULL) du_2_ = new ::pb::EncodedMembers;
-  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_EncodedOrMember.du_2)
-  return du_2_;
+inline ::pb::DataMember* __unique_ptr_EncodedOrMember::mutable_du_data_member() {
+  set_has_du_data_member();
+  if (du_data_member_ == NULL) du_data_member_ = new ::pb::DataMember;
+  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_EncodedOrMember.du_data_member)
+  return du_data_member_;
 }
-inline ::pb::EncodedMembers* __unique_ptr_EncodedOrMember::release_du_2() {
-  clear_has_du_2();
-  ::pb::EncodedMembers* temp = du_2_;
-  du_2_ = NULL;
+inline ::pb::DataMember* __unique_ptr_EncodedOrMember::release_du_data_member() {
+  clear_has_du_data_member();
+  ::pb::DataMember* temp = du_data_member_;
+  du_data_member_ = NULL;
   return temp;
 }
-inline void __unique_ptr_EncodedOrMember::set_allocated_du_2(::pb::EncodedMembers* du_2) {
-  delete du_2_;
-  du_2_ = du_2;
-  if (du_2) {
-    set_has_du_2();
+inline void __unique_ptr_EncodedOrMember::set_allocated_du_data_member(::pb::DataMember* du_data_member) {
+  delete du_data_member_;
+  du_data_member_ = du_data_member;
+  if (du_data_member) {
+    set_has_du_data_member();
   } else {
-    clear_has_du_2();
+    clear_has_du_data_member();
   }
-  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_EncodedOrMember.du_2)
+  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_EncodedOrMember.du_data_member)
 }
 
-// optional .pb.EncodedOrMember du_3 = 3;
-inline bool __unique_ptr_EncodedOrMember::has_du_3() const {
+// optional .pb.EncodedMembers du_encoded_members = 3;
+inline bool __unique_ptr_EncodedOrMember::has_du_encoded_members() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void __unique_ptr_EncodedOrMember::set_has_du_3() {
+inline void __unique_ptr_EncodedOrMember::set_has_du_encoded_members() {
   _has_bits_[0] |= 0x00000004u;
 }
-inline void __unique_ptr_EncodedOrMember::clear_has_du_3() {
+inline void __unique_ptr_EncodedOrMember::clear_has_du_encoded_members() {
   _has_bits_[0] &= ~0x00000004u;
 }
-inline void __unique_ptr_EncodedOrMember::clear_du_3() {
-  if (du_3_ != NULL) du_3_->::pb::EncodedOrMember::Clear();
-  clear_has_du_3();
+inline void __unique_ptr_EncodedOrMember::clear_du_encoded_members() {
+  if (du_encoded_members_ != NULL) du_encoded_members_->::pb::EncodedMembers::Clear();
+  clear_has_du_encoded_members();
 }
-inline const ::pb::EncodedOrMember& __unique_ptr_EncodedOrMember::du_3() const {
-  // @@protoc_insertion_point(field_get:pb.__unique_ptr_EncodedOrMember.du_3)
-  return du_3_ != NULL ? *du_3_ : *default_instance_->du_3_;
+inline const ::pb::EncodedMembers& __unique_ptr_EncodedOrMember::du_encoded_members() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_EncodedOrMember.du_encoded_members)
+  return du_encoded_members_ != NULL ? *du_encoded_members_ : *default_instance_->du_encoded_members_;
 }
-inline ::pb::EncodedOrMember* __unique_ptr_EncodedOrMember::mutable_du_3() {
-  set_has_du_3();
-  if (du_3_ == NULL) du_3_ = new ::pb::EncodedOrMember;
-  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_EncodedOrMember.du_3)
-  return du_3_;
+inline ::pb::EncodedMembers* __unique_ptr_EncodedOrMember::mutable_du_encoded_members() {
+  set_has_du_encoded_members();
+  if (du_encoded_members_ == NULL) du_encoded_members_ = new ::pb::EncodedMembers;
+  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_EncodedOrMember.du_encoded_members)
+  return du_encoded_members_;
 }
-inline ::pb::EncodedOrMember* __unique_ptr_EncodedOrMember::release_du_3() {
-  clear_has_du_3();
-  ::pb::EncodedOrMember* temp = du_3_;
-  du_3_ = NULL;
+inline ::pb::EncodedMembers* __unique_ptr_EncodedOrMember::release_du_encoded_members() {
+  clear_has_du_encoded_members();
+  ::pb::EncodedMembers* temp = du_encoded_members_;
+  du_encoded_members_ = NULL;
   return temp;
 }
-inline void __unique_ptr_EncodedOrMember::set_allocated_du_3(::pb::EncodedOrMember* du_3) {
-  delete du_3_;
-  du_3_ = du_3;
-  if (du_3) {
-    set_has_du_3();
+inline void __unique_ptr_EncodedOrMember::set_allocated_du_encoded_members(::pb::EncodedMembers* du_encoded_members) {
+  delete du_encoded_members_;
+  du_encoded_members_ = du_encoded_members;
+  if (du_encoded_members) {
+    set_has_du_encoded_members();
   } else {
-    clear_has_du_3();
+    clear_has_du_encoded_members();
   }
-  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_EncodedOrMember.du_3)
+  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_EncodedOrMember.du_encoded_members)
+}
+
+// optional .pb.EncodedOrMember du_encoded_or_member = 4;
+inline bool __unique_ptr_EncodedOrMember::has_du_encoded_or_member() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void __unique_ptr_EncodedOrMember::set_has_du_encoded_or_member() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void __unique_ptr_EncodedOrMember::clear_has_du_encoded_or_member() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void __unique_ptr_EncodedOrMember::clear_du_encoded_or_member() {
+  if (du_encoded_or_member_ != NULL) du_encoded_or_member_->::pb::EncodedOrMember::Clear();
+  clear_has_du_encoded_or_member();
+}
+inline const ::pb::EncodedOrMember& __unique_ptr_EncodedOrMember::du_encoded_or_member() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_EncodedOrMember.du_encoded_or_member)
+  return du_encoded_or_member_ != NULL ? *du_encoded_or_member_ : *default_instance_->du_encoded_or_member_;
+}
+inline ::pb::EncodedOrMember* __unique_ptr_EncodedOrMember::mutable_du_encoded_or_member() {
+  set_has_du_encoded_or_member();
+  if (du_encoded_or_member_ == NULL) du_encoded_or_member_ = new ::pb::EncodedOrMember;
+  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_EncodedOrMember.du_encoded_or_member)
+  return du_encoded_or_member_;
+}
+inline ::pb::EncodedOrMember* __unique_ptr_EncodedOrMember::release_du_encoded_or_member() {
+  clear_has_du_encoded_or_member();
+  ::pb::EncodedOrMember* temp = du_encoded_or_member_;
+  du_encoded_or_member_ = NULL;
+  return temp;
+}
+inline void __unique_ptr_EncodedOrMember::set_allocated_du_encoded_or_member(::pb::EncodedOrMember* du_encoded_or_member) {
+  delete du_encoded_or_member_;
+  du_encoded_or_member_ = du_encoded_or_member;
+  if (du_encoded_or_member) {
+    set_has_du_encoded_or_member();
+  } else {
+    clear_has_du_encoded_or_member();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_EncodedOrMember.du_encoded_or_member)
 }
 
 // -------------------------------------------------------------------
 
 // __unique_ptr_Structure
 
-// optional .pb.Structure du_1 = 1;
-inline bool __unique_ptr_Structure::has_du_1() const {
+// optional .pb.__unique_ptr_Structure.Discriminator discriminator = 1;
+inline bool __unique_ptr_Structure::has_discriminator() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void __unique_ptr_Structure::set_has_du_1() {
+inline void __unique_ptr_Structure::set_has_discriminator() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void __unique_ptr_Structure::clear_has_du_1() {
+inline void __unique_ptr_Structure::clear_has_discriminator() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void __unique_ptr_Structure::clear_du_1() {
-  if (du_1_ != NULL) du_1_->::pb::Structure::Clear();
-  clear_has_du_1();
+inline void __unique_ptr_Structure::clear_discriminator() {
+  discriminator_ = 0;
+  clear_has_discriminator();
 }
-inline const ::pb::Structure& __unique_ptr_Structure::du_1() const {
-  // @@protoc_insertion_point(field_get:pb.__unique_ptr_Structure.du_1)
-  return du_1_ != NULL ? *du_1_ : *default_instance_->du_1_;
+inline ::pb::__unique_ptr_Structure_Discriminator __unique_ptr_Structure::discriminator() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_Structure.discriminator)
+  return static_cast< ::pb::__unique_ptr_Structure_Discriminator >(discriminator_);
 }
-inline ::pb::Structure* __unique_ptr_Structure::mutable_du_1() {
-  set_has_du_1();
-  if (du_1_ == NULL) du_1_ = new ::pb::Structure;
-  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_Structure.du_1)
-  return du_1_;
+inline void __unique_ptr_Structure::set_discriminator(::pb::__unique_ptr_Structure_Discriminator value) {
+  assert(::pb::__unique_ptr_Structure_Discriminator_IsValid(value));
+  set_has_discriminator();
+  discriminator_ = value;
+  // @@protoc_insertion_point(field_set:pb.__unique_ptr_Structure.discriminator)
 }
-inline ::pb::Structure* __unique_ptr_Structure::release_du_1() {
-  clear_has_du_1();
-  ::pb::Structure* temp = du_1_;
-  du_1_ = NULL;
+
+// optional .pb.Structure du_structure = 2;
+inline bool __unique_ptr_Structure::has_du_structure() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void __unique_ptr_Structure::set_has_du_structure() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void __unique_ptr_Structure::clear_has_du_structure() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void __unique_ptr_Structure::clear_du_structure() {
+  if (du_structure_ != NULL) du_structure_->::pb::Structure::Clear();
+  clear_has_du_structure();
+}
+inline const ::pb::Structure& __unique_ptr_Structure::du_structure() const {
+  // @@protoc_insertion_point(field_get:pb.__unique_ptr_Structure.du_structure)
+  return du_structure_ != NULL ? *du_structure_ : *default_instance_->du_structure_;
+}
+inline ::pb::Structure* __unique_ptr_Structure::mutable_du_structure() {
+  set_has_du_structure();
+  if (du_structure_ == NULL) du_structure_ = new ::pb::Structure;
+  // @@protoc_insertion_point(field_mutable:pb.__unique_ptr_Structure.du_structure)
+  return du_structure_;
+}
+inline ::pb::Structure* __unique_ptr_Structure::release_du_structure() {
+  clear_has_du_structure();
+  ::pb::Structure* temp = du_structure_;
+  du_structure_ = NULL;
   return temp;
 }
-inline void __unique_ptr_Structure::set_allocated_du_1(::pb::Structure* du_1) {
-  delete du_1_;
-  du_1_ = du_1;
-  if (du_1) {
-    set_has_du_1();
+inline void __unique_ptr_Structure::set_allocated_du_structure(::pb::Structure* du_structure) {
+  delete du_structure_;
+  du_structure_ = du_structure;
+  if (du_structure) {
+    set_has_du_structure();
   } else {
-    clear_has_du_1();
+    clear_has_du_structure();
   }
-  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_Structure.du_1)
+  // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_Structure.du_structure)
 }
 
 
@@ -4249,6 +4487,21 @@ template <> struct is_proto_enum< ::pb::Structure_TYPE> : ::google::protobuf::in
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::pb::Structure_TYPE>() {
   return ::pb::Structure_TYPE_descriptor();
+}
+template <> struct is_proto_enum< ::pb::__unique_ptr_DataType_Discriminator> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::pb::__unique_ptr_DataType_Discriminator>() {
+  return ::pb::__unique_ptr_DataType_Discriminator_descriptor();
+}
+template <> struct is_proto_enum< ::pb::__unique_ptr_EncodedOrMember_Discriminator> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::pb::__unique_ptr_EncodedOrMember_Discriminator>() {
+  return ::pb::__unique_ptr_EncodedOrMember_Discriminator_descriptor();
+}
+template <> struct is_proto_enum< ::pb::__unique_ptr_Structure_Discriminator> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::pb::__unique_ptr_Structure_Discriminator>() {
+  return ::pb::__unique_ptr_Structure_Discriminator_descriptor();
 }
 
 }  // namespace google

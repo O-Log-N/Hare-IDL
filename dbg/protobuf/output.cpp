@@ -247,66 +247,65 @@ void serializeRoot( const Root& s, OProtobufStream& o ) {
 
 
 void serialize__unique_ptr_DataType( const unique_ptr<DataType>& s, OProtobufStream& o ) {
-  
-  if(s.get() == nullptr) {
-    return;
-  }
-       else if ( typeid( *s ) == typeid( DataType ) ) {
+  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( DataType ) ) disc = 0; 
+  o.writeUInt( 1, disc );
+  switch ( disc )
+  {
+    case 0:
+    {
          auto ptr = dynamic_cast<DataType*>(s.get());
-    size_t sz_1 = protobufGetSizeDataType(*ptr);
-    o.writeObjectTagAndSize(1, sz_1);
+    size_t sz_2 = protobufGetSizeDataType(*ptr);
+    o.writeObjectTagAndSize(2, sz_2);
     serializeDataType(*ptr, o);
-
-       }
-   else {
-     assert( false );
-   }
+    }
+    break;
+  }
 }
 void serialize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& s, OProtobufStream& o ) {
-  
-  if(s.get() == nullptr) {
-    return;
-  }
-       else if ( typeid( *s ) == typeid( DataMember ) ) {
+  uint8_t disc; if ( s == nullptr ) disc = 3; else if ( typeid( *(s) ) == typeid( DataMember ) ) disc = 0; else if ( typeid( *(s) ) == typeid( EncodedMembers ) ) disc = 1; else if ( typeid( *(s) ) == typeid( EncodedOrMember ) ) disc = 2; 
+  o.writeUInt( 1, disc );
+  switch ( disc )
+  {
+    case 0:
+    {
          auto ptr = dynamic_cast<DataMember*>(s.get());
-    size_t sz_1 = protobufGetSizeDataMember(*ptr);
-    o.writeObjectTagAndSize(1, sz_1);
-    serializeDataMember(*ptr, o);
-
-       }
-       else if ( typeid( *s ) == typeid( EncodedMembers ) ) {
-         auto ptr = dynamic_cast<EncodedMembers*>(s.get());
-    size_t sz_2 = protobufGetSizeEncodedMembers(*ptr);
+    size_t sz_2 = protobufGetSizeDataMember(*ptr);
     o.writeObjectTagAndSize(2, sz_2);
-    serializeEncodedMembers(*ptr, o);
-
-       }
-       else if ( typeid( *s ) == typeid( EncodedOrMember ) ) {
-         auto ptr = dynamic_cast<EncodedOrMember*>(s.get());
-    size_t sz_3 = protobufGetSizeEncodedOrMember(*ptr);
+    serializeDataMember(*ptr, o);
+    }
+    break;
+    case 1:
+    {
+         auto ptr = dynamic_cast<EncodedMembers*>(s.get());
+    size_t sz_3 = protobufGetSizeEncodedMembers(*ptr);
     o.writeObjectTagAndSize(3, sz_3);
+    serializeEncodedMembers(*ptr, o);
+    }
+    break;
+    case 2:
+    {
+         auto ptr = dynamic_cast<EncodedOrMember*>(s.get());
+    size_t sz_4 = protobufGetSizeEncodedOrMember(*ptr);
+    o.writeObjectTagAndSize(4, sz_4);
     serializeEncodedOrMember(*ptr, o);
-
-       }
-   else {
-     assert( false );
-   }
+    }
+    break;
+  }
 }
 void serialize__unique_ptr_Structure( const unique_ptr<Structure>& s, OProtobufStream& o ) {
-  
-  if(s.get() == nullptr) {
-    return;
-  }
-       else if ( typeid( *s ) == typeid( Structure ) ) {
+  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( Structure ) ) disc = 0; 
+  o.writeUInt( 1, disc );
+  switch ( disc )
+  {
+    case 0:
+    {
          auto ptr = dynamic_cast<Structure*>(s.get());
-    size_t sz_1 = protobufGetSizeStructure(*ptr);
-    o.writeObjectTagAndSize(1, sz_1);
+    size_t sz_2 = protobufGetSizeStructure(*ptr);
+    o.writeObjectTagAndSize(2, sz_2);
     serializeStructure(*ptr, o);
-
-       }
-   else {
-     assert( false );
-   }
+    }
+    break;
+  }
 }
 
   
@@ -1878,18 +1877,25 @@ bool deserialize__unique_ptr_DataType( unique_ptr<DataType>& s, IProtobufStream&
 
    const int memcnt = 2;
    bool initFlags[memcnt] = { false };
+    uint64_t disc = 0;
+    bool readDisc = false;
+
+    int fieldType;
+    int fieldNumber;
+    bool readOk = true;
 
   while(!i.isEndOfStream())
   {
-    int fieldType;
-    int fieldNumber;
-
-    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
     if ( !readOk )
       return false;
     switch ( fieldNumber )
     {
       case 1:
+       readOk = i.readVariantUInt64( disc );
+       readDisc = true;
+       break;
+      case 2:
       {
         std::unique_ptr<DataType> ptr(new DataType);
       uint64_t sz = 0;
@@ -1943,27 +1949,40 @@ bool deserialize__unique_ptr_DataType( unique_ptr<DataType>& s, IProtobufStream&
       return false;
   }
 
-  // TODO, this is only valid for OWNING-PTR
-  // since any combination (including empty) is valid
+  if( !readDisc )
+    return false;
 
-  return true;
+  switch (disc) {
+    case 0:
+      readOk = readOk && initFlags[0];
+      break;
+  }  
+
+  return readOk;
 }
 bool deserialize__unique_ptr_EncodedOrMember( unique_ptr<EncodedOrMember>& s, IProtobufStream& i ) {
 
    const int memcnt = 4;
    bool initFlags[memcnt] = { false };
+    uint64_t disc = 0;
+    bool readDisc = false;
+
+    int fieldType;
+    int fieldNumber;
+    bool readOk = true;
 
   while(!i.isEndOfStream())
   {
-    int fieldType;
-    int fieldNumber;
-
-    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
     if ( !readOk )
       return false;
     switch ( fieldNumber )
     {
       case 1:
+       readOk = i.readVariantUInt64( disc );
+       readDisc = true;
+       break;
+      case 2:
       {
         std::unique_ptr<DataMember> ptr(new DataMember);
       uint64_t sz = 0;
@@ -1975,7 +1994,7 @@ bool deserialize__unique_ptr_EncodedOrMember( unique_ptr<EncodedOrMember>& s, IP
       }
       initFlags[0] = true;
       break;
-      case 2:
+      case 3:
       {
         std::unique_ptr<EncodedMembers> ptr(new EncodedMembers);
       uint64_t sz = 0;
@@ -1987,7 +2006,7 @@ bool deserialize__unique_ptr_EncodedOrMember( unique_ptr<EncodedOrMember>& s, IP
       }
       initFlags[1] = true;
       break;
-      case 3:
+      case 4:
       {
         std::unique_ptr<EncodedOrMember> ptr(new EncodedOrMember);
       uint64_t sz = 0;
@@ -2041,27 +2060,46 @@ bool deserialize__unique_ptr_EncodedOrMember( unique_ptr<EncodedOrMember>& s, IP
       return false;
   }
 
-  // TODO, this is only valid for OWNING-PTR
-  // since any combination (including empty) is valid
+  if( !readDisc )
+    return false;
 
-  return true;
+  switch (disc) {
+    case 0:
+      readOk = readOk && initFlags[0];
+      break;
+    case 1:
+      readOk = readOk && initFlags[1];
+      break;
+    case 2:
+      readOk = readOk && initFlags[2];
+      break;
+  }  
+
+  return readOk;
 }
 bool deserialize__unique_ptr_Structure( unique_ptr<Structure>& s, IProtobufStream& i ) {
 
    const int memcnt = 2;
    bool initFlags[memcnt] = { false };
+    uint64_t disc = 0;
+    bool readDisc = false;
+
+    int fieldType;
+    int fieldNumber;
+    bool readOk = true;
 
   while(!i.isEndOfStream())
   {
-    int fieldType;
-    int fieldNumber;
-
-    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
     if ( !readOk )
       return false;
     switch ( fieldNumber )
     {
       case 1:
+       readOk = i.readVariantUInt64( disc );
+       readDisc = true;
+       break;
+      case 2:
       {
         std::unique_ptr<Structure> ptr(new Structure);
       uint64_t sz = 0;
@@ -2115,10 +2153,16 @@ bool deserialize__unique_ptr_Structure( unique_ptr<Structure>& s, IProtobufStrea
       return false;
   }
 
-  // TODO, this is only valid for OWNING-PTR
-  // since any combination (including empty) is valid
+  if( !readDisc )
+    return false;
 
-  return true;
+  switch (disc) {
+    case 0:
+      readOk = readOk && initFlags[0];
+      break;
+  }  
+
+  return readOk;
 }
   
   
@@ -2452,73 +2496,92 @@ size_t protobufGetSizeRoot( const Root& s ) {
 
 
 size_t protobufGetSize__unique_ptr_DataType( const unique_ptr<DataType>& s ) {
-  size_t sz = 0;
-  if(s.get() == nullptr) {
-    return sz;
-  }
-       else if ( typeid( *s ) == typeid( DataType ) ) {
-         auto ptr = dynamic_cast<DataType*>(s.get());
-  sz += getTagSize(1);
-  size_t sz_1 = protobufGetSizeDataType(*ptr);
-  sz += getUnsignedVarIntSize(sz_1);
-  sz += sz_1;
 
-       }
-   else {
-     assert( false );
-   }
-   return sz;
-}
-size_t protobufGetSize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& s ) {
-  size_t sz = 0;
-  if(s.get() == nullptr) {
-    return sz;
-  }
-       else if ( typeid( *s ) == typeid( DataMember ) ) {
-         auto ptr = dynamic_cast<DataMember*>(s.get());
-  sz += getTagSize(1);
-  size_t sz_1 = protobufGetSizeDataMember(*ptr);
-  sz += getUnsignedVarIntSize(sz_1);
-  sz += sz_1;
+  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( DataType ) ) disc = 0; 
 
-       }
-       else if ( typeid( *s ) == typeid( EncodedMembers ) ) {
-         auto ptr = dynamic_cast<EncodedMembers*>(s.get());
+  size_t sz = 0;
+  sz += getTagSize( 1 );
+  sz += getUnsignedVarIntSize( disc );
+
+  switch ( disc )
+  {
+    case 0:
+    {
+        auto ptr = dynamic_cast<DataType*>(s.get());
   sz += getTagSize(2);
-  size_t sz_2 = protobufGetSizeEncodedMembers(*ptr);
+  size_t sz_2 = protobufGetSizeDataType(*ptr);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
 
-       }
-       else if ( typeid( *s ) == typeid( EncodedOrMember ) ) {
-         auto ptr = dynamic_cast<EncodedOrMember*>(s.get());
+    }
+    break;
+  }
+   return sz;
+}
+size_t protobufGetSize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& s ) {
+
+  uint8_t disc; if ( s == nullptr ) disc = 3; else if ( typeid( *(s) ) == typeid( DataMember ) ) disc = 0; else if ( typeid( *(s) ) == typeid( EncodedMembers ) ) disc = 1; else if ( typeid( *(s) ) == typeid( EncodedOrMember ) ) disc = 2; 
+
+  size_t sz = 0;
+  sz += getTagSize( 1 );
+  sz += getUnsignedVarIntSize( disc );
+
+  switch ( disc )
+  {
+    case 0:
+    {
+        auto ptr = dynamic_cast<DataMember*>(s.get());
+  sz += getTagSize(2);
+  size_t sz_2 = protobufGetSizeDataMember(*ptr);
+  sz += getUnsignedVarIntSize(sz_2);
+  sz += sz_2;
+
+    }
+    break;
+    case 1:
+    {
+        auto ptr = dynamic_cast<EncodedMembers*>(s.get());
   sz += getTagSize(3);
-  size_t sz_3 = protobufGetSizeEncodedOrMember(*ptr);
+  size_t sz_3 = protobufGetSizeEncodedMembers(*ptr);
   sz += getUnsignedVarIntSize(sz_3);
   sz += sz_3;
 
-       }
-   else {
-     assert( false );
-   }
+    }
+    break;
+    case 2:
+    {
+        auto ptr = dynamic_cast<EncodedOrMember*>(s.get());
+  sz += getTagSize(4);
+  size_t sz_4 = protobufGetSizeEncodedOrMember(*ptr);
+  sz += getUnsignedVarIntSize(sz_4);
+  sz += sz_4;
+
+    }
+    break;
+  }
    return sz;
 }
 size_t protobufGetSize__unique_ptr_Structure( const unique_ptr<Structure>& s ) {
-  size_t sz = 0;
-  if(s.get() == nullptr) {
-    return sz;
-  }
-       else if ( typeid( *s ) == typeid( Structure ) ) {
-         auto ptr = dynamic_cast<Structure*>(s.get());
-  sz += getTagSize(1);
-  size_t sz_1 = protobufGetSizeStructure(*ptr);
-  sz += getUnsignedVarIntSize(sz_1);
-  sz += sz_1;
 
-       }
-   else {
-     assert( false );
-   }
+  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( Structure ) ) disc = 0; 
+
+  size_t sz = 0;
+  sz += getTagSize( 1 );
+  sz += getUnsignedVarIntSize( disc );
+
+  switch ( disc )
+  {
+    case 0:
+    {
+        auto ptr = dynamic_cast<Structure*>(s.get());
+  sz += getTagSize(2);
+  size_t sz_2 = protobufGetSizeStructure(*ptr);
+  sz += getUnsignedVarIntSize(sz_2);
+  sz += sz_2;
+
+    }
+    break;
+  }
    return sz;
 }
 

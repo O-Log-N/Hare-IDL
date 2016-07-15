@@ -472,83 +472,60 @@ inline void assertEqualRoot( const Root& left, const pb::Root& right ) {
 
 inline void assertEqual__unique_ptr_DataType( const unique_ptr<DataType>& left, const pb::__unique_ptr_DataType& right ) {
 
+  uint8_t disc; if ( left == nullptr ) disc = 1; else if ( typeid( *(left) ) == typeid( DataType ) ) disc = 0; 
+  assert(disc == right.discriminator());
 
-  size_t du = 0;
-  if(left.get() == nullptr) {
-    ; // nothing
-  }
-
-       else if ( typeid( *left ) == typeid( DataType ) ) {
+  switch ( disc )
+  {
+    case 0:
+    {
          auto l = dynamic_cast<DataType*>(left.get());
-
-         assertEqualDataType(*l , right.du_1());
-         du = 1;
-       }
-
-   else {
-     assert(false);
-   }
-
-       if(du != 1) assert(!right.has_du_1());
-
+         assertEqualDataType( *l , right.du_data_type() );
+    }
+    break;
+  }
 }
 inline void assertEqual__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& left, const pb::__unique_ptr_EncodedOrMember& right ) {
 
+  uint8_t disc; if ( left == nullptr ) disc = 3; else if ( typeid( *(left) ) == typeid( DataMember ) ) disc = 0; else if ( typeid( *(left) ) == typeid( EncodedMembers ) ) disc = 1; else if ( typeid( *(left) ) == typeid( EncodedOrMember ) ) disc = 2; 
+  assert(disc == right.discriminator());
 
-  size_t du = 0;
-  if(left.get() == nullptr) {
-    ; // nothing
-  }
-
-       else if ( typeid( *left ) == typeid( DataMember ) ) {
+  switch ( disc )
+  {
+    case 0:
+    {
          auto l = dynamic_cast<DataMember*>(left.get());
-
-         assertEqualDataMember(*l , right.du_1());
-         du = 1;
-       }
-       else if ( typeid( *left ) == typeid( EncodedMembers ) ) {
+         assertEqualDataMember( *l , right.du_data_member() );
+    }
+    break;
+    case 1:
+    {
          auto l = dynamic_cast<EncodedMembers*>(left.get());
-
-         assertEqualEncodedMembers(*l , right.du_2());
-         du = 2;
-       }
-       else if ( typeid( *left ) == typeid( EncodedOrMember ) ) {
+         assertEqualEncodedMembers( *l , right.du_encoded_members() );
+    }
+    break;
+    case 2:
+    {
          auto l = dynamic_cast<EncodedOrMember*>(left.get());
-
-         assertEqualEncodedOrMember(*l , right.du_3());
-         du = 3;
-       }
-
-   else {
-     assert(false);
-   }
-
-       if(du != 1) assert(!right.has_du_1());
-       if(du != 2) assert(!right.has_du_2());
-       if(du != 3) assert(!right.has_du_3());
-
+         assertEqualEncodedOrMember( *l , right.du_encoded_or_member() );
+    }
+    break;
+  }
 }
 inline void assertEqual__unique_ptr_Structure( const unique_ptr<Structure>& left, const pb::__unique_ptr_Structure& right ) {
 
+  uint8_t disc; if ( left == nullptr ) disc = 1; else if ( typeid( *(left) ) == typeid( Structure ) ) disc = 0; 
+  assert(disc == right.discriminator());
 
-  size_t du = 0;
-  if(left.get() == nullptr) {
-    ; // nothing
-  }
-
-       else if ( typeid( *left ) == typeid( Structure ) ) {
+  switch ( disc )
+  {
+    case 0:
+    {
          auto l = dynamic_cast<Structure*>(left.get());
-
-         assertEqualStructure(*l , right.du_1());
-         du = 1;
-       }
-
-   else {
-     assert(false);
-   }
-
-       if(du != 1) assert(!right.has_du_1());
-
+         assertEqualStructure( *l , right.du_structure() );
+    }
+    break;
+  }
 }
 
 
