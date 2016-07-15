@@ -710,21 +710,19 @@ void DiscriminatedUnionExpressionObject::execBuiltinFunction( Stack& stack, Pred
 							}
 					}
 				}
-				if ( usedMembers.size() )
-				{
-					StackElement el;
-					el.argtype = ARGTYPE::OBJPTR;
-					string enumValName = itv.first;
-					auto& idlEnumVal = enumMember->type.idlRepresentation->enumValues.find( enumValName );
-					assert( idlEnumVal != enumMember->type.idlRepresentation->enumValues.end() );
-					auto& mappingEnumVal = enumMember->type.mappingRepresentation->enumValues.find( enumValName );
-					assert( mappingEnumVal != enumMember->type.mappingRepresentation->enumValues.end() );
-					auto& encodingEnumVal = enumMember->type.encodingRepresentation->enumValues.find( enumValName );
-					assert( encodingEnumVal != enumMember->type.encodingRepresentation->enumValues.end() );
-					DiscriminatedUnionOptionExpressionObject* duoti = new DiscriminatedUnionOptionExpressionObject( *enumMember, usedMembers, enumValName, idlEnumVal->second, mappingEnumVal->second, encodingEnumVal->second, templateSpace, outstr );
-					el.singleObject.reset( duoti );
-					elem.anyList.push_back( std::move( el ) );
-				}
+
+                StackElement el;
+				el.argtype = ARGTYPE::OBJPTR;
+				string enumValName = itv.first;
+				auto& idlEnumVal = enumMember->type.idlRepresentation->enumValues.find( enumValName );
+				assert( idlEnumVal != enumMember->type.idlRepresentation->enumValues.end() );
+				auto& mappingEnumVal = enumMember->type.mappingRepresentation->enumValues.find( enumValName );
+				assert( mappingEnumVal != enumMember->type.mappingRepresentation->enumValues.end() );
+				auto& encodingEnumVal = enumMember->type.encodingRepresentation->enumValues.find( enumValName );
+				assert( encodingEnumVal != enumMember->type.encodingRepresentation->enumValues.end() );
+				DiscriminatedUnionOptionExpressionObject* duoti = new DiscriminatedUnionOptionExpressionObject( *enumMember, usedMembers, enumValName, idlEnumVal->second, mappingEnumVal->second, encodingEnumVal->second, templateSpace, outstr );
+				el.singleObject.reset( duoti );
+				elem.anyList.push_back( std::move( el ) );
 			}
 			stack.push_back( std::move(elem) );
 			break;
