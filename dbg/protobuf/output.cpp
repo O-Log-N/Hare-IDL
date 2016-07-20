@@ -37,7 +37,7 @@ void serializeVariant( const Variant& s, OProtobufStream& o ) {
         case 0 /*NONE*/: o.writeUInt(1, 0 ); break;
         case 1 /*NUMBER*/: o.writeUInt(1, 1 ); break;
         case 2 /*STRING*/: o.writeUInt(1, 2 ); break;
-        default: assert( 0 );
+        default: assert( false );
     }
     o.writeDouble(2, s.numberValue);
     o.writeString(3, s.stringValue);
@@ -59,7 +59,7 @@ void serializeDataType( const DataType& s, OProtobufStream& o ) {
         case 4 /*MAPPING_SPECIFIC*/: o.writeUInt(1, 10 ); break;
         case 1 /*NAMED_TYPE*/: o.writeUInt(1, 11 ); break;
         case 2 /*SEQUENCE*/: o.writeUInt(1, 12 ); break;
-        default: assert( 0 );
+        default: assert( false );
     }
     o.writeString(2, s.name);
     o.writeString(3, s.mappingName);
@@ -205,14 +205,14 @@ void serializeStructure( const Structure& s, OProtobufStream& o ) {
         case 2 /*ENCODING*/: o.writeUInt(1, 0 ); break;
         case 0 /*IDL*/: o.writeUInt(1, 1 ); break;
         case 1 /*MAPPING*/: o.writeUInt(1, 2 ); break;
-        default: assert( 0 );
+        default: assert( false );
     }
     switch ( s.type )
     {
         case 2 /*DISCRIMINATED_UNION*/: o.writeUInt(2, 0 ); break;
         case 1 /*RPC*/: o.writeUInt(2, 1 ); break;
         case 0 /*STRUCT*/: o.writeUInt(2, 2 ); break;
-        default: assert( 0 );
+        default: assert( false );
     }
     o.writeString(3, s.name);
     o.writeString(4, s.discriminant);
@@ -247,28 +247,30 @@ void serializeRoot( const Root& s, OProtobufStream& o ) {
 
 
 void serialize__unique_ptr_DataType( const unique_ptr<DataType>& s, OProtobufStream& o ) {
-  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( DataType ) ) disc = 0; 
+  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( DataType ) ) disc = 0; else assert( false );
   o.writeUInt( 1, disc );
   switch ( disc )
   {
     case 0:
     {
-         auto ptr = dynamic_cast<DataType*>(s.get());
+      auto ptr = dynamic_cast<DataType*>(s.get());
     size_t sz_2 = protobufGetSizeDataType(*ptr);
     o.writeObjectTagAndSize(2, sz_2);
     serializeDataType(*ptr, o);
     }
     break;
+    //default:
+      //assert( false );
   }
 }
 void serialize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& s, OProtobufStream& o ) {
-  uint8_t disc; if ( s == nullptr ) disc = 3; else if ( typeid( *(s) ) == typeid( DataMember ) ) disc = 0; else if ( typeid( *(s) ) == typeid( EncodedMembers ) ) disc = 1; else if ( typeid( *(s) ) == typeid( EncodedOrMember ) ) disc = 2; 
+  uint8_t disc; if ( s == nullptr ) disc = 3; else if ( typeid( *(s) ) == typeid( DataMember ) ) disc = 0; else if ( typeid( *(s) ) == typeid( EncodedMembers ) ) disc = 1; else if ( typeid( *(s) ) == typeid( EncodedOrMember ) ) disc = 2; else assert( false );
   o.writeUInt( 1, disc );
   switch ( disc )
   {
     case 0:
     {
-         auto ptr = dynamic_cast<DataMember*>(s.get());
+      auto ptr = dynamic_cast<DataMember*>(s.get());
     size_t sz_2 = protobufGetSizeDataMember(*ptr);
     o.writeObjectTagAndSize(2, sz_2);
     serializeDataMember(*ptr, o);
@@ -276,7 +278,7 @@ void serialize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& s
     break;
     case 1:
     {
-         auto ptr = dynamic_cast<EncodedMembers*>(s.get());
+      auto ptr = dynamic_cast<EncodedMembers*>(s.get());
     size_t sz_3 = protobufGetSizeEncodedMembers(*ptr);
     o.writeObjectTagAndSize(3, sz_3);
     serializeEncodedMembers(*ptr, o);
@@ -284,32 +286,75 @@ void serialize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& s
     break;
     case 2:
     {
-         auto ptr = dynamic_cast<EncodedOrMember*>(s.get());
+      auto ptr = dynamic_cast<EncodedOrMember*>(s.get());
     size_t sz_4 = protobufGetSizeEncodedOrMember(*ptr);
     o.writeObjectTagAndSize(4, sz_4);
     serializeEncodedOrMember(*ptr, o);
     }
     break;
+    //default:
+      //assert( false );
   }
 }
 void serialize__unique_ptr_Structure( const unique_ptr<Structure>& s, OProtobufStream& o ) {
-  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( Structure ) ) disc = 0; 
+  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( Structure ) ) disc = 0; else assert( false );
   o.writeUInt( 1, disc );
   switch ( disc )
   {
     case 0:
     {
-         auto ptr = dynamic_cast<Structure*>(s.get());
+      auto ptr = dynamic_cast<Structure*>(s.get());
     size_t sz_2 = protobufGetSizeStructure(*ptr);
     o.writeObjectTagAndSize(2, sz_2);
     serializeStructure(*ptr, o);
     }
     break;
+    //default:
+      //assert( false );
+  }
+}
+  
+// DESERIALIZATION
+
+inline
+bool discardUnexpectedField( int fieldType, IProtobufStream& i ) {
+
+  // Unexpected field, just read and discard
+  switch(fieldType)
+  {
+  case VARINT:
+    {
+      uint64_t temp;
+      return i.readVariantUInt64( temp );
+    }
+    break;
+  case FIXED_64_BIT:
+    {
+      double temp;
+      return i.readFixed64Bit( temp );
+    }
+    break;
+  case LENGTH_DELIMITED:
+    {
+      uint64_t sz;
+      i.readVariantUInt64( sz );
+      IProtobufStream is = i.makeSubStream( sz );
+      string temp;
+      return is.readString( temp );
+    }
+    break;
+  case FIXED_32_BIT:
+    {
+      float temp;
+//          readOk = i.readFixed32Bit( temp );
+      return false;
+    }
+    break;
+  default:
+    return false;
   }
 }
 
-  
-// DESERIALIZATION
 bool deserializeLimit( Limit& s, IProtobufStream& i ) {
    const int memcnt = 2;
    bool initFlags[memcnt] = { false };
@@ -339,41 +384,7 @@ bool deserializeLimit( Limit& s, IProtobufStream& i ) {
     initFlags[1] = true;
     break;
 		default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
 	  }
     if( !readOk )
       return false;
@@ -415,41 +426,7 @@ bool deserializeLocation( Location& s, IProtobufStream& i ) {
     initFlags[1] = true;
     break;
 		default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
 	  }
     if( !readOk )
       return false;
@@ -493,41 +470,7 @@ bool deserializeCharacterRange( CharacterRange& s, IProtobufStream& i ) {
     initFlags[1] = true;
     break;
 		default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
 	  }
     if( !readOk )
       return false;
@@ -567,41 +510,7 @@ bool deserializeCharacterSet( CharacterSet& s, IProtobufStream& i ) {
     initFlags[0] = true;
     break;
 		default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
 	  }
     if( !readOk )
       return false;
@@ -655,41 +564,7 @@ bool deserializeVariant( Variant& s, IProtobufStream& i ) {
     initFlags[2] = true;
     break;
 		default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
 	  }
     if( !readOk )
       return false;
@@ -883,41 +758,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
       break;
 
     default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
     }
 
     if ( !readOk )
@@ -970,41 +811,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
       break;
 
     default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
     }
 
     if ( !readOk )
@@ -1056,41 +863,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
       break;
 
     default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
     }
 
     if ( !readOk )
@@ -1105,41 +878,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     initFlags[16] = true;
     break;
 		default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
 	  }
     if( !readOk )
       return false;
@@ -1212,41 +951,7 @@ bool deserializeEncodingSpecifics( EncodingSpecifics& s, IProtobufStream& i ) {
       break;
 
     default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
     }
 
     if ( !readOk )
@@ -1261,41 +966,7 @@ bool deserializeEncodingSpecifics( EncodingSpecifics& s, IProtobufStream& i ) {
     initFlags[1] = true;
     break;
 		default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
 	  }
     if( !readOk )
       return false;
@@ -1332,41 +1003,7 @@ bool deserializeEncodedOrMember( EncodedOrMember& s, IProtobufStream& i ) {
     initFlags[0] = true;
     break;
 		default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
 	  }
     if( !readOk )
       return false;
@@ -1444,41 +1081,7 @@ bool deserializeDataMember( DataMember& s, IProtobufStream& i ) {
     initFlags[5] = true;
     break;
 		default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
 	  }
     if( !readOk )
       return false;
@@ -1536,41 +1139,7 @@ bool deserializeEncodedMembers( EncodedMembers& s, IProtobufStream& i ) {
     initFlags[2] = true;
     break;
 		default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
 	  }
     if( !readOk )
       return false;
@@ -1653,41 +1222,7 @@ bool deserializeStructure( Structure& s, IProtobufStream& i ) {
     initFlags[5] = true;
     break;
 		default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
 	  }
     if( !readOk )
       return false;
@@ -1739,41 +1274,7 @@ bool deserializeTypedef( Typedef& s, IProtobufStream& i ) {
     initFlags[2] = true;
     break;
 		default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
 	  }
     if( !readOk )
       return false;
@@ -1825,41 +1326,7 @@ bool deserializeRoot( Root& s, IProtobufStream& i ) {
     initFlags[1] = true;
     break;
 		default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
 	  }
     if( !readOk )
       return false;
@@ -1909,41 +1376,7 @@ bool deserialize__unique_ptr_DataType( unique_ptr<DataType>& s, IProtobufStream&
       break;
 
     default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
     }
     if ( !readOk )
       return false;
@@ -1956,6 +1389,8 @@ bool deserialize__unique_ptr_DataType( unique_ptr<DataType>& s, IProtobufStream&
     case 0:
       readOk = readOk && initFlags[0];
       break;
+    //default:
+      //return false;
   }  
 
   return readOk;
@@ -2020,41 +1455,7 @@ bool deserialize__unique_ptr_EncodedOrMember( unique_ptr<EncodedOrMember>& s, IP
       break;
 
     default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
     }
     if ( !readOk )
       return false;
@@ -2073,6 +1474,8 @@ bool deserialize__unique_ptr_EncodedOrMember( unique_ptr<EncodedOrMember>& s, IP
     case 2:
       readOk = readOk && initFlags[2];
       break;
+    //default:
+      //return false;
   }  
 
   return readOk;
@@ -2113,41 +1516,7 @@ bool deserialize__unique_ptr_Structure( unique_ptr<Structure>& s, IProtobufStrea
       break;
 
     default:
-      // Unexpected field, just read and discard
-      // TODO all this code can be a helper function, maybe inside IProtobufStream
-      switch(fieldType)
-      {
-      case VARINT:
-        {
-          uint64_t temp;
-          readOk = i.readVariantUInt64( temp );
-        }
-        break;
-      case FIXED_64_BIT:
-        {
-          double temp;
-          readOk = i.readFixed64Bit( temp );
-        }
-        break;
-      case LENGTH_DELIMITED:
-        {
-          uint64_t sz;
-          i.readVariantUInt64( sz );
-          IProtobufStream is = i.makeSubStream( sz );
-          string temp;
-          readOk = is.readString( temp );
-        }
-        break;
-      case FIXED_32_BIT:
-        {
-          float temp;
-//          readOk = i.readFixed32Bit( temp );
-          return false;
-        }
-        break;
-      default:
-        return false;
-      }
+      readOk = discardUnexpectedField( fieldType, i );
     }
     if ( !readOk )
       return false;
@@ -2160,6 +1529,8 @@ bool deserialize__unique_ptr_Structure( unique_ptr<Structure>& s, IProtobufStrea
     case 0:
       readOk = readOk && initFlags[0];
       break;
+    //default:
+      //return false;
   }  
 
   return readOk;
@@ -2497,7 +1868,7 @@ size_t protobufGetSizeRoot( const Root& s ) {
 
 size_t protobufGetSize__unique_ptr_DataType( const unique_ptr<DataType>& s ) {
 
-  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( DataType ) ) disc = 0; 
+  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( DataType ) ) disc = 0; else assert( false );
 
   size_t sz = 0;
   sz += getTagSize( 1 );
@@ -2507,7 +1878,7 @@ size_t protobufGetSize__unique_ptr_DataType( const unique_ptr<DataType>& s ) {
   {
     case 0:
     {
-        auto ptr = dynamic_cast<DataType*>(s.get());
+      auto ptr = dynamic_cast<DataType*>(s.get());
   sz += getTagSize(2);
   size_t sz_2 = protobufGetSizeDataType(*ptr);
   sz += getUnsignedVarIntSize(sz_2);
@@ -2515,12 +1886,14 @@ size_t protobufGetSize__unique_ptr_DataType( const unique_ptr<DataType>& s ) {
 
     }
     break;
+    //default:
+      //assert( false );
   }
    return sz;
 }
 size_t protobufGetSize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& s ) {
 
-  uint8_t disc; if ( s == nullptr ) disc = 3; else if ( typeid( *(s) ) == typeid( DataMember ) ) disc = 0; else if ( typeid( *(s) ) == typeid( EncodedMembers ) ) disc = 1; else if ( typeid( *(s) ) == typeid( EncodedOrMember ) ) disc = 2; 
+  uint8_t disc; if ( s == nullptr ) disc = 3; else if ( typeid( *(s) ) == typeid( DataMember ) ) disc = 0; else if ( typeid( *(s) ) == typeid( EncodedMembers ) ) disc = 1; else if ( typeid( *(s) ) == typeid( EncodedOrMember ) ) disc = 2; else assert( false );
 
   size_t sz = 0;
   sz += getTagSize( 1 );
@@ -2530,7 +1903,7 @@ size_t protobufGetSize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMe
   {
     case 0:
     {
-        auto ptr = dynamic_cast<DataMember*>(s.get());
+      auto ptr = dynamic_cast<DataMember*>(s.get());
   sz += getTagSize(2);
   size_t sz_2 = protobufGetSizeDataMember(*ptr);
   sz += getUnsignedVarIntSize(sz_2);
@@ -2540,7 +1913,7 @@ size_t protobufGetSize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMe
     break;
     case 1:
     {
-        auto ptr = dynamic_cast<EncodedMembers*>(s.get());
+      auto ptr = dynamic_cast<EncodedMembers*>(s.get());
   sz += getTagSize(3);
   size_t sz_3 = protobufGetSizeEncodedMembers(*ptr);
   sz += getUnsignedVarIntSize(sz_3);
@@ -2550,7 +1923,7 @@ size_t protobufGetSize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMe
     break;
     case 2:
     {
-        auto ptr = dynamic_cast<EncodedOrMember*>(s.get());
+      auto ptr = dynamic_cast<EncodedOrMember*>(s.get());
   sz += getTagSize(4);
   size_t sz_4 = protobufGetSizeEncodedOrMember(*ptr);
   sz += getUnsignedVarIntSize(sz_4);
@@ -2558,12 +1931,14 @@ size_t protobufGetSize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMe
 
     }
     break;
+    //default:
+      //assert( false );
   }
    return sz;
 }
 size_t protobufGetSize__unique_ptr_Structure( const unique_ptr<Structure>& s ) {
 
-  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( Structure ) ) disc = 0; 
+  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( Structure ) ) disc = 0; else assert( false );
 
   size_t sz = 0;
   sz += getTagSize( 1 );
@@ -2573,7 +1948,7 @@ size_t protobufGetSize__unique_ptr_Structure( const unique_ptr<Structure>& s ) {
   {
     case 0:
     {
-        auto ptr = dynamic_cast<Structure*>(s.get());
+      auto ptr = dynamic_cast<Structure*>(s.get());
   sz += getTagSize(2);
   size_t sz_2 = protobufGetSizeStructure(*ptr);
   sz += getUnsignedVarIntSize(sz_2);
@@ -2581,8 +1956,9 @@ size_t protobufGetSize__unique_ptr_Structure( const unique_ptr<Structure>& s ) {
 
     }
     break;
+    //default:
+      //assert( false );
   }
    return sz;
 }
-
 

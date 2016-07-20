@@ -99,14 +99,13 @@ int main(int argc, char* argv[])
   unique_ptr<Root> toSend = deserializeFile("../../Hare-IDL/dbg/protobuf/idl_tree.h.idlbin");
 //  unique_ptr<Root> toSend = deserializeFile("idl_tree.h.idlbin");
 
-    protobufSerializeToFile(sendFile, *toSend);
+  protobufSerializeToFile(sendFile, *toSend);
 
-    {
-        fstream is(sendFile, ios::in | ios::binary);
-        fstream os(recvFile, ios::out | ios::trunc | ios::binary);
+  fstream is(sendFile, ios::in | ios::binary);
+  fstream os(recvFile, ios::out | ios::trunc | ios::binary);
 
-        protobufReadAndReply(is, os, *toSend);
-    }
+  protobufReadAndReply(is, os, *toSend);
+
   unique_ptr<Root> recv = protobufDeserializeFromFile(sendFile);
 
   assert(recv);
@@ -115,5 +114,4 @@ int main(int argc, char* argv[])
   google::protobuf::ShutdownProtobufLibrary();
 
   return 0;
-
 }

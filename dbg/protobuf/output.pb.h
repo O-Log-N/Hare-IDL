@@ -50,6 +50,8 @@ class Root;
 class __unique_ptr_DataType;
 class __unique_ptr_EncodedOrMember;
 class __unique_ptr_Structure;
+class map_string_Variant;
+class map_string_uint32;
 
 enum Variant_KIND {
   Variant_KIND_NONE = 0,
@@ -896,6 +898,42 @@ class DataType : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 string_max_size() const;
   inline void set_string_max_size(::google::protobuf::uint32 value);
 
+  // repeated .pb.map_string_Variant encoding_attrs = 15;
+  inline int encoding_attrs_size() const;
+  inline void clear_encoding_attrs();
+  static const int kEncodingAttrsFieldNumber = 15;
+  inline const ::pb::map_string_Variant& encoding_attrs(int index) const;
+  inline ::pb::map_string_Variant* mutable_encoding_attrs(int index);
+  inline ::pb::map_string_Variant* add_encoding_attrs();
+  inline const ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant >&
+      encoding_attrs() const;
+  inline ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant >*
+      mutable_encoding_attrs();
+
+  // repeated .pb.map_string_Variant mapping_attrs = 16;
+  inline int mapping_attrs_size() const;
+  inline void clear_mapping_attrs();
+  static const int kMappingAttrsFieldNumber = 16;
+  inline const ::pb::map_string_Variant& mapping_attrs(int index) const;
+  inline ::pb::map_string_Variant* mutable_mapping_attrs(int index);
+  inline ::pb::map_string_Variant* add_mapping_attrs();
+  inline const ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant >&
+      mapping_attrs() const;
+  inline ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant >*
+      mutable_mapping_attrs();
+
+  // repeated .pb.map_string_uint32 enum_values = 17;
+  inline int enum_values_size() const;
+  inline void clear_enum_values();
+  static const int kEnumValuesFieldNumber = 17;
+  inline const ::pb::map_string_uint32& enum_values(int index) const;
+  inline ::pb::map_string_uint32* mutable_enum_values(int index);
+  inline ::pb::map_string_uint32* add_enum_values();
+  inline const ::google::protobuf::RepeatedPtrField< ::pb::map_string_uint32 >&
+      enum_values() const;
+  inline ::google::protobuf::RepeatedPtrField< ::pb::map_string_uint32 >*
+      mutable_enum_values();
+
   // @@protoc_insertion_point(class_scope:pb.DataType)
  private:
   inline void set_has_kind();
@@ -944,6 +982,9 @@ class DataType : public ::google::protobuf::Message {
   ::pb::CharacterSet* character_set_;
   ::google::protobuf::uint32 floating_exponent_bits_;
   ::google::protobuf::uint32 string_min_size_;
+  ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant > encoding_attrs_;
+  ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant > mapping_attrs_;
+  ::google::protobuf::RepeatedPtrField< ::pb::map_string_uint32 > enum_values_;
   ::google::protobuf::uint32 string_max_size_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
@@ -1019,6 +1060,18 @@ class EncodingSpecifics : public ::google::protobuf::Message {
   inline ::std::string* release_name();
   inline void set_allocated_name(::std::string* name);
 
+  // repeated .pb.map_string_Variant attrs = 2;
+  inline int attrs_size() const;
+  inline void clear_attrs();
+  static const int kAttrsFieldNumber = 2;
+  inline const ::pb::map_string_Variant& attrs(int index) const;
+  inline ::pb::map_string_Variant* mutable_attrs(int index);
+  inline ::pb::map_string_Variant* add_attrs();
+  inline const ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant >&
+      attrs() const;
+  inline ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant >*
+      mutable_attrs();
+
   // @@protoc_insertion_point(class_scope:pb.EncodingSpecifics)
  private:
   inline void set_has_name();
@@ -1029,6 +1082,7 @@ class EncodingSpecifics : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::std::string* name_;
+  ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant > attrs_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
@@ -2140,6 +2194,196 @@ class __unique_ptr_Structure : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static __unique_ptr_Structure* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class map_string_Variant : public ::google::protobuf::Message {
+ public:
+  map_string_Variant();
+  virtual ~map_string_Variant();
+
+  map_string_Variant(const map_string_Variant& from);
+
+  inline map_string_Variant& operator=(const map_string_Variant& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const map_string_Variant& default_instance();
+
+  void Swap(map_string_Variant* other);
+
+  // implements Message ----------------------------------------------
+
+  map_string_Variant* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const map_string_Variant& from);
+  void MergeFrom(const map_string_Variant& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string key = 1;
+  inline bool has_key() const;
+  inline void clear_key();
+  static const int kKeyFieldNumber = 1;
+  inline const ::std::string& key() const;
+  inline void set_key(const ::std::string& value);
+  inline void set_key(const char* value);
+  inline void set_key(const char* value, size_t size);
+  inline ::std::string* mutable_key();
+  inline ::std::string* release_key();
+  inline void set_allocated_key(::std::string* key);
+
+  // optional .pb.Variant value = 2;
+  inline bool has_value() const;
+  inline void clear_value();
+  static const int kValueFieldNumber = 2;
+  inline const ::pb::Variant& value() const;
+  inline ::pb::Variant* mutable_value();
+  inline ::pb::Variant* release_value();
+  inline void set_allocated_value(::pb::Variant* value);
+
+  // @@protoc_insertion_point(class_scope:pb.map_string_Variant)
+ private:
+  inline void set_has_key();
+  inline void clear_has_key();
+  inline void set_has_value();
+  inline void clear_has_value();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* key_;
+  ::pb::Variant* value_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static map_string_Variant* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class map_string_uint32 : public ::google::protobuf::Message {
+ public:
+  map_string_uint32();
+  virtual ~map_string_uint32();
+
+  map_string_uint32(const map_string_uint32& from);
+
+  inline map_string_uint32& operator=(const map_string_uint32& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const map_string_uint32& default_instance();
+
+  void Swap(map_string_uint32* other);
+
+  // implements Message ----------------------------------------------
+
+  map_string_uint32* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const map_string_uint32& from);
+  void MergeFrom(const map_string_uint32& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string key = 1;
+  inline bool has_key() const;
+  inline void clear_key();
+  static const int kKeyFieldNumber = 1;
+  inline const ::std::string& key() const;
+  inline void set_key(const ::std::string& value);
+  inline void set_key(const char* value);
+  inline void set_key(const char* value, size_t size);
+  inline ::std::string* mutable_key();
+  inline ::std::string* release_key();
+  inline void set_allocated_key(::std::string* key);
+
+  // optional uint32 value = 2;
+  inline bool has_value() const;
+  inline void clear_value();
+  static const int kValueFieldNumber = 2;
+  inline ::google::protobuf::uint32 value() const;
+  inline void set_value(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:pb.map_string_uint32)
+ private:
+  inline void set_has_key();
+  inline void clear_has_key();
+  inline void set_has_value();
+  inline void clear_has_value();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* key_;
+  ::google::protobuf::uint32 value_;
+  friend void  protobuf_AddDesc_output_2eproto();
+  friend void protobuf_AssignDesc_output_2eproto();
+  friend void protobuf_ShutdownFile_output_2eproto();
+
+  void InitAsDefaultInstance();
+  static map_string_uint32* default_instance_;
+};
 // ===================================================================
 
 
@@ -3096,6 +3340,96 @@ inline void DataType::set_string_max_size(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:pb.DataType.string_max_size)
 }
 
+// repeated .pb.map_string_Variant encoding_attrs = 15;
+inline int DataType::encoding_attrs_size() const {
+  return encoding_attrs_.size();
+}
+inline void DataType::clear_encoding_attrs() {
+  encoding_attrs_.Clear();
+}
+inline const ::pb::map_string_Variant& DataType::encoding_attrs(int index) const {
+  // @@protoc_insertion_point(field_get:pb.DataType.encoding_attrs)
+  return encoding_attrs_.Get(index);
+}
+inline ::pb::map_string_Variant* DataType::mutable_encoding_attrs(int index) {
+  // @@protoc_insertion_point(field_mutable:pb.DataType.encoding_attrs)
+  return encoding_attrs_.Mutable(index);
+}
+inline ::pb::map_string_Variant* DataType::add_encoding_attrs() {
+  // @@protoc_insertion_point(field_add:pb.DataType.encoding_attrs)
+  return encoding_attrs_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant >&
+DataType::encoding_attrs() const {
+  // @@protoc_insertion_point(field_list:pb.DataType.encoding_attrs)
+  return encoding_attrs_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant >*
+DataType::mutable_encoding_attrs() {
+  // @@protoc_insertion_point(field_mutable_list:pb.DataType.encoding_attrs)
+  return &encoding_attrs_;
+}
+
+// repeated .pb.map_string_Variant mapping_attrs = 16;
+inline int DataType::mapping_attrs_size() const {
+  return mapping_attrs_.size();
+}
+inline void DataType::clear_mapping_attrs() {
+  mapping_attrs_.Clear();
+}
+inline const ::pb::map_string_Variant& DataType::mapping_attrs(int index) const {
+  // @@protoc_insertion_point(field_get:pb.DataType.mapping_attrs)
+  return mapping_attrs_.Get(index);
+}
+inline ::pb::map_string_Variant* DataType::mutable_mapping_attrs(int index) {
+  // @@protoc_insertion_point(field_mutable:pb.DataType.mapping_attrs)
+  return mapping_attrs_.Mutable(index);
+}
+inline ::pb::map_string_Variant* DataType::add_mapping_attrs() {
+  // @@protoc_insertion_point(field_add:pb.DataType.mapping_attrs)
+  return mapping_attrs_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant >&
+DataType::mapping_attrs() const {
+  // @@protoc_insertion_point(field_list:pb.DataType.mapping_attrs)
+  return mapping_attrs_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant >*
+DataType::mutable_mapping_attrs() {
+  // @@protoc_insertion_point(field_mutable_list:pb.DataType.mapping_attrs)
+  return &mapping_attrs_;
+}
+
+// repeated .pb.map_string_uint32 enum_values = 17;
+inline int DataType::enum_values_size() const {
+  return enum_values_.size();
+}
+inline void DataType::clear_enum_values() {
+  enum_values_.Clear();
+}
+inline const ::pb::map_string_uint32& DataType::enum_values(int index) const {
+  // @@protoc_insertion_point(field_get:pb.DataType.enum_values)
+  return enum_values_.Get(index);
+}
+inline ::pb::map_string_uint32* DataType::mutable_enum_values(int index) {
+  // @@protoc_insertion_point(field_mutable:pb.DataType.enum_values)
+  return enum_values_.Mutable(index);
+}
+inline ::pb::map_string_uint32* DataType::add_enum_values() {
+  // @@protoc_insertion_point(field_add:pb.DataType.enum_values)
+  return enum_values_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::pb::map_string_uint32 >&
+DataType::enum_values() const {
+  // @@protoc_insertion_point(field_list:pb.DataType.enum_values)
+  return enum_values_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::pb::map_string_uint32 >*
+DataType::mutable_enum_values() {
+  // @@protoc_insertion_point(field_mutable_list:pb.DataType.enum_values)
+  return &enum_values_;
+}
+
 // -------------------------------------------------------------------
 
 // EncodingSpecifics
@@ -3174,6 +3508,36 @@ inline void EncodingSpecifics::set_allocated_name(::std::string* name) {
     name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:pb.EncodingSpecifics.name)
+}
+
+// repeated .pb.map_string_Variant attrs = 2;
+inline int EncodingSpecifics::attrs_size() const {
+  return attrs_.size();
+}
+inline void EncodingSpecifics::clear_attrs() {
+  attrs_.Clear();
+}
+inline const ::pb::map_string_Variant& EncodingSpecifics::attrs(int index) const {
+  // @@protoc_insertion_point(field_get:pb.EncodingSpecifics.attrs)
+  return attrs_.Get(index);
+}
+inline ::pb::map_string_Variant* EncodingSpecifics::mutable_attrs(int index) {
+  // @@protoc_insertion_point(field_mutable:pb.EncodingSpecifics.attrs)
+  return attrs_.Mutable(index);
+}
+inline ::pb::map_string_Variant* EncodingSpecifics::add_attrs() {
+  // @@protoc_insertion_point(field_add:pb.EncodingSpecifics.attrs)
+  return attrs_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant >&
+EncodingSpecifics::attrs() const {
+  // @@protoc_insertion_point(field_list:pb.EncodingSpecifics.attrs)
+  return attrs_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::pb::map_string_Variant >*
+EncodingSpecifics::mutable_attrs() {
+  // @@protoc_insertion_point(field_mutable_list:pb.EncodingSpecifics.attrs)
+  return &attrs_;
 }
 
 // -------------------------------------------------------------------
@@ -4457,6 +4821,231 @@ inline void __unique_ptr_Structure::set_allocated_du_structure(::pb::Structure* 
     clear_has_du_structure();
   }
   // @@protoc_insertion_point(field_set_allocated:pb.__unique_ptr_Structure.du_structure)
+}
+
+// -------------------------------------------------------------------
+
+// map_string_Variant
+
+// optional string key = 1;
+inline bool map_string_Variant::has_key() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void map_string_Variant::set_has_key() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void map_string_Variant::clear_has_key() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void map_string_Variant::clear_key() {
+  if (key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_->clear();
+  }
+  clear_has_key();
+}
+inline const ::std::string& map_string_Variant::key() const {
+  // @@protoc_insertion_point(field_get:pb.map_string_Variant.key)
+  return *key_;
+}
+inline void map_string_Variant::set_key(const ::std::string& value) {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_ = new ::std::string;
+  }
+  key_->assign(value);
+  // @@protoc_insertion_point(field_set:pb.map_string_Variant.key)
+}
+inline void map_string_Variant::set_key(const char* value) {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_ = new ::std::string;
+  }
+  key_->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.map_string_Variant.key)
+}
+inline void map_string_Variant::set_key(const char* value, size_t size) {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_ = new ::std::string;
+  }
+  key_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.map_string_Variant.key)
+}
+inline ::std::string* map_string_Variant::mutable_key() {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.map_string_Variant.key)
+  return key_;
+}
+inline ::std::string* map_string_Variant::release_key() {
+  clear_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = key_;
+    key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void map_string_Variant::set_allocated_key(::std::string* key) {
+  if (key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete key_;
+  }
+  if (key) {
+    set_has_key();
+    key_ = key;
+  } else {
+    clear_has_key();
+    key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.map_string_Variant.key)
+}
+
+// optional .pb.Variant value = 2;
+inline bool map_string_Variant::has_value() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void map_string_Variant::set_has_value() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void map_string_Variant::clear_has_value() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void map_string_Variant::clear_value() {
+  if (value_ != NULL) value_->::pb::Variant::Clear();
+  clear_has_value();
+}
+inline const ::pb::Variant& map_string_Variant::value() const {
+  // @@protoc_insertion_point(field_get:pb.map_string_Variant.value)
+  return value_ != NULL ? *value_ : *default_instance_->value_;
+}
+inline ::pb::Variant* map_string_Variant::mutable_value() {
+  set_has_value();
+  if (value_ == NULL) value_ = new ::pb::Variant;
+  // @@protoc_insertion_point(field_mutable:pb.map_string_Variant.value)
+  return value_;
+}
+inline ::pb::Variant* map_string_Variant::release_value() {
+  clear_has_value();
+  ::pb::Variant* temp = value_;
+  value_ = NULL;
+  return temp;
+}
+inline void map_string_Variant::set_allocated_value(::pb::Variant* value) {
+  delete value_;
+  value_ = value;
+  if (value) {
+    set_has_value();
+  } else {
+    clear_has_value();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.map_string_Variant.value)
+}
+
+// -------------------------------------------------------------------
+
+// map_string_uint32
+
+// optional string key = 1;
+inline bool map_string_uint32::has_key() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void map_string_uint32::set_has_key() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void map_string_uint32::clear_has_key() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void map_string_uint32::clear_key() {
+  if (key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_->clear();
+  }
+  clear_has_key();
+}
+inline const ::std::string& map_string_uint32::key() const {
+  // @@protoc_insertion_point(field_get:pb.map_string_uint32.key)
+  return *key_;
+}
+inline void map_string_uint32::set_key(const ::std::string& value) {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_ = new ::std::string;
+  }
+  key_->assign(value);
+  // @@protoc_insertion_point(field_set:pb.map_string_uint32.key)
+}
+inline void map_string_uint32::set_key(const char* value) {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_ = new ::std::string;
+  }
+  key_->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.map_string_uint32.key)
+}
+inline void map_string_uint32::set_key(const char* value, size_t size) {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_ = new ::std::string;
+  }
+  key_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.map_string_uint32.key)
+}
+inline ::std::string* map_string_uint32::mutable_key() {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.map_string_uint32.key)
+  return key_;
+}
+inline ::std::string* map_string_uint32::release_key() {
+  clear_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = key_;
+    key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void map_string_uint32::set_allocated_key(::std::string* key) {
+  if (key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete key_;
+  }
+  if (key) {
+    set_has_key();
+    key_ = key;
+  } else {
+    clear_has_key();
+    key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.map_string_uint32.key)
+}
+
+// optional uint32 value = 2;
+inline bool map_string_uint32::has_value() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void map_string_uint32::set_has_value() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void map_string_uint32::clear_has_value() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void map_string_uint32::clear_value() {
+  value_ = 0u;
+  clear_has_value();
+}
+inline ::google::protobuf::uint32 map_string_uint32::value() const {
+  // @@protoc_insertion_point(field_get:pb.map_string_uint32.value)
+  return value_;
+}
+inline void map_string_uint32::set_value(::google::protobuf::uint32 value) {
+  set_has_value();
+  value_ = value;
+  // @@protoc_insertion_point(field_set:pb.map_string_uint32.value)
 }
 
 

@@ -59,12 +59,16 @@ message DataType {
   optional uint32 string_min_size = 13;
   optional uint32 string_max_size = 14;
   //  map< string , Variant > encoding_attrs = 15;
+  repeated map_string_Variant encoding_attrs = 15;
   //  map< string , Variant > mapping_attrs = 16;
+  repeated map_string_Variant mapping_attrs = 16;
   //  map< string , uint32 > enum_values = 17;
+  repeated map_string_uint32 enum_values = 17;
 }
 message EncodingSpecifics {
   optional string name = 1;
   //  map< string , Variant > attrs = 2;
+  repeated map_string_Variant attrs = 2;
 }
 message EncodedOrMember {
   optional Location  location = 1;
@@ -114,8 +118,6 @@ message __unique_ptr_DataType {
      OPT_DataType = 0;
      OPT_nullptr = 1;
   }
-    //OPT_DataType = 1;
-
   optional Discriminator discriminator = 1;
   optional DataType  du_data_type = 2;
 }
@@ -126,10 +128,6 @@ message __unique_ptr_EncodedOrMember {
      OPT_EncodedOrMember = 2;
      OPT_nullptr = 3;
   }
-    //OPT_DataMember = 2;
-    //OPT_EncodedMembers = 3;
-    //OPT_EncodedOrMember = 1;
-
   optional Discriminator discriminator = 1;
   optional DataMember  du_data_member = 2;
   optional EncodedMembers  du_encoded_members = 3;
@@ -140,10 +138,16 @@ message __unique_ptr_Structure {
      OPT_Structure = 0;
      OPT_nullptr = 1;
   }
-    //OPT_Structure = 1;
-
   optional Discriminator discriminator = 1;
   optional Structure  du_structure = 2;
+}
+message map_string_Variant {
+  optional string key = 1;
+  optional Variant  value = 2;
+}
+message map_string_uint32 {
+  optional string key = 1;
+  optional uint32 value = 2;
 }
 
 
