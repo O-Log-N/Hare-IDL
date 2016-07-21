@@ -12,25 +12,21 @@ void serializeLimit( const Limit& s, OProtobufStream& o ) {
     o.writeUInt(1, s.inclusive);
     o.writeDouble(2, s.value);
 }
-
 void serializeLocation( const Location& s, OProtobufStream& o ) {
     o.writeString(1, s.fileName);
     o.writeInt(2, s.lineNumber);
 }
-
 void serializeCharacterRange( const CharacterRange& s, OProtobufStream& o ) {
     o.writeUInt(1, s.from);
     o.writeUInt(2, s.to);
 }
-
 void serializeCharacterSet( const CharacterSet& s, OProtobufStream& o ) {
     for(const auto& item:s.ranges) {
-    size_t sz_1 = protobufGetSizeCharacterRange(item);
+    auto sz_1 = protobufGetSizeCharacterRange(item);
     o.writeObjectTagAndSize(1, sz_1);
     serializeCharacterRange(item, o);
     }
 }
-
 void serializeVariant( const Variant& s, OProtobufStream& o ) {
     switch ( s.kind )
     {
@@ -42,7 +38,6 @@ void serializeVariant( const Variant& s, OProtobufStream& o ) {
     o.writeDouble(2, s.numberValue);
     o.writeString(3, s.stringValue);
 }
-
 void serializeDataType( const DataType& s, OProtobufStream& o ) {
     switch ( s.kind )
     {
@@ -64,22 +59,22 @@ void serializeDataType( const DataType& s, OProtobufStream& o ) {
     o.writeString(2, s.name);
     o.writeString(3, s.mappingName);
     o.writeString(4, s.encodingName);
-    size_t sz_5 = protobufGetSize__unique_ptr_DataType(s.keyType);
+    auto sz_5 = protobufGetSize__unique_ptr_DataType(s.keyType);
     o.writeObjectTagAndSize(5, sz_5);
     serialize__unique_ptr_DataType(s.keyType, o);
-    size_t sz_6 = protobufGetSize__unique_ptr_DataType(s.paramType);
+    auto sz_6 = protobufGetSize__unique_ptr_DataType(s.paramType);
     o.writeObjectTagAndSize(6, sz_6);
     serialize__unique_ptr_DataType(s.paramType, o);
-    size_t sz_7 = protobufGetSizeLimit(s.lowLimit);
+    auto sz_7 = protobufGetSizeLimit(s.lowLimit);
     o.writeObjectTagAndSize(7, sz_7);
     serializeLimit(s.lowLimit, o);
-    size_t sz_8 = protobufGetSizeLimit(s.highLimit);
+    auto sz_8 = protobufGetSizeLimit(s.highLimit);
     o.writeObjectTagAndSize(8, sz_8);
     serializeLimit(s.highLimit, o);
     o.writeDouble(9, s.fixedPrecision);
     o.writeUInt(10, s.floatingSignificandBits);
     o.writeUInt(11, s.floatingExponentBits);
-    size_t sz_12 = protobufGetSizeCharacterSet(s.characterSet);
+    auto sz_12 = protobufGetSizeCharacterSet(s.characterSet);
     o.writeObjectTagAndSize(12, sz_12);
     serializeCharacterSet(s.characterSet, o);
     o.writeUInt(13, s.stringMinSize);
@@ -91,18 +86,17 @@ void serializeDataType( const DataType& s, OProtobufStream& o ) {
   sz += getUnsignedVarIntSize(item.first.size());
   sz += item.first.size();
   sz += getTagSize(2);
-  size_t sz_2 = protobufGetSizeVariant(item.second);
+  auto sz_2 = protobufGetSizeVariant(item.second);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
 //      sz += getUnsignedVarIntSize(sz);
       o.writeObjectTagAndSize(15, sz);
       }
     o.writeString(1, item.first);
-    size_t sz_2 = protobufGetSizeVariant(item.second);
+    auto sz_2 = protobufGetSizeVariant(item.second);
     o.writeObjectTagAndSize(2, sz_2);
     serializeVariant(item.second, o);
     }
-
     for(const auto& item:s.mappingAttrs) {
       {
       size_t sz = 0;
@@ -110,18 +104,17 @@ void serializeDataType( const DataType& s, OProtobufStream& o ) {
   sz += getUnsignedVarIntSize(item.first.size());
   sz += item.first.size();
   sz += getTagSize(2);
-  size_t sz_2 = protobufGetSizeVariant(item.second);
+  auto sz_2 = protobufGetSizeVariant(item.second);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
 //      sz += getUnsignedVarIntSize(sz);
       o.writeObjectTagAndSize(16, sz);
       }
     o.writeString(1, item.first);
-    size_t sz_2 = protobufGetSizeVariant(item.second);
+    auto sz_2 = protobufGetSizeVariant(item.second);
     o.writeObjectTagAndSize(2, sz_2);
     serializeVariant(item.second, o);
     }
-
     for(const auto& item:s.enumValues) {
       {
       size_t sz = 0;
@@ -136,9 +129,7 @@ void serializeDataType( const DataType& s, OProtobufStream& o ) {
     o.writeString(1, item.first);
     o.writeUInt(2, item.second);
     }
-
 }
-
 void serializeEncodingSpecifics( const EncodingSpecifics& s, OProtobufStream& o ) {
     o.writeString(1, s.name);
     for(const auto& item:s.attrs) {
@@ -148,57 +139,52 @@ void serializeEncodingSpecifics( const EncodingSpecifics& s, OProtobufStream& o 
   sz += getUnsignedVarIntSize(item.first.size());
   sz += item.first.size();
   sz += getTagSize(2);
-  size_t sz_2 = protobufGetSizeVariant(item.second);
+  auto sz_2 = protobufGetSizeVariant(item.second);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
 //      sz += getUnsignedVarIntSize(sz);
       o.writeObjectTagAndSize(2, sz);
       }
     o.writeString(1, item.first);
-    size_t sz_2 = protobufGetSizeVariant(item.second);
+    auto sz_2 = protobufGetSizeVariant(item.second);
     o.writeObjectTagAndSize(2, sz_2);
     serializeVariant(item.second, o);
     }
-
 }
-
 void serializeEncodedOrMember( const EncodedOrMember& s, OProtobufStream& o ) {
-    size_t sz_1 = protobufGetSizeLocation(s.location);
+    auto sz_1 = protobufGetSizeLocation(s.location);
     o.writeObjectTagAndSize(1, sz_1);
     serializeLocation(s.location, o);
 }
-
 void serializeDataMember( const DataMember& s, OProtobufStream& o ) {
-    size_t sz_1 = protobufGetSizeDataType(s.type);
+    auto sz_1 = protobufGetSizeDataType(s.type);
     o.writeObjectTagAndSize(1, sz_1);
     serializeDataType(s.type, o);
     o.writeString(2, s.name);
     o.writeUInt(3, s.extendTo);
-    size_t sz_4 = protobufGetSizeVariant(s.defaultValue);
+    auto sz_4 = protobufGetSizeVariant(s.defaultValue);
     o.writeObjectTagAndSize(4, sz_4);
     serializeVariant(s.defaultValue, o);
     for(const auto& item:s.whenDiscriminant) {
     o.writeString(5, item);
     }
-    size_t sz_6 = protobufGetSizeEncodedOrMember(s);
+    auto sz_6 = protobufGetSizeEncodedOrMember(s);
     o.writeObjectTagAndSize(6, sz_6);
     serializeEncodedOrMember(s, o);
 }
-
 void serializeEncodedMembers( const EncodedMembers& s, OProtobufStream& o ) {
-    size_t sz_1 = protobufGetSizeEncodingSpecifics(s.encodingSpecifics);
+    auto sz_1 = protobufGetSizeEncodingSpecifics(s.encodingSpecifics);
     o.writeObjectTagAndSize(1, sz_1);
     serializeEncodingSpecifics(s.encodingSpecifics, o);
     for(const auto& item:s.members) {
-    size_t sz_2 = protobufGetSize__unique_ptr_EncodedOrMember(item);
+    auto sz_2 = protobufGetSize__unique_ptr_EncodedOrMember(item);
     o.writeObjectTagAndSize(2, sz_2);
     serialize__unique_ptr_EncodedOrMember(item, o);
     }
-    size_t sz_3 = protobufGetSizeEncodedOrMember(s);
+    auto sz_3 = protobufGetSizeEncodedOrMember(s);
     o.writeObjectTagAndSize(3, sz_3);
     serializeEncodedOrMember(s, o);
 }
-
 void serializeStructure( const Structure& s, OProtobufStream& o ) {
     switch ( s.declType )
     {
@@ -217,29 +203,27 @@ void serializeStructure( const Structure& s, OProtobufStream& o ) {
     o.writeString(3, s.name);
     o.writeString(4, s.discriminant);
     o.writeString(5, s.inheritedFrom);
-    size_t sz_6 = protobufGetSizeEncodedMembers(s);
+    auto sz_6 = protobufGetSizeEncodedMembers(s);
     o.writeObjectTagAndSize(6, sz_6);
     serializeEncodedMembers(s, o);
 }
-
 void serializeTypedef( const Typedef& s, OProtobufStream& o ) {
-    size_t sz_1 = protobufGetSizeLocation(s.location);
+    auto sz_1 = protobufGetSizeLocation(s.location);
     o.writeObjectTagAndSize(1, sz_1);
     serializeLocation(s.location, o);
-    size_t sz_2 = protobufGetSizeDataType(s.type);
+    auto sz_2 = protobufGetSizeDataType(s.type);
     o.writeObjectTagAndSize(2, sz_2);
     serializeDataType(s.type, o);
     o.writeString(3, s.name);
 }
-
 void serializeRoot( const Root& s, OProtobufStream& o ) {
     for(const auto& item:s.typedefs) {
-    size_t sz_1 = protobufGetSizeTypedef(item);
+    auto sz_1 = protobufGetSizeTypedef(item);
     o.writeObjectTagAndSize(1, sz_1);
     serializeTypedef(item, o);
     }
     for(const auto& item:s.structures) {
-    size_t sz_2 = protobufGetSize__unique_ptr_Structure(item);
+    auto sz_2 = protobufGetSize__unique_ptr_Structure(item);
     o.writeObjectTagAndSize(2, sz_2);
     serialize__unique_ptr_Structure(item, o);
     }
@@ -249,7 +233,7 @@ void serializeRoot( const Root& s, OProtobufStream& o ) {
     }
     o.writeObjectTagAndSize(3, sz_3);
     for(const auto& item:s.packedVarInts) {
-          o.writePackedSignedVarInt( item );
+    o.writePackedSignedVarInt(item);
     }
     size_t sz_4 = 0;
     for(const auto& item:s.packedDoubles) {
@@ -257,80 +241,66 @@ void serializeRoot( const Root& s, OProtobufStream& o ) {
     }
     o.writeObjectTagAndSize(4, sz_4);
     for(const auto& item:s.packedDoubles) {
-        o.writePackedDouble( item );
+    o.writePackedDouble(item);
     }
     for(const auto& item:s.unpackedStrings) {
     o.writeString(5, item);
     }
 }
 
-
 void serialize__unique_ptr_DataType( const unique_ptr<DataType>& s, OProtobufStream& o ) {
-  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( DataType ) ) disc = 0; else assert( false );
-  o.writeUInt( 1, disc );
-  switch ( disc )
-  {
-    case 0:
-    {
-      auto ptr = dynamic_cast<DataType*>(s.get());
-    size_t sz_2 = protobufGetSizeDataType(*ptr);
-    o.writeObjectTagAndSize(2, sz_2);
-    serializeDataType(*ptr, o);
-    }
-    break;
-    //default:
-      //assert( false );
-  }
+  //uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( DataType ) ) disc = 0; else assert( false );
+
+  if( s == nullptr )
+    return;
+      else if ( typeid( *s ) == typeid( DataType ) ) {
+        auto ptr = dynamic_cast<DataType*>( s.get() );
+        auto sz = protobufGetSizeDataType( *ptr );
+        o.writeObjectTagAndSize( 1, sz );
+        serializeDataType( *ptr, o );
+      }
+  else
+    assert( false );
 }
 void serialize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& s, OProtobufStream& o ) {
-  uint8_t disc; if ( s == nullptr ) disc = 3; else if ( typeid( *(s) ) == typeid( DataMember ) ) disc = 0; else if ( typeid( *(s) ) == typeid( EncodedMembers ) ) disc = 1; else if ( typeid( *(s) ) == typeid( EncodedOrMember ) ) disc = 2; else assert( false );
-  o.writeUInt( 1, disc );
-  switch ( disc )
-  {
-    case 0:
-    {
-      auto ptr = dynamic_cast<DataMember*>(s.get());
-    size_t sz_2 = protobufGetSizeDataMember(*ptr);
-    o.writeObjectTagAndSize(2, sz_2);
-    serializeDataMember(*ptr, o);
-    }
-    break;
-    case 1:
-    {
-      auto ptr = dynamic_cast<EncodedMembers*>(s.get());
-    size_t sz_3 = protobufGetSizeEncodedMembers(*ptr);
-    o.writeObjectTagAndSize(3, sz_3);
-    serializeEncodedMembers(*ptr, o);
-    }
-    break;
-    case 2:
-    {
-      auto ptr = dynamic_cast<EncodedOrMember*>(s.get());
-    size_t sz_4 = protobufGetSizeEncodedOrMember(*ptr);
-    o.writeObjectTagAndSize(4, sz_4);
-    serializeEncodedOrMember(*ptr, o);
-    }
-    break;
-    //default:
-      //assert( false );
-  }
+  //uint8_t disc; if ( s == nullptr ) disc = 3; else if ( typeid( *(s) ) == typeid( DataMember ) ) disc = 0; else if ( typeid( *(s) ) == typeid( EncodedMembers ) ) disc = 1; else if ( typeid( *(s) ) == typeid( EncodedOrMember ) ) disc = 2; else assert( false );
+
+  if( s == nullptr )
+    return;
+      else if ( typeid( *s ) == typeid( DataMember ) ) {
+        auto ptr = dynamic_cast<DataMember*>( s.get() );
+        auto sz = protobufGetSizeDataMember( *ptr );
+        o.writeObjectTagAndSize( 1, sz );
+        serializeDataMember( *ptr, o );
+      }
+      else if ( typeid( *s ) == typeid( EncodedMembers ) ) {
+        auto ptr = dynamic_cast<EncodedMembers*>( s.get() );
+        auto sz = protobufGetSizeEncodedMembers( *ptr );
+        o.writeObjectTagAndSize( 2, sz );
+        serializeEncodedMembers( *ptr, o );
+      }
+      else if ( typeid( *s ) == typeid( EncodedOrMember ) ) {
+        auto ptr = dynamic_cast<EncodedOrMember*>( s.get() );
+        auto sz = protobufGetSizeEncodedOrMember( *ptr );
+        o.writeObjectTagAndSize( 3, sz );
+        serializeEncodedOrMember( *ptr, o );
+      }
+  else
+    assert( false );
 }
 void serialize__unique_ptr_Structure( const unique_ptr<Structure>& s, OProtobufStream& o ) {
-  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( Structure ) ) disc = 0; else assert( false );
-  o.writeUInt( 1, disc );
-  switch ( disc )
-  {
-    case 0:
-    {
-      auto ptr = dynamic_cast<Structure*>(s.get());
-    size_t sz_2 = protobufGetSizeStructure(*ptr);
-    o.writeObjectTagAndSize(2, sz_2);
-    serializeStructure(*ptr, o);
-    }
-    break;
-    //default:
-      //assert( false );
-  }
+  //uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( Structure ) ) disc = 0; else assert( false );
+
+  if( s == nullptr )
+    return;
+      else if ( typeid( *s ) == typeid( Structure ) ) {
+        auto ptr = dynamic_cast<Structure*>( s.get() );
+        auto sz = protobufGetSizeStructure( *ptr );
+        o.writeObjectTagAndSize( 1, sz );
+        serializeStructure( *ptr, o );
+      }
+  else
+    assert( false );
 }
   
 // DESERIALIZATION
@@ -390,6 +360,7 @@ bool deserializeLimit( Limit& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
+  if( fieldType != VARINT ) return false;
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       s.inclusive = static_cast<bool>( temp );
@@ -398,6 +369,7 @@ bool deserializeLimit( Limit& s, IProtobufStream& i ) {
     break;
     case 2:
     {
+      if( fieldType != FIXED_64_BIT ) return false;
       readOk = i.readFixed64Bit( s.value );
     }
     initFlags[1] = true;
@@ -432,12 +404,14 @@ bool deserializeLocation( Location& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( s.fileName );
     }
     initFlags[0] = true;
     break;
     case 2:
     {
+  if( fieldType != VARINT ) return false;
       int64_t temp = 0;
       readOk = i.readVariantInt64( temp );
       s.lineNumber = temp;
@@ -474,6 +448,7 @@ bool deserializeCharacterRange( CharacterRange& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
+  if( fieldType != VARINT ) return false;
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       s.from = temp;
@@ -482,6 +457,7 @@ bool deserializeCharacterRange( CharacterRange& s, IProtobufStream& i ) {
     break;
     case 2:
     {
+  if( fieldType != VARINT ) return false;
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       s.to = temp;
@@ -521,6 +497,7 @@ bool deserializeCharacterSet( CharacterSet& s, IProtobufStream& i ) {
     {
     {
       CharacterRange temp2;
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -560,26 +537,29 @@ bool deserializeVariant( Variant& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
-     uint64_t temp = 0;
-     readOk = i.readVariantUInt64( temp );
-     switch ( temp )
-     {
+      if( fieldType != VARINT ) return false;
+      uint64_t temp = 0;
+      readOk = i.readVariantUInt64( temp );
+      switch ( temp )
+      {
 	      case 0: s.kind = s.NONE; break;
 	      case 1: s.kind = s.NUMBER; break;
 	      case 2: s.kind = s.STRING; break;
         default: return false;
-     }
+      }
     }
     initFlags[0] = true;
     break;
     case 2:
     {
+      if( fieldType != FIXED_64_BIT ) return false;
       readOk = i.readFixed64Bit( s.numberValue );
     }
     initFlags[1] = true;
     break;
     case 3:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( s.stringValue );
     }
     initFlags[2] = true;
@@ -617,10 +597,11 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
-     uint64_t temp = 0;
-     readOk = i.readVariantUInt64( temp );
-     switch ( temp )
-     {
+      if( fieldType != VARINT ) return false;
+      uint64_t temp = 0;
+      readOk = i.readVariantUInt64( temp );
+      switch ( temp )
+      {
 	      case 0: s.kind = s.BIT_STRING; break;
 	      case 1: s.kind = s.CHARACTER; break;
 	      case 2: s.kind = s.CHARACTER_STRING; break;
@@ -635,30 +616,34 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
 	      case 11: s.kind = s.NAMED_TYPE; break;
 	      case 12: s.kind = s.SEQUENCE; break;
         default: return false;
-     }
+      }
     }
     initFlags[0] = true;
     break;
     case 2:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( s.name );
     }
     initFlags[1] = true;
     break;
     case 3:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( s.mappingName );
     }
     initFlags[2] = true;
     break;
     case 4:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( s.encodingName );
     }
     initFlags[3] = true;
     break;
     case 5:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -668,6 +653,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     break;
     case 6:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -677,6 +663,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     break;
     case 7:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -686,6 +673,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     break;
     case 8:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -695,12 +683,14 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     break;
     case 9:
     {
+      if( fieldType != FIXED_64_BIT ) return false;
       readOk = i.readFixed64Bit( s.fixedPrecision );
     }
     initFlags[8] = true;
     break;
     case 10:
     {
+  if( fieldType != VARINT ) return false;
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       s.floatingSignificandBits = temp;
@@ -709,6 +699,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     break;
     case 11:
     {
+  if( fieldType != VARINT ) return false;
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       s.floatingExponentBits = temp;
@@ -717,6 +708,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     break;
     case 12:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -726,6 +718,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     break;
     case 13:
     {
+  if( fieldType != VARINT ) return false;
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       s.stringMinSize = temp;
@@ -734,6 +727,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     break;
     case 14:
     {
+  if( fieldType != VARINT ) return false;
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       s.stringMaxSize = temp;
@@ -742,6 +736,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     break;
     case 15:
     {
+  if( fieldType != LENGTH_DELIMITED ) return false;
   uint64_t sz = 0;
   i.readVariantUInt64(sz);
   IProtobufStream is = i.makeSubStream(sz);
@@ -763,6 +758,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     {
         case 1:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( key );
     }
      initFlags[0] = true;
@@ -770,6 +766,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
 
     case 2:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -795,6 +792,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     break;
     case 16:
     {
+  if( fieldType != LENGTH_DELIMITED ) return false;
   uint64_t sz = 0;
   i.readVariantUInt64(sz);
   IProtobufStream is = i.makeSubStream(sz);
@@ -816,6 +814,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     {
         case 1:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( key );
     }
      initFlags[0] = true;
@@ -823,6 +822,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
 
     case 2:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -848,6 +848,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     break;
     case 17:
     {
+  if( fieldType != LENGTH_DELIMITED ) return false;
   uint64_t sz = 0;
   i.readVariantUInt64(sz);
   IProtobufStream is = i.makeSubStream(sz);
@@ -869,6 +870,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
     {
         case 1:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( key );
     }
      initFlags[0] = true;
@@ -876,6 +878,7 @@ bool deserializeDataType( DataType& s, IProtobufStream& i ) {
 
     case 2:
     {
+  if( fieldType != VARINT ) return false;
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       value = temp;
@@ -929,12 +932,14 @@ bool deserializeEncodingSpecifics( EncodingSpecifics& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( s.name );
     }
     initFlags[0] = true;
     break;
     case 2:
     {
+  if( fieldType != LENGTH_DELIMITED ) return false;
   uint64_t sz = 0;
   i.readVariantUInt64(sz);
   IProtobufStream is = i.makeSubStream(sz);
@@ -956,6 +961,7 @@ bool deserializeEncodingSpecifics( EncodingSpecifics& s, IProtobufStream& i ) {
     {
         case 1:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( key );
     }
      initFlags[0] = true;
@@ -963,6 +969,7 @@ bool deserializeEncodingSpecifics( EncodingSpecifics& s, IProtobufStream& i ) {
 
     case 2:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -1016,6 +1023,7 @@ bool deserializeEncodedOrMember( EncodedOrMember& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -1054,6 +1062,7 @@ bool deserializeDataMember( DataMember& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -1063,12 +1072,14 @@ bool deserializeDataMember( DataMember& s, IProtobufStream& i ) {
     break;
     case 2:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( s.name );
     }
     initFlags[1] = true;
     break;
     case 3:
     {
+  if( fieldType != VARINT ) return false;
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       s.extendTo = static_cast<bool>( temp );
@@ -1077,6 +1088,7 @@ bool deserializeDataMember( DataMember& s, IProtobufStream& i ) {
     break;
     case 4:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -1088,6 +1100,7 @@ bool deserializeDataMember( DataMember& s, IProtobufStream& i ) {
     {
     {
       string temp2;
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( temp2 );
       s.whenDiscriminant.push_back(std::move(temp2));
     }
@@ -1096,6 +1109,7 @@ bool deserializeDataMember( DataMember& s, IProtobufStream& i ) {
     break;
     case 6:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -1134,6 +1148,7 @@ bool deserializeEncodedMembers( EncodedMembers& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -1145,6 +1160,7 @@ bool deserializeEncodedMembers( EncodedMembers& s, IProtobufStream& i ) {
     {
     {
       unique_ptr<EncodedOrMember> temp2;
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -1156,6 +1172,7 @@ bool deserializeEncodedMembers( EncodedMembers& s, IProtobufStream& i ) {
     break;
     case 3:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -1193,52 +1210,58 @@ bool deserializeStructure( Structure& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
-     uint64_t temp = 0;
-     readOk = i.readVariantUInt64( temp );
-     switch ( temp )
-     {
+      if( fieldType != VARINT ) return false;
+      uint64_t temp = 0;
+      readOk = i.readVariantUInt64( temp );
+      switch ( temp )
+      {
 	      case 0: s.declType = s.ENCODING; break;
 	      case 1: s.declType = s.IDL; break;
 	      case 2: s.declType = s.MAPPING; break;
         default: return false;
-     }
+      }
     }
     initFlags[0] = true;
     break;
     case 2:
     {
-     uint64_t temp = 0;
-     readOk = i.readVariantUInt64( temp );
-     switch ( temp )
-     {
+      if( fieldType != VARINT ) return false;
+      uint64_t temp = 0;
+      readOk = i.readVariantUInt64( temp );
+      switch ( temp )
+      {
 	      case 0: s.type = s.DISCRIMINATED_UNION; break;
 	      case 1: s.type = s.RPC; break;
 	      case 2: s.type = s.STRUCT; break;
         default: return false;
-     }
+      }
     }
     initFlags[1] = true;
     break;
     case 3:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( s.name );
     }
     initFlags[2] = true;
     break;
     case 4:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( s.discriminant );
     }
     initFlags[3] = true;
     break;
     case 5:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( s.inheritedFrom );
     }
     initFlags[4] = true;
     break;
     case 6:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -1276,6 +1299,7 @@ bool deserializeTypedef( Typedef& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -1285,6 +1309,7 @@ bool deserializeTypedef( Typedef& s, IProtobufStream& i ) {
     break;
     case 2:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -1294,6 +1319,7 @@ bool deserializeTypedef( Typedef& s, IProtobufStream& i ) {
     break;
     case 3:
     {
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( s.name );
     }
     initFlags[2] = true;
@@ -1335,6 +1361,7 @@ bool deserializeRoot( Root& s, IProtobufStream& i ) {
     {
     {
       Typedef temp2;
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -1348,6 +1375,7 @@ bool deserializeRoot( Root& s, IProtobufStream& i ) {
     {
     {
       unique_ptr<Structure> temp2;
+      if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
@@ -1381,6 +1409,7 @@ bool deserializeRoot( Root& s, IProtobufStream& i ) {
     // fall back to non packed
     {
       int16_t temp2;
+  if( fieldType != VARINT ) return false;
       int64_t temp = 0;
       readOk = i.readVariantInt64( temp );
       temp2 = temp;
@@ -1411,6 +1440,7 @@ bool deserializeRoot( Root& s, IProtobufStream& i ) {
     // fall back to non packed
     {
       double temp2;
+      if( fieldType != FIXED_64_BIT ) return false;
       readOk = i.readFixed64Bit( temp2 );
       s.packedDoubles.push_back(std::move(temp2));
     }
@@ -1421,6 +1451,7 @@ bool deserializeRoot( Root& s, IProtobufStream& i ) {
     {
     {
       string temp2;
+      if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( temp2 );
       s.unpackedStrings.push_back(std::move(temp2));
     }
@@ -1444,198 +1475,134 @@ bool deserializeRoot( Root& s, IProtobufStream& i ) {
 
 bool deserialize__unique_ptr_DataType( unique_ptr<DataType>& s, IProtobufStream& i ) {
 
-   const int memcnt = 2;
-   bool initFlags[memcnt] = { false };
-    uint64_t disc = 0;
-    bool readDisc = false;
-
     int fieldType;
     int fieldNumber;
     bool readOk = true;
 
-  while(!i.isEndOfStream())
-  {
+    if( i.isEndOfStream() )
+      return true;
+
     readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    
     if ( !readOk )
       return false;
+
+    if( fieldType != LENGTH_DELIMITED )
+      return false;
+
+    uint64_t sz = 0;
+    i.readVariantUInt64(sz);
+    IProtobufStream is = i.makeSubStream(sz);
+
     switch ( fieldNumber )
     {
       case 1:
-       readOk = i.readVariantUInt64( disc );
-       readDisc = true;
-       break;
-      case 2:
       {
-        std::unique_ptr<DataType> ptr(new DataType);
-      uint64_t sz = 0;
-      i.readVariantUInt64(sz);
-      IProtobufStream is = i.makeSubStream(sz);
-      readOk = deserializeDataType(*ptr, is);
-        s = std::move(ptr);
-   
+        std::unique_ptr<DataType> ptr( new DataType );
+        readOk = deserializeDataType( *ptr, is );
+        s = std::move( ptr );
       }
-      initFlags[0] = true;
       break;
-
-    default:
-      readOk = discardUnexpectedField( fieldType, i );
+      default:
+      {
+        string temp;
+        readOk = is.readString( temp );
+      }
     }
-    if ( !readOk )
-      return false;
-  }
 
-  if( !readDisc )
-    return false;
-
-  switch (disc) {
-    case 0:
-      readOk = readOk && initFlags[0];
-      break;
-    //default:
-      //return false;
-  }  
-
-  return readOk;
+    return readOk && i.isEndOfStream();
 }
 bool deserialize__unique_ptr_EncodedOrMember( unique_ptr<EncodedOrMember>& s, IProtobufStream& i ) {
 
-   const int memcnt = 4;
-   bool initFlags[memcnt] = { false };
-    uint64_t disc = 0;
-    bool readDisc = false;
-
     int fieldType;
     int fieldNumber;
     bool readOk = true;
 
-  while(!i.isEndOfStream())
-  {
+    if( i.isEndOfStream() )
+      return true;
+
     readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    
     if ( !readOk )
       return false;
+
+    if( fieldType != LENGTH_DELIMITED )
+      return false;
+
+    uint64_t sz = 0;
+    i.readVariantUInt64(sz);
+    IProtobufStream is = i.makeSubStream(sz);
+
     switch ( fieldNumber )
     {
       case 1:
-       readOk = i.readVariantUInt64( disc );
-       readDisc = true;
-       break;
+      {
+        std::unique_ptr<DataMember> ptr( new DataMember );
+        readOk = deserializeDataMember( *ptr, is );
+        s = std::move( ptr );
+      }
+      break;
       case 2:
       {
-        std::unique_ptr<DataMember> ptr(new DataMember);
-      uint64_t sz = 0;
-      i.readVariantUInt64(sz);
-      IProtobufStream is = i.makeSubStream(sz);
-      readOk = deserializeDataMember(*ptr, is);
-        s = std::move(ptr);
-   
+        std::unique_ptr<EncodedMembers> ptr( new EncodedMembers );
+        readOk = deserializeEncodedMembers( *ptr, is );
+        s = std::move( ptr );
       }
-      initFlags[0] = true;
       break;
       case 3:
       {
-        std::unique_ptr<EncodedMembers> ptr(new EncodedMembers);
-      uint64_t sz = 0;
-      i.readVariantUInt64(sz);
-      IProtobufStream is = i.makeSubStream(sz);
-      readOk = deserializeEncodedMembers(*ptr, is);
-        s = std::move(ptr);
-   
+        std::unique_ptr<EncodedOrMember> ptr( new EncodedOrMember );
+        readOk = deserializeEncodedOrMember( *ptr, is );
+        s = std::move( ptr );
       }
-      initFlags[1] = true;
       break;
-      case 4:
+      default:
       {
-        std::unique_ptr<EncodedOrMember> ptr(new EncodedOrMember);
-      uint64_t sz = 0;
-      i.readVariantUInt64(sz);
-      IProtobufStream is = i.makeSubStream(sz);
-      readOk = deserializeEncodedOrMember(*ptr, is);
-        s = std::move(ptr);
-   
+        string temp;
+        readOk = is.readString( temp );
       }
-      initFlags[2] = true;
-      break;
-
-    default:
-      readOk = discardUnexpectedField( fieldType, i );
     }
-    if ( !readOk )
-      return false;
-  }
 
-  if( !readDisc )
-    return false;
-
-  switch (disc) {
-    case 0:
-      readOk = readOk && initFlags[0];
-      break;
-    case 1:
-      readOk = readOk && initFlags[1];
-      break;
-    case 2:
-      readOk = readOk && initFlags[2];
-      break;
-    //default:
-      //return false;
-  }  
-
-  return readOk;
+    return readOk && i.isEndOfStream();
 }
 bool deserialize__unique_ptr_Structure( unique_ptr<Structure>& s, IProtobufStream& i ) {
-
-   const int memcnt = 2;
-   bool initFlags[memcnt] = { false };
-    uint64_t disc = 0;
-    bool readDisc = false;
 
     int fieldType;
     int fieldNumber;
     bool readOk = true;
 
-  while(!i.isEndOfStream())
-  {
+    if( i.isEndOfStream() )
+      return true;
+
     readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    
     if ( !readOk )
       return false;
+
+    if( fieldType != LENGTH_DELIMITED )
+      return false;
+
+    uint64_t sz = 0;
+    i.readVariantUInt64(sz);
+    IProtobufStream is = i.makeSubStream(sz);
+
     switch ( fieldNumber )
     {
       case 1:
-       readOk = i.readVariantUInt64( disc );
-       readDisc = true;
-       break;
-      case 2:
       {
-        std::unique_ptr<Structure> ptr(new Structure);
-      uint64_t sz = 0;
-      i.readVariantUInt64(sz);
-      IProtobufStream is = i.makeSubStream(sz);
-      readOk = deserializeStructure(*ptr, is);
-        s = std::move(ptr);
-   
+        std::unique_ptr<Structure> ptr( new Structure );
+        readOk = deserializeStructure( *ptr, is );
+        s = std::move( ptr );
       }
-      initFlags[0] = true;
       break;
-
-    default:
-      readOk = discardUnexpectedField( fieldType, i );
+      default:
+      {
+        string temp;
+        readOk = is.readString( temp );
+      }
     }
-    if ( !readOk )
-      return false;
-  }
 
-  if( !readDisc )
-    return false;
-
-  switch (disc) {
-    case 0:
-      readOk = readOk && initFlags[0];
-      break;
-    //default:
-      //return false;
-  }  
-
-  return readOk;
+    return readOk && i.isEndOfStream();
 }
   
   
@@ -1691,7 +1658,7 @@ size_t protobufGetSizeCharacterSet( const CharacterSet& s ) {
       
     for(const auto& item:s.ranges) {
   sz += getTagSize(1);
-  size_t sz_1 = protobufGetSizeCharacterRange(item);
+  auto sz_1 = protobufGetSizeCharacterRange(item);
   sz += getUnsignedVarIntSize(sz_1);
   sz += sz_1;
       }
@@ -1742,25 +1709,25 @@ size_t protobufGetSizeDataType( const DataType& s ) {
 
       
   sz += getTagSize(5);
-  size_t sz_5 = protobufGetSize__unique_ptr_DataType(s.keyType);
+  auto sz_5 = protobufGetSize__unique_ptr_DataType(s.keyType);
   sz += getUnsignedVarIntSize(sz_5);
   sz += sz_5;
 
       
   sz += getTagSize(6);
-  size_t sz_6 = protobufGetSize__unique_ptr_DataType(s.paramType);
+  auto sz_6 = protobufGetSize__unique_ptr_DataType(s.paramType);
   sz += getUnsignedVarIntSize(sz_6);
   sz += sz_6;
 
       
   sz += getTagSize(7);
-  size_t sz_7 = protobufGetSizeLimit(s.lowLimit);
+  auto sz_7 = protobufGetSizeLimit(s.lowLimit);
   sz += getUnsignedVarIntSize(sz_7);
   sz += sz_7;
 
       
   sz += getTagSize(8);
-  size_t sz_8 = protobufGetSizeLimit(s.highLimit);
+  auto sz_8 = protobufGetSizeLimit(s.highLimit);
   sz += getUnsignedVarIntSize(sz_8);
   sz += sz_8;
 
@@ -1778,7 +1745,7 @@ size_t protobufGetSizeDataType( const DataType& s ) {
 
       
   sz += getTagSize(12);
-  size_t sz_12 = protobufGetSizeCharacterSet(s.characterSet);
+  auto sz_12 = protobufGetSizeCharacterSet(s.characterSet);
   sz += getUnsignedVarIntSize(sz_12);
   sz += sz_12;
 
@@ -1798,7 +1765,7 @@ size_t protobufGetSizeDataType( const DataType& s ) {
   sz += getUnsignedVarIntSize(item.first.size());
   sz += item.first.size();
   sz += getTagSize(2);
-  size_t sz_2 = protobufGetSizeVariant(item.second);
+  auto sz_2 = protobufGetSizeVariant(item.second);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
       sz += getUnsignedVarIntSize(sz - sz_begin_15);
@@ -1812,7 +1779,7 @@ size_t protobufGetSizeDataType( const DataType& s ) {
   sz += getUnsignedVarIntSize(item.first.size());
   sz += item.first.size();
   sz += getTagSize(2);
-  size_t sz_2 = protobufGetSizeVariant(item.second);
+  auto sz_2 = protobufGetSizeVariant(item.second);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
       sz += getUnsignedVarIntSize(sz - sz_begin_16);
@@ -1849,7 +1816,7 @@ size_t protobufGetSizeEncodingSpecifics( const EncodingSpecifics& s ) {
   sz += getUnsignedVarIntSize(item.first.size());
   sz += item.first.size();
   sz += getTagSize(2);
-  size_t sz_2 = protobufGetSizeVariant(item.second);
+  auto sz_2 = protobufGetSizeVariant(item.second);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
       sz += getUnsignedVarIntSize(sz - sz_begin_2);
@@ -1863,7 +1830,7 @@ size_t protobufGetSizeEncodedOrMember( const EncodedOrMember& s ) {
   size_t sz = 0;
       
   sz += getTagSize(1);
-  size_t sz_1 = protobufGetSizeLocation(s.location);
+  auto sz_1 = protobufGetSizeLocation(s.location);
   sz += getUnsignedVarIntSize(sz_1);
   sz += sz_1;
 
@@ -1875,7 +1842,7 @@ size_t protobufGetSizeDataMember( const DataMember& s ) {
   size_t sz = 0;
       
   sz += getTagSize(1);
-  size_t sz_1 = protobufGetSizeDataType(s.type);
+  auto sz_1 = protobufGetSizeDataType(s.type);
   sz += getUnsignedVarIntSize(sz_1);
   sz += sz_1;
 
@@ -1890,7 +1857,7 @@ size_t protobufGetSizeDataMember( const DataMember& s ) {
 
       
   sz += getTagSize(4);
-  size_t sz_4 = protobufGetSizeVariant(s.defaultValue);
+  auto sz_4 = protobufGetSizeVariant(s.defaultValue);
   sz += getUnsignedVarIntSize(sz_4);
   sz += sz_4;
 
@@ -1903,7 +1870,7 @@ size_t protobufGetSizeDataMember( const DataMember& s ) {
 
       
   sz += getTagSize(6);
-  size_t sz_6 = protobufGetSizeEncodedOrMember(s);
+  auto sz_6 = protobufGetSizeEncodedOrMember(s);
   sz += getUnsignedVarIntSize(sz_6);
   sz += sz_6;
 
@@ -1915,21 +1882,21 @@ size_t protobufGetSizeEncodedMembers( const EncodedMembers& s ) {
   size_t sz = 0;
       
   sz += getTagSize(1);
-  size_t sz_1 = protobufGetSizeEncodingSpecifics(s.encodingSpecifics);
+  auto sz_1 = protobufGetSizeEncodingSpecifics(s.encodingSpecifics);
   sz += getUnsignedVarIntSize(sz_1);
   sz += sz_1;
 
       
     for(const auto& item:s.members) {
   sz += getTagSize(2);
-  size_t sz_2 = protobufGetSize__unique_ptr_EncodedOrMember(item);
+  auto sz_2 = protobufGetSize__unique_ptr_EncodedOrMember(item);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
       }
 
       
   sz += getTagSize(3);
-  size_t sz_3 = protobufGetSizeEncodedOrMember(s);
+  auto sz_3 = protobufGetSizeEncodedOrMember(s);
   sz += getUnsignedVarIntSize(sz_3);
   sz += sz_3;
 
@@ -1964,7 +1931,7 @@ size_t protobufGetSizeStructure( const Structure& s ) {
 
       
   sz += getTagSize(6);
-  size_t sz_6 = protobufGetSizeEncodedMembers(s);
+  auto sz_6 = protobufGetSizeEncodedMembers(s);
   sz += getUnsignedVarIntSize(sz_6);
   sz += sz_6;
 
@@ -1976,13 +1943,13 @@ size_t protobufGetSizeTypedef( const Typedef& s ) {
   size_t sz = 0;
       
   sz += getTagSize(1);
-  size_t sz_1 = protobufGetSizeLocation(s.location);
+  auto sz_1 = protobufGetSizeLocation(s.location);
   sz += getUnsignedVarIntSize(sz_1);
   sz += sz_1;
 
       
   sz += getTagSize(2);
-  size_t sz_2 = protobufGetSizeDataType(s.type);
+  auto sz_2 = protobufGetSizeDataType(s.type);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
 
@@ -2000,7 +1967,7 @@ size_t protobufGetSizeRoot( const Root& s ) {
       
     for(const auto& item:s.typedefs) {
   sz += getTagSize(1);
-  size_t sz_1 = protobufGetSizeTypedef(item);
+  auto sz_1 = protobufGetSizeTypedef(item);
   sz += getUnsignedVarIntSize(sz_1);
   sz += sz_1;
       }
@@ -2008,7 +1975,7 @@ size_t protobufGetSizeRoot( const Root& s ) {
       
     for(const auto& item:s.structures) {
   sz += getTagSize(2);
-  size_t sz_2 = protobufGetSize__unique_ptr_Structure(item);
+  auto sz_2 = protobufGetSize__unique_ptr_Structure(item);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
       }
@@ -2045,92 +2012,67 @@ size_t protobufGetSizeRoot( const Root& s ) {
 
 size_t protobufGetSize__unique_ptr_DataType( const unique_ptr<DataType>& s ) {
 
-  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( DataType ) ) disc = 0; else assert( false );
-
-  size_t sz = 0;
-  sz += getTagSize( 1 );
-  sz += getUnsignedVarIntSize( disc );
-
-  switch ( disc )
-  {
-    case 0:
-    {
-      auto ptr = dynamic_cast<DataType*>(s.get());
-  sz += getTagSize(2);
-  size_t sz_2 = protobufGetSizeDataType(*ptr);
-  sz += getUnsignedVarIntSize(sz_2);
-  sz += sz_2;
-    }
-    break;
-    //default:
-      //assert( false );
+//  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( DataType ) ) disc = 0; else assert( false );
+  if( s == nullptr )
+    return 0;
+      else if ( typeid( *s ) == typeid( DataType ) ) {
+        auto ptr = dynamic_cast<DataType*>( s.get() );
+        auto sz = protobufGetSizeDataType( *ptr );
+        sz += getUnsignedVarIntSize( sz );
+        sz += getTagSize( 1 );
+        return sz;
+      }
+  else {
+    assert( false );
+    return 0; // silence
   }
-   return sz;
 }
 size_t protobufGetSize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& s ) {
 
-  uint8_t disc; if ( s == nullptr ) disc = 3; else if ( typeid( *(s) ) == typeid( DataMember ) ) disc = 0; else if ( typeid( *(s) ) == typeid( EncodedMembers ) ) disc = 1; else if ( typeid( *(s) ) == typeid( EncodedOrMember ) ) disc = 2; else assert( false );
-
-  size_t sz = 0;
-  sz += getTagSize( 1 );
-  sz += getUnsignedVarIntSize( disc );
-
-  switch ( disc )
-  {
-    case 0:
-    {
-      auto ptr = dynamic_cast<DataMember*>(s.get());
-  sz += getTagSize(2);
-  size_t sz_2 = protobufGetSizeDataMember(*ptr);
-  sz += getUnsignedVarIntSize(sz_2);
-  sz += sz_2;
-    }
-    break;
-    case 1:
-    {
-      auto ptr = dynamic_cast<EncodedMembers*>(s.get());
-  sz += getTagSize(3);
-  size_t sz_3 = protobufGetSizeEncodedMembers(*ptr);
-  sz += getUnsignedVarIntSize(sz_3);
-  sz += sz_3;
-    }
-    break;
-    case 2:
-    {
-      auto ptr = dynamic_cast<EncodedOrMember*>(s.get());
-  sz += getTagSize(4);
-  size_t sz_4 = protobufGetSizeEncodedOrMember(*ptr);
-  sz += getUnsignedVarIntSize(sz_4);
-  sz += sz_4;
-    }
-    break;
-    //default:
-      //assert( false );
+//  uint8_t disc; if ( s == nullptr ) disc = 3; else if ( typeid( *(s) ) == typeid( DataMember ) ) disc = 0; else if ( typeid( *(s) ) == typeid( EncodedMembers ) ) disc = 1; else if ( typeid( *(s) ) == typeid( EncodedOrMember ) ) disc = 2; else assert( false );
+  if( s == nullptr )
+    return 0;
+      else if ( typeid( *s ) == typeid( DataMember ) ) {
+        auto ptr = dynamic_cast<DataMember*>( s.get() );
+        auto sz = protobufGetSizeDataMember( *ptr );
+        sz += getUnsignedVarIntSize( sz );
+        sz += getTagSize( 1 );
+        return sz;
+      }
+      else if ( typeid( *s ) == typeid( EncodedMembers ) ) {
+        auto ptr = dynamic_cast<EncodedMembers*>( s.get() );
+        auto sz = protobufGetSizeEncodedMembers( *ptr );
+        sz += getUnsignedVarIntSize( sz );
+        sz += getTagSize( 2 );
+        return sz;
+      }
+      else if ( typeid( *s ) == typeid( EncodedOrMember ) ) {
+        auto ptr = dynamic_cast<EncodedOrMember*>( s.get() );
+        auto sz = protobufGetSizeEncodedOrMember( *ptr );
+        sz += getUnsignedVarIntSize( sz );
+        sz += getTagSize( 3 );
+        return sz;
+      }
+  else {
+    assert( false );
+    return 0; // silence
   }
-   return sz;
 }
 size_t protobufGetSize__unique_ptr_Structure( const unique_ptr<Structure>& s ) {
 
-  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( Structure ) ) disc = 0; else assert( false );
-
-  size_t sz = 0;
-  sz += getTagSize( 1 );
-  sz += getUnsignedVarIntSize( disc );
-
-  switch ( disc )
-  {
-    case 0:
-    {
-      auto ptr = dynamic_cast<Structure*>(s.get());
-  sz += getTagSize(2);
-  size_t sz_2 = protobufGetSizeStructure(*ptr);
-  sz += getUnsignedVarIntSize(sz_2);
-  sz += sz_2;
-    }
-    break;
-    //default:
-      //assert( false );
+//  uint8_t disc; if ( s == nullptr ) disc = 1; else if ( typeid( *(s) ) == typeid( Structure ) ) disc = 0; else assert( false );
+  if( s == nullptr )
+    return 0;
+      else if ( typeid( *s ) == typeid( Structure ) ) {
+        auto ptr = dynamic_cast<Structure*>( s.get() );
+        auto sz = protobufGetSizeStructure( *ptr );
+        sz += getUnsignedVarIntSize( sz );
+        sz += getTagSize( 1 );
+        return sz;
+      }
+  else {
+    assert( false );
+    return 0; // silence
   }
-   return sz;
 }
 

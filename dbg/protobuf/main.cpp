@@ -113,9 +113,9 @@ int main(int argc, char* argv[])
   const char* sendFile = "character.send.bin";
   const char* recvFile = "character.recv.bin";
 
-  //unique_ptr<Root> toSend = deserializeFile("../../Hare-IDL/dbg/protobuf/idl_tree.h.idlbin");
+  unique_ptr<Root> toSend = deserializeFile("../../Hare-IDL/dbg/protobuf/idl_tree.h.idlbin");
 //  unique_ptr<Root> toSend = deserializeFile("idl_tree.h.idlbin");
-  unique_ptr<Root> toSend = createSample();
+  //unique_ptr<Root> toSend = createSample();
 
   protobufSerializeToFile(sendFile, *toSend);
 

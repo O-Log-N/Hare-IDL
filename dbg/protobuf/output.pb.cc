@@ -66,15 +66,12 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* __unique_ptr_DataType_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   __unique_ptr_DataType_reflection_ = NULL;
-const ::google::protobuf::EnumDescriptor* __unique_ptr_DataType_Discriminator_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* __unique_ptr_EncodedOrMember_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   __unique_ptr_EncodedOrMember_reflection_ = NULL;
-const ::google::protobuf::EnumDescriptor* __unique_ptr_EncodedOrMember_Discriminator_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* __unique_ptr_Structure_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   __unique_ptr_Structure_reflection_ = NULL;
-const ::google::protobuf::EnumDescriptor* __unique_ptr_Structure_Discriminator_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* map_string_Variant_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   map_string_Variant_reflection_ = NULL;
@@ -331,8 +328,7 @@ void protobuf_AssignDesc_output_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Root));
   __unique_ptr_DataType_descriptor_ = file->message_type(13);
-  static const int __unique_ptr_DataType_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(__unique_ptr_DataType, discriminator_),
+  static const int __unique_ptr_DataType_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(__unique_ptr_DataType, du_data_type_),
   };
   __unique_ptr_DataType_reflection_ =
@@ -346,10 +342,8 @@ void protobuf_AssignDesc_output_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(__unique_ptr_DataType));
-  __unique_ptr_DataType_Discriminator_descriptor_ = __unique_ptr_DataType_descriptor_->enum_type(0);
   __unique_ptr_EncodedOrMember_descriptor_ = file->message_type(14);
-  static const int __unique_ptr_EncodedOrMember_offsets_[4] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(__unique_ptr_EncodedOrMember, discriminator_),
+  static const int __unique_ptr_EncodedOrMember_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(__unique_ptr_EncodedOrMember, du_data_member_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(__unique_ptr_EncodedOrMember, du_encoded_members_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(__unique_ptr_EncodedOrMember, du_encoded_or_member_),
@@ -365,10 +359,8 @@ void protobuf_AssignDesc_output_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(__unique_ptr_EncodedOrMember));
-  __unique_ptr_EncodedOrMember_Discriminator_descriptor_ = __unique_ptr_EncodedOrMember_descriptor_->enum_type(0);
   __unique_ptr_Structure_descriptor_ = file->message_type(15);
-  static const int __unique_ptr_Structure_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(__unique_ptr_Structure, discriminator_),
+  static const int __unique_ptr_Structure_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(__unique_ptr_Structure, du_structure_),
   };
   __unique_ptr_Structure_reflection_ =
@@ -382,7 +374,6 @@ void protobuf_AssignDesc_output_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(__unique_ptr_Structure));
-  __unique_ptr_Structure_Discriminator_descriptor_ = __unique_ptr_Structure_descriptor_->enum_type(0);
   map_string_Variant_descriptor_ = file->message_type(16);
   static const int map_string_Variant_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(map_string_Variant, key_),
@@ -567,27 +558,17 @@ void protobuf_AddDesc_output_2eproto() {
     "tructures\030\002 \003(\0132\032.pb.__unique_ptr_Struct"
     "ure\022\033\n\017packed_var_ints\030\003 \003(\021B\002\020\001\022\032\n\016pack"
     "ed_doubles\030\004 \003(\001B\002\020\001\022\030\n\020unpacked_strings"
-    "\030\005 \003(\t\"\257\001\n\025__unique_ptr_DataType\022>\n\rdisc"
-    "riminator\030\001 \001(\0162\'.pb.__unique_ptr_DataTy"
-    "pe.Discriminator\022\"\n\014du_data_type\030\002 \001(\0132\014"
-    ".pb.DataType\"2\n\rDiscriminator\022\020\n\014OPT_Dat"
-    "aType\020\000\022\017\n\013OPT_nullptr\020\001\"\327\002\n\034__unique_pt"
-    "r_EncodedOrMember\022E\n\rdiscriminator\030\001 \001(\016"
-    "2..pb.__unique_ptr_EncodedOrMember.Discr"
-    "iminator\022&\n\016du_data_member\030\002 \001(\0132\016.pb.Da"
-    "taMember\022.\n\022du_encoded_members\030\003 \001(\0132\022.p"
-    "b.EncodedMembers\0221\n\024du_encoded_or_member"
-    "\030\004 \001(\0132\023.pb.EncodedOrMember\"e\n\rDiscrimin"
-    "ator\022\022\n\016OPT_DataMember\020\000\022\026\n\022OPT_EncodedM"
-    "embers\020\001\022\027\n\023OPT_EncodedOrMember\020\002\022\017\n\013OPT"
-    "_nullptr\020\003\"\263\001\n\026__unique_ptr_Structure\022\?\n"
-    "\rdiscriminator\030\001 \001(\0162(.pb.__unique_ptr_S"
-    "tructure.Discriminator\022#\n\014du_structure\030\002"
-    " \001(\0132\r.pb.Structure\"3\n\rDiscriminator\022\021\n\r"
-    "OPT_Structure\020\000\022\017\n\013OPT_nullptr\020\001\"=\n\022map_"
-    "string_Variant\022\013\n\003key\030\001 \001(\t\022\032\n\005value\030\002 \001"
-    "(\0132\013.pb.Variant\"/\n\021map_string_uint32\022\013\n\003"
-    "key\030\001 \001(\t\022\r\n\005value\030\002 \001(\r", 2984);
+    "\030\005 \003(\t\";\n\025__unique_ptr_DataType\022\"\n\014du_da"
+    "ta_type\030\001 \001(\0132\014.pb.DataType\"\251\001\n\034__unique"
+    "_ptr_EncodedOrMember\022&\n\016du_data_member\030\001"
+    " \001(\0132\016.pb.DataMember\022.\n\022du_encoded_membe"
+    "rs\030\002 \001(\0132\022.pb.EncodedMembers\0221\n\024du_encod"
+    "ed_or_member\030\003 \001(\0132\023.pb.EncodedOrMember\""
+    "=\n\026__unique_ptr_Structure\022#\n\014du_structur"
+    "e\030\001 \001(\0132\r.pb.Structure\"=\n\022map_string_Var"
+    "iant\022\013\n\003key\030\001 \001(\t\022\032\n\005value\030\002 \001(\0132\013.pb.Va"
+    "riant\"/\n\021map_string_uint32\022\013\n\003key\030\001 \001(\t\022"
+    "\r\n\005value\030\002 \001(\r", 2574);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "output.proto", &protobuf_RegisterTypes);
   Limit::default_instance_ = new Limit();
@@ -5641,29 +5622,7 @@ void Root::Swap(Root* other) {
 
 // ===================================================================
 
-const ::google::protobuf::EnumDescriptor* __unique_ptr_DataType_Discriminator_descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return __unique_ptr_DataType_Discriminator_descriptor_;
-}
-bool __unique_ptr_DataType_Discriminator_IsValid(int value) {
-  switch(value) {
-    case 0:
-    case 1:
-      return true;
-    default:
-      return false;
-  }
-}
-
 #ifndef _MSC_VER
-const __unique_ptr_DataType_Discriminator __unique_ptr_DataType::OPT_DataType;
-const __unique_ptr_DataType_Discriminator __unique_ptr_DataType::OPT_nullptr;
-const __unique_ptr_DataType_Discriminator __unique_ptr_DataType::Discriminator_MIN;
-const __unique_ptr_DataType_Discriminator __unique_ptr_DataType::Discriminator_MAX;
-const int __unique_ptr_DataType::Discriminator_ARRAYSIZE;
-#endif  // _MSC_VER
-#ifndef _MSC_VER
-const int __unique_ptr_DataType::kDiscriminatorFieldNumber;
 const int __unique_ptr_DataType::kDuDataTypeFieldNumber;
 #endif  // !_MSC_VER
 
@@ -5686,7 +5645,6 @@ __unique_ptr_DataType::__unique_ptr_DataType(const __unique_ptr_DataType& from)
 
 void __unique_ptr_DataType::SharedCtor() {
   _cached_size_ = 0;
-  discriminator_ = 0;
   du_data_type_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -5724,11 +5682,8 @@ __unique_ptr_DataType* __unique_ptr_DataType::New() const {
 }
 
 void __unique_ptr_DataType::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    discriminator_ = 0;
-    if (has_du_data_type()) {
-      if (du_data_type_ != NULL) du_data_type_->::pb::DataType::Clear();
-    }
+  if (has_du_data_type()) {
+    if (du_data_type_ != NULL) du_data_type_->::pb::DataType::Clear();
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -5744,29 +5699,9 @@ bool __unique_ptr_DataType::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .pb.__unique_ptr_DataType.Discriminator discriminator = 1;
+      // optional .pb.DataType du_data_type = 1;
       case 1: {
-        if (tag == 8) {
-          int value;
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
-                 input, &value)));
-          if (::pb::__unique_ptr_DataType_Discriminator_IsValid(value)) {
-            set_discriminator(static_cast< ::pb::__unique_ptr_DataType_Discriminator >(value));
-          } else {
-            mutable_unknown_fields()->AddVarint(1, value);
-          }
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_du_data_type;
-        break;
-      }
-
-      // optional .pb.DataType du_data_type = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_du_data_type:
+        if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_du_data_type()));
         } else {
@@ -5801,16 +5736,10 @@ failure:
 void __unique_ptr_DataType::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:pb.__unique_ptr_DataType)
-  // optional .pb.__unique_ptr_DataType.Discriminator discriminator = 1;
-  if (has_discriminator()) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      1, this->discriminator(), output);
-  }
-
-  // optional .pb.DataType du_data_type = 2;
+  // optional .pb.DataType du_data_type = 1;
   if (has_du_data_type()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->du_data_type(), output);
+      1, this->du_data_type(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -5823,17 +5752,11 @@ void __unique_ptr_DataType::SerializeWithCachedSizes(
 ::google::protobuf::uint8* __unique_ptr_DataType::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:pb.__unique_ptr_DataType)
-  // optional .pb.__unique_ptr_DataType.Discriminator discriminator = 1;
-  if (has_discriminator()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      1, this->discriminator(), target);
-  }
-
-  // optional .pb.DataType du_data_type = 2;
+  // optional .pb.DataType du_data_type = 1;
   if (has_du_data_type()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        2, this->du_data_type(), target);
+        1, this->du_data_type(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -5848,13 +5771,7 @@ int __unique_ptr_DataType::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .pb.__unique_ptr_DataType.Discriminator discriminator = 1;
-    if (has_discriminator()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::EnumSize(this->discriminator());
-    }
-
-    // optional .pb.DataType du_data_type = 2;
+    // optional .pb.DataType du_data_type = 1;
     if (has_du_data_type()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
@@ -5888,9 +5805,6 @@ void __unique_ptr_DataType::MergeFrom(const ::google::protobuf::Message& from) {
 void __unique_ptr_DataType::MergeFrom(const __unique_ptr_DataType& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_discriminator()) {
-      set_discriminator(from.discriminator());
-    }
     if (from.has_du_data_type()) {
       mutable_du_data_type()->::pb::DataType::MergeFrom(from.du_data_type());
     }
@@ -5917,7 +5831,6 @@ bool __unique_ptr_DataType::IsInitialized() const {
 
 void __unique_ptr_DataType::Swap(__unique_ptr_DataType* other) {
   if (other != this) {
-    std::swap(discriminator_, other->discriminator_);
     std::swap(du_data_type_, other->du_data_type_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -5936,33 +5849,7 @@ void __unique_ptr_DataType::Swap(__unique_ptr_DataType* other) {
 
 // ===================================================================
 
-const ::google::protobuf::EnumDescriptor* __unique_ptr_EncodedOrMember_Discriminator_descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return __unique_ptr_EncodedOrMember_Discriminator_descriptor_;
-}
-bool __unique_ptr_EncodedOrMember_Discriminator_IsValid(int value) {
-  switch(value) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      return true;
-    default:
-      return false;
-  }
-}
-
 #ifndef _MSC_VER
-const __unique_ptr_EncodedOrMember_Discriminator __unique_ptr_EncodedOrMember::OPT_DataMember;
-const __unique_ptr_EncodedOrMember_Discriminator __unique_ptr_EncodedOrMember::OPT_EncodedMembers;
-const __unique_ptr_EncodedOrMember_Discriminator __unique_ptr_EncodedOrMember::OPT_EncodedOrMember;
-const __unique_ptr_EncodedOrMember_Discriminator __unique_ptr_EncodedOrMember::OPT_nullptr;
-const __unique_ptr_EncodedOrMember_Discriminator __unique_ptr_EncodedOrMember::Discriminator_MIN;
-const __unique_ptr_EncodedOrMember_Discriminator __unique_ptr_EncodedOrMember::Discriminator_MAX;
-const int __unique_ptr_EncodedOrMember::Discriminator_ARRAYSIZE;
-#endif  // _MSC_VER
-#ifndef _MSC_VER
-const int __unique_ptr_EncodedOrMember::kDiscriminatorFieldNumber;
 const int __unique_ptr_EncodedOrMember::kDuDataMemberFieldNumber;
 const int __unique_ptr_EncodedOrMember::kDuEncodedMembersFieldNumber;
 const int __unique_ptr_EncodedOrMember::kDuEncodedOrMemberFieldNumber;
@@ -5989,7 +5876,6 @@ __unique_ptr_EncodedOrMember::__unique_ptr_EncodedOrMember(const __unique_ptr_En
 
 void __unique_ptr_EncodedOrMember::SharedCtor() {
   _cached_size_ = 0;
-  discriminator_ = 0;
   du_data_member_ = NULL;
   du_encoded_members_ = NULL;
   du_encoded_or_member_ = NULL;
@@ -6031,8 +5917,7 @@ __unique_ptr_EncodedOrMember* __unique_ptr_EncodedOrMember::New() const {
 }
 
 void __unique_ptr_EncodedOrMember::Clear() {
-  if (_has_bits_[0 / 32] & 15) {
-    discriminator_ = 0;
+  if (_has_bits_[0 / 32] & 7) {
     if (has_du_data_member()) {
       if (du_data_member_ != NULL) du_data_member_->::pb::DataMember::Clear();
     }
@@ -6057,54 +5942,34 @@ bool __unique_ptr_EncodedOrMember::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .pb.__unique_ptr_EncodedOrMember.Discriminator discriminator = 1;
+      // optional .pb.DataMember du_data_member = 1;
       case 1: {
-        if (tag == 8) {
-          int value;
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
-                 input, &value)));
-          if (::pb::__unique_ptr_EncodedOrMember_Discriminator_IsValid(value)) {
-            set_discriminator(static_cast< ::pb::__unique_ptr_EncodedOrMember_Discriminator >(value));
-          } else {
-            mutable_unknown_fields()->AddVarint(1, value);
-          }
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_du_data_member;
-        break;
-      }
-
-      // optional .pb.DataMember du_data_member = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_du_data_member:
+        if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_du_data_member()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(26)) goto parse_du_encoded_members;
+        if (input->ExpectTag(18)) goto parse_du_encoded_members;
         break;
       }
 
-      // optional .pb.EncodedMembers du_encoded_members = 3;
-      case 3: {
-        if (tag == 26) {
+      // optional .pb.EncodedMembers du_encoded_members = 2;
+      case 2: {
+        if (tag == 18) {
          parse_du_encoded_members:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_du_encoded_members()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(34)) goto parse_du_encoded_or_member;
+        if (input->ExpectTag(26)) goto parse_du_encoded_or_member;
         break;
       }
 
-      // optional .pb.EncodedOrMember du_encoded_or_member = 4;
-      case 4: {
-        if (tag == 34) {
+      // optional .pb.EncodedOrMember du_encoded_or_member = 3;
+      case 3: {
+        if (tag == 26) {
          parse_du_encoded_or_member:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_du_encoded_or_member()));
@@ -6140,28 +6005,22 @@ failure:
 void __unique_ptr_EncodedOrMember::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:pb.__unique_ptr_EncodedOrMember)
-  // optional .pb.__unique_ptr_EncodedOrMember.Discriminator discriminator = 1;
-  if (has_discriminator()) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      1, this->discriminator(), output);
-  }
-
-  // optional .pb.DataMember du_data_member = 2;
+  // optional .pb.DataMember du_data_member = 1;
   if (has_du_data_member()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->du_data_member(), output);
+      1, this->du_data_member(), output);
   }
 
-  // optional .pb.EncodedMembers du_encoded_members = 3;
+  // optional .pb.EncodedMembers du_encoded_members = 2;
   if (has_du_encoded_members()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->du_encoded_members(), output);
+      2, this->du_encoded_members(), output);
   }
 
-  // optional .pb.EncodedOrMember du_encoded_or_member = 4;
+  // optional .pb.EncodedOrMember du_encoded_or_member = 3;
   if (has_du_encoded_or_member()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, this->du_encoded_or_member(), output);
+      3, this->du_encoded_or_member(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -6174,31 +6033,25 @@ void __unique_ptr_EncodedOrMember::SerializeWithCachedSizes(
 ::google::protobuf::uint8* __unique_ptr_EncodedOrMember::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:pb.__unique_ptr_EncodedOrMember)
-  // optional .pb.__unique_ptr_EncodedOrMember.Discriminator discriminator = 1;
-  if (has_discriminator()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      1, this->discriminator(), target);
-  }
-
-  // optional .pb.DataMember du_data_member = 2;
+  // optional .pb.DataMember du_data_member = 1;
   if (has_du_data_member()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        2, this->du_data_member(), target);
+        1, this->du_data_member(), target);
   }
 
-  // optional .pb.EncodedMembers du_encoded_members = 3;
+  // optional .pb.EncodedMembers du_encoded_members = 2;
   if (has_du_encoded_members()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        3, this->du_encoded_members(), target);
+        2, this->du_encoded_members(), target);
   }
 
-  // optional .pb.EncodedOrMember du_encoded_or_member = 4;
+  // optional .pb.EncodedOrMember du_encoded_or_member = 3;
   if (has_du_encoded_or_member()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        4, this->du_encoded_or_member(), target);
+        3, this->du_encoded_or_member(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -6213,27 +6066,21 @@ int __unique_ptr_EncodedOrMember::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .pb.__unique_ptr_EncodedOrMember.Discriminator discriminator = 1;
-    if (has_discriminator()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::EnumSize(this->discriminator());
-    }
-
-    // optional .pb.DataMember du_data_member = 2;
+    // optional .pb.DataMember du_data_member = 1;
     if (has_du_data_member()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->du_data_member());
     }
 
-    // optional .pb.EncodedMembers du_encoded_members = 3;
+    // optional .pb.EncodedMembers du_encoded_members = 2;
     if (has_du_encoded_members()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->du_encoded_members());
     }
 
-    // optional .pb.EncodedOrMember du_encoded_or_member = 4;
+    // optional .pb.EncodedOrMember du_encoded_or_member = 3;
     if (has_du_encoded_or_member()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
@@ -6267,9 +6114,6 @@ void __unique_ptr_EncodedOrMember::MergeFrom(const ::google::protobuf::Message& 
 void __unique_ptr_EncodedOrMember::MergeFrom(const __unique_ptr_EncodedOrMember& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_discriminator()) {
-      set_discriminator(from.discriminator());
-    }
     if (from.has_du_data_member()) {
       mutable_du_data_member()->::pb::DataMember::MergeFrom(from.du_data_member());
     }
@@ -6302,7 +6146,6 @@ bool __unique_ptr_EncodedOrMember::IsInitialized() const {
 
 void __unique_ptr_EncodedOrMember::Swap(__unique_ptr_EncodedOrMember* other) {
   if (other != this) {
-    std::swap(discriminator_, other->discriminator_);
     std::swap(du_data_member_, other->du_data_member_);
     std::swap(du_encoded_members_, other->du_encoded_members_);
     std::swap(du_encoded_or_member_, other->du_encoded_or_member_);
@@ -6323,29 +6166,7 @@ void __unique_ptr_EncodedOrMember::Swap(__unique_ptr_EncodedOrMember* other) {
 
 // ===================================================================
 
-const ::google::protobuf::EnumDescriptor* __unique_ptr_Structure_Discriminator_descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return __unique_ptr_Structure_Discriminator_descriptor_;
-}
-bool __unique_ptr_Structure_Discriminator_IsValid(int value) {
-  switch(value) {
-    case 0:
-    case 1:
-      return true;
-    default:
-      return false;
-  }
-}
-
 #ifndef _MSC_VER
-const __unique_ptr_Structure_Discriminator __unique_ptr_Structure::OPT_Structure;
-const __unique_ptr_Structure_Discriminator __unique_ptr_Structure::OPT_nullptr;
-const __unique_ptr_Structure_Discriminator __unique_ptr_Structure::Discriminator_MIN;
-const __unique_ptr_Structure_Discriminator __unique_ptr_Structure::Discriminator_MAX;
-const int __unique_ptr_Structure::Discriminator_ARRAYSIZE;
-#endif  // _MSC_VER
-#ifndef _MSC_VER
-const int __unique_ptr_Structure::kDiscriminatorFieldNumber;
 const int __unique_ptr_Structure::kDuStructureFieldNumber;
 #endif  // !_MSC_VER
 
@@ -6368,7 +6189,6 @@ __unique_ptr_Structure::__unique_ptr_Structure(const __unique_ptr_Structure& fro
 
 void __unique_ptr_Structure::SharedCtor() {
   _cached_size_ = 0;
-  discriminator_ = 0;
   du_structure_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -6406,11 +6226,8 @@ __unique_ptr_Structure* __unique_ptr_Structure::New() const {
 }
 
 void __unique_ptr_Structure::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    discriminator_ = 0;
-    if (has_du_structure()) {
-      if (du_structure_ != NULL) du_structure_->::pb::Structure::Clear();
-    }
+  if (has_du_structure()) {
+    if (du_structure_ != NULL) du_structure_->::pb::Structure::Clear();
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -6426,29 +6243,9 @@ bool __unique_ptr_Structure::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .pb.__unique_ptr_Structure.Discriminator discriminator = 1;
+      // optional .pb.Structure du_structure = 1;
       case 1: {
-        if (tag == 8) {
-          int value;
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
-                 input, &value)));
-          if (::pb::__unique_ptr_Structure_Discriminator_IsValid(value)) {
-            set_discriminator(static_cast< ::pb::__unique_ptr_Structure_Discriminator >(value));
-          } else {
-            mutable_unknown_fields()->AddVarint(1, value);
-          }
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_du_structure;
-        break;
-      }
-
-      // optional .pb.Structure du_structure = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_du_structure:
+        if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_du_structure()));
         } else {
@@ -6483,16 +6280,10 @@ failure:
 void __unique_ptr_Structure::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:pb.__unique_ptr_Structure)
-  // optional .pb.__unique_ptr_Structure.Discriminator discriminator = 1;
-  if (has_discriminator()) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      1, this->discriminator(), output);
-  }
-
-  // optional .pb.Structure du_structure = 2;
+  // optional .pb.Structure du_structure = 1;
   if (has_du_structure()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->du_structure(), output);
+      1, this->du_structure(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -6505,17 +6296,11 @@ void __unique_ptr_Structure::SerializeWithCachedSizes(
 ::google::protobuf::uint8* __unique_ptr_Structure::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:pb.__unique_ptr_Structure)
-  // optional .pb.__unique_ptr_Structure.Discriminator discriminator = 1;
-  if (has_discriminator()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      1, this->discriminator(), target);
-  }
-
-  // optional .pb.Structure du_structure = 2;
+  // optional .pb.Structure du_structure = 1;
   if (has_du_structure()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        2, this->du_structure(), target);
+        1, this->du_structure(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -6530,13 +6315,7 @@ int __unique_ptr_Structure::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .pb.__unique_ptr_Structure.Discriminator discriminator = 1;
-    if (has_discriminator()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::EnumSize(this->discriminator());
-    }
-
-    // optional .pb.Structure du_structure = 2;
+    // optional .pb.Structure du_structure = 1;
     if (has_du_structure()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
@@ -6570,9 +6349,6 @@ void __unique_ptr_Structure::MergeFrom(const ::google::protobuf::Message& from) 
 void __unique_ptr_Structure::MergeFrom(const __unique_ptr_Structure& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_discriminator()) {
-      set_discriminator(from.discriminator());
-    }
     if (from.has_du_structure()) {
       mutable_du_structure()->::pb::Structure::MergeFrom(from.du_structure());
     }
@@ -6599,7 +6375,6 @@ bool __unique_ptr_Structure::IsInitialized() const {
 
 void __unique_ptr_Structure::Swap(__unique_ptr_Structure* other) {
   if (other != this) {
-    std::swap(discriminator_, other->discriminator_);
     std::swap(du_structure_, other->du_structure_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);

@@ -247,13 +247,14 @@ inline void assertEqual__unique_ptr_DataType( const unique_ptr<DataType>& left, 
     assert(right.get() == nullptr);
   }
 
-       else if ( typeid( *left ) == typeid( DataType ) ) {
-         assert (typeid(*right) == typeid( DataType ));
-         auto l = dynamic_cast<DataType*>(left.get());
-         auto r = dynamic_cast<DataType*>(right.get());
+  else if ( typeid( *left ) == typeid( DataType ) ) {
+    auto l = dynamic_cast<DataType*>(left.get());
 
-         assertEqualDataType(*l , *r);
-       }
+    assert (typeid(*right) == typeid( DataType ));
+    auto r = dynamic_cast<DataType*>(right.get());
+
+    assertEqualDataType(*l , *r);
+  }
 
    else {
      assert(false);
@@ -265,27 +266,30 @@ inline void assertEqual__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrM
     assert(right.get() == nullptr);
   }
 
-       else if ( typeid( *left ) == typeid( DataMember ) ) {
-         assert (typeid(*right) == typeid( DataMember ));
-         auto l = dynamic_cast<DataMember*>(left.get());
-         auto r = dynamic_cast<DataMember*>(right.get());
+  else if ( typeid( *left ) == typeid( DataMember ) ) {
+    auto l = dynamic_cast<DataMember*>(left.get());
 
-         assertEqualDataMember(*l , *r);
-       }
-       else if ( typeid( *left ) == typeid( EncodedMembers ) ) {
-         assert (typeid(*right) == typeid( EncodedMembers ));
-         auto l = dynamic_cast<EncodedMembers*>(left.get());
-         auto r = dynamic_cast<EncodedMembers*>(right.get());
+    assert (typeid(*right) == typeid( DataMember ));
+    auto r = dynamic_cast<DataMember*>(right.get());
 
-         assertEqualEncodedMembers(*l , *r);
-       }
-       else if ( typeid( *left ) == typeid( EncodedOrMember ) ) {
-         assert (typeid(*right) == typeid( EncodedOrMember ));
-         auto l = dynamic_cast<EncodedOrMember*>(left.get());
-         auto r = dynamic_cast<EncodedOrMember*>(right.get());
+    assertEqualDataMember(*l , *r);
+  }
+  else if ( typeid( *left ) == typeid( EncodedMembers ) ) {
+    auto l = dynamic_cast<EncodedMembers*>(left.get());
 
-         assertEqualEncodedOrMember(*l , *r);
-       }
+    assert (typeid(*right) == typeid( EncodedMembers ));
+    auto r = dynamic_cast<EncodedMembers*>(right.get());
+
+    assertEqualEncodedMembers(*l , *r);
+  }
+  else if ( typeid( *left ) == typeid( EncodedOrMember ) ) {
+    auto l = dynamic_cast<EncodedOrMember*>(left.get());
+
+    assert (typeid(*right) == typeid( EncodedOrMember ));
+    auto r = dynamic_cast<EncodedOrMember*>(right.get());
+
+    assertEqualEncodedOrMember(*l , *r);
+  }
 
    else {
      assert(false);
@@ -297,19 +301,19 @@ inline void assertEqual__unique_ptr_Structure( const unique_ptr<Structure>& left
     assert(right.get() == nullptr);
   }
 
-       else if ( typeid( *left ) == typeid( Structure ) ) {
-         assert (typeid(*right) == typeid( Structure ));
-         auto l = dynamic_cast<Structure*>(left.get());
-         auto r = dynamic_cast<Structure*>(right.get());
+  else if ( typeid( *left ) == typeid( Structure ) ) {
+    auto l = dynamic_cast<Structure*>(left.get());
 
-         assertEqualStructure(*l , *r);
-       }
+    assert (typeid(*right) == typeid( Structure ));
+    auto r = dynamic_cast<Structure*>(right.get());
+
+    assertEqualStructure(*l , *r);
+  }
 
    else {
      assert(false);
    }
 }
-
 
 // ASSERT-EQUAL-2-GPB
 inline void assertEqualLimit( const Limit& left, const pb::Limit& right );
@@ -568,68 +572,68 @@ inline void assertEqualRoot( const Root& left, const pb::Root& right ) {
 }
 inline void assertEqual__unique_ptr_DataType( const unique_ptr<DataType>& left, const pb::__unique_ptr_DataType& right ) {
 
-  uint8_t disc; if ( left == nullptr ) disc = 1; else if ( typeid( *(left) ) == typeid( DataType ) ) disc = 0; else assert( false );
-  assert(disc == right.discriminator());
+  //uint8_t disc; if ( left == nullptr ) disc = 1; else if ( typeid( *(left) ) == typeid( DataType ) ) disc = 0; else assert( false );
 
-  switch ( disc )
-  {
-    case 0:
-    {
-         auto l = dynamic_cast<DataType*>(left.get());
-         assertEqualDataType( *l , right.du_data_type() );
-    }
-    break;
-    //default:
-      //assert( false );
+  if(left.get() == nullptr) {
+    ;//do nothing
   }
+
+  else if ( typeid( *left ) == typeid( DataType ) ) {
+    auto l = dynamic_cast<DataType*>(left.get());
+
+    assertEqualDataType( *l , right.du_data_type() );
+  }
+
+   else {
+     assert(false);
+   }
 }
 inline void assertEqual__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMember>& left, const pb::__unique_ptr_EncodedOrMember& right ) {
 
-  uint8_t disc; if ( left == nullptr ) disc = 3; else if ( typeid( *(left) ) == typeid( DataMember ) ) disc = 0; else if ( typeid( *(left) ) == typeid( EncodedMembers ) ) disc = 1; else if ( typeid( *(left) ) == typeid( EncodedOrMember ) ) disc = 2; else assert( false );
-  assert(disc == right.discriminator());
+  //uint8_t disc; if ( left == nullptr ) disc = 3; else if ( typeid( *(left) ) == typeid( DataMember ) ) disc = 0; else if ( typeid( *(left) ) == typeid( EncodedMembers ) ) disc = 1; else if ( typeid( *(left) ) == typeid( EncodedOrMember ) ) disc = 2; else assert( false );
 
-  switch ( disc )
-  {
-    case 0:
-    {
-         auto l = dynamic_cast<DataMember*>(left.get());
-         assertEqualDataMember( *l , right.du_data_member() );
-    }
-    break;
-    case 1:
-    {
-         auto l = dynamic_cast<EncodedMembers*>(left.get());
-         assertEqualEncodedMembers( *l , right.du_encoded_members() );
-    }
-    break;
-    case 2:
-    {
-         auto l = dynamic_cast<EncodedOrMember*>(left.get());
-         assertEqualEncodedOrMember( *l , right.du_encoded_or_member() );
-    }
-    break;
-    //default:
-      //assert( false );
+  if(left.get() == nullptr) {
+    ;//do nothing
   }
+
+  else if ( typeid( *left ) == typeid( DataMember ) ) {
+    auto l = dynamic_cast<DataMember*>(left.get());
+
+    assertEqualDataMember( *l , right.du_data_member() );
+  }
+  else if ( typeid( *left ) == typeid( EncodedMembers ) ) {
+    auto l = dynamic_cast<EncodedMembers*>(left.get());
+
+    assertEqualEncodedMembers( *l , right.du_encoded_members() );
+  }
+  else if ( typeid( *left ) == typeid( EncodedOrMember ) ) {
+    auto l = dynamic_cast<EncodedOrMember*>(left.get());
+
+    assertEqualEncodedOrMember( *l , right.du_encoded_or_member() );
+  }
+
+   else {
+     assert(false);
+   }
 }
 inline void assertEqual__unique_ptr_Structure( const unique_ptr<Structure>& left, const pb::__unique_ptr_Structure& right ) {
 
-  uint8_t disc; if ( left == nullptr ) disc = 1; else if ( typeid( *(left) ) == typeid( Structure ) ) disc = 0; else assert( false );
-  assert(disc == right.discriminator());
+  //uint8_t disc; if ( left == nullptr ) disc = 1; else if ( typeid( *(left) ) == typeid( Structure ) ) disc = 0; else assert( false );
 
-  switch ( disc )
-  {
-    case 0:
-    {
-         auto l = dynamic_cast<Structure*>(left.get());
-         assertEqualStructure( *l , right.du_structure() );
-    }
-    break;
-    //default:
-      //assert( false );
+  if(left.get() == nullptr) {
+    ;//do nothing
   }
-}
 
+  else if ( typeid( *left ) == typeid( Structure ) ) {
+    auto l = dynamic_cast<Structure*>(left.get());
+
+    assertEqualStructure( *l , right.du_structure() );
+  }
+
+   else {
+     assert(false);
+   }
+}
 
 #endif // DBG_ASSERT_EQUAL_H_INCLUDED
   

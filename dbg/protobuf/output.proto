@@ -117,32 +117,15 @@ message Root {
   repeated string unpacked_strings = 5;
 }
 message __unique_ptr_DataType {
-  enum Discriminator {
-     OPT_DataType = 0;
-     OPT_nullptr = 1;
-  }
-  optional Discriminator discriminator = 1;
-  optional DataType  du_data_type = 2;
+  optional DataType  du_data_type = 1;
 }
 message __unique_ptr_EncodedOrMember {
-  enum Discriminator {
-     OPT_DataMember = 0;
-     OPT_EncodedMembers = 1;
-     OPT_EncodedOrMember = 2;
-     OPT_nullptr = 3;
-  }
-  optional Discriminator discriminator = 1;
-  optional DataMember  du_data_member = 2;
-  optional EncodedMembers  du_encoded_members = 3;
-  optional EncodedOrMember  du_encoded_or_member = 4;
+  optional DataMember  du_data_member = 1;
+  optional EncodedMembers  du_encoded_members = 2;
+  optional EncodedOrMember  du_encoded_or_member = 3;
 }
 message __unique_ptr_Structure {
-  enum Discriminator {
-     OPT_Structure = 0;
-     OPT_nullptr = 1;
-  }
-  optional Discriminator discriminator = 1;
-  optional Structure  du_structure = 2;
+  optional Structure  du_structure = 1;
 }
 message map_string_Variant {
   optional string key = 1;
