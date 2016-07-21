@@ -27,61 +27,13 @@ Copyright (C) 2016 OLogN Technologies AG
 
 using namespace std;
 
-struct ItemBase {
-  uint8_t id;
-  virtual ~ItemBase() = default;
-};
+struct Root {
+  
+  vector<int16_t> packedVarInts;
+  vector<double> packedDoubles;
 
-struct Item :ItemBase {
-  string name;
-  bool valid;
-};
+  vector<string> unpackedStrings;
 
-struct SuperItem :Item {
-  bool isSuper;
-};
-
-struct MegaItem :Item {
-  bool isMega;
-};
-
-struct Character {
-
-  uint8_t max_u8;
-  uint16_t max_u16;
-  uint32_t max_u32;
-//  uint64_t max_u64;
-
-  int8_t min_s8;
-  int16_t min_s16;
-  int32_t min_s32;
-//  int64_t min_s64;
-
-  int8_t max_s8;
-  int16_t max_s16;
-  int32_t max_s32;
-//  int64_t max_s64;
-
-  double x;
-  double y;
-  double z;
-
-//  float angle;
-
-  enum Animation {Standing=0,Walking=1, Running=2} anim;
-
-  bool flag;
-
-  string desc;
-
-  vector<string> more_text;
-  vector<int16_t> some_ints;
-
-  vector<Item> inventory;
-
-  unique_ptr<ItemBase> poly_ptr;
-
-  map<int16_t, Item> archive;
 };
 
 #endif // SAMPLE_H

@@ -69,6 +69,11 @@ uint8_t* deserializeLengthDelimitedFromString(std::string& value, uint8_t* buff)
 
 uint8_t* serializeUnsignedVariantToString(int fieldNumber, uint64_t value, uint8_t* buff);
 uint8_t* serializeSignedVariantToString(int fieldNumber, int64_t value, uint8_t* buff);
+//mb without fieldNumber, to be used by packed sequence
+uint8_t* serializeUnsignedVariantToString(uint64_t value, uint8_t* buff);
+//mb without fieldNumber, to be used by packed sequence
+uint8_t* serializeSignedVariantToString(int64_t value, uint8_t* buff);
+
 uint8_t* deserializeSignedVariantFromString(int64_t& value, uint8_t* buff);
 uint8_t* deserializeUnsignedVariantFromString(uint64_t& value, uint8_t* buff);
 
@@ -77,6 +82,9 @@ uint8_t* deserializeUnsignedVariantFromString(uint64_t& value, uint8_t* buff);
 uint8_t* serializeUnsignedFixed64ToString(int fieldNumber, uint64_t value, uint8_t* buff);
 uint8_t* serializeSignedFixed64ToString(int fieldNumber, int64_t value, uint8_t* buff);
 uint8_t* serializeDoubleToString(int fieldNumber, double value, uint8_t* buff);
+//mb without fieldNumber, to be used by packed sequence
+uint8_t* serializeDoubleToString(double value, uint8_t* buff);
+
 uint8_t* deserializeUnsignedFixed64FromString(uint64_t& value, uint8_t* buff);
 uint8_t* deserializeSignedFixed64FromString(int64_t& value, uint8_t* buff);
 uint8_t* deserializeDoubleFromString(double& value, uint8_t* buff);
@@ -158,11 +166,35 @@ public:
         fwrite(buff, ret - buff, 1, outstr);
     }
 
-    //MB
+    //mb
     void writeObjectTagAndSize(int fieldNumber, size_t sz)
     {
         uint8_t buff[1000];
         uint8_t* ret = serializeLengthDelimitedHeaderToString(fieldNumber, sz, buff);
+        fwrite(buff, ret - buff, 1, outstr);
+    }
+
+    //mb without fieldNumber, to be used by packed sequence
+    void writePackedSignedVarInt(int64_t x)
+    {
+        uint8_t buff[1000];
+        uint8_t* ret = serializeSignedVariantToString(x, buff);
+        fwrite(buff, ret - buff, 1, outstr);
+    }
+
+    //mb without fieldNumber, to be used by packed sequence
+    void writePackedUnsignedVarInt(uint64_t x)
+    {
+        uint8_t buff[1000];
+        uint8_t* ret = serializeUnsignedVariantToString(x, buff);
+        fwrite(buff, ret - buff, 1, outstr);
+    }
+
+    //mb without fieldNumber, to be used by packed sequence
+    void writePackedDouble(double x)
+    {
+        uint8_t buff[1000];
+        uint8_t* ret = serializeDoubleToString(x, buff);
         fwrite(buff, ret - buff, 1, outstr);
     }
 };

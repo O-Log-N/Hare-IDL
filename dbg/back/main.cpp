@@ -87,7 +87,7 @@ int main()
 	try
 	{
         //Root* root = parseSourceFile("idl_tree.idl", false);
-        //Root* root = deserializeFile("../../Hare-IDL/dbg/protobuf/sample.h.idlbin");
+        //Root* root = deserializeFile("../../Hare-IDL/dbg/protobuf/idl_tree.h.idlbin");
         Root* root = deserializeFile("idl_tree.h.idlbin");
 //		loadFakeSample( root );
         HAREASSERT(root);

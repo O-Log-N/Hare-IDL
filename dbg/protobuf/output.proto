@@ -112,6 +112,9 @@ message Typedef {
 message Root {
   repeated Typedef typedefs = 1;
   repeated __unique_ptr_Structure structures = 2;
+  repeated sint32 packed_var_ints = 3 [packed=true];
+  repeated double packed_doubles = 4 [packed=true];
+  repeated string unpacked_strings = 5;
 }
 message __unique_ptr_DataType {
   enum Discriminator {

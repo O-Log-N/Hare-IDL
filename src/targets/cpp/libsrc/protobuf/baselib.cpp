@@ -79,6 +79,20 @@ uint8_t* serializeSignedVariantToString(int fieldNumber, int64_t value, uint8_t*
     return serializeToStringVariantUint64(target, buff);
 }
 
+//mb without fieldNumber, to be used by packed sequence
+uint8_t* serializeUnsignedVariantToString(uint64_t value, uint8_t* buff)
+{
+    return serializeToStringVariantUint64(value, buff);
+}
+
+//mb without fieldNumber, to be used by packed sequence
+uint8_t* serializeSignedVariantToString(int64_t value, uint8_t* buff)
+{
+    uint64_t target;
+    sint64ToUint64(value, target);
+    return serializeToStringVariantUint64(target, buff);
+}
+
 uint8_t* deserializeSignedVariantFromString(int64_t& value, uint8_t* buff)
 {
     uint64_t preValue;
@@ -139,6 +153,12 @@ uint8_t* serializeDoubleToString(int fieldNumber, double value, uint8_t* buff)
 {
     uint32_t key = (fieldNumber << 3) | WIRE_TYPE::FIXED_64_BIT;
     buff = serializeToStringVariantUint64(key, buff);
+    return serializeToStringFixedUint64(*(uint64_t*)(&value), buff);
+}
+
+//mb without fieldNumber, to be used by packed sequence
+uint8_t* serializeDoubleToString(double value, uint8_t* buff)
+{
     return serializeToStringFixedUint64(*(uint64_t*)(&value), buff);
 }
 

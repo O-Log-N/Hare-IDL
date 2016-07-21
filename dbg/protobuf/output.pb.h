@@ -1807,6 +1807,46 @@ class Root : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_Structure >*
       mutable_structures();
 
+  // repeated sint32 packed_var_ints = 3 [packed = true];
+  inline int packed_var_ints_size() const;
+  inline void clear_packed_var_ints();
+  static const int kPackedVarIntsFieldNumber = 3;
+  inline ::google::protobuf::int32 packed_var_ints(int index) const;
+  inline void set_packed_var_ints(int index, ::google::protobuf::int32 value);
+  inline void add_packed_var_ints(::google::protobuf::int32 value);
+  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      packed_var_ints() const;
+  inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_packed_var_ints();
+
+  // repeated double packed_doubles = 4 [packed = true];
+  inline int packed_doubles_size() const;
+  inline void clear_packed_doubles();
+  static const int kPackedDoublesFieldNumber = 4;
+  inline double packed_doubles(int index) const;
+  inline void set_packed_doubles(int index, double value);
+  inline void add_packed_doubles(double value);
+  inline const ::google::protobuf::RepeatedField< double >&
+      packed_doubles() const;
+  inline ::google::protobuf::RepeatedField< double >*
+      mutable_packed_doubles();
+
+  // repeated string unpacked_strings = 5;
+  inline int unpacked_strings_size() const;
+  inline void clear_unpacked_strings();
+  static const int kUnpackedStringsFieldNumber = 5;
+  inline const ::std::string& unpacked_strings(int index) const;
+  inline ::std::string* mutable_unpacked_strings(int index);
+  inline void set_unpacked_strings(int index, const ::std::string& value);
+  inline void set_unpacked_strings(int index, const char* value);
+  inline void set_unpacked_strings(int index, const char* value, size_t size);
+  inline ::std::string* add_unpacked_strings();
+  inline void add_unpacked_strings(const ::std::string& value);
+  inline void add_unpacked_strings(const char* value);
+  inline void add_unpacked_strings(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& unpacked_strings() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_unpacked_strings();
+
   // @@protoc_insertion_point(class_scope:pb.Root)
  private:
 
@@ -1816,6 +1856,11 @@ class Root : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::pb::Typedef > typedefs_;
   ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_Structure > structures_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > packed_var_ints_;
+  mutable int _packed_var_ints_cached_byte_size_;
+  ::google::protobuf::RepeatedField< double > packed_doubles_;
+  mutable int _packed_doubles_cached_byte_size_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> unpacked_strings_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
@@ -4529,6 +4574,120 @@ inline ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_Structure >*
 Root::mutable_structures() {
   // @@protoc_insertion_point(field_mutable_list:pb.Root.structures)
   return &structures_;
+}
+
+// repeated sint32 packed_var_ints = 3 [packed = true];
+inline int Root::packed_var_ints_size() const {
+  return packed_var_ints_.size();
+}
+inline void Root::clear_packed_var_ints() {
+  packed_var_ints_.Clear();
+}
+inline ::google::protobuf::int32 Root::packed_var_ints(int index) const {
+  // @@protoc_insertion_point(field_get:pb.Root.packed_var_ints)
+  return packed_var_ints_.Get(index);
+}
+inline void Root::set_packed_var_ints(int index, ::google::protobuf::int32 value) {
+  packed_var_ints_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pb.Root.packed_var_ints)
+}
+inline void Root::add_packed_var_ints(::google::protobuf::int32 value) {
+  packed_var_ints_.Add(value);
+  // @@protoc_insertion_point(field_add:pb.Root.packed_var_ints)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+Root::packed_var_ints() const {
+  // @@protoc_insertion_point(field_list:pb.Root.packed_var_ints)
+  return packed_var_ints_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+Root::mutable_packed_var_ints() {
+  // @@protoc_insertion_point(field_mutable_list:pb.Root.packed_var_ints)
+  return &packed_var_ints_;
+}
+
+// repeated double packed_doubles = 4 [packed = true];
+inline int Root::packed_doubles_size() const {
+  return packed_doubles_.size();
+}
+inline void Root::clear_packed_doubles() {
+  packed_doubles_.Clear();
+}
+inline double Root::packed_doubles(int index) const {
+  // @@protoc_insertion_point(field_get:pb.Root.packed_doubles)
+  return packed_doubles_.Get(index);
+}
+inline void Root::set_packed_doubles(int index, double value) {
+  packed_doubles_.Set(index, value);
+  // @@protoc_insertion_point(field_set:pb.Root.packed_doubles)
+}
+inline void Root::add_packed_doubles(double value) {
+  packed_doubles_.Add(value);
+  // @@protoc_insertion_point(field_add:pb.Root.packed_doubles)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+Root::packed_doubles() const {
+  // @@protoc_insertion_point(field_list:pb.Root.packed_doubles)
+  return packed_doubles_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+Root::mutable_packed_doubles() {
+  // @@protoc_insertion_point(field_mutable_list:pb.Root.packed_doubles)
+  return &packed_doubles_;
+}
+
+// repeated string unpacked_strings = 5;
+inline int Root::unpacked_strings_size() const {
+  return unpacked_strings_.size();
+}
+inline void Root::clear_unpacked_strings() {
+  unpacked_strings_.Clear();
+}
+inline const ::std::string& Root::unpacked_strings(int index) const {
+  // @@protoc_insertion_point(field_get:pb.Root.unpacked_strings)
+  return unpacked_strings_.Get(index);
+}
+inline ::std::string* Root::mutable_unpacked_strings(int index) {
+  // @@protoc_insertion_point(field_mutable:pb.Root.unpacked_strings)
+  return unpacked_strings_.Mutable(index);
+}
+inline void Root::set_unpacked_strings(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:pb.Root.unpacked_strings)
+  unpacked_strings_.Mutable(index)->assign(value);
+}
+inline void Root::set_unpacked_strings(int index, const char* value) {
+  unpacked_strings_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:pb.Root.unpacked_strings)
+}
+inline void Root::set_unpacked_strings(int index, const char* value, size_t size) {
+  unpacked_strings_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:pb.Root.unpacked_strings)
+}
+inline ::std::string* Root::add_unpacked_strings() {
+  return unpacked_strings_.Add();
+}
+inline void Root::add_unpacked_strings(const ::std::string& value) {
+  unpacked_strings_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:pb.Root.unpacked_strings)
+}
+inline void Root::add_unpacked_strings(const char* value) {
+  unpacked_strings_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:pb.Root.unpacked_strings)
+}
+inline void Root::add_unpacked_strings(const char* value, size_t size) {
+  unpacked_strings_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:pb.Root.unpacked_strings)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+Root::unpacked_strings() const {
+  // @@protoc_insertion_point(field_list:pb.Root.unpacked_strings)
+  return unpacked_strings_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+Root::mutable_unpacked_strings() {
+  // @@protoc_insertion_point(field_mutable_list:pb.Root.unpacked_strings)
+  return &unpacked_strings_;
 }
 
 // -------------------------------------------------------------------

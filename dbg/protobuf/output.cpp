@@ -34,9 +34,9 @@ void serializeCharacterSet( const CharacterSet& s, OProtobufStream& o ) {
 void serializeVariant( const Variant& s, OProtobufStream& o ) {
     switch ( s.kind )
     {
-        case 0 /*NONE*/: o.writeUInt(1, 0 ); break;
-        case 1 /*NUMBER*/: o.writeUInt(1, 1 ); break;
-        case 2 /*STRING*/: o.writeUInt(1, 2 ); break;
+      case 0 /*NONE*/: o.writeUInt(1, 0 ); break;
+      case 1 /*NUMBER*/: o.writeUInt(1, 1 ); break;
+      case 2 /*STRING*/: o.writeUInt(1, 2 ); break;
         default: assert( false );
     }
     o.writeDouble(2, s.numberValue);
@@ -46,19 +46,19 @@ void serializeVariant( const Variant& s, OProtobufStream& o ) {
 void serializeDataType( const DataType& s, OProtobufStream& o ) {
     switch ( s.kind )
     {
-        case 10 /*BIT_STRING*/: o.writeUInt(1, 0 ); break;
-        case 8 /*CHARACTER*/: o.writeUInt(1, 1 ); break;
-        case 9 /*CHARACTER_STRING*/: o.writeUInt(1, 2 ); break;
-        case 11 /*DICTIONARY*/: o.writeUInt(1, 3 ); break;
-        case 12 /*DISCRIMINATED_UNION*/: o.writeUInt(1, 4 ); break;
-        case 3 /*ENCODING_SPECIFIC*/: o.writeUInt(1, 5 ); break;
-        case 0 /*ENUM*/: o.writeUInt(1, 6 ); break;
-        case 6 /*FIXED_POINT*/: o.writeUInt(1, 7 ); break;
-        case 7 /*FLOATING_POINT*/: o.writeUInt(1, 8 ); break;
-        case 5 /*INTEGER*/: o.writeUInt(1, 9 ); break;
-        case 4 /*MAPPING_SPECIFIC*/: o.writeUInt(1, 10 ); break;
-        case 1 /*NAMED_TYPE*/: o.writeUInt(1, 11 ); break;
-        case 2 /*SEQUENCE*/: o.writeUInt(1, 12 ); break;
+      case 10 /*BIT_STRING*/: o.writeUInt(1, 0 ); break;
+      case 8 /*CHARACTER*/: o.writeUInt(1, 1 ); break;
+      case 9 /*CHARACTER_STRING*/: o.writeUInt(1, 2 ); break;
+      case 11 /*DICTIONARY*/: o.writeUInt(1, 3 ); break;
+      case 12 /*DISCRIMINATED_UNION*/: o.writeUInt(1, 4 ); break;
+      case 3 /*ENCODING_SPECIFIC*/: o.writeUInt(1, 5 ); break;
+      case 0 /*ENUM*/: o.writeUInt(1, 6 ); break;
+      case 6 /*FIXED_POINT*/: o.writeUInt(1, 7 ); break;
+      case 7 /*FLOATING_POINT*/: o.writeUInt(1, 8 ); break;
+      case 5 /*INTEGER*/: o.writeUInt(1, 9 ); break;
+      case 4 /*MAPPING_SPECIFIC*/: o.writeUInt(1, 10 ); break;
+      case 1 /*NAMED_TYPE*/: o.writeUInt(1, 11 ); break;
+      case 2 /*SEQUENCE*/: o.writeUInt(1, 12 ); break;
         default: assert( false );
     }
     o.writeString(2, s.name);
@@ -202,16 +202,16 @@ void serializeEncodedMembers( const EncodedMembers& s, OProtobufStream& o ) {
 void serializeStructure( const Structure& s, OProtobufStream& o ) {
     switch ( s.declType )
     {
-        case 2 /*ENCODING*/: o.writeUInt(1, 0 ); break;
-        case 0 /*IDL*/: o.writeUInt(1, 1 ); break;
-        case 1 /*MAPPING*/: o.writeUInt(1, 2 ); break;
+      case 2 /*ENCODING*/: o.writeUInt(1, 0 ); break;
+      case 0 /*IDL*/: o.writeUInt(1, 1 ); break;
+      case 1 /*MAPPING*/: o.writeUInt(1, 2 ); break;
         default: assert( false );
     }
     switch ( s.type )
     {
-        case 2 /*DISCRIMINATED_UNION*/: o.writeUInt(2, 0 ); break;
-        case 1 /*RPC*/: o.writeUInt(2, 1 ); break;
-        case 0 /*STRUCT*/: o.writeUInt(2, 2 ); break;
+      case 2 /*DISCRIMINATED_UNION*/: o.writeUInt(2, 0 ); break;
+      case 1 /*RPC*/: o.writeUInt(2, 1 ); break;
+      case 0 /*STRUCT*/: o.writeUInt(2, 2 ); break;
         default: assert( false );
     }
     o.writeString(3, s.name);
@@ -242,6 +242,25 @@ void serializeRoot( const Root& s, OProtobufStream& o ) {
     size_t sz_2 = protobufGetSize__unique_ptr_Structure(item);
     o.writeObjectTagAndSize(2, sz_2);
     serialize__unique_ptr_Structure(item, o);
+    }
+    size_t sz_3 = 0;
+    for(const auto& item:s.packedVarInts) {
+          sz_3 += getSignedVarIntSize(item);
+    }
+    o.writeObjectTagAndSize(3, sz_3);
+    for(const auto& item:s.packedVarInts) {
+          o.writePackedSignedVarInt( item );
+    }
+    size_t sz_4 = 0;
+    for(const auto& item:s.packedDoubles) {
+        sz_4 += getFixedSize(item);
+    }
+    o.writeObjectTagAndSize(4, sz_4);
+    for(const auto& item:s.packedDoubles) {
+        o.writePackedDouble( item );
+    }
+    for(const auto& item:s.unpackedStrings) {
+    o.writeString(5, item);
     }
 }
 
@@ -500,12 +519,14 @@ bool deserializeCharacterSet( CharacterSet& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
-      CharacterRange temp;
+    {
+      CharacterRange temp2;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
-      readOk = deserializeCharacterRange(temp, is);
-      s.ranges.push_back(std::move(temp));
+      readOk = deserializeCharacterRange(temp2, is);
+      s.ranges.push_back(std::move(temp2));
+    }
     }
     initFlags[0] = true;
     break;
@@ -1065,9 +1086,11 @@ bool deserializeDataMember( DataMember& s, IProtobufStream& i ) {
     break;
     case 5:
     {
-      string temp;
-      readOk = i.readString( temp );
-      s.whenDiscriminant.push_back(std::move(temp));
+    {
+      string temp2;
+      readOk = i.readString( temp2 );
+      s.whenDiscriminant.push_back(std::move(temp2));
+    }
     }
     initFlags[4] = true;
     break;
@@ -1120,12 +1143,14 @@ bool deserializeEncodedMembers( EncodedMembers& s, IProtobufStream& i ) {
     break;
     case 2:
     {
-      unique_ptr<EncodedOrMember> temp;
+    {
+      unique_ptr<EncodedOrMember> temp2;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
-      readOk = deserialize__unique_ptr_EncodedOrMember(temp, is);
-      s.members.push_back(std::move(temp));
+      readOk = deserialize__unique_ptr_EncodedOrMember(temp2, is);
+      s.members.push_back(std::move(temp2));
+    }
     }
     initFlags[1] = true;
     break;
@@ -1288,10 +1313,13 @@ bool deserializeTypedef( Typedef& s, IProtobufStream& i ) {
 }
 
 bool deserializeRoot( Root& s, IProtobufStream& i ) {
-   const int memcnt = 2;
+   const int memcnt = 5;
    bool initFlags[memcnt] = { false };
   initFlags[0] = true;
   initFlags[1] = true;
+  initFlags[2] = true;
+  initFlags[3] = true;
+  initFlags[4] = true;
 
   while(!i.isEndOfStream())
   {
@@ -1305,25 +1333,99 @@ bool deserializeRoot( Root& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
-      Typedef temp;
+    {
+      Typedef temp2;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
-      readOk = deserializeTypedef(temp, is);
-      s.typedefs.push_back(std::move(temp));
+      readOk = deserializeTypedef(temp2, is);
+      s.typedefs.push_back(std::move(temp2));
+    }
     }
     initFlags[0] = true;
     break;
     case 2:
     {
-      unique_ptr<Structure> temp;
+    {
+      unique_ptr<Structure> temp2;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
-      readOk = deserialize__unique_ptr_Structure(temp, is);
-      s.structures.push_back(std::move(temp));
+      readOk = deserialize__unique_ptr_Structure(temp2, is);
+      s.structures.push_back(std::move(temp2));
+    }
     }
     initFlags[1] = true;
+    break;
+    case 3:
+    {
+    if( fieldType == LENGTH_DELIMITED ) {
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      IProtobufStream& i = is;
+
+      while(!i.isEndOfStream()) {
+
+      int16_t temp2;
+      int64_t temp = 0;
+      readOk = i.readVariantInt64( temp );
+      temp2 = temp;
+      s.packedVarInts.push_back(std::move(temp2));
+      
+      if ( !readOk )
+        return false;
+      }
+    } 
+    else
+    // fall back to non packed
+    {
+      int16_t temp2;
+      int64_t temp = 0;
+      readOk = i.readVariantInt64( temp );
+      temp2 = temp;
+      s.packedVarInts.push_back(std::move(temp2));
+    }
+    }
+    initFlags[2] = true;
+    break;
+    case 4:
+    {
+    if( fieldType == LENGTH_DELIMITED ) {
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      IProtobufStream& i = is;
+
+      while(!i.isEndOfStream()) {
+
+      double temp2;
+      readOk = i.readFixed64Bit( temp2 );
+      s.packedDoubles.push_back(std::move(temp2));
+      
+      if ( !readOk )
+        return false;
+      }
+    } 
+    else
+    // fall back to non packed
+    {
+      double temp2;
+      readOk = i.readFixed64Bit( temp2 );
+      s.packedDoubles.push_back(std::move(temp2));
+    }
+    }
+    initFlags[3] = true;
+    break;
+    case 5:
+    {
+    {
+      string temp2;
+      readOk = i.readString( temp2 );
+      s.unpackedStrings.push_back(std::move(temp2));
+    }
+    }
+    initFlags[4] = true;
     break;
 		default:
       readOk = discardUnexpectedField( fieldType, i );
@@ -1542,128 +1644,152 @@ bool deserialize__unique_ptr_Structure( unique_ptr<Structure>& s, IProtobufStrea
 
 // GET-SIZE
 size_t protobufGetSizeLimit( const Limit& s ) {
-   size_t sz = 0;
+  size_t sz = 0;
       
   sz += getTagSize(1);
   sz += getUnsignedVarIntSize(s.inclusive);
+
       
   sz += getTagSize(2);
   sz += getFixedSize(s.value);
+
    
-   return sz;
+  return sz;
 }
 
 size_t protobufGetSizeLocation( const Location& s ) {
-   size_t sz = 0;
+  size_t sz = 0;
       
   sz += getTagSize(1);
   sz += getUnsignedVarIntSize(s.fileName.size());
   sz += s.fileName.size();
+
       
   sz += getTagSize(2);
   sz += getSignedVarIntSize(s.lineNumber);
+
    
-   return sz;
+  return sz;
 }
 
 size_t protobufGetSizeCharacterRange( const CharacterRange& s ) {
-   size_t sz = 0;
+  size_t sz = 0;
       
   sz += getTagSize(1);
   sz += getUnsignedVarIntSize(s.from);
+
       
   sz += getTagSize(2);
   sz += getUnsignedVarIntSize(s.to);
+
    
-   return sz;
+  return sz;
 }
 
 size_t protobufGetSizeCharacterSet( const CharacterSet& s ) {
-   size_t sz = 0;
+  size_t sz = 0;
       
     for(const auto& item:s.ranges) {
   sz += getTagSize(1);
   size_t sz_1 = protobufGetSizeCharacterRange(item);
   sz += getUnsignedVarIntSize(sz_1);
   sz += sz_1;
-    }
+      }
+
    
-   return sz;
+  return sz;
 }
 
 size_t protobufGetSizeVariant( const Variant& s ) {
-   size_t sz = 0;
+  size_t sz = 0;
       
   sz += getTagSize(1);
   sz += getUnsignedVarIntSize(s.kind);
+
       
   sz += getTagSize(2);
   sz += getFixedSize(s.numberValue);
+
       
   sz += getTagSize(3);
   sz += getUnsignedVarIntSize(s.stringValue.size());
   sz += s.stringValue.size();
+
    
-   return sz;
+  return sz;
 }
 
 size_t protobufGetSizeDataType( const DataType& s ) {
-   size_t sz = 0;
+  size_t sz = 0;
       
   sz += getTagSize(1);
   sz += getUnsignedVarIntSize(s.kind);
+
       
   sz += getTagSize(2);
   sz += getUnsignedVarIntSize(s.name.size());
   sz += s.name.size();
+
       
   sz += getTagSize(3);
   sz += getUnsignedVarIntSize(s.mappingName.size());
   sz += s.mappingName.size();
+
       
   sz += getTagSize(4);
   sz += getUnsignedVarIntSize(s.encodingName.size());
   sz += s.encodingName.size();
+
       
   sz += getTagSize(5);
   size_t sz_5 = protobufGetSize__unique_ptr_DataType(s.keyType);
   sz += getUnsignedVarIntSize(sz_5);
   sz += sz_5;
+
       
   sz += getTagSize(6);
   size_t sz_6 = protobufGetSize__unique_ptr_DataType(s.paramType);
   sz += getUnsignedVarIntSize(sz_6);
   sz += sz_6;
+
       
   sz += getTagSize(7);
   size_t sz_7 = protobufGetSizeLimit(s.lowLimit);
   sz += getUnsignedVarIntSize(sz_7);
   sz += sz_7;
+
       
   sz += getTagSize(8);
   size_t sz_8 = protobufGetSizeLimit(s.highLimit);
   sz += getUnsignedVarIntSize(sz_8);
   sz += sz_8;
+
       
   sz += getTagSize(9);
   sz += getFixedSize(s.fixedPrecision);
+
       
   sz += getTagSize(10);
   sz += getUnsignedVarIntSize(s.floatingSignificandBits);
+
       
   sz += getTagSize(11);
   sz += getUnsignedVarIntSize(s.floatingExponentBits);
+
       
   sz += getTagSize(12);
   size_t sz_12 = protobufGetSizeCharacterSet(s.characterSet);
   sz += getUnsignedVarIntSize(sz_12);
   sz += sz_12;
+
       
   sz += getTagSize(13);
   sz += getUnsignedVarIntSize(s.stringMinSize);
+
       
   sz += getTagSize(14);
   sz += getUnsignedVarIntSize(s.stringMaxSize);
+
       
     for(const auto& item:s.encodingAttrs) {
       sz += getTagSize(15);
@@ -1677,6 +1803,7 @@ size_t protobufGetSizeDataType( const DataType& s ) {
   sz += sz_2;
       sz += getUnsignedVarIntSize(sz - sz_begin_15);
     }
+
       
     for(const auto& item:s.mappingAttrs) {
       sz += getTagSize(16);
@@ -1690,6 +1817,7 @@ size_t protobufGetSizeDataType( const DataType& s ) {
   sz += sz_2;
       sz += getUnsignedVarIntSize(sz - sz_begin_16);
     }
+
       
     for(const auto& item:s.enumValues) {
       sz += getTagSize(17);
@@ -1701,16 +1829,18 @@ size_t protobufGetSizeDataType( const DataType& s ) {
   sz += getUnsignedVarIntSize(item.second);
       sz += getUnsignedVarIntSize(sz - sz_begin_17);
     }
+
    
-   return sz;
+  return sz;
 }
 
 size_t protobufGetSizeEncodingSpecifics( const EncodingSpecifics& s ) {
-   size_t sz = 0;
+  size_t sz = 0;
       
   sz += getTagSize(1);
   sz += getUnsignedVarIntSize(s.name.size());
   sz += s.name.size();
+
       
     for(const auto& item:s.attrs) {
       sz += getTagSize(2);
@@ -1724,145 +1854,192 @@ size_t protobufGetSizeEncodingSpecifics( const EncodingSpecifics& s ) {
   sz += sz_2;
       sz += getUnsignedVarIntSize(sz - sz_begin_2);
     }
+
    
-   return sz;
+  return sz;
 }
 
 size_t protobufGetSizeEncodedOrMember( const EncodedOrMember& s ) {
-   size_t sz = 0;
+  size_t sz = 0;
       
   sz += getTagSize(1);
   size_t sz_1 = protobufGetSizeLocation(s.location);
   sz += getUnsignedVarIntSize(sz_1);
   sz += sz_1;
+
    
-   return sz;
+  return sz;
 }
 
 size_t protobufGetSizeDataMember( const DataMember& s ) {
-   size_t sz = 0;
+  size_t sz = 0;
       
   sz += getTagSize(1);
   size_t sz_1 = protobufGetSizeDataType(s.type);
   sz += getUnsignedVarIntSize(sz_1);
   sz += sz_1;
+
       
   sz += getTagSize(2);
   sz += getUnsignedVarIntSize(s.name.size());
   sz += s.name.size();
+
       
   sz += getTagSize(3);
   sz += getUnsignedVarIntSize(s.extendTo);
+
       
   sz += getTagSize(4);
   size_t sz_4 = protobufGetSizeVariant(s.defaultValue);
   sz += getUnsignedVarIntSize(sz_4);
   sz += sz_4;
+
       
     for(const auto& item:s.whenDiscriminant) {
   sz += getTagSize(5);
   sz += getUnsignedVarIntSize(item.size());
   sz += item.size();
-    }
+      }
+
       
   sz += getTagSize(6);
   size_t sz_6 = protobufGetSizeEncodedOrMember(s);
   sz += getUnsignedVarIntSize(sz_6);
   sz += sz_6;
+
    
-   return sz;
+  return sz;
 }
 
 size_t protobufGetSizeEncodedMembers( const EncodedMembers& s ) {
-   size_t sz = 0;
+  size_t sz = 0;
       
   sz += getTagSize(1);
   size_t sz_1 = protobufGetSizeEncodingSpecifics(s.encodingSpecifics);
   sz += getUnsignedVarIntSize(sz_1);
   sz += sz_1;
+
       
     for(const auto& item:s.members) {
   sz += getTagSize(2);
   size_t sz_2 = protobufGetSize__unique_ptr_EncodedOrMember(item);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
-    }
+      }
+
       
   sz += getTagSize(3);
   size_t sz_3 = protobufGetSizeEncodedOrMember(s);
   sz += getUnsignedVarIntSize(sz_3);
   sz += sz_3;
+
    
-   return sz;
+  return sz;
 }
 
 size_t protobufGetSizeStructure( const Structure& s ) {
-   size_t sz = 0;
+  size_t sz = 0;
       
   sz += getTagSize(1);
   sz += getUnsignedVarIntSize(s.declType);
+
       
   sz += getTagSize(2);
   sz += getUnsignedVarIntSize(s.type);
+
       
   sz += getTagSize(3);
   sz += getUnsignedVarIntSize(s.name.size());
   sz += s.name.size();
+
       
   sz += getTagSize(4);
   sz += getUnsignedVarIntSize(s.discriminant.size());
   sz += s.discriminant.size();
+
       
   sz += getTagSize(5);
   sz += getUnsignedVarIntSize(s.inheritedFrom.size());
   sz += s.inheritedFrom.size();
+
       
   sz += getTagSize(6);
   size_t sz_6 = protobufGetSizeEncodedMembers(s);
   sz += getUnsignedVarIntSize(sz_6);
   sz += sz_6;
+
    
-   return sz;
+  return sz;
 }
 
 size_t protobufGetSizeTypedef( const Typedef& s ) {
-   size_t sz = 0;
+  size_t sz = 0;
       
   sz += getTagSize(1);
   size_t sz_1 = protobufGetSizeLocation(s.location);
   sz += getUnsignedVarIntSize(sz_1);
   sz += sz_1;
+
       
   sz += getTagSize(2);
   size_t sz_2 = protobufGetSizeDataType(s.type);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
+
       
   sz += getTagSize(3);
   sz += getUnsignedVarIntSize(s.name.size());
   sz += s.name.size();
+
    
-   return sz;
+  return sz;
 }
 
 size_t protobufGetSizeRoot( const Root& s ) {
-   size_t sz = 0;
+  size_t sz = 0;
       
     for(const auto& item:s.typedefs) {
   sz += getTagSize(1);
   size_t sz_1 = protobufGetSizeTypedef(item);
   sz += getUnsignedVarIntSize(sz_1);
   sz += sz_1;
-    }
+      }
+
       
     for(const auto& item:s.structures) {
   sz += getTagSize(2);
   size_t sz_2 = protobufGetSize__unique_ptr_Structure(item);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
+      }
+
+      
+    sz += getTagSize(3);
+    size_t sz_3 = 0;
+    for(const auto& item:s.packedVarInts) {
+          sz_3 += getSignedVarIntSize(item);
     }
+    sz += getUnsignedVarIntSize(sz_3);
+    sz += sz_3;
+
+      
+    sz += getTagSize(4);
+    size_t sz_4 = 0;
+    for(const auto& item:s.packedDoubles) {
+        sz_4 += getFixedSize(item);
+    }
+    sz += getUnsignedVarIntSize(sz_4);
+    sz += sz_4;
+
+      
+    for(const auto& item:s.unpackedStrings) {
+  sz += getTagSize(5);
+  sz += getUnsignedVarIntSize(item.size());
+  sz += item.size();
+      }
+
    
-   return sz;
+  return sz;
 }
 
 
@@ -1883,7 +2060,6 @@ size_t protobufGetSize__unique_ptr_DataType( const unique_ptr<DataType>& s ) {
   size_t sz_2 = protobufGetSizeDataType(*ptr);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
-
     }
     break;
     //default:
@@ -1908,7 +2084,6 @@ size_t protobufGetSize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMe
   size_t sz_2 = protobufGetSizeDataMember(*ptr);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
-
     }
     break;
     case 1:
@@ -1918,7 +2093,6 @@ size_t protobufGetSize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMe
   size_t sz_3 = protobufGetSizeEncodedMembers(*ptr);
   sz += getUnsignedVarIntSize(sz_3);
   sz += sz_3;
-
     }
     break;
     case 2:
@@ -1928,7 +2102,6 @@ size_t protobufGetSize__unique_ptr_EncodedOrMember( const unique_ptr<EncodedOrMe
   size_t sz_4 = protobufGetSizeEncodedOrMember(*ptr);
   sz += getUnsignedVarIntSize(sz_4);
   sz += sz_4;
-
     }
     break;
     //default:
@@ -1953,7 +2126,6 @@ size_t protobufGetSize__unique_ptr_Structure( const unique_ptr<Structure>& s ) {
   size_t sz_2 = protobufGetSizeStructure(*ptr);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
-
     }
     break;
     //default:

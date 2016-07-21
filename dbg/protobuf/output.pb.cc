@@ -312,9 +312,12 @@ void protobuf_AssignDesc_output_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Typedef));
   Root_descriptor_ = file->message_type(12);
-  static const int Root_offsets_[2] = {
+  static const int Root_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Root, typedefs_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Root, structures_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Root, packed_var_ints_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Root, packed_doubles_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Root, unpacked_strings_),
   };
   Root_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -559,30 +562,32 @@ void protobuf_AddDesc_output_2eproto() {
     "L\020\001\022\013\n\007MAPPING\020\002\"4\n\004TYPE\022\027\n\023DISCRIMINATE"
     "D_UNION\020\000\022\007\n\003RPC\020\001\022\n\n\006STRUCT\020\002\"S\n\007Typede"
     "f\022\036\n\010location\030\001 \001(\0132\014.pb.Location\022\032\n\004typ"
-    "e\030\002 \001(\0132\014.pb.DataType\022\014\n\004name\030\003 \001(\t\"U\n\004R"
-    "oot\022\035\n\010typedefs\030\001 \003(\0132\013.pb.Typedef\022.\n\nst"
-    "ructures\030\002 \003(\0132\032.pb.__unique_ptr_Structu"
-    "re\"\257\001\n\025__unique_ptr_DataType\022>\n\rdiscrimi"
-    "nator\030\001 \001(\0162\'.pb.__unique_ptr_DataType.D"
-    "iscriminator\022\"\n\014du_data_type\030\002 \001(\0132\014.pb."
-    "DataType\"2\n\rDiscriminator\022\020\n\014OPT_DataTyp"
-    "e\020\000\022\017\n\013OPT_nullptr\020\001\"\327\002\n\034__unique_ptr_En"
-    "codedOrMember\022E\n\rdiscriminator\030\001 \001(\0162..p"
-    "b.__unique_ptr_EncodedOrMember.Discrimin"
-    "ator\022&\n\016du_data_member\030\002 \001(\0132\016.pb.DataMe"
-    "mber\022.\n\022du_encoded_members\030\003 \001(\0132\022.pb.En"
-    "codedMembers\0221\n\024du_encoded_or_member\030\004 \001"
-    "(\0132\023.pb.EncodedOrMember\"e\n\rDiscriminator"
-    "\022\022\n\016OPT_DataMember\020\000\022\026\n\022OPT_EncodedMembe"
-    "rs\020\001\022\027\n\023OPT_EncodedOrMember\020\002\022\017\n\013OPT_nul"
-    "lptr\020\003\"\263\001\n\026__unique_ptr_Structure\022\?\n\rdis"
-    "criminator\030\001 \001(\0162(.pb.__unique_ptr_Struc"
-    "ture.Discriminator\022#\n\014du_structure\030\002 \001(\013"
-    "2\r.pb.Structure\"3\n\rDiscriminator\022\021\n\rOPT_"
-    "Structure\020\000\022\017\n\013OPT_nullptr\020\001\"=\n\022map_stri"
-    "ng_Variant\022\013\n\003key\030\001 \001(\t\022\032\n\005value\030\002 \001(\0132\013"
-    ".pb.Variant\"/\n\021map_string_uint32\022\013\n\003key\030"
-    "\001 \001(\t\022\r\n\005value\030\002 \001(\r", 2900);
+    "e\030\002 \001(\0132\014.pb.DataType\022\014\n\004name\030\003 \001(\t\"\250\001\n\004"
+    "Root\022\035\n\010typedefs\030\001 \003(\0132\013.pb.Typedef\022.\n\ns"
+    "tructures\030\002 \003(\0132\032.pb.__unique_ptr_Struct"
+    "ure\022\033\n\017packed_var_ints\030\003 \003(\021B\002\020\001\022\032\n\016pack"
+    "ed_doubles\030\004 \003(\001B\002\020\001\022\030\n\020unpacked_strings"
+    "\030\005 \003(\t\"\257\001\n\025__unique_ptr_DataType\022>\n\rdisc"
+    "riminator\030\001 \001(\0162\'.pb.__unique_ptr_DataTy"
+    "pe.Discriminator\022\"\n\014du_data_type\030\002 \001(\0132\014"
+    ".pb.DataType\"2\n\rDiscriminator\022\020\n\014OPT_Dat"
+    "aType\020\000\022\017\n\013OPT_nullptr\020\001\"\327\002\n\034__unique_pt"
+    "r_EncodedOrMember\022E\n\rdiscriminator\030\001 \001(\016"
+    "2..pb.__unique_ptr_EncodedOrMember.Discr"
+    "iminator\022&\n\016du_data_member\030\002 \001(\0132\016.pb.Da"
+    "taMember\022.\n\022du_encoded_members\030\003 \001(\0132\022.p"
+    "b.EncodedMembers\0221\n\024du_encoded_or_member"
+    "\030\004 \001(\0132\023.pb.EncodedOrMember\"e\n\rDiscrimin"
+    "ator\022\022\n\016OPT_DataMember\020\000\022\026\n\022OPT_EncodedM"
+    "embers\020\001\022\027\n\023OPT_EncodedOrMember\020\002\022\017\n\013OPT"
+    "_nullptr\020\003\"\263\001\n\026__unique_ptr_Structure\022\?\n"
+    "\rdiscriminator\030\001 \001(\0162(.pb.__unique_ptr_S"
+    "tructure.Discriminator\022#\n\014du_structure\030\002"
+    " \001(\0132\r.pb.Structure\"3\n\rDiscriminator\022\021\n\r"
+    "OPT_Structure\020\000\022\017\n\013OPT_nullptr\020\001\"=\n\022map_"
+    "string_Variant\022\013\n\003key\030\001 \001(\t\022\032\n\005value\030\002 \001"
+    "(\0132\013.pb.Variant\"/\n\021map_string_uint32\022\013\n\003"
+    "key\030\001 \001(\t\022\r\n\005value\030\002 \001(\r", 2984);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "output.proto", &protobuf_RegisterTypes);
   Limit::default_instance_ = new Limit();
@@ -5207,6 +5212,9 @@ void Typedef::Swap(Typedef* other) {
 #ifndef _MSC_VER
 const int Root::kTypedefsFieldNumber;
 const int Root::kStructuresFieldNumber;
+const int Root::kPackedVarIntsFieldNumber;
+const int Root::kPackedDoublesFieldNumber;
+const int Root::kUnpackedStringsFieldNumber;
 #endif  // !_MSC_VER
 
 Root::Root()
@@ -5226,6 +5234,7 @@ Root::Root(const Root& from)
 }
 
 void Root::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -5264,6 +5273,9 @@ Root* Root::New() const {
 void Root::Clear() {
   typedefs_.Clear();
   structures_.Clear();
+  packed_var_ints_.Clear();
+  packed_doubles_.Clear();
+  unpacked_strings_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -5302,6 +5314,61 @@ bool Root::MergePartialFromCodedStream(
           goto handle_unusual;
         }
         if (input->ExpectTag(18)) goto parse_structures;
+        if (input->ExpectTag(26)) goto parse_packed_var_ints;
+        break;
+      }
+
+      // repeated sint32 packed_var_ints = 3 [packed = true];
+      case 3: {
+        if (tag == 26) {
+         parse_packed_var_ints:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
+                 input, this->mutable_packed_var_ints())));
+        } else if (tag == 24) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
+                 1, 26, input, this->mutable_packed_var_ints())));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(34)) goto parse_packed_doubles;
+        break;
+      }
+
+      // repeated double packed_doubles = 4 [packed = true];
+      case 4: {
+        if (tag == 34) {
+         parse_packed_doubles:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, this->mutable_packed_doubles())));
+        } else if (tag == 33) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 1, 34, input, this->mutable_packed_doubles())));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(42)) goto parse_unpacked_strings;
+        break;
+      }
+
+      // repeated string unpacked_strings = 5;
+      case 5: {
+        if (tag == 42) {
+         parse_unpacked_strings:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_unpacked_strings()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->unpacked_strings(this->unpacked_strings_size() - 1).data(),
+            this->unpacked_strings(this->unpacked_strings_size() - 1).length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "unpacked_strings");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(42)) goto parse_unpacked_strings;
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -5343,6 +5410,36 @@ void Root::SerializeWithCachedSizes(
       2, this->structures(i), output);
   }
 
+  // repeated sint32 packed_var_ints = 3 [packed = true];
+  if (this->packed_var_ints_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(3, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_packed_var_ints_cached_byte_size_);
+  }
+  for (int i = 0; i < this->packed_var_ints_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteSInt32NoTag(
+      this->packed_var_ints(i), output);
+  }
+
+  // repeated double packed_doubles = 4 [packed = true];
+  if (this->packed_doubles_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(4, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_packed_doubles_cached_byte_size_);
+  }
+  for (int i = 0; i < this->packed_doubles_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteDoubleNoTag(
+      this->packed_doubles(i), output);
+  }
+
+  // repeated string unpacked_strings = 5;
+  for (int i = 0; i < this->unpacked_strings_size(); i++) {
+  ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    this->unpacked_strings(i).data(), this->unpacked_strings(i).length(),
+    ::google::protobuf::internal::WireFormat::SERIALIZE,
+    "unpacked_strings");
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      5, this->unpacked_strings(i), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -5365,6 +5462,44 @@ void Root::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         2, this->structures(i), target);
+  }
+
+  // repeated sint32 packed_var_ints = 3 [packed = true];
+  if (this->packed_var_ints_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      3,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _packed_var_ints_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->packed_var_ints_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteSInt32NoTagToArray(this->packed_var_ints(i), target);
+  }
+
+  // repeated double packed_doubles = 4 [packed = true];
+  if (this->packed_doubles_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      4,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _packed_doubles_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->packed_doubles_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteDoubleNoTagToArray(this->packed_doubles(i), target);
+  }
+
+  // repeated string unpacked_strings = 5;
+  for (int i = 0; i < this->unpacked_strings_size(); i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->unpacked_strings(i).data(), this->unpacked_strings(i).length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "unpacked_strings");
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(5, this->unpacked_strings(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -5394,6 +5529,44 @@ int Root::ByteSize() const {
         this->structures(i));
   }
 
+  // repeated sint32 packed_var_ints = 3 [packed = true];
+  {
+    int data_size = 0;
+    for (int i = 0; i < this->packed_var_ints_size(); i++) {
+      data_size += ::google::protobuf::internal::WireFormatLite::
+        SInt32Size(this->packed_var_ints(i));
+    }
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _packed_var_ints_cached_byte_size_ = data_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated double packed_doubles = 4 [packed = true];
+  {
+    int data_size = 0;
+    data_size = 8 * this->packed_doubles_size();
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _packed_doubles_cached_byte_size_ = data_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  // repeated string unpacked_strings = 5;
+  total_size += 1 * this->unpacked_strings_size();
+  for (int i = 0; i < this->unpacked_strings_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->unpacked_strings(i));
+  }
+
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -5421,6 +5594,9 @@ void Root::MergeFrom(const Root& from) {
   GOOGLE_CHECK_NE(&from, this);
   typedefs_.MergeFrom(from.typedefs_);
   structures_.MergeFrom(from.structures_);
+  packed_var_ints_.MergeFrom(from.packed_var_ints_);
+  packed_doubles_.MergeFrom(from.packed_doubles_);
+  unpacked_strings_.MergeFrom(from.unpacked_strings_);
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -5445,6 +5621,9 @@ void Root::Swap(Root* other) {
   if (other != this) {
     typedefs_.Swap(&other->typedefs_);
     structures_.Swap(&other->structures_);
+    packed_var_ints_.Swap(&other->packed_var_ints_);
+    packed_doubles_.Swap(&other->packed_doubles_);
+    unpacked_strings_.Swap(&other->unpacked_strings_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
