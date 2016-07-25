@@ -6,8 +6,19 @@
 #include <iostream>
 
 #include "front-back/idl_tree.h"
+#include "front-back/idl_tree_serializer.h"
 #include "front/idl/parser.h"
 #include "../../front-back/debug.h"
+
+void serializeToFile(const char* fileName, Root& root) {
+
+    FILE* out = fopen(fileName, "wb");
+    assert(out);
+    OStream o(out);
+
+    serializeRoot(root, o);
+    fclose(out);
+}
 
 
 int main(int argc, char *argv[])
@@ -23,6 +34,9 @@ int main(int argc, char *argv[])
 
     dbgDumpLeaks();
     dbgDumpTree(stdout, root, false);
+
+    string outFile = fileName + ".bin";
+    serializeToFile(outFile.c_str(), *root);
 
     return 0;
 }

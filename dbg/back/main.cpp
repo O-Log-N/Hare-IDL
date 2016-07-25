@@ -82,10 +82,39 @@ void addTestInherit(Root& root)
     }
 }
 
-int main()
+struct CmdOptions {
+    vector<string> templs;
+    string inFile;
+};
+
+CmdOptions getCmdOption(const char** begin, const char** end)
+{
+    CmdOptions result;
+    for (const char** it = begin; it != end; ++it) {
+        string current(*it);
+        if (current.substr(0, 7) == "--template=")
+            result.templs.push_back(current.substr(7));
+        else if (current.substr(0, 1) == "-") {
+            fmt::print("Unrecognized command line option: {}\n", current);
+        }
+        else {
+            if (result.inFile.empty())
+                result.inFile = current;
+            else
+                fmt::print("More than one input file not allowed: {}\n", current);
+        }
+    }
+
+    return result;
+}
+
+
+int main(int argc, char* argv[])
 {
 	try
 	{
+
+
         //Root* root = parseSourceFile("idl_tree.idl", false);
         //Root* root = deserializeFile("../../Hare-IDL/dbg/protobuf/idl_tree.h.idlbin");
         Root* root = deserializeFile("idl_tree.h.idlbin");

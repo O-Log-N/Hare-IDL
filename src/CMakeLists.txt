@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.2)
 project("hare-idl")
 
 add_executable(hare-idl
-  front-back/main.cpp
+  main.cpp
 )
 
 add_subdirectory(front/idl)
@@ -21,7 +21,3 @@ target_link_libraries(hare-idl
 
 set_property(TARGET hare-idl PROPERTY CXX_STANDARD 11)
 set_property(TARGET hare-idl PROPERTY CXX_STANDARD_REQUIRED ON)
-
-# file(COPY sample.idl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
-# install(TARGETS hare RUNTIME DESTINATION bin)

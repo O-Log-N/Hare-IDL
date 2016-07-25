@@ -1,0 +1,4 @@
+*.protobuf.bin
+*.h.idlbin
+*.obj
+*.exe

@@ -1,0 +1,12 @@
+
+package pb;
+//syntax="proto2"
+
+// PROTO MESSAGES
+message TestClass {
+  repeated string unpacked_strings = 1;
+  repeated sint32 packed_var_ints = 2 [packed=true];
+  repeated double packed_doubles = 3 [packed=true];
+}
+
+

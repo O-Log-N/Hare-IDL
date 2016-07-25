@@ -8,6 +8,7 @@ add_executable(dbgFrontIdl
 )
 
 add_subdirectory(../../../src/front/idl idl)
+add_subdirectory(../../../src/front-back front-back)
 add_subdirectory(../../../3rdparty/cppformat cppformat)
 add_subdirectory(../../../3rdparty/tiny-process-library tiny-process-library)
 add_subdirectory(../../front-back dbg-front-back)
@@ -23,6 +24,3 @@ target_link_libraries(dbgFrontIdl
 set_property(TARGET dbgFrontIdl PROPERTY CXX_STANDARD 11)
 set_property(TARGET dbgFrontIdl PROPERTY CXX_STANDARD_REQUIRED ON)
 
-# file(COPY sample.idl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
-# install(TARGETS hare RUNTIME DESTINATION bin)

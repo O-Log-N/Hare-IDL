@@ -9,7 +9,7 @@
 #ifndef OUTPUT_H_INCLUDED
 #define OUTPUT_H_INCLUDED
 
-#include "front-back/idl_tree.h"
+//include-here
 
 class OProtobufStream;
 class IProtobufStream;
@@ -39,9 +39,9 @@ class IProtobufStream;
 @@OPEN-OUTPUT-FILE FILENAME="output.cpp"
 
 #include "output.h"
-
-#include "front-back/idl_tree.h"
 #include "protobuf/baselib.h"
+
+//include-here
 
 // IMPLEMENTATIONS
 
