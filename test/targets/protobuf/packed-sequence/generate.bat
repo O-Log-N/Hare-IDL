@@ -7,3 +7,8 @@ sed --in-place s/"\/\/include-here"/"#include \"test.h\""/g output.h
 
 cl /EHsc /I../../../../src /I../../../../src/targets/cpp/include main.cpp output.cpp ../../../../src/targets/cpp/libsrc/protobuf/baselib.cpp /link /out:test.exe
 
+del *.obj
+del *.protobuf.bin
+
+test.exe
+

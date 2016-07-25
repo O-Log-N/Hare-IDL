@@ -48,19 +48,19 @@ void protobufSerializeToFile(const TestClass& root, const char* fileName, const 
     fclose(out);
 }
 
-void test1()
+void test1(const char* tempFile)
 {
     TestClass tc;
 
-    //tc.packedEnum.push_back(TestClass::Nothing);
-    //tc.packedEnum.push_back(TestClass::Second);
-    //tc.packedEnum.push_back(TestClass::First);
-    //tc.packedEnum.push_back(TestClass::Nothing);
+    tc.unpackedStrings.push_back("hello");
+    tc.unpackedStrings.push_back("world");
 
-    protobufSerializeToFile(tc, "test1.protobuf.bin", {});
+    protobufSerializeToFile(tc, tempFile, 
+        {0x0a, 5, 'h', 'e', 'l', 'l', 'o',
+         0x0a, 5, 'w', 'o', 'r', 'l', 'd'});
 }
 
-void test2()
+void test2(const char* tempFile)
 {
     TestClass tc;
 
@@ -70,12 +70,11 @@ void test2()
     tc.packedVarInts.push_back(100000);
     tc.packedVarInts.push_back(-100000);
 
-    //this has a bug, fix
-    protobufSerializeToFile(tc, "test2.protobuf.bin",
-        {0x12, 0x0b, 0x00, 0xd0, 0x0f, 0xcf, 0x0f, 0xbf, 0xe5, 0x03, 0xc0, 0xe5, 0x03, 0x1a, 0x00});
+    protobufSerializeToFile(tc, tempFile,
+        {0x12, 0x0b, 0x00, 0xd0, 0x0f, 0xcf, 0x0f, 0xbf, 0xe5, 0x03, 0xc0, 0xe5, 0x03});
 }
 
-void test3()
+void test3(const char* tempFile)
 {
     TestClass tc;
 
@@ -84,33 +83,31 @@ void test3()
     tc.packedDoubles.push_back(1.);
     tc.packedDoubles.push_back(-10.5e-6);
 
-    //this has a bug, fix
-    protobufSerializeToFile(tc, "test3.protobuf.bin",
-        {0x12, 0x00, 0x1a, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-         0x00, 0x00, 0xf0, 0xbf, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x3f, 0xc9, 0xc7, 0xee, 0x02,
-         0x25, 0x05, 0xe6, 0xbe});
+    protobufSerializeToFile(tc, tempFile,
+        {0x1a, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+         0xf0, 0xbf, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x3f, 0xc9, 0xc7, 0xee, 0x02, 0x25, 0x05,
+         0xe6, 0xbe});
 }
 
-void test4()
+void test4(const char* tempFile)
 {
     TestClass tc;
 
-    tc.unpackedStrings.push_back("hello");
-    tc.unpackedStrings.push_back("world");
+    //tc.packedEnum.push_back(TestClass::Nothing);
+    //tc.packedEnum.push_back(TestClass::Second);
+    //tc.packedEnum.push_back(TestClass::First);
+    //tc.packedEnum.push_back(TestClass::Nothing);
 
-    //this has a bug, fix
-    protobufSerializeToFile(tc, "test4.protobuf.bin", 
-        {0x0a, 5, 'h', 'e', 'l', 'l', 'o',
-         0x0a, 5, 'w', 'o', 'r', 'l', 'd',
-         0x12, 0, 0x1a, 0});
+    protobufSerializeToFile(tc, tempFile, {});
 }
+
 
 int main()
 {
-    //test1();
-    test2();
-    test3();
-    test4();
+    test1("test1.protobuf.bin");
+    test2("test2.protobuf.bin");
+    test3("test3.protobuf.bin");
+    //test4();
 
     printf("Ok!\n");
 

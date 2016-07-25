@@ -12,21 +12,25 @@ void serializeTestClass( const TestClass& s, OProtobufStream& o ) {
     for(const auto& item:s.unpackedStrings) {
     o.writeString(1, item);
     }
-    size_t sz_2 = 0;
+    if(!s.packedVarInts.empty()) {
+      size_t sz_2 = 0;
     for(const auto& item:s.packedVarInts) {
           sz_2 += getSignedVarIntSize(item);
     }
-    o.writeObjectTagAndSize(2, sz_2);
-    for(const auto& item:s.packedVarInts) {
+      o.writeObjectTagAndSize(2, sz_2);
+      for(const auto& item:s.packedVarInts) {
     o.writePackedSignedVarInt(item);
+      }
     }
-    size_t sz_3 = 0;
+    if(!s.packedDoubles.empty()) {
+      size_t sz_3 = 0;
     for(const auto& item:s.packedDoubles) {
         sz_3 += getFixedSize(item);
     }
-    o.writeObjectTagAndSize(3, sz_3);
-    for(const auto& item:s.packedDoubles) {
+      o.writeObjectTagAndSize(3, sz_3);
+      for(const auto& item:s.packedDoubles) {
     o.writePackedDouble(item);
+      }
     }
 }
 
