@@ -93,12 +93,13 @@ void test4(const char* tempFile)
 {
     TestClass tc;
 
-    //tc.packedEnum.push_back(TestClass::Nothing);
-    //tc.packedEnum.push_back(TestClass::Second);
-    //tc.packedEnum.push_back(TestClass::First);
-    //tc.packedEnum.push_back(TestClass::Nothing);
+    tc.packedEnum.push_back(TestClass::Nothing);
+    tc.packedEnum.push_back(TestClass::Second);
+    tc.packedEnum.push_back(TestClass::First);
+    tc.packedEnum.push_back(TestClass::Nothing);
 
-    protobufSerializeToFile(tc, tempFile, {});
+    protobufSerializeToFile(tc, tempFile,
+        {0x22, 0x04, 0x01, 0x02, 0x00, 0x01});
 }
 
 
@@ -107,7 +108,7 @@ int main()
     test1("test1.protobuf.bin");
     test2("test2.protobuf.bin");
     test3("test3.protobuf.bin");
-    //test4();
+    test4("test4.protobuf.bin");
 
     printf("Ok!\n");
 

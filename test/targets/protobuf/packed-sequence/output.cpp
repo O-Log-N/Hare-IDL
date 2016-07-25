@@ -32,6 +32,22 @@ void serializeTestClass( const TestClass& s, OProtobufStream& o ) {
     o.writePackedDouble(item);
       }
     }
+    if(!s.packedEnum.empty()) {
+      size_t sz_4 = 0;
+    for(const auto& item:s.packedEnum) {
+        sz_4 += getUnsignedVarIntSize(item);
+    }
+      o.writeObjectTagAndSize(4, sz_4);
+      for(const auto& item:s.packedEnum) {
+        switch ( item )
+        {
+          case TestClass::Values::First /* 1 */: o.writePackedUnsignedVarInt(0 ); break;
+          case TestClass::Values::Nothing /* 0 */: o.writePackedUnsignedVarInt(1 ); break;
+          case TestClass::Values::Second /* 2 */: o.writePackedUnsignedVarInt(2 ); break;
+            default: assert( false );
+        }
+      }
+    }
 }
 
   
@@ -77,11 +93,12 @@ bool discardUnexpectedField( int fieldType, IProtobufStream& i ) {
 }
 
 bool deserializeTestClass( TestClass& s, IProtobufStream& i ) {
-   const int memcnt = 3;
+   const int memcnt = 4;
    bool initFlags[memcnt] = { false };
   initFlags[0] = true;
   initFlags[1] = true;
   initFlags[2] = true;
+  initFlags[3] = true;
 
   while(!i.isEndOfStream())
   {
@@ -166,6 +183,51 @@ bool deserializeTestClass( TestClass& s, IProtobufStream& i ) {
     }
     initFlags[2] = true;
     break;
+    case 4:
+    {
+    if( fieldType == LENGTH_DELIMITED ) {
+      uint64_t sz = 0;
+      i.readVariantUInt64(sz);
+      IProtobufStream is = i.makeSubStream(sz);
+      IProtobufStream& i = is;
+
+      while(!i.isEndOfStream()) {
+
+      TestClass::Values temp2;
+      uint64_t temp = 0;
+      readOk = i.readVariantUInt64( temp );
+      switch ( temp )
+      {
+	      case 0: temp2 = TestClass::Values::First; break;
+	      case 1: temp2 = TestClass::Values::Nothing; break;
+	      case 2: temp2 = TestClass::Values::Second; break;
+        default: return false;
+      }
+      s.packedEnum.push_back(std::move(temp2));
+      
+      if ( !readOk )
+        return false;
+      }
+    } 
+    else
+    // fall back to non packed
+    {
+      TestClass::Values temp2;
+      if( fieldType != VARINT ) return false;
+      uint64_t temp = 0;
+      readOk = i.readVariantUInt64( temp );
+      switch ( temp )
+      {
+	      case 0: temp2 = TestClass::Values::First; break;
+	      case 1: temp2 = TestClass::Values::Nothing; break;
+	      case 2: temp2 = TestClass::Values::Second; break;
+        default: return false;
+      }
+      s.packedEnum.push_back(std::move(temp2));
+    }
+    }
+    initFlags[3] = true;
+    break;
 		default:
       readOk = discardUnexpectedField( fieldType, i );
 	  }
@@ -213,6 +275,15 @@ size_t protobufGetSizeTestClass( const TestClass& s ) {
     }
     sz += getUnsignedVarIntSize(sz_3);
     sz += sz_3;
+
+      
+    sz += getTagSize(4);
+    size_t sz_4 = 0;
+    for(const auto& item:s.packedEnum) {
+        sz_4 += getUnsignedVarIntSize(item);
+    }
+    sz += getUnsignedVarIntSize(sz_4);
+    sz += sz_4;
 
    
   return sz;

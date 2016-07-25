@@ -38,7 +38,7 @@ struct TestClass {
   vector<int16_t> packedVarInts;
   vector<double> packedDoubles;
 
-
+  vector<Values> packedEnum;
 };
 
 #endif // SAMPLE_H

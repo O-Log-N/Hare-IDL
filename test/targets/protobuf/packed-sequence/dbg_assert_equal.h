@@ -44,6 +44,17 @@ inline void assertEqualTestClass( const TestClass& left, const TestClass& right 
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
+    {
+      auto it1 = left.packedEnum.begin();
+      auto it1_end = left.packedEnum.end();
+      auto it2 = right.packedEnum.begin();
+      auto it2_end = right.packedEnum.end();
+      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
+      assert(*it1 == *it2);
+      }
+      assert(it1 == it1_end);
+      assert(it2 == it2_end);
+    }
 }
 
 
@@ -78,6 +89,17 @@ inline void assertEqualTestClass( const TestClass& left, const pb::TestClass& ri
       auto it1_end = left.packedDoubles.end();
       auto it2 = right.packed_doubles().begin();
       auto it2_end = right.packed_doubles().end();
+      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
+      assert(*it1 == *it2);
+      }
+      assert(it1 == it1_end);
+      assert(it2 == it2_end);
+    }
+    {
+      auto it1 = left.packedEnum.begin();
+      auto it1_end = left.packedEnum.end();
+      auto it2 = right.packed_enum().begin();
+      auto it2_end = right.packed_enum().end();
       for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
       assert(*it1 == *it2);
       }
