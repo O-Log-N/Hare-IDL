@@ -206,39 +206,6 @@ inline void assertEqualRoot( const Root& left, const Root& right ) {
       assert(it1 == it1_end);
       assert(it2 == it2_end);
     }
-    {
-      auto it1 = left.packedVarInts.begin();
-      auto it1_end = left.packedVarInts.end();
-      auto it2 = right.packedVarInts.begin();
-      auto it2_end = right.packedVarInts.end();
-      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
-      assert(*it1 == *it2);
-      }
-      assert(it1 == it1_end);
-      assert(it2 == it2_end);
-    }
-    {
-      auto it1 = left.packedDoubles.begin();
-      auto it1_end = left.packedDoubles.end();
-      auto it2 = right.packedDoubles.begin();
-      auto it2_end = right.packedDoubles.end();
-      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
-      assert(*it1 == *it2);
-      }
-      assert(it1 == it1_end);
-      assert(it2 == it2_end);
-    }
-    {
-      auto it1 = left.unpackedStrings.begin();
-      auto it1_end = left.unpackedStrings.end();
-      auto it2 = right.unpackedStrings.begin();
-      auto it2_end = right.unpackedStrings.end();
-      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
-      assert(*it1 == *it2);
-      }
-      assert(it1 == it1_end);
-      assert(it2 == it2_end);
-    }
 }
 
 inline void assertEqual__unique_ptr_DataType( const unique_ptr<DataType>& left, const unique_ptr<DataType>& right ) {
@@ -361,9 +328,9 @@ inline void assertEqualCharacterSet( const CharacterSet& left, const pb::Charact
 inline void assertEqualVariant( const Variant& left, const pb::Variant& right ) {
     switch ( left.kind )
     {
-        case 0 /* NONE */: assert(right.kind() == 0 ); break;
-        case 1 /* NUMBER */: assert(right.kind() == 1 ); break;
-        case 2 /* STRING */: assert(right.kind() == 2 ); break;
+        case /* NONE */ 0: assert(right.kind() == 0 ); break;
+        case /* NUMBER */ 1: assert(right.kind() == 1 ); break;
+        case /* STRING */ 2: assert(right.kind() == 2 ); break;
         default: assert( false );
     }
     assert(left.numberValue == right.number_value());
@@ -372,19 +339,19 @@ inline void assertEqualVariant( const Variant& left, const pb::Variant& right ) 
 inline void assertEqualDataType( const DataType& left, const pb::DataType& right ) {
     switch ( left.kind )
     {
-        case 10 /* BIT_STRING */: assert(right.kind() == 0 ); break;
-        case 8 /* CHARACTER */: assert(right.kind() == 1 ); break;
-        case 9 /* CHARACTER_STRING */: assert(right.kind() == 2 ); break;
-        case 11 /* DICTIONARY */: assert(right.kind() == 3 ); break;
-        case 12 /* DISCRIMINATED_UNION */: assert(right.kind() == 4 ); break;
-        case 3 /* ENCODING_SPECIFIC */: assert(right.kind() == 5 ); break;
-        case 0 /* ENUM */: assert(right.kind() == 6 ); break;
-        case 6 /* FIXED_POINT */: assert(right.kind() == 7 ); break;
-        case 7 /* FLOATING_POINT */: assert(right.kind() == 8 ); break;
-        case 5 /* INTEGER */: assert(right.kind() == 9 ); break;
-        case 4 /* MAPPING_SPECIFIC */: assert(right.kind() == 10 ); break;
-        case 1 /* NAMED_TYPE */: assert(right.kind() == 11 ); break;
-        case 2 /* SEQUENCE */: assert(right.kind() == 12 ); break;
+        case /* BIT_STRING */ 10: assert(right.kind() == 0 ); break;
+        case /* CHARACTER */ 8: assert(right.kind() == 1 ); break;
+        case /* CHARACTER_STRING */ 9: assert(right.kind() == 2 ); break;
+        case /* DICTIONARY */ 11: assert(right.kind() == 3 ); break;
+        case /* DISCRIMINATED_UNION */ 12: assert(right.kind() == 4 ); break;
+        case /* ENCODING_SPECIFIC */ 3: assert(right.kind() == 5 ); break;
+        case /* ENUM */ 0: assert(right.kind() == 6 ); break;
+        case /* FIXED_POINT */ 6: assert(right.kind() == 7 ); break;
+        case /* FLOATING_POINT */ 7: assert(right.kind() == 8 ); break;
+        case /* INTEGER */ 5: assert(right.kind() == 9 ); break;
+        case /* MAPPING_SPECIFIC */ 4: assert(right.kind() == 10 ); break;
+        case /* NAMED_TYPE */ 1: assert(right.kind() == 11 ); break;
+        case /* SEQUENCE */ 2: assert(right.kind() == 12 ); break;
         default: assert( false );
     }
     assert(left.name == right.name());
@@ -491,16 +458,16 @@ inline void assertEqualEncodedMembers( const EncodedMembers& left, const pb::Enc
 inline void assertEqualStructure( const Structure& left, const pb::Structure& right ) {
     switch ( left.declType )
     {
-        case 2 /* ENCODING */: assert(right.decl_type() == 0 ); break;
-        case 0 /* IDL */: assert(right.decl_type() == 1 ); break;
-        case 1 /* MAPPING */: assert(right.decl_type() == 2 ); break;
+        case /* ENCODING */ 2: assert(right.decl_type() == 0 ); break;
+        case /* IDL */ 0: assert(right.decl_type() == 1 ); break;
+        case /* MAPPING */ 1: assert(right.decl_type() == 2 ); break;
         default: assert( false );
     }
     switch ( left.type )
     {
-        case 2 /* DISCRIMINATED_UNION */: assert(right.type() == 0 ); break;
-        case 1 /* RPC */: assert(right.type() == 1 ); break;
-        case 0 /* STRUCT */: assert(right.type() == 2 ); break;
+        case /* DISCRIMINATED_UNION */ 2: assert(right.type() == 0 ); break;
+        case /* RPC */ 1: assert(right.type() == 1 ); break;
+        case /* STRUCT */ 0: assert(right.type() == 2 ); break;
         default: assert( false );
     }
     assert(left.name == right.name());
@@ -532,39 +499,6 @@ inline void assertEqualRoot( const Root& left, const pb::Root& right ) {
       auto it2_end = right.structures().end();
       for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
       assertEqual__unique_ptr_Structure(*it1, *it2);
-      }
-      assert(it1 == it1_end);
-      assert(it2 == it2_end);
-    }
-    {
-      auto it1 = left.packedVarInts.begin();
-      auto it1_end = left.packedVarInts.end();
-      auto it2 = right.packed_var_ints().begin();
-      auto it2_end = right.packed_var_ints().end();
-      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
-      assert(*it1 == *it2);
-      }
-      assert(it1 == it1_end);
-      assert(it2 == it2_end);
-    }
-    {
-      auto it1 = left.packedDoubles.begin();
-      auto it1_end = left.packedDoubles.end();
-      auto it2 = right.packed_doubles().begin();
-      auto it2_end = right.packed_doubles().end();
-      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
-      assert(*it1 == *it2);
-      }
-      assert(it1 == it1_end);
-      assert(it2 == it2_end);
-    }
-    {
-      auto it1 = left.unpackedStrings.begin();
-      auto it1_end = left.unpackedStrings.end();
-      auto it2 = right.unpacked_strings().begin();
-      auto it2_end = right.unpacked_strings().end();
-      for (; it1 != it1_end && it2 != it2_end; ++it1, ++it2) {
-      assert(*it1 == *it2);
       }
       assert(it1 == it1_end);
       assert(it2 == it2_end);

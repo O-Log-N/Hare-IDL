@@ -23,7 +23,6 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
-#include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 // @@protoc_insertion_point(includes)
 
@@ -53,96 +52,6 @@ class __unique_ptr_Structure;
 class map_string_Variant;
 class map_string_uint32;
 
-enum Variant_KIND {
-  Variant_KIND_NONE = 0,
-  Variant_KIND_NUMBER = 1,
-  Variant_KIND_STRING = 2
-};
-bool Variant_KIND_IsValid(int value);
-const Variant_KIND Variant_KIND_KIND_MIN = Variant_KIND_NONE;
-const Variant_KIND Variant_KIND_KIND_MAX = Variant_KIND_STRING;
-const int Variant_KIND_KIND_ARRAYSIZE = Variant_KIND_KIND_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* Variant_KIND_descriptor();
-inline const ::std::string& Variant_KIND_Name(Variant_KIND value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    Variant_KIND_descriptor(), value);
-}
-inline bool Variant_KIND_Parse(
-    const ::std::string& name, Variant_KIND* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<Variant_KIND>(
-    Variant_KIND_descriptor(), name, value);
-}
-enum DataType_KIND {
-  DataType_KIND_BIT_STRING = 0,
-  DataType_KIND_CHARACTER = 1,
-  DataType_KIND_CHARACTER_STRING = 2,
-  DataType_KIND_DICTIONARY = 3,
-  DataType_KIND_DISCRIMINATED_UNION = 4,
-  DataType_KIND_ENCODING_SPECIFIC = 5,
-  DataType_KIND_ENUM = 6,
-  DataType_KIND_FIXED_POINT = 7,
-  DataType_KIND_FLOATING_POINT = 8,
-  DataType_KIND_INTEGER = 9,
-  DataType_KIND_MAPPING_SPECIFIC = 10,
-  DataType_KIND_NAMED_TYPE = 11,
-  DataType_KIND_SEQUENCE = 12
-};
-bool DataType_KIND_IsValid(int value);
-const DataType_KIND DataType_KIND_KIND_MIN = DataType_KIND_BIT_STRING;
-const DataType_KIND DataType_KIND_KIND_MAX = DataType_KIND_SEQUENCE;
-const int DataType_KIND_KIND_ARRAYSIZE = DataType_KIND_KIND_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* DataType_KIND_descriptor();
-inline const ::std::string& DataType_KIND_Name(DataType_KIND value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    DataType_KIND_descriptor(), value);
-}
-inline bool DataType_KIND_Parse(
-    const ::std::string& name, DataType_KIND* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<DataType_KIND>(
-    DataType_KIND_descriptor(), name, value);
-}
-enum Structure_DECLTYPE {
-  Structure_DECLTYPE_ENCODING = 0,
-  Structure_DECLTYPE_IDL = 1,
-  Structure_DECLTYPE_MAPPING = 2
-};
-bool Structure_DECLTYPE_IsValid(int value);
-const Structure_DECLTYPE Structure_DECLTYPE_DECLTYPE_MIN = Structure_DECLTYPE_ENCODING;
-const Structure_DECLTYPE Structure_DECLTYPE_DECLTYPE_MAX = Structure_DECLTYPE_MAPPING;
-const int Structure_DECLTYPE_DECLTYPE_ARRAYSIZE = Structure_DECLTYPE_DECLTYPE_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* Structure_DECLTYPE_descriptor();
-inline const ::std::string& Structure_DECLTYPE_Name(Structure_DECLTYPE value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    Structure_DECLTYPE_descriptor(), value);
-}
-inline bool Structure_DECLTYPE_Parse(
-    const ::std::string& name, Structure_DECLTYPE* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<Structure_DECLTYPE>(
-    Structure_DECLTYPE_descriptor(), name, value);
-}
-enum Structure_TYPE {
-  Structure_TYPE_DISCRIMINATED_UNION = 0,
-  Structure_TYPE_RPC = 1,
-  Structure_TYPE_STRUCT = 2
-};
-bool Structure_TYPE_IsValid(int value);
-const Structure_TYPE Structure_TYPE_TYPE_MIN = Structure_TYPE_DISCRIMINATED_UNION;
-const Structure_TYPE Structure_TYPE_TYPE_MAX = Structure_TYPE_STRUCT;
-const int Structure_TYPE_TYPE_ARRAYSIZE = Structure_TYPE_TYPE_MAX + 1;
-
-const ::google::protobuf::EnumDescriptor* Structure_TYPE_descriptor();
-inline const ::std::string& Structure_TYPE_Name(Structure_TYPE value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    Structure_TYPE_descriptor(), value);
-}
-inline bool Structure_TYPE_Parse(
-    const ::std::string& name, Structure_TYPE* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<Structure_TYPE>(
-    Structure_TYPE_descriptor(), name, value);
-}
 // ===================================================================
 
 class Limit : public ::google::protobuf::Message {
@@ -550,39 +459,14 @@ class Variant : public ::google::protobuf::Message {
 
   // nested types ----------------------------------------------------
 
-  typedef Variant_KIND KIND;
-  static const KIND NONE = Variant_KIND_NONE;
-  static const KIND NUMBER = Variant_KIND_NUMBER;
-  static const KIND STRING = Variant_KIND_STRING;
-  static inline bool KIND_IsValid(int value) {
-    return Variant_KIND_IsValid(value);
-  }
-  static const KIND KIND_MIN =
-    Variant_KIND_KIND_MIN;
-  static const KIND KIND_MAX =
-    Variant_KIND_KIND_MAX;
-  static const int KIND_ARRAYSIZE =
-    Variant_KIND_KIND_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  KIND_descriptor() {
-    return Variant_KIND_descriptor();
-  }
-  static inline const ::std::string& KIND_Name(KIND value) {
-    return Variant_KIND_Name(value);
-  }
-  static inline bool KIND_Parse(const ::std::string& name,
-      KIND* value) {
-    return Variant_KIND_Parse(name, value);
-  }
-
   // accessors -------------------------------------------------------
 
-  // optional .pb.Variant.KIND kind = 1;
+  // optional uint32 kind = 1;
   inline bool has_kind() const;
   inline void clear_kind();
   static const int kKindFieldNumber = 1;
-  inline ::pb::Variant_KIND kind() const;
-  inline void set_kind(::pb::Variant_KIND value);
+  inline ::google::protobuf::uint32 kind() const;
+  inline void set_kind(::google::protobuf::uint32 value);
 
   // optional double number_value = 2;
   inline bool has_number_value() const;
@@ -618,7 +502,7 @@ class Variant : public ::google::protobuf::Message {
   mutable int _cached_size_;
   double number_value_;
   ::std::string* string_value_;
-  int kind_;
+  ::google::protobuf::uint32 kind_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
@@ -679,49 +563,14 @@ class DataType : public ::google::protobuf::Message {
 
   // nested types ----------------------------------------------------
 
-  typedef DataType_KIND KIND;
-  static const KIND BIT_STRING = DataType_KIND_BIT_STRING;
-  static const KIND CHARACTER = DataType_KIND_CHARACTER;
-  static const KIND CHARACTER_STRING = DataType_KIND_CHARACTER_STRING;
-  static const KIND DICTIONARY = DataType_KIND_DICTIONARY;
-  static const KIND DISCRIMINATED_UNION = DataType_KIND_DISCRIMINATED_UNION;
-  static const KIND ENCODING_SPECIFIC = DataType_KIND_ENCODING_SPECIFIC;
-  static const KIND ENUM = DataType_KIND_ENUM;
-  static const KIND FIXED_POINT = DataType_KIND_FIXED_POINT;
-  static const KIND FLOATING_POINT = DataType_KIND_FLOATING_POINT;
-  static const KIND INTEGER = DataType_KIND_INTEGER;
-  static const KIND MAPPING_SPECIFIC = DataType_KIND_MAPPING_SPECIFIC;
-  static const KIND NAMED_TYPE = DataType_KIND_NAMED_TYPE;
-  static const KIND SEQUENCE = DataType_KIND_SEQUENCE;
-  static inline bool KIND_IsValid(int value) {
-    return DataType_KIND_IsValid(value);
-  }
-  static const KIND KIND_MIN =
-    DataType_KIND_KIND_MIN;
-  static const KIND KIND_MAX =
-    DataType_KIND_KIND_MAX;
-  static const int KIND_ARRAYSIZE =
-    DataType_KIND_KIND_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  KIND_descriptor() {
-    return DataType_KIND_descriptor();
-  }
-  static inline const ::std::string& KIND_Name(KIND value) {
-    return DataType_KIND_Name(value);
-  }
-  static inline bool KIND_Parse(const ::std::string& name,
-      KIND* value) {
-    return DataType_KIND_Parse(name, value);
-  }
-
   // accessors -------------------------------------------------------
 
-  // optional .pb.DataType.KIND kind = 1;
+  // optional uint32 kind = 1;
   inline bool has_kind() const;
   inline void clear_kind();
   static const int kKindFieldNumber = 1;
-  inline ::pb::DataType_KIND kind() const;
-  inline void set_kind(::pb::DataType_KIND value);
+  inline ::google::protobuf::uint32 kind() const;
+  inline void set_kind(::google::protobuf::uint32 value);
 
   // optional string name = 2;
   inline bool has_name() const;
@@ -914,7 +763,7 @@ class DataType : public ::google::protobuf::Message {
   ::std::string* mapping_name_;
   ::std::string* encoding_name_;
   ::pb::__unique_ptr_DataType* key_type_;
-  int kind_;
+  ::google::protobuf::uint32 kind_;
   ::google::protobuf::uint32 floating_significand_bits_;
   ::pb::__unique_ptr_DataType* param_type_;
   ::pb::Limit* low_limit_;
@@ -1418,71 +1267,21 @@ class Structure : public ::google::protobuf::Message {
 
   // nested types ----------------------------------------------------
 
-  typedef Structure_DECLTYPE DECLTYPE;
-  static const DECLTYPE ENCODING = Structure_DECLTYPE_ENCODING;
-  static const DECLTYPE IDL = Structure_DECLTYPE_IDL;
-  static const DECLTYPE MAPPING = Structure_DECLTYPE_MAPPING;
-  static inline bool DECLTYPE_IsValid(int value) {
-    return Structure_DECLTYPE_IsValid(value);
-  }
-  static const DECLTYPE DECLTYPE_MIN =
-    Structure_DECLTYPE_DECLTYPE_MIN;
-  static const DECLTYPE DECLTYPE_MAX =
-    Structure_DECLTYPE_DECLTYPE_MAX;
-  static const int DECLTYPE_ARRAYSIZE =
-    Structure_DECLTYPE_DECLTYPE_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  DECLTYPE_descriptor() {
-    return Structure_DECLTYPE_descriptor();
-  }
-  static inline const ::std::string& DECLTYPE_Name(DECLTYPE value) {
-    return Structure_DECLTYPE_Name(value);
-  }
-  static inline bool DECLTYPE_Parse(const ::std::string& name,
-      DECLTYPE* value) {
-    return Structure_DECLTYPE_Parse(name, value);
-  }
-
-  typedef Structure_TYPE TYPE;
-  static const TYPE DISCRIMINATED_UNION = Structure_TYPE_DISCRIMINATED_UNION;
-  static const TYPE RPC = Structure_TYPE_RPC;
-  static const TYPE STRUCT = Structure_TYPE_STRUCT;
-  static inline bool TYPE_IsValid(int value) {
-    return Structure_TYPE_IsValid(value);
-  }
-  static const TYPE TYPE_MIN =
-    Structure_TYPE_TYPE_MIN;
-  static const TYPE TYPE_MAX =
-    Structure_TYPE_TYPE_MAX;
-  static const int TYPE_ARRAYSIZE =
-    Structure_TYPE_TYPE_ARRAYSIZE;
-  static inline const ::google::protobuf::EnumDescriptor*
-  TYPE_descriptor() {
-    return Structure_TYPE_descriptor();
-  }
-  static inline const ::std::string& TYPE_Name(TYPE value) {
-    return Structure_TYPE_Name(value);
-  }
-  static inline bool TYPE_Parse(const ::std::string& name,
-      TYPE* value) {
-    return Structure_TYPE_Parse(name, value);
-  }
-
   // accessors -------------------------------------------------------
 
-  // optional .pb.Structure.DECLTYPE decl_type = 1;
+  // optional uint32 decl_type = 1;
   inline bool has_decl_type() const;
   inline void clear_decl_type();
   static const int kDeclTypeFieldNumber = 1;
-  inline ::pb::Structure_DECLTYPE decl_type() const;
-  inline void set_decl_type(::pb::Structure_DECLTYPE value);
+  inline ::google::protobuf::uint32 decl_type() const;
+  inline void set_decl_type(::google::protobuf::uint32 value);
 
-  // optional .pb.Structure.TYPE type = 2;
+  // optional uint32 type = 2;
   inline bool has_type() const;
   inline void clear_type();
   static const int kTypeFieldNumber = 2;
-  inline ::pb::Structure_TYPE type() const;
-  inline void set_type(::pb::Structure_TYPE value);
+  inline ::google::protobuf::uint32 type() const;
+  inline void set_type(::google::protobuf::uint32 value);
 
   // optional string name = 3;
   inline bool has_name() const;
@@ -1548,8 +1347,8 @@ class Structure : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  int decl_type_;
-  int type_;
+  ::google::protobuf::uint32 decl_type_;
+  ::google::protobuf::uint32 type_;
   ::std::string* name_;
   ::std::string* discriminant_;
   ::std::string* inherited_from_;
@@ -1748,46 +1547,6 @@ class Root : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_Structure >*
       mutable_structures();
 
-  // repeated sint32 packed_var_ints = 3 [packed = true];
-  inline int packed_var_ints_size() const;
-  inline void clear_packed_var_ints();
-  static const int kPackedVarIntsFieldNumber = 3;
-  inline ::google::protobuf::int32 packed_var_ints(int index) const;
-  inline void set_packed_var_ints(int index, ::google::protobuf::int32 value);
-  inline void add_packed_var_ints(::google::protobuf::int32 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
-      packed_var_ints() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
-      mutable_packed_var_ints();
-
-  // repeated double packed_doubles = 4 [packed = true];
-  inline int packed_doubles_size() const;
-  inline void clear_packed_doubles();
-  static const int kPackedDoublesFieldNumber = 4;
-  inline double packed_doubles(int index) const;
-  inline void set_packed_doubles(int index, double value);
-  inline void add_packed_doubles(double value);
-  inline const ::google::protobuf::RepeatedField< double >&
-      packed_doubles() const;
-  inline ::google::protobuf::RepeatedField< double >*
-      mutable_packed_doubles();
-
-  // repeated string unpacked_strings = 5;
-  inline int unpacked_strings_size() const;
-  inline void clear_unpacked_strings();
-  static const int kUnpackedStringsFieldNumber = 5;
-  inline const ::std::string& unpacked_strings(int index) const;
-  inline ::std::string* mutable_unpacked_strings(int index);
-  inline void set_unpacked_strings(int index, const ::std::string& value);
-  inline void set_unpacked_strings(int index, const char* value);
-  inline void set_unpacked_strings(int index, const char* value, size_t size);
-  inline ::std::string* add_unpacked_strings();
-  inline void add_unpacked_strings(const ::std::string& value);
-  inline void add_unpacked_strings(const char* value);
-  inline void add_unpacked_strings(const char* value, size_t size);
-  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& unpacked_strings() const;
-  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_unpacked_strings();
-
   // @@protoc_insertion_point(class_scope:pb.Root)
  private:
 
@@ -1797,11 +1556,6 @@ class Root : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::pb::Typedef > typedefs_;
   ::google::protobuf::RepeatedPtrField< ::pb::__unique_ptr_Structure > structures_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > packed_var_ints_;
-  mutable int _packed_var_ints_cached_byte_size_;
-  ::google::protobuf::RepeatedField< double > packed_doubles_;
-  mutable int _packed_doubles_cached_byte_size_;
-  ::google::protobuf::RepeatedPtrField< ::std::string> unpacked_strings_;
   friend void  protobuf_AddDesc_output_2eproto();
   friend void protobuf_AssignDesc_output_2eproto();
   friend void protobuf_ShutdownFile_output_2eproto();
@@ -2515,7 +2269,7 @@ CharacterSet::mutable_ranges() {
 
 // Variant
 
-// optional .pb.Variant.KIND kind = 1;
+// optional uint32 kind = 1;
 inline bool Variant::has_kind() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -2526,15 +2280,14 @@ inline void Variant::clear_has_kind() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void Variant::clear_kind() {
-  kind_ = 0;
+  kind_ = 0u;
   clear_has_kind();
 }
-inline ::pb::Variant_KIND Variant::kind() const {
+inline ::google::protobuf::uint32 Variant::kind() const {
   // @@protoc_insertion_point(field_get:pb.Variant.kind)
-  return static_cast< ::pb::Variant_KIND >(kind_);
+  return kind_;
 }
-inline void Variant::set_kind(::pb::Variant_KIND value) {
-  assert(::pb::Variant_KIND_IsValid(value));
+inline void Variant::set_kind(::google::protobuf::uint32 value) {
   set_has_kind();
   kind_ = value;
   // @@protoc_insertion_point(field_set:pb.Variant.kind)
@@ -2644,7 +2397,7 @@ inline void Variant::set_allocated_string_value(::std::string* string_value) {
 
 // DataType
 
-// optional .pb.DataType.KIND kind = 1;
+// optional uint32 kind = 1;
 inline bool DataType::has_kind() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -2655,15 +2408,14 @@ inline void DataType::clear_has_kind() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void DataType::clear_kind() {
-  kind_ = 0;
+  kind_ = 0u;
   clear_has_kind();
 }
-inline ::pb::DataType_KIND DataType::kind() const {
+inline ::google::protobuf::uint32 DataType::kind() const {
   // @@protoc_insertion_point(field_get:pb.DataType.kind)
-  return static_cast< ::pb::DataType_KIND >(kind_);
+  return kind_;
 }
-inline void DataType::set_kind(::pb::DataType_KIND value) {
-  assert(::pb::DataType_KIND_IsValid(value));
+inline void DataType::set_kind(::google::protobuf::uint32 value) {
   set_has_kind();
   kind_ = value;
   // @@protoc_insertion_point(field_set:pb.DataType.kind)
@@ -3868,7 +3620,7 @@ inline void EncodedMembers::set_allocated___parent(::pb::EncodedOrMember* __pare
 
 // Structure
 
-// optional .pb.Structure.DECLTYPE decl_type = 1;
+// optional uint32 decl_type = 1;
 inline bool Structure::has_decl_type() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -3879,21 +3631,20 @@ inline void Structure::clear_has_decl_type() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void Structure::clear_decl_type() {
-  decl_type_ = 0;
+  decl_type_ = 0u;
   clear_has_decl_type();
 }
-inline ::pb::Structure_DECLTYPE Structure::decl_type() const {
+inline ::google::protobuf::uint32 Structure::decl_type() const {
   // @@protoc_insertion_point(field_get:pb.Structure.decl_type)
-  return static_cast< ::pb::Structure_DECLTYPE >(decl_type_);
+  return decl_type_;
 }
-inline void Structure::set_decl_type(::pb::Structure_DECLTYPE value) {
-  assert(::pb::Structure_DECLTYPE_IsValid(value));
+inline void Structure::set_decl_type(::google::protobuf::uint32 value) {
   set_has_decl_type();
   decl_type_ = value;
   // @@protoc_insertion_point(field_set:pb.Structure.decl_type)
 }
 
-// optional .pb.Structure.TYPE type = 2;
+// optional uint32 type = 2;
 inline bool Structure::has_type() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -3904,15 +3655,14 @@ inline void Structure::clear_has_type() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline void Structure::clear_type() {
-  type_ = 0;
+  type_ = 0u;
   clear_has_type();
 }
-inline ::pb::Structure_TYPE Structure::type() const {
+inline ::google::protobuf::uint32 Structure::type() const {
   // @@protoc_insertion_point(field_get:pb.Structure.type)
-  return static_cast< ::pb::Structure_TYPE >(type_);
+  return type_;
 }
-inline void Structure::set_type(::pb::Structure_TYPE value) {
-  assert(::pb::Structure_TYPE_IsValid(value));
+inline void Structure::set_type(::google::protobuf::uint32 value) {
   set_has_type();
   type_ = value;
   // @@protoc_insertion_point(field_set:pb.Structure.type)
@@ -4413,120 +4163,6 @@ Root::mutable_structures() {
   return &structures_;
 }
 
-// repeated sint32 packed_var_ints = 3 [packed = true];
-inline int Root::packed_var_ints_size() const {
-  return packed_var_ints_.size();
-}
-inline void Root::clear_packed_var_ints() {
-  packed_var_ints_.Clear();
-}
-inline ::google::protobuf::int32 Root::packed_var_ints(int index) const {
-  // @@protoc_insertion_point(field_get:pb.Root.packed_var_ints)
-  return packed_var_ints_.Get(index);
-}
-inline void Root::set_packed_var_ints(int index, ::google::protobuf::int32 value) {
-  packed_var_ints_.Set(index, value);
-  // @@protoc_insertion_point(field_set:pb.Root.packed_var_ints)
-}
-inline void Root::add_packed_var_ints(::google::protobuf::int32 value) {
-  packed_var_ints_.Add(value);
-  // @@protoc_insertion_point(field_add:pb.Root.packed_var_ints)
-}
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
-Root::packed_var_ints() const {
-  // @@protoc_insertion_point(field_list:pb.Root.packed_var_ints)
-  return packed_var_ints_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
-Root::mutable_packed_var_ints() {
-  // @@protoc_insertion_point(field_mutable_list:pb.Root.packed_var_ints)
-  return &packed_var_ints_;
-}
-
-// repeated double packed_doubles = 4 [packed = true];
-inline int Root::packed_doubles_size() const {
-  return packed_doubles_.size();
-}
-inline void Root::clear_packed_doubles() {
-  packed_doubles_.Clear();
-}
-inline double Root::packed_doubles(int index) const {
-  // @@protoc_insertion_point(field_get:pb.Root.packed_doubles)
-  return packed_doubles_.Get(index);
-}
-inline void Root::set_packed_doubles(int index, double value) {
-  packed_doubles_.Set(index, value);
-  // @@protoc_insertion_point(field_set:pb.Root.packed_doubles)
-}
-inline void Root::add_packed_doubles(double value) {
-  packed_doubles_.Add(value);
-  // @@protoc_insertion_point(field_add:pb.Root.packed_doubles)
-}
-inline const ::google::protobuf::RepeatedField< double >&
-Root::packed_doubles() const {
-  // @@protoc_insertion_point(field_list:pb.Root.packed_doubles)
-  return packed_doubles_;
-}
-inline ::google::protobuf::RepeatedField< double >*
-Root::mutable_packed_doubles() {
-  // @@protoc_insertion_point(field_mutable_list:pb.Root.packed_doubles)
-  return &packed_doubles_;
-}
-
-// repeated string unpacked_strings = 5;
-inline int Root::unpacked_strings_size() const {
-  return unpacked_strings_.size();
-}
-inline void Root::clear_unpacked_strings() {
-  unpacked_strings_.Clear();
-}
-inline const ::std::string& Root::unpacked_strings(int index) const {
-  // @@protoc_insertion_point(field_get:pb.Root.unpacked_strings)
-  return unpacked_strings_.Get(index);
-}
-inline ::std::string* Root::mutable_unpacked_strings(int index) {
-  // @@protoc_insertion_point(field_mutable:pb.Root.unpacked_strings)
-  return unpacked_strings_.Mutable(index);
-}
-inline void Root::set_unpacked_strings(int index, const ::std::string& value) {
-  // @@protoc_insertion_point(field_set:pb.Root.unpacked_strings)
-  unpacked_strings_.Mutable(index)->assign(value);
-}
-inline void Root::set_unpacked_strings(int index, const char* value) {
-  unpacked_strings_.Mutable(index)->assign(value);
-  // @@protoc_insertion_point(field_set_char:pb.Root.unpacked_strings)
-}
-inline void Root::set_unpacked_strings(int index, const char* value, size_t size) {
-  unpacked_strings_.Mutable(index)->assign(
-    reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:pb.Root.unpacked_strings)
-}
-inline ::std::string* Root::add_unpacked_strings() {
-  return unpacked_strings_.Add();
-}
-inline void Root::add_unpacked_strings(const ::std::string& value) {
-  unpacked_strings_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add:pb.Root.unpacked_strings)
-}
-inline void Root::add_unpacked_strings(const char* value) {
-  unpacked_strings_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add_char:pb.Root.unpacked_strings)
-}
-inline void Root::add_unpacked_strings(const char* value, size_t size) {
-  unpacked_strings_.Add()->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_add_pointer:pb.Root.unpacked_strings)
-}
-inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
-Root::unpacked_strings() const {
-  // @@protoc_insertion_point(field_list:pb.Root.unpacked_strings)
-  return unpacked_strings_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::std::string>*
-Root::mutable_unpacked_strings() {
-  // @@protoc_insertion_point(field_mutable_list:pb.Root.unpacked_strings)
-  return &unpacked_strings_;
-}
-
 // -------------------------------------------------------------------
 
 // __unique_ptr_DataType
@@ -4978,26 +4614,6 @@ inline void map_string_uint32::set_value(::google::protobuf::uint32 value) {
 namespace google {
 namespace protobuf {
 
-template <> struct is_proto_enum< ::pb::Variant_KIND> : ::google::protobuf::internal::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::pb::Variant_KIND>() {
-  return ::pb::Variant_KIND_descriptor();
-}
-template <> struct is_proto_enum< ::pb::DataType_KIND> : ::google::protobuf::internal::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::pb::DataType_KIND>() {
-  return ::pb::DataType_KIND_descriptor();
-}
-template <> struct is_proto_enum< ::pb::Structure_DECLTYPE> : ::google::protobuf::internal::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::pb::Structure_DECLTYPE>() {
-  return ::pb::Structure_DECLTYPE_descriptor();
-}
-template <> struct is_proto_enum< ::pb::Structure_TYPE> : ::google::protobuf::internal::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::pb::Structure_TYPE>() {
-  return ::pb::Structure_TYPE_descriptor();
-}
 
 }  // namespace google
 }  // namespace protobuf

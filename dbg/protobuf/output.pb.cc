@@ -35,11 +35,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* Variant_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Variant_reflection_ = NULL;
-const ::google::protobuf::EnumDescriptor* Variant_KIND_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* DataType_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   DataType_reflection_ = NULL;
-const ::google::protobuf::EnumDescriptor* DataType_KIND_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* EncodingSpecifics_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   EncodingSpecifics_reflection_ = NULL;
@@ -55,8 +53,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* Structure_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Structure_reflection_ = NULL;
-const ::google::protobuf::EnumDescriptor* Structure_DECLTYPE_descriptor_ = NULL;
-const ::google::protobuf::EnumDescriptor* Structure_TYPE_descriptor_ = NULL;
 const ::google::protobuf::Descriptor* Typedef_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Typedef_reflection_ = NULL;
@@ -168,7 +164,6 @@ void protobuf_AssignDesc_output_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Variant));
-  Variant_KIND_descriptor_ = Variant_descriptor_->enum_type(0);
   DataType_descriptor_ = file->message_type(5);
   static const int DataType_offsets_[17] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DataType, kind_),
@@ -200,7 +195,6 @@ void protobuf_AssignDesc_output_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DataType));
-  DataType_KIND_descriptor_ = DataType_descriptor_->enum_type(0);
   EncodingSpecifics_descriptor_ = file->message_type(6);
   static const int EncodingSpecifics_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EncodingSpecifics, name_),
@@ -289,8 +283,6 @@ void protobuf_AssignDesc_output_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Structure));
-  Structure_DECLTYPE_descriptor_ = Structure_descriptor_->enum_type(0);
-  Structure_TYPE_descriptor_ = Structure_descriptor_->enum_type(1);
   Typedef_descriptor_ = file->message_type(11);
   static const int Typedef_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Typedef, location_),
@@ -309,12 +301,9 @@ void protobuf_AssignDesc_output_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Typedef));
   Root_descriptor_ = file->message_type(12);
-  static const int Root_offsets_[5] = {
+  static const int Root_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Root, typedefs_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Root, structures_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Root, packed_var_ints_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Root, packed_doubles_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Root, unpacked_strings_),
   };
   Root_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -509,66 +498,52 @@ void protobuf_AddDesc_output_2eproto() {
     "e_name\030\001 \001(\t\022\023\n\013line_number\030\002 \001(\021\"*\n\016Cha"
     "racterRange\022\014\n\004from\030\001 \001(\r\022\n\n\002to\030\002 \001(\r\"2\n"
     "\014CharacterSet\022\"\n\006ranges\030\001 \003(\0132\022.pb.Chara"
-    "cterRange\"\177\n\007Variant\022\036\n\004kind\030\001 \001(\0162\020.pb."
-    "Variant.KIND\022\024\n\014number_value\030\002 \001(\001\022\024\n\014st"
-    "ring_value\030\003 \001(\t\"(\n\004KIND\022\010\n\004NONE\020\000\022\n\n\006NU"
-    "MBER\020\001\022\n\n\006STRING\020\002\"\257\006\n\010DataType\022\037\n\004kind\030"
-    "\001 \001(\0162\021.pb.DataType.KIND\022\014\n\004name\030\002 \001(\t\022\024"
-    "\n\014mapping_name\030\003 \001(\t\022\025\n\rencoding_name\030\004 "
-    "\001(\t\022+\n\010key_type\030\005 \001(\0132\031.pb.__unique_ptr_"
-    "DataType\022-\n\nparam_type\030\006 \001(\0132\031.pb.__uniq"
-    "ue_ptr_DataType\022\034\n\tlow_limit\030\007 \001(\0132\t.pb."
-    "Limit\022\035\n\nhigh_limit\030\010 \001(\0132\t.pb.Limit\022\027\n\017"
-    "fixed_precision\030\t \001(\001\022!\n\031floating_signif"
-    "icand_bits\030\n \001(\r\022\036\n\026floating_exponent_bi"
-    "ts\030\013 \001(\r\022\'\n\rcharacter_set\030\014 \001(\0132\020.pb.Cha"
-    "racterSet\022\027\n\017string_min_size\030\r \001(\r\022\027\n\017st"
-    "ring_max_size\030\016 \001(\r\022.\n\016encoding_attrs\030\017 "
-    "\003(\0132\026.pb.map_string_Variant\022-\n\rmapping_a"
-    "ttrs\030\020 \003(\0132\026.pb.map_string_Variant\022*\n\013en"
-    "um_values\030\021 \003(\0132\025.pb.map_string_uint32\"\353"
-    "\001\n\004KIND\022\016\n\nBIT_STRING\020\000\022\r\n\tCHARACTER\020\001\022\024"
-    "\n\020CHARACTER_STRING\020\002\022\016\n\nDICTIONARY\020\003\022\027\n\023"
-    "DISCRIMINATED_UNION\020\004\022\025\n\021ENCODING_SPECIF"
-    "IC\020\005\022\010\n\004ENUM\020\006\022\017\n\013FIXED_POINT\020\007\022\022\n\016FLOAT"
-    "ING_POINT\020\010\022\013\n\007INTEGER\020\t\022\024\n\020MAPPING_SPEC"
-    "IFIC\020\n\022\016\n\nNAMED_TYPE\020\013\022\014\n\010SEQUENCE\020\014\"H\n\021"
-    "EncodingSpecifics\022\014\n\004name\030\001 \001(\t\022%\n\005attrs"
-    "\030\002 \003(\0132\026.pb.map_string_Variant\"1\n\017Encode"
-    "dOrMember\022\036\n\010location\030\001 \001(\0132\014.pb.Locatio"
-    "n\"\257\001\n\nDataMember\022\032\n\004type\030\001 \001(\0132\014.pb.Data"
-    "Type\022\014\n\004name\030\002 \001(\t\022\021\n\textend_to\030\003 \001(\010\022\"\n"
-    "\rdefault_value\030\004 \001(\0132\013.pb.Variant\022\031\n\021whe"
-    "n_discriminant\030\005 \003(\t\022%\n\010__parent\030\006 \001(\0132\023"
-    ".pb.EncodedOrMember\"\235\001\n\016EncodedMembers\0221"
-    "\n\022encoding_specifics\030\001 \001(\0132\025.pb.Encoding"
-    "Specifics\0221\n\007members\030\002 \003(\0132 .pb.__unique"
-    "_ptr_EncodedOrMember\022%\n\010__parent\030\003 \001(\0132\023"
-    ".pb.EncodedOrMember\"\240\002\n\tStructure\022)\n\tdec"
-    "l_type\030\001 \001(\0162\026.pb.Structure.DECLTYPE\022 \n\004"
-    "type\030\002 \001(\0162\022.pb.Structure.TYPE\022\014\n\004name\030\003"
-    " \001(\t\022\024\n\014discriminant\030\004 \001(\t\022\026\n\016inherited_"
-    "from\030\005 \001(\t\022$\n\010__parent\030\006 \001(\0132\022.pb.Encode"
-    "dMembers\".\n\010DECLTYPE\022\014\n\010ENCODING\020\000\022\007\n\003ID"
-    "L\020\001\022\013\n\007MAPPING\020\002\"4\n\004TYPE\022\027\n\023DISCRIMINATE"
-    "D_UNION\020\000\022\007\n\003RPC\020\001\022\n\n\006STRUCT\020\002\"S\n\007Typede"
-    "f\022\036\n\010location\030\001 \001(\0132\014.pb.Location\022\032\n\004typ"
-    "e\030\002 \001(\0132\014.pb.DataType\022\014\n\004name\030\003 \001(\t\"\250\001\n\004"
-    "Root\022\035\n\010typedefs\030\001 \003(\0132\013.pb.Typedef\022.\n\ns"
-    "tructures\030\002 \003(\0132\032.pb.__unique_ptr_Struct"
-    "ure\022\033\n\017packed_var_ints\030\003 \003(\021B\002\020\001\022\032\n\016pack"
-    "ed_doubles\030\004 \003(\001B\002\020\001\022\030\n\020unpacked_strings"
-    "\030\005 \003(\t\";\n\025__unique_ptr_DataType\022\"\n\014du_da"
-    "ta_type\030\001 \001(\0132\014.pb.DataType\"\251\001\n\034__unique"
-    "_ptr_EncodedOrMember\022&\n\016du_data_member\030\001"
-    " \001(\0132\016.pb.DataMember\022.\n\022du_encoded_membe"
-    "rs\030\002 \001(\0132\022.pb.EncodedMembers\0221\n\024du_encod"
-    "ed_or_member\030\003 \001(\0132\023.pb.EncodedOrMember\""
-    "=\n\026__unique_ptr_Structure\022#\n\014du_structur"
-    "e\030\001 \001(\0132\r.pb.Structure\"=\n\022map_string_Var"
-    "iant\022\013\n\003key\030\001 \001(\t\022\032\n\005value\030\002 \001(\0132\013.pb.Va"
-    "riant\"/\n\021map_string_uint32\022\013\n\003key\030\001 \001(\t\022"
-    "\r\n\005value\030\002 \001(\r", 2574);
+    "cterRange\"C\n\007Variant\022\014\n\004kind\030\001 \001(\r\022\024\n\014nu"
+    "mber_value\030\002 \001(\001\022\024\n\014string_value\030\003 \001(\t\"\256"
+    "\004\n\010DataType\022\014\n\004kind\030\001 \001(\r\022\014\n\004name\030\002 \001(\t\022"
+    "\024\n\014mapping_name\030\003 \001(\t\022\025\n\rencoding_name\030\004"
+    " \001(\t\022+\n\010key_type\030\005 \001(\0132\031.pb.__unique_ptr"
+    "_DataType\022-\n\nparam_type\030\006 \001(\0132\031.pb.__uni"
+    "que_ptr_DataType\022\034\n\tlow_limit\030\007 \001(\0132\t.pb"
+    ".Limit\022\035\n\nhigh_limit\030\010 \001(\0132\t.pb.Limit\022\027\n"
+    "\017fixed_precision\030\t \001(\001\022!\n\031floating_signi"
+    "ficand_bits\030\n \001(\r\022\036\n\026floating_exponent_b"
+    "its\030\013 \001(\r\022\'\n\rcharacter_set\030\014 \001(\0132\020.pb.Ch"
+    "aracterSet\022\027\n\017string_min_size\030\r \001(\r\022\027\n\017s"
+    "tring_max_size\030\016 \001(\r\022.\n\016encoding_attrs\030\017"
+    " \003(\0132\026.pb.map_string_Variant\022-\n\rmapping_"
+    "attrs\030\020 \003(\0132\026.pb.map_string_Variant\022*\n\013e"
+    "num_values\030\021 \003(\0132\025.pb.map_string_uint32\""
+    "H\n\021EncodingSpecifics\022\014\n\004name\030\001 \001(\t\022%\n\005at"
+    "trs\030\002 \003(\0132\026.pb.map_string_Variant\"1\n\017Enc"
+    "odedOrMember\022\036\n\010location\030\001 \001(\0132\014.pb.Loca"
+    "tion\"\257\001\n\nDataMember\022\032\n\004type\030\001 \001(\0132\014.pb.D"
+    "ataType\022\014\n\004name\030\002 \001(\t\022\021\n\textend_to\030\003 \001(\010"
+    "\022\"\n\rdefault_value\030\004 \001(\0132\013.pb.Variant\022\031\n\021"
+    "when_discriminant\030\005 \003(\t\022%\n\010__parent\030\006 \001("
+    "\0132\023.pb.EncodedOrMember\"\235\001\n\016EncodedMember"
+    "s\0221\n\022encoding_specifics\030\001 \001(\0132\025.pb.Encod"
+    "ingSpecifics\0221\n\007members\030\002 \003(\0132 .pb.__uni"
+    "que_ptr_EncodedOrMember\022%\n\010__parent\030\003 \001("
+    "\0132\023.pb.EncodedOrMember\"\216\001\n\tStructure\022\021\n\t"
+    "decl_type\030\001 \001(\r\022\014\n\004type\030\002 \001(\r\022\014\n\004name\030\003 "
+    "\001(\t\022\024\n\014discriminant\030\004 \001(\t\022\026\n\016inherited_f"
+    "rom\030\005 \001(\t\022$\n\010__parent\030\006 \001(\0132\022.pb.Encoded"
+    "Members\"S\n\007Typedef\022\036\n\010location\030\001 \001(\0132\014.p"
+    "b.Location\022\032\n\004type\030\002 \001(\0132\014.pb.DataType\022\014"
+    "\n\004name\030\003 \001(\t\"U\n\004Root\022\035\n\010typedefs\030\001 \003(\0132\013"
+    ".pb.Typedef\022.\n\nstructures\030\002 \003(\0132\032.pb.__u"
+    "nique_ptr_Structure\";\n\025__unique_ptr_Data"
+    "Type\022\"\n\014du_data_type\030\001 \001(\0132\014.pb.DataType"
+    "\"\251\001\n\034__unique_ptr_EncodedOrMember\022&\n\016du_"
+    "data_member\030\001 \001(\0132\016.pb.DataMember\022.\n\022du_"
+    "encoded_members\030\002 \001(\0132\022.pb.EncodedMember"
+    "s\0221\n\024du_encoded_or_member\030\003 \001(\0132\023.pb.Enc"
+    "odedOrMember\"=\n\026__unique_ptr_Structure\022#"
+    "\n\014du_structure\030\001 \001(\0132\r.pb.Structure\"=\n\022m"
+    "ap_string_Variant\022\013\n\003key\030\001 \001(\t\022\032\n\005value\030"
+    "\002 \001(\0132\013.pb.Variant\"/\n\021map_string_uint32\022"
+    "\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\r", 2027);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "output.proto", &protobuf_RegisterTypes);
   Limit::default_instance_ = new Limit();
@@ -1666,29 +1641,6 @@ void CharacterSet::Swap(CharacterSet* other) {
 
 // ===================================================================
 
-const ::google::protobuf::EnumDescriptor* Variant_KIND_descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return Variant_KIND_descriptor_;
-}
-bool Variant_KIND_IsValid(int value) {
-  switch(value) {
-    case 0:
-    case 1:
-    case 2:
-      return true;
-    default:
-      return false;
-  }
-}
-
-#ifndef _MSC_VER
-const Variant_KIND Variant::NONE;
-const Variant_KIND Variant::NUMBER;
-const Variant_KIND Variant::STRING;
-const Variant_KIND Variant::KIND_MIN;
-const Variant_KIND Variant::KIND_MAX;
-const int Variant::KIND_ARRAYSIZE;
-#endif  // _MSC_VER
 #ifndef _MSC_VER
 const int Variant::kKindFieldNumber;
 const int Variant::kNumberValueFieldNumber;
@@ -1714,7 +1666,7 @@ Variant::Variant(const Variant& from)
 void Variant::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  kind_ = 0;
+  kind_ = 0u;
   number_value_ = 0;
   string_value_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -1756,7 +1708,7 @@ Variant* Variant::New() const {
 
 void Variant::Clear() {
   if (_has_bits_[0 / 32] & 7) {
-    kind_ = 0;
+    kind_ = 0u;
     number_value_ = 0;
     if (has_string_value()) {
       if (string_value_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -1778,18 +1730,13 @@ bool Variant::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .pb.Variant.KIND kind = 1;
+      // optional uint32 kind = 1;
       case 1: {
         if (tag == 8) {
-          int value;
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
-                 input, &value)));
-          if (::pb::Variant_KIND_IsValid(value)) {
-            set_kind(static_cast< ::pb::Variant_KIND >(value));
-          } else {
-            mutable_unknown_fields()->AddVarint(1, value);
-          }
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &kind_)));
+          set_has_kind();
         } else {
           goto handle_unusual;
         }
@@ -1854,10 +1801,9 @@ failure:
 void Variant::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:pb.Variant)
-  // optional .pb.Variant.KIND kind = 1;
+  // optional uint32 kind = 1;
   if (has_kind()) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      1, this->kind(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->kind(), output);
   }
 
   // optional double number_value = 2;
@@ -1885,10 +1831,9 @@ void Variant::SerializeWithCachedSizes(
 ::google::protobuf::uint8* Variant::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:pb.Variant)
-  // optional .pb.Variant.KIND kind = 1;
+  // optional uint32 kind = 1;
   if (has_kind()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      1, this->kind(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->kind(), target);
   }
 
   // optional double number_value = 2;
@@ -1919,10 +1864,11 @@ int Variant::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .pb.Variant.KIND kind = 1;
+    // optional uint32 kind = 1;
     if (has_kind()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::EnumSize(this->kind());
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->kind());
     }
 
     // optional double number_value = 2;
@@ -2016,49 +1962,6 @@ void Variant::Swap(Variant* other) {
 
 // ===================================================================
 
-const ::google::protobuf::EnumDescriptor* DataType_KIND_descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return DataType_KIND_descriptor_;
-}
-bool DataType_KIND_IsValid(int value) {
-  switch(value) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-    case 10:
-    case 11:
-    case 12:
-      return true;
-    default:
-      return false;
-  }
-}
-
-#ifndef _MSC_VER
-const DataType_KIND DataType::BIT_STRING;
-const DataType_KIND DataType::CHARACTER;
-const DataType_KIND DataType::CHARACTER_STRING;
-const DataType_KIND DataType::DICTIONARY;
-const DataType_KIND DataType::DISCRIMINATED_UNION;
-const DataType_KIND DataType::ENCODING_SPECIFIC;
-const DataType_KIND DataType::ENUM;
-const DataType_KIND DataType::FIXED_POINT;
-const DataType_KIND DataType::FLOATING_POINT;
-const DataType_KIND DataType::INTEGER;
-const DataType_KIND DataType::MAPPING_SPECIFIC;
-const DataType_KIND DataType::NAMED_TYPE;
-const DataType_KIND DataType::SEQUENCE;
-const DataType_KIND DataType::KIND_MIN;
-const DataType_KIND DataType::KIND_MAX;
-const int DataType::KIND_ARRAYSIZE;
-#endif  // _MSC_VER
 #ifndef _MSC_VER
 const int DataType::kKindFieldNumber;
 const int DataType::kNameFieldNumber;
@@ -2103,7 +2006,7 @@ DataType::DataType(const DataType& from)
 void DataType::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  kind_ = 0;
+  kind_ = 0u;
   name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   mapping_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   encoding_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
@@ -2177,7 +2080,7 @@ void DataType::Clear() {
   } while (0)
 
   if (_has_bits_[0 / 32] & 255) {
-    kind_ = 0;
+    kind_ = 0u;
     if (has_name()) {
       if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         name_->clear();
@@ -2236,18 +2139,13 @@ bool DataType::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .pb.DataType.KIND kind = 1;
+      // optional uint32 kind = 1;
       case 1: {
         if (tag == 8) {
-          int value;
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
-                 input, &value)));
-          if (::pb::DataType_KIND_IsValid(value)) {
-            set_kind(static_cast< ::pb::DataType_KIND >(value));
-          } else {
-            mutable_unknown_fields()->AddVarint(1, value);
-          }
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &kind_)));
+          set_has_kind();
         } else {
           goto handle_unusual;
         }
@@ -2513,10 +2411,9 @@ failure:
 void DataType::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:pb.DataType)
-  // optional .pb.DataType.KIND kind = 1;
+  // optional uint32 kind = 1;
   if (has_kind()) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      1, this->kind(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->kind(), output);
   }
 
   // optional string name = 2;
@@ -2632,10 +2529,9 @@ void DataType::SerializeWithCachedSizes(
 ::google::protobuf::uint8* DataType::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:pb.DataType)
-  // optional .pb.DataType.KIND kind = 1;
+  // optional uint32 kind = 1;
   if (has_kind()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      1, this->kind(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->kind(), target);
   }
 
   // optional string name = 2;
@@ -2764,10 +2660,11 @@ int DataType::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .pb.DataType.KIND kind = 1;
+    // optional uint32 kind = 1;
     if (has_kind()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::EnumSize(this->kind());
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->kind());
     }
 
     // optional string name = 2;
@@ -4301,52 +4198,6 @@ void EncodedMembers::Swap(EncodedMembers* other) {
 
 // ===================================================================
 
-const ::google::protobuf::EnumDescriptor* Structure_DECLTYPE_descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return Structure_DECLTYPE_descriptor_;
-}
-bool Structure_DECLTYPE_IsValid(int value) {
-  switch(value) {
-    case 0:
-    case 1:
-    case 2:
-      return true;
-    default:
-      return false;
-  }
-}
-
-#ifndef _MSC_VER
-const Structure_DECLTYPE Structure::ENCODING;
-const Structure_DECLTYPE Structure::IDL;
-const Structure_DECLTYPE Structure::MAPPING;
-const Structure_DECLTYPE Structure::DECLTYPE_MIN;
-const Structure_DECLTYPE Structure::DECLTYPE_MAX;
-const int Structure::DECLTYPE_ARRAYSIZE;
-#endif  // _MSC_VER
-const ::google::protobuf::EnumDescriptor* Structure_TYPE_descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return Structure_TYPE_descriptor_;
-}
-bool Structure_TYPE_IsValid(int value) {
-  switch(value) {
-    case 0:
-    case 1:
-    case 2:
-      return true;
-    default:
-      return false;
-  }
-}
-
-#ifndef _MSC_VER
-const Structure_TYPE Structure::DISCRIMINATED_UNION;
-const Structure_TYPE Structure::RPC;
-const Structure_TYPE Structure::STRUCT;
-const Structure_TYPE Structure::TYPE_MIN;
-const Structure_TYPE Structure::TYPE_MAX;
-const int Structure::TYPE_ARRAYSIZE;
-#endif  // _MSC_VER
 #ifndef _MSC_VER
 const int Structure::kDeclTypeFieldNumber;
 const int Structure::kTypeFieldNumber;
@@ -4376,8 +4227,8 @@ Structure::Structure(const Structure& from)
 void Structure::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  decl_type_ = 0;
-  type_ = 0;
+  decl_type_ = 0u;
+  type_ = 0u;
   name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   discriminant_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   inherited_from_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
@@ -4476,18 +4327,13 @@ bool Structure::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .pb.Structure.DECLTYPE decl_type = 1;
+      // optional uint32 decl_type = 1;
       case 1: {
         if (tag == 8) {
-          int value;
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
-                 input, &value)));
-          if (::pb::Structure_DECLTYPE_IsValid(value)) {
-            set_decl_type(static_cast< ::pb::Structure_DECLTYPE >(value));
-          } else {
-            mutable_unknown_fields()->AddVarint(1, value);
-          }
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &decl_type_)));
+          set_has_decl_type();
         } else {
           goto handle_unusual;
         }
@@ -4495,19 +4341,14 @@ bool Structure::MergePartialFromCodedStream(
         break;
       }
 
-      // optional .pb.Structure.TYPE type = 2;
+      // optional uint32 type = 2;
       case 2: {
         if (tag == 16) {
          parse_type:
-          int value;
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
-                 input, &value)));
-          if (::pb::Structure_TYPE_IsValid(value)) {
-            set_type(static_cast< ::pb::Structure_TYPE >(value));
-          } else {
-            mutable_unknown_fields()->AddVarint(2, value);
-          }
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &type_)));
+          set_has_type();
         } else {
           goto handle_unusual;
         }
@@ -4604,16 +4445,14 @@ failure:
 void Structure::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:pb.Structure)
-  // optional .pb.Structure.DECLTYPE decl_type = 1;
+  // optional uint32 decl_type = 1;
   if (has_decl_type()) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      1, this->decl_type(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->decl_type(), output);
   }
 
-  // optional .pb.Structure.TYPE type = 2;
+  // optional uint32 type = 2;
   if (has_type()) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      2, this->type(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->type(), output);
   }
 
   // optional string name = 3;
@@ -4662,16 +4501,14 @@ void Structure::SerializeWithCachedSizes(
 ::google::protobuf::uint8* Structure::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:pb.Structure)
-  // optional .pb.Structure.DECLTYPE decl_type = 1;
+  // optional uint32 decl_type = 1;
   if (has_decl_type()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      1, this->decl_type(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->decl_type(), target);
   }
 
-  // optional .pb.Structure.TYPE type = 2;
+  // optional uint32 type = 2;
   if (has_type()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      2, this->type(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->type(), target);
   }
 
   // optional string name = 3;
@@ -4726,16 +4563,18 @@ int Structure::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .pb.Structure.DECLTYPE decl_type = 1;
+    // optional uint32 decl_type = 1;
     if (has_decl_type()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::EnumSize(this->decl_type());
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->decl_type());
     }
 
-    // optional .pb.Structure.TYPE type = 2;
+    // optional uint32 type = 2;
     if (has_type()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->type());
     }
 
     // optional string name = 3;
@@ -5193,9 +5032,6 @@ void Typedef::Swap(Typedef* other) {
 #ifndef _MSC_VER
 const int Root::kTypedefsFieldNumber;
 const int Root::kStructuresFieldNumber;
-const int Root::kPackedVarIntsFieldNumber;
-const int Root::kPackedDoublesFieldNumber;
-const int Root::kUnpackedStringsFieldNumber;
 #endif  // !_MSC_VER
 
 Root::Root()
@@ -5215,7 +5051,6 @@ Root::Root(const Root& from)
 }
 
 void Root::SharedCtor() {
-  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -5254,9 +5089,6 @@ Root* Root::New() const {
 void Root::Clear() {
   typedefs_.Clear();
   structures_.Clear();
-  packed_var_ints_.Clear();
-  packed_doubles_.Clear();
-  unpacked_strings_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -5295,61 +5127,6 @@ bool Root::MergePartialFromCodedStream(
           goto handle_unusual;
         }
         if (input->ExpectTag(18)) goto parse_structures;
-        if (input->ExpectTag(26)) goto parse_packed_var_ints;
-        break;
-      }
-
-      // repeated sint32 packed_var_ints = 3 [packed = true];
-      case 3: {
-        if (tag == 26) {
-         parse_packed_var_ints:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
-                 input, this->mutable_packed_var_ints())));
-        } else if (tag == 24) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_SINT32>(
-                 1, 26, input, this->mutable_packed_var_ints())));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(34)) goto parse_packed_doubles;
-        break;
-      }
-
-      // repeated double packed_doubles = 4 [packed = true];
-      case 4: {
-        if (tag == 34) {
-         parse_packed_doubles:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 input, this->mutable_packed_doubles())));
-        } else if (tag == 33) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
-                 1, 34, input, this->mutable_packed_doubles())));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(42)) goto parse_unpacked_strings;
-        break;
-      }
-
-      // repeated string unpacked_strings = 5;
-      case 5: {
-        if (tag == 42) {
-         parse_unpacked_strings:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->add_unpacked_strings()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->unpacked_strings(this->unpacked_strings_size() - 1).data(),
-            this->unpacked_strings(this->unpacked_strings_size() - 1).length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "unpacked_strings");
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(42)) goto parse_unpacked_strings;
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -5391,36 +5168,6 @@ void Root::SerializeWithCachedSizes(
       2, this->structures(i), output);
   }
 
-  // repeated sint32 packed_var_ints = 3 [packed = true];
-  if (this->packed_var_ints_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(3, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
-    output->WriteVarint32(_packed_var_ints_cached_byte_size_);
-  }
-  for (int i = 0; i < this->packed_var_ints_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteSInt32NoTag(
-      this->packed_var_ints(i), output);
-  }
-
-  // repeated double packed_doubles = 4 [packed = true];
-  if (this->packed_doubles_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(4, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
-    output->WriteVarint32(_packed_doubles_cached_byte_size_);
-  }
-  for (int i = 0; i < this->packed_doubles_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteDoubleNoTag(
-      this->packed_doubles(i), output);
-  }
-
-  // repeated string unpacked_strings = 5;
-  for (int i = 0; i < this->unpacked_strings_size(); i++) {
-  ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-    this->unpacked_strings(i).data(), this->unpacked_strings(i).length(),
-    ::google::protobuf::internal::WireFormat::SERIALIZE,
-    "unpacked_strings");
-    ::google::protobuf::internal::WireFormatLite::WriteString(
-      5, this->unpacked_strings(i), output);
-  }
-
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -5443,44 +5190,6 @@ void Root::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         2, this->structures(i), target);
-  }
-
-  // repeated sint32 packed_var_ints = 3 [packed = true];
-  if (this->packed_var_ints_size() > 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
-      3,
-      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
-      target);
-    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
-      _packed_var_ints_cached_byte_size_, target);
-  }
-  for (int i = 0; i < this->packed_var_ints_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteSInt32NoTagToArray(this->packed_var_ints(i), target);
-  }
-
-  // repeated double packed_doubles = 4 [packed = true];
-  if (this->packed_doubles_size() > 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
-      4,
-      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
-      target);
-    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
-      _packed_doubles_cached_byte_size_, target);
-  }
-  for (int i = 0; i < this->packed_doubles_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteDoubleNoTagToArray(this->packed_doubles(i), target);
-  }
-
-  // repeated string unpacked_strings = 5;
-  for (int i = 0; i < this->unpacked_strings_size(); i++) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->unpacked_strings(i).data(), this->unpacked_strings(i).length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "unpacked_strings");
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteStringToArray(5, this->unpacked_strings(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -5510,44 +5219,6 @@ int Root::ByteSize() const {
         this->structures(i));
   }
 
-  // repeated sint32 packed_var_ints = 3 [packed = true];
-  {
-    int data_size = 0;
-    for (int i = 0; i < this->packed_var_ints_size(); i++) {
-      data_size += ::google::protobuf::internal::WireFormatLite::
-        SInt32Size(this->packed_var_ints(i));
-    }
-    if (data_size > 0) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
-    }
-    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-    _packed_var_ints_cached_byte_size_ = data_size;
-    GOOGLE_SAFE_CONCURRENT_WRITES_END();
-    total_size += data_size;
-  }
-
-  // repeated double packed_doubles = 4 [packed = true];
-  {
-    int data_size = 0;
-    data_size = 8 * this->packed_doubles_size();
-    if (data_size > 0) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
-    }
-    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-    _packed_doubles_cached_byte_size_ = data_size;
-    GOOGLE_SAFE_CONCURRENT_WRITES_END();
-    total_size += data_size;
-  }
-
-  // repeated string unpacked_strings = 5;
-  total_size += 1 * this->unpacked_strings_size();
-  for (int i = 0; i < this->unpacked_strings_size(); i++) {
-    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
-      this->unpacked_strings(i));
-  }
-
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -5575,9 +5246,6 @@ void Root::MergeFrom(const Root& from) {
   GOOGLE_CHECK_NE(&from, this);
   typedefs_.MergeFrom(from.typedefs_);
   structures_.MergeFrom(from.structures_);
-  packed_var_ints_.MergeFrom(from.packed_var_ints_);
-  packed_doubles_.MergeFrom(from.packed_doubles_);
-  unpacked_strings_.MergeFrom(from.unpacked_strings_);
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -5602,9 +5270,6 @@ void Root::Swap(Root* other) {
   if (other != this) {
     typedefs_.Swap(&other->typedefs_);
     structures_.Swap(&other->structures_);
-    packed_var_ints_.Swap(&other->packed_var_ints_);
-    packed_doubles_.Swap(&other->packed_doubles_);
-    unpacked_strings_.Swap(&other->unpacked_strings_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

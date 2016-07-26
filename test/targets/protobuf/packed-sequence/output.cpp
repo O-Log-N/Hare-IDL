@@ -41,9 +41,9 @@ void serializeTestClass( const TestClass& s, OProtobufStream& o ) {
       for(const auto& item:s.packedEnum) {
         switch ( item )
         {
-          case TestClass::Values::First /* 1 */: o.writePackedUnsignedVarInt(0 ); break;
-          case TestClass::Values::Nothing /* 0 */: o.writePackedUnsignedVarInt(1 ); break;
-          case TestClass::Values::Second /* 2 */: o.writePackedUnsignedVarInt(2 ); break;
+          case /* First */ 1: o.writePackedUnsignedVarInt(0 ); break;
+          case /* Nothing */ 0: o.writePackedUnsignedVarInt(1 ); break;
+          case /* Second */ 2: o.writePackedUnsignedVarInt(2 ); break;
             default: assert( false );
         }
       }
@@ -112,12 +112,10 @@ bool deserializeTestClass( TestClass& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
-    {
-      string temp2;
+    string temp2;
       if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( temp2 );
-      s.unpackedStrings.push_back(std::move(temp2));
-    }
+    s.unpackedStrings.push_back( std::move( temp2 ) );
     }
     initFlags[0] = true;
     break;
@@ -131,11 +129,9 @@ bool deserializeTestClass( TestClass& s, IProtobufStream& i ) {
 
       while(!i.isEndOfStream()) {
 
-      int16_t temp2;
       int64_t temp = 0;
       readOk = i.readVariantInt64( temp );
-      temp2 = temp;
-      s.packedVarInts.push_back(std::move(temp2));
+      s.packedVarInts.push_back( temp );
       
       if ( !readOk )
         return false;
@@ -144,12 +140,10 @@ bool deserializeTestClass( TestClass& s, IProtobufStream& i ) {
     else
     // fall back to non packed
     {
-      int16_t temp2;
-  if( fieldType != VARINT ) return false;
+      if( fieldType != VARINT ) return false;
       int64_t temp = 0;
       readOk = i.readVariantInt64( temp );
-      temp2 = temp;
-      s.packedVarInts.push_back(std::move(temp2));
+      s.packedVarInts.push_back( temp );
     }
     }
     initFlags[1] = true;
@@ -164,9 +158,9 @@ bool deserializeTestClass( TestClass& s, IProtobufStream& i ) {
 
       while(!i.isEndOfStream()) {
 
-      double temp2;
-      readOk = i.readFixed64Bit( temp2 );
-      s.packedDoubles.push_back(std::move(temp2));
+      double temp = 0;
+      readOk = i.readFixed64Bit( temp );
+      s.packedDoubles.push_back( temp );
       
       if ( !readOk )
         return false;
@@ -175,10 +169,10 @@ bool deserializeTestClass( TestClass& s, IProtobufStream& i ) {
     else
     // fall back to non packed
     {
-      double temp2;
       if( fieldType != FIXED_64_BIT ) return false;
-      readOk = i.readFixed64Bit( temp2 );
-      s.packedDoubles.push_back(std::move(temp2));
+      double temp = 0;
+      readOk = i.readFixed64Bit( temp );
+      s.packedDoubles.push_back( temp );
     }
     }
     initFlags[2] = true;
@@ -193,17 +187,15 @@ bool deserializeTestClass( TestClass& s, IProtobufStream& i ) {
 
       while(!i.isEndOfStream()) {
 
-      TestClass::Values temp2;
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       switch ( temp )
       {
-	      case 0: temp2 = TestClass::Values::First; break;
-	      case 1: temp2 = TestClass::Values::Nothing; break;
-	      case 2: temp2 = TestClass::Values::Second; break;
+        case 0: s.packedEnum.push_back( s.First ); break;
+        case 1: s.packedEnum.push_back( s.Nothing ); break;
+        case 2: s.packedEnum.push_back( s.Second ); break;
         default: return false;
       }
-      s.packedEnum.push_back(std::move(temp2));
       
       if ( !readOk )
         return false;
@@ -212,18 +204,16 @@ bool deserializeTestClass( TestClass& s, IProtobufStream& i ) {
     else
     // fall back to non packed
     {
-      TestClass::Values temp2;
       if( fieldType != VARINT ) return false;
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       switch ( temp )
       {
-	      case 0: temp2 = TestClass::Values::First; break;
-	      case 1: temp2 = TestClass::Values::Nothing; break;
-	      case 2: temp2 = TestClass::Values::Second; break;
+        case 0: s.packedEnum.push_back( s.First ); break;
+        case 1: s.packedEnum.push_back( s.Nothing ); break;
+        case 2: s.packedEnum.push_back( s.Second ); break;
         default: return false;
       }
-      s.packedEnum.push_back(std::move(temp2));
     }
     }
     initFlags[3] = true;

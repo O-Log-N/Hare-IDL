@@ -19,32 +19,12 @@ message CharacterSet {
   repeated CharacterRange ranges = 1;
 }
 message Variant {
-  enum KIND {
-    NONE = 0;
-    NUMBER = 1;
-    STRING = 2;
-  }
-  optional KIND  kind = 1;
+   optional uint32  kind = 1;
   optional double number_value = 2;
   optional string string_value = 3;
 }
 message DataType {
-  enum KIND {
-    BIT_STRING = 0;
-    CHARACTER = 1;
-    CHARACTER_STRING = 2;
-    DICTIONARY = 3;
-    DISCRIMINATED_UNION = 4;
-    ENCODING_SPECIFIC = 5;
-    ENUM = 6;
-    FIXED_POINT = 7;
-    FLOATING_POINT = 8;
-    INTEGER = 9;
-    MAPPING_SPECIFIC = 10;
-    NAMED_TYPE = 11;
-    SEQUENCE = 12;
-  }
-  optional KIND  kind = 1;
+   optional uint32  kind = 1;
   optional string name = 2;
   optional string mapping_name = 3;
   optional string encoding_name = 4;
@@ -87,18 +67,8 @@ message EncodedMembers {
   optional EncodedOrMember  __parent = 3;
 }
 message Structure {
-  enum DECLTYPE {
-    ENCODING = 0;
-    IDL = 1;
-    MAPPING = 2;
-  }
-  optional DECLTYPE  decl_type = 1;
-  enum TYPE {
-    DISCRIMINATED_UNION = 0;
-    RPC = 1;
-    STRUCT = 2;
-  }
-  optional TYPE  type = 2;
+   optional uint32  decl_type = 1;
+   optional uint32  type = 2;
   optional string name = 3;
   optional string discriminant = 4;
   optional string inherited_from = 5;
@@ -112,9 +82,6 @@ message Typedef {
 message Root {
   repeated Typedef typedefs = 1;
   repeated __unique_ptr_Structure structures = 2;
-  repeated sint32 packed_var_ints = 3 [packed=true];
-  repeated double packed_doubles = 4 [packed=true];
-  repeated string unpacked_strings = 5;
 }
 message __unique_ptr_DataType {
   optional DataType  du_data_type = 1;

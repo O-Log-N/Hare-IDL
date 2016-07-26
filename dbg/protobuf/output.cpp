@@ -1,8 +1,8 @@
 
 #include "output.h"
+#include "protobuf/baselib.h"
 
 #include "front-back/idl_tree.h"
-#include "protobuf/baselib.h"
 
 // IMPLEMENTATIONS
 
@@ -30,9 +30,9 @@ void serializeCharacterSet( const CharacterSet& s, OProtobufStream& o ) {
 void serializeVariant( const Variant& s, OProtobufStream& o ) {
     switch ( s.kind )
     {
-      case 0 /*NONE*/: o.writeUInt(1, 0 ); break;
-      case 1 /*NUMBER*/: o.writeUInt(1, 1 ); break;
-      case 2 /*STRING*/: o.writeUInt(1, 2 ); break;
+      case /* NONE */ 0: o.writeUInt(1, 0 ); break;
+      case /* NUMBER */ 1: o.writeUInt(1, 1 ); break;
+      case /* STRING */ 2: o.writeUInt(1, 2 ); break;
         default: assert( false );
     }
     o.writeDouble(2, s.numberValue);
@@ -41,19 +41,19 @@ void serializeVariant( const Variant& s, OProtobufStream& o ) {
 void serializeDataType( const DataType& s, OProtobufStream& o ) {
     switch ( s.kind )
     {
-      case 10 /*BIT_STRING*/: o.writeUInt(1, 0 ); break;
-      case 8 /*CHARACTER*/: o.writeUInt(1, 1 ); break;
-      case 9 /*CHARACTER_STRING*/: o.writeUInt(1, 2 ); break;
-      case 11 /*DICTIONARY*/: o.writeUInt(1, 3 ); break;
-      case 12 /*DISCRIMINATED_UNION*/: o.writeUInt(1, 4 ); break;
-      case 3 /*ENCODING_SPECIFIC*/: o.writeUInt(1, 5 ); break;
-      case 0 /*ENUM*/: o.writeUInt(1, 6 ); break;
-      case 6 /*FIXED_POINT*/: o.writeUInt(1, 7 ); break;
-      case 7 /*FLOATING_POINT*/: o.writeUInt(1, 8 ); break;
-      case 5 /*INTEGER*/: o.writeUInt(1, 9 ); break;
-      case 4 /*MAPPING_SPECIFIC*/: o.writeUInt(1, 10 ); break;
-      case 1 /*NAMED_TYPE*/: o.writeUInt(1, 11 ); break;
-      case 2 /*SEQUENCE*/: o.writeUInt(1, 12 ); break;
+      case /* BIT_STRING */ 10: o.writeUInt(1, 0 ); break;
+      case /* CHARACTER */ 8: o.writeUInt(1, 1 ); break;
+      case /* CHARACTER_STRING */ 9: o.writeUInt(1, 2 ); break;
+      case /* DICTIONARY */ 11: o.writeUInt(1, 3 ); break;
+      case /* DISCRIMINATED_UNION */ 12: o.writeUInt(1, 4 ); break;
+      case /* ENCODING_SPECIFIC */ 3: o.writeUInt(1, 5 ); break;
+      case /* ENUM */ 0: o.writeUInt(1, 6 ); break;
+      case /* FIXED_POINT */ 6: o.writeUInt(1, 7 ); break;
+      case /* FLOATING_POINT */ 7: o.writeUInt(1, 8 ); break;
+      case /* INTEGER */ 5: o.writeUInt(1, 9 ); break;
+      case /* MAPPING_SPECIFIC */ 4: o.writeUInt(1, 10 ); break;
+      case /* NAMED_TYPE */ 1: o.writeUInt(1, 11 ); break;
+      case /* SEQUENCE */ 2: o.writeUInt(1, 12 ); break;
         default: assert( false );
     }
     o.writeString(2, s.name);
@@ -188,16 +188,16 @@ void serializeEncodedMembers( const EncodedMembers& s, OProtobufStream& o ) {
 void serializeStructure( const Structure& s, OProtobufStream& o ) {
     switch ( s.declType )
     {
-      case 2 /*ENCODING*/: o.writeUInt(1, 0 ); break;
-      case 0 /*IDL*/: o.writeUInt(1, 1 ); break;
-      case 1 /*MAPPING*/: o.writeUInt(1, 2 ); break;
+      case /* ENCODING */ 2: o.writeUInt(1, 0 ); break;
+      case /* IDL */ 0: o.writeUInt(1, 1 ); break;
+      case /* MAPPING */ 1: o.writeUInt(1, 2 ); break;
         default: assert( false );
     }
     switch ( s.type )
     {
-      case 2 /*DISCRIMINATED_UNION*/: o.writeUInt(2, 0 ); break;
-      case 1 /*RPC*/: o.writeUInt(2, 1 ); break;
-      case 0 /*STRUCT*/: o.writeUInt(2, 2 ); break;
+      case /* DISCRIMINATED_UNION */ 2: o.writeUInt(2, 0 ); break;
+      case /* RPC */ 1: o.writeUInt(2, 1 ); break;
+      case /* STRUCT */ 0: o.writeUInt(2, 2 ); break;
         default: assert( false );
     }
     o.writeString(3, s.name);
@@ -226,25 +226,6 @@ void serializeRoot( const Root& s, OProtobufStream& o ) {
     auto sz_2 = protobufGetSize__unique_ptr_Structure(item);
     o.writeObjectTagAndSize(2, sz_2);
     serialize__unique_ptr_Structure(item, o);
-    }
-    size_t sz_3 = 0;
-    for(const auto& item:s.packedVarInts) {
-          sz_3 += getSignedVarIntSize(item);
-    }
-    o.writeObjectTagAndSize(3, sz_3);
-    for(const auto& item:s.packedVarInts) {
-    o.writePackedSignedVarInt(item);
-    }
-    size_t sz_4 = 0;
-    for(const auto& item:s.packedDoubles) {
-        sz_4 += getFixedSize(item);
-    }
-    o.writeObjectTagAndSize(4, sz_4);
-    for(const auto& item:s.packedDoubles) {
-    o.writePackedDouble(item);
-    }
-    for(const auto& item:s.unpackedStrings) {
-    o.writeString(5, item);
     }
 }
 
@@ -495,15 +476,13 @@ bool deserializeCharacterSet( CharacterSet& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
-    {
-      CharacterRange temp2;
+    CharacterRange temp2;
       if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
       readOk = deserializeCharacterRange(temp2, is);
-      s.ranges.push_back(std::move(temp2));
-    }
+    s.ranges.push_back( std::move( temp2 ) );
     }
     initFlags[0] = true;
     break;
@@ -1098,12 +1077,10 @@ bool deserializeDataMember( DataMember& s, IProtobufStream& i ) {
     break;
     case 5:
     {
-    {
-      string temp2;
+    string temp2;
       if( fieldType != LENGTH_DELIMITED ) return false;
       readOk = i.readString( temp2 );
-      s.whenDiscriminant.push_back(std::move(temp2));
-    }
+    s.whenDiscriminant.push_back( std::move( temp2 ) );
     }
     initFlags[4] = true;
     break;
@@ -1158,15 +1135,13 @@ bool deserializeEncodedMembers( EncodedMembers& s, IProtobufStream& i ) {
     break;
     case 2:
     {
-    {
-      unique_ptr<EncodedOrMember> temp2;
+    unique_ptr<EncodedOrMember> temp2;
       if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
       readOk = deserialize__unique_ptr_EncodedOrMember(temp2, is);
-      s.members.push_back(std::move(temp2));
-    }
+    s.members.push_back( std::move( temp2 ) );
     }
     initFlags[1] = true;
     break;
@@ -1339,13 +1314,10 @@ bool deserializeTypedef( Typedef& s, IProtobufStream& i ) {
 }
 
 bool deserializeRoot( Root& s, IProtobufStream& i ) {
-   const int memcnt = 5;
+   const int memcnt = 2;
    bool initFlags[memcnt] = { false };
   initFlags[0] = true;
   initFlags[1] = true;
-  initFlags[2] = true;
-  initFlags[3] = true;
-  initFlags[4] = true;
 
   while(!i.isEndOfStream())
   {
@@ -1359,104 +1331,27 @@ bool deserializeRoot( Root& s, IProtobufStream& i ) {
 	  {
     case 1:
     {
-    {
-      Typedef temp2;
+    Typedef temp2;
       if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
       readOk = deserializeTypedef(temp2, is);
-      s.typedefs.push_back(std::move(temp2));
-    }
+    s.typedefs.push_back( std::move( temp2 ) );
     }
     initFlags[0] = true;
     break;
     case 2:
     {
-    {
-      unique_ptr<Structure> temp2;
+    unique_ptr<Structure> temp2;
       if( fieldType != LENGTH_DELIMITED ) return false;
       uint64_t sz = 0;
       i.readVariantUInt64(sz);
       IProtobufStream is = i.makeSubStream(sz);
       readOk = deserialize__unique_ptr_Structure(temp2, is);
-      s.structures.push_back(std::move(temp2));
-    }
+    s.structures.push_back( std::move( temp2 ) );
     }
     initFlags[1] = true;
-    break;
-    case 3:
-    {
-    if( fieldType == LENGTH_DELIMITED ) {
-      uint64_t sz = 0;
-      i.readVariantUInt64(sz);
-      IProtobufStream is = i.makeSubStream(sz);
-      IProtobufStream& i = is;
-
-      while(!i.isEndOfStream()) {
-
-      int16_t temp2;
-      int64_t temp = 0;
-      readOk = i.readVariantInt64( temp );
-      temp2 = temp;
-      s.packedVarInts.push_back(std::move(temp2));
-      
-      if ( !readOk )
-        return false;
-      }
-    } 
-    else
-    // fall back to non packed
-    {
-      int16_t temp2;
-  if( fieldType != VARINT ) return false;
-      int64_t temp = 0;
-      readOk = i.readVariantInt64( temp );
-      temp2 = temp;
-      s.packedVarInts.push_back(std::move(temp2));
-    }
-    }
-    initFlags[2] = true;
-    break;
-    case 4:
-    {
-    if( fieldType == LENGTH_DELIMITED ) {
-      uint64_t sz = 0;
-      i.readVariantUInt64(sz);
-      IProtobufStream is = i.makeSubStream(sz);
-      IProtobufStream& i = is;
-
-      while(!i.isEndOfStream()) {
-
-      double temp2;
-      readOk = i.readFixed64Bit( temp2 );
-      s.packedDoubles.push_back(std::move(temp2));
-      
-      if ( !readOk )
-        return false;
-      }
-    } 
-    else
-    // fall back to non packed
-    {
-      double temp2;
-      if( fieldType != FIXED_64_BIT ) return false;
-      readOk = i.readFixed64Bit( temp2 );
-      s.packedDoubles.push_back(std::move(temp2));
-    }
-    }
-    initFlags[3] = true;
-    break;
-    case 5:
-    {
-    {
-      string temp2;
-      if( fieldType != LENGTH_DELIMITED ) return false;
-      readOk = i.readString( temp2 );
-      s.unpackedStrings.push_back(std::move(temp2));
-    }
-    }
-    initFlags[4] = true;
     break;
 		default:
       readOk = discardUnexpectedField( fieldType, i );
@@ -1978,31 +1873,6 @@ size_t protobufGetSizeRoot( const Root& s ) {
   auto sz_2 = protobufGetSize__unique_ptr_Structure(item);
   sz += getUnsignedVarIntSize(sz_2);
   sz += sz_2;
-      }
-
-      
-    sz += getTagSize(3);
-    size_t sz_3 = 0;
-    for(const auto& item:s.packedVarInts) {
-          sz_3 += getSignedVarIntSize(item);
-    }
-    sz += getUnsignedVarIntSize(sz_3);
-    sz += sz_3;
-
-      
-    sz += getTagSize(4);
-    size_t sz_4 = 0;
-    for(const auto& item:s.packedDoubles) {
-        sz_4 += getFixedSize(item);
-    }
-    sz += getUnsignedVarIntSize(sz_4);
-    sz += sz_4;
-
-      
-    for(const auto& item:s.unpackedStrings) {
-  sz += getTagSize(5);
-  sz += getUnsignedVarIntSize(item.size());
-  sz += item.size();
       }
 
    

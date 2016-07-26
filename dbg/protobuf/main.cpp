@@ -81,23 +81,6 @@ unique_ptr<Root> deserializeFile(const char* fileName) {
     return ok ? std::move(root) : nullptr;
 }
 
-unique_ptr<Root> createSample() {
-
-    unique_ptr<Root> root(new Root());
-
-    root->packedVarInts.push_back(-1000);
-    root->packedVarInts.push_back(15000);
-    root->packedVarInts.push_back(100);
-    root->packedVarInts.push_back(-25);
-
-    root->packedDoubles.push_back(0);
-    root->packedDoubles.push_back(1.5);
-    root->packedDoubles.push_back(100);
-    root->packedDoubles.push_back(-25.5);
-
-    return root;
-}
-
 
 void dumpStream(istream& is)
 {
