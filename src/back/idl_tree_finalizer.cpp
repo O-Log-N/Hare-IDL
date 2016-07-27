@@ -17,6 +17,18 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "idl_tree_finalizer.h"
 
+// mb: because of rounding when converting 64 bits integer constants,
+// we can not compare for strict lower than MAX limit
+// this has inexactitudes on big values, but for now is good enought
+static_assert(double((4294967296. * 4294967296.) - 1) == double(UINT64_MAX), "");
+static_assert(double(4294967296. * 4294967296.) == double(UINT64_MAX), "");
+
+static_assert(double((2147483648. * 4294967296.) - 1) == double(INT64_MAX), "");
+static_assert(double(2147483648. * 4294967296.) == double(INT64_MAX), "");
+
+static_assert(double(-2147483648. * 4294967296.) == double(INT64_MIN), "");
+
+
 bool isUniquePtr( DataType& dt )
 {
 	return dt.kind == DataType::KIND::SEQUENCE && dt.name == "unique_ptr";
@@ -54,7 +66,7 @@ void memberMappingTypeToKind( DataType& type )
                 type.kind = DataType::KIND::INTEGER;
                 type.lowLimit.value = 0;
                 type.lowLimit.inclusive = true;
-                type.highLimit.value = UINT64_MAX;
+                type.highLimit.value = double(UINT64_MAX);
                 type.highLimit.inclusive = true;
             }
             if ( type.mappingName == "uint32_t" )
@@ -62,7 +74,7 @@ void memberMappingTypeToKind( DataType& type )
 				type.kind = DataType::KIND::INTEGER;
 				type.lowLimit.value = 0;
 				type.lowLimit.inclusive = true;
-				type.highLimit.value = 4294967295.;
+				type.highLimit.value = UINT32_MAX;
 				type.highLimit.inclusive = true;
 			}
 			else if ( type.mappingName == "uint16_t" )
@@ -70,7 +82,7 @@ void memberMappingTypeToKind( DataType& type )
 				type.kind = DataType::KIND::INTEGER;
 				type.lowLimit.value = 0;
 				type.lowLimit.inclusive = true;
-				type.highLimit.value = 65535;
+				type.highLimit.value = UINT16_MAX;
 				type.highLimit.inclusive = true;
 			}
 			else if ( type.mappingName == "uint8_t" )
@@ -78,15 +90,15 @@ void memberMappingTypeToKind( DataType& type )
 				type.kind = DataType::KIND::INTEGER;
 				type.lowLimit.value = 0;
 				type.lowLimit.inclusive = true;
-				type.highLimit.value = 255;
+				type.highLimit.value = UINT8_MAX;
 				type.highLimit.inclusive = true;
 			}
             else if (type.mappingName == "int64_t")
             {
                 type.kind = DataType::KIND::INTEGER;
-                type.lowLimit.value = INT64_MIN;
+                type.lowLimit.value = double(INT64_MIN);
                 type.lowLimit.inclusive = true;
-                type.highLimit.value = INT64_MAX;
+                type.highLimit.value = double(INT64_MAX);
                 type.highLimit.inclusive = true;
             }
             else if (type.mappingName == "int32_t")
@@ -167,14 +179,12 @@ string getTypeFromIdl( DataType& type, Structure::DECLTYPE declType )
 				assert( declType == Structure::DECLTYPE::ENCODING );
 				assert( type.enumValues.size() != 0 ); // TODO: what?
 				uint32_t size = type.enumValues.size();
-				if ( size < 256 )
+				if ( size <= UINT8_MAX )
 					return "uint8_t";
-				else if ( size < 65536 )
+				else if ( size <= UINT16_MAX)
 					return "uint16_t";
-				else if ( size < 4294967296. )
+				else if ( size <= UINT32_MAX)
 					return "uint32_t";
-				else if ( size < 4294967296. * 4294967296. ) // TODO: unsafe! - fix
-					return "uint64_t";
 				else
 				{
 					assert( 0 ); // TODO: address!
@@ -193,13 +203,13 @@ string getTypeFromIdl( DataType& type, Structure::DECLTYPE declType )
 			tmpHigh.value = type.highLimit.inclusive ? type.highLimit.value : type.highLimit.value - 1 ;
 			if ( tmpLow.value >= 0 ) // signed
 			{
-				if ( tmpHigh.value < 256 )
+				if ( tmpHigh.value <= UINT8_MAX )
 					return "uint8_t";
-				else if ( tmpHigh.value < 65536 )
+				else if ( tmpHigh.value <= UINT16_MAX)
 					return "uint16_t";
-				else if ( tmpHigh.value < 4294967296. )
+				else if ( tmpHigh.value <= UINT32_MAX)
 					return "uint32_t";
-				else if ( tmpHigh.value < 4294967296. * 4294967296. ) // TODO: not working! - fix
+				else if ( tmpHigh.value <= UINT64_MAX)
 					return "uint64_t";
 				else
 				{
@@ -208,13 +218,13 @@ string getTypeFromIdl( DataType& type, Structure::DECLTYPE declType )
 			}
 			else // signed
 			{
-				if ( tmpLow.value >= -128 && tmpHigh.value < 128 )
+				if ( tmpLow.value >= INT8_MIN && tmpHigh.value <= INT8_MAX)
 					return "int8_t";
-				else if ( tmpLow.value >= -32768 && tmpHigh.value < 32768 )
+				else if ( tmpLow.value >= INT16_MIN && tmpHigh.value <= INT16_MAX)
 					return "int16_t";
-				else if ( tmpLow.value >= -2147483648. && tmpHigh.value < 2147483648. )
+				else if ( tmpLow.value >= INT32_MIN && tmpHigh.value <= INT32_MAX)
 					return "int32_t";
-				else if ( tmpLow.value >= 4294967296. * (-2147483648.) && tmpHigh.value < 4294967296. * 2147483648. ) // TODO: not working! - fix 
+				else if ( tmpLow.value >= INT64_MIN && tmpHigh.value <= INT64_MAX)
 					return "int64_t";
 				else
 				{
