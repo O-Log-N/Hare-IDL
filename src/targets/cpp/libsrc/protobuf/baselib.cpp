@@ -228,10 +228,16 @@ uint8_t* serializeSignedFixed64ToString(int fieldNumber, int32_t value, uint8_t*
     return serializeToStringFixedUint32(*(uint32_t*)(&value), buff);
 }
 
-uint8_t* serializeDoubleToString(int fieldNumber, float value, uint8_t* buff)
+uint8_t* serializeFloatToString(int fieldNumber, float value, uint8_t* buff)
 {
     uint32_t key = (fieldNumber << 3) | WIRE_TYPE::FIXED_32_BIT;
     buff = serializeToStringVariantUint64(key, buff);
+    return serializeToStringFixedUint32(*(uint32_t*)(&value), buff);
+}
+
+//mb without fieldNumber, to be used by packed sequence
+uint8_t* serializeFloatToString(float value, uint8_t* buff)
+{
     return serializeToStringFixedUint32(*(uint32_t*)(&value), buff);
 }
 
@@ -248,7 +254,7 @@ uint8_t* deserializeSignedFixed32FromString(int32_t& value, uint8_t* buff)
     return buff;
 }
 
-uint8_t* deserializeDoubleFromString(float& value, uint8_t* buff)
+uint8_t* deserializeFloatFromString(float& value, uint8_t* buff)
 {
     uint32_t tmp;
     buff = deserializeFromStringFixedUint32(tmp, buff);

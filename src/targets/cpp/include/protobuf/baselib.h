@@ -93,10 +93,13 @@ uint8_t* deserializeDoubleFromString(double& value, uint8_t* buff);
 
 uint8_t* serializeUnsignedFixed32ToString(int fieldNumber, uint32_t value, uint8_t* buff);
 uint8_t* serializeSignedFixed64ToString(int fieldNumber, int32_t value, uint8_t* buff);
-uint8_t* serializeDoubleToString(int fieldNumber, float value, uint8_t* buff);
+uint8_t* serializeFloatToString(int fieldNumber, float value, uint8_t* buff);
+//mb without fieldNumber, to be used by packed sequence
+uint8_t* serializeFloatToString(float value, uint8_t* buff);
+
 uint8_t* deserializeUnsignedFixed32FromString(uint32_t& value, uint8_t* buff);
 uint8_t* deserializeSignedFixed32FromString(int32_t& value, uint8_t* buff);
-uint8_t* deserializeDoubleFromString(float& value, uint8_t* buff);
+uint8_t* deserializeFloatFromString(float& value, uint8_t* buff);
 
 ///////////////////////////     WIRE_TYPE::LENGTH_DELIMITED    ////////////////////////////////////
 
@@ -159,6 +162,14 @@ public:
         uint8_t* ret = serializeDoubleToString(fieldNumber, x, buff);
         fwrite(buff, ret - buff, 1, outstr);
     }
+
+    void writeFloat(int fieldNumber, float x)
+    {
+        uint8_t buff[1000];
+        uint8_t* ret = serializeFloatToString(fieldNumber, x, buff);
+        fwrite(buff, ret - buff, 1, outstr);
+    }
+
     void writeString(int fieldNumber, std::string x)
     {
         uint8_t buff[1000];
@@ -195,6 +206,14 @@ public:
     {
         uint8_t buff[1000];
         uint8_t* ret = serializeDoubleToString(x, buff);
+        fwrite(buff, ret - buff, 1, outstr);
+    }
+
+    //mb without fieldNumber, to be used by packed sequence
+    void writePackedFloat(float x)
+    {
+        uint8_t buff[1000];
+        uint8_t* ret = serializeFloatToString(x, buff);
         fwrite(buff, ret - buff, 1, outstr);
     }
 };
@@ -485,6 +504,17 @@ public:
         deserializeDoubleFromString(x, buff);
         return true;
     }
+
+    FORCE_INLINE bool readFixed32Bit(float& x)
+    {
+        uint8_t buff[4];
+        size_t readret = readData(buff, 4);
+        if (readret < 4)
+            return false;
+        deserializeFloatFromString(x, buff);
+        return true;
+    }
+
 #if 0
     bool readInt64(int64_t& x)
     {
