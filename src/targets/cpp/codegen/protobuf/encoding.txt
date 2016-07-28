@@ -91,8 +91,8 @@ void serialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& 
     }
     break;
   @@FOR-EACH END
-    //default:
-      //assert( false );
+    default:
+      assert( false );
   }
 }
 @@END-TEMPLATE NAME="SERIALIZE-DU"
@@ -148,7 +148,13 @@ void serialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& 
 @@ELIF PARAM-TYPE.IS-FIXED-POINT()
     o.writeDouble(@PARAM-MEMCTR@, @PARAM-NAME@);
 @@ELIF PARAM-TYPE.IS-FLOATING-POINT()
+  @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(24,8)
+    o.writeFloat(@PARAM-MEMCTR@, @PARAM-NAME@);
+  @@ELIF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
     o.writeDouble(@PARAM-MEMCTR@, @PARAM-NAME@);
+  @@ELSE
+    @@ASSERT "0" MSG="Cannot process member: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+  @@ENDIF
 @@ELIF PARAM-TYPE.IS-CHARACTER-STRING()
     o.writeString(@PARAM-MEMCTR@, @PARAM-NAME@);
 @@ELIF PARAM-TYPE.IS-STRUCTURE()
@@ -208,7 +214,13 @@ void serialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& 
 @@ELIF PARAM-TYPE.IS-FIXED-POINT()
     o.writePackedDouble(@PARAM-NAME@);
 @@ELIF PARAM-TYPE.IS-FLOATING-POINT()
+  @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(24,8)
+    o.writePackedFloat(@PARAM-NAME@);
+  @@ELIF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
     o.writePackedDouble(@PARAM-NAME@);
+  @@ELSE
+    @@ASSERT "0" MSG="Cannot process member: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+  @@ENDIF
 @@ELIF PARAM-TYPE.IS-ENUM()
   @@INCLUDE TEMPLATE="SERIALIZE-PACKED-ENUM" PARAM-NAME=PARAM-NAME PARAM-TYPE=PARAM-TYPE
 @@ELSE
@@ -352,8 +364,8 @@ bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, I
       @@FOR-EACH END
       break;
   @@FOR-EACH END
-    //default:
-      //return false;
+    default:
+      return false;
   }  
 
   return readOk;
@@ -487,22 +499,18 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       @PARAM-NAME@ = static_cast<bool>( temp );
-    @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(63)
+    @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(64)
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       @PARAM-NAME@ = temp;
-    @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(64)
-      readOk = i.readVariantUInt64( @PARAM-NAME@ );
     @@ELSE
       @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
     @@ENDIF
   @@ELSE
-    @@IF PARAM-TYPE.IS-SIGNED-INTEGER-FITTING-INT(63)
+    @@IF PARAM-TYPE.IS-SIGNED-INTEGER-FITTING-INT(64)
       int64_t temp = 0;
       readOk = i.readVariantInt64( temp );
       @PARAM-NAME@ = temp;
-    @@ELIF PARAM-TYPE.IS-SIGNED-INTEGER-FITTING-INT(64)
-      readOk = i.readVariantInt64( @PARAM-NAME@ );
     @@ELSE
       @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
     @@ENDIF
@@ -510,7 +518,10 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 @@ELIF PARAM-TYPE.IS-FIXED-POINT()
    @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
 @@ELIF PARAM-TYPE.IS-FLOATING-POINT()
-  @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
+  @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(24,8)
+      if( fieldType != FIXED_32_BIT ) return false;
+      readOk = i.readFixed32Bit( @PARAM-NAME@ );
+  @@ELIF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
       if( fieldType != FIXED_64_BIT ) return false;
       readOk = i.readFixed64Bit( @PARAM-NAME@ );
   @@ELSE
@@ -556,10 +567,12 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
     // fall back to non packed
     {
       @@IF (PARAM-TYPE.COLLECTION-TYPE().IS-INTEGER()) || (PARAM-TYPE.COLLECTION-TYPE().IS-ENUM())
-      if( fieldType != VARINT ) return false;
+          if( fieldType != VARINT ) return false;
       @@ELIF PARAM-TYPE.COLLECTION-TYPE().IS-FLOATING-POINT()
-        @@IF PARAM-TYPE.COLLECTION-TYPE().IS-FLOATING-POINT-FITTING-FLOAT(53,11)
-      if( fieldType != FIXED_64_BIT ) return false;
+        @@IF PARAM-TYPE.COLLECTION-TYPE().IS-FLOATING-POINT-FITTING-FLOAT(24,8)
+          if( fieldType != FIXED_32_BIT ) return false;
+        @@ELIF PARAM-TYPE.COLLECTION-TYPE().IS-FLOATING-POINT-FITTING-FLOAT(53,11)
+          if( fieldType != FIXED_64_BIT ) return false;
         @@ELSE
           @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
         @@ENDIF
@@ -589,10 +602,6 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
       @PARAM-NAME@.push_back( static_cast<bool>( temp ) );
-    @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(63)
-      uint64_t temp = 0;
-      readOk = i.readVariantUInt64( temp );
-      @PARAM-NAME@.push_back( temp );
     @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(64)
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
@@ -601,11 +610,7 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
       @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
     @@ENDIF
   @@ELSE
-    @@IF PARAM-TYPE.IS-SIGNED-INTEGER-FITTING-INT(63)
-      int64_t temp = 0;
-      readOk = i.readVariantInt64( temp );
-      @PARAM-NAME@.push_back( temp );
-    @@ELIF PARAM-TYPE.IS-SIGNED-INTEGER-FITTING-INT(64)
+    @@IF PARAM-TYPE.IS-SIGNED-INTEGER-FITTING-INT(64)
       int64_t temp = 0;
       readOk = i.readVariantInt64( temp );
       @PARAM-NAME@.push_back( temp );
@@ -616,7 +621,11 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 @@ELIF PARAM-TYPE.IS-FIXED-POINT()
    @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
 @@ELIF PARAM-TYPE.IS-FLOATING-POINT()
-  @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
+  @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(24,8)
+      float temp = 0;
+      readOk = i.readFixed32Bit( temp );
+      @PARAM-NAME@.push_back( temp );
+  @@ELIF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
       double temp = 0;
       readOk = i.readFixed64Bit( temp );
       @PARAM-NAME@.push_back( temp );
@@ -803,8 +812,8 @@ size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-N
     }
     break;
   @@FOR-EACH END
-    //default:
-      //assert( false );
+    default:
+      assert( false );
   }
    return sz;
 }

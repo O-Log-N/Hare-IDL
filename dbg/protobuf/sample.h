@@ -29,11 +29,11 @@ using namespace std;
 
 struct Root {
   
-  vector<int16_t> packedVarInts;
-  vector<double> packedDoubles;
+  int64_t bigInt;
+  uint64_t bigUint;
 
-  vector<string> unpackedStrings;
-
+  int32_t notSoBigInt;
+  uint32_t notSoBigUint;
 };
 
 #endif // SAMPLE_H
