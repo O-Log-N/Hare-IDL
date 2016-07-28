@@ -139,7 +139,7 @@ protected:
     FILE* outstr;
 public:
     OProtobufStream(FILE* outStr) : outstr(outStr) {}
-    void writeInt(int fieldNumber, int x)
+    void writeInt(int fieldNumber, int64_t x)
     {
         uint8_t buff[1000];
         uint8_t* ret = serializeSignedVariantToString(fieldNumber, x, buff);

@@ -89,8 +89,10 @@ void test21(const char* tempFile)
     tc.max_s32 = INT32_MIN;
     tc.max_s64 = INT64_MIN;
 
-    protobufSerializeToFile(tc, &serializeTestSigned, tempFile,
-        {}); //TODO not working
+    protobufSerializeToFile(tc, &serializeTestSigned, tempFile, {
+        0x08, 0xff, 0xff, 0xff, 0xff, 0x0f,
+        0x10, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01
+    });
 }
 
 
@@ -101,8 +103,10 @@ void test22(const char* tempFile)
     tc.max_s32 = INT32_MAX;
     tc.max_s64 = INT64_MAX;
 
-    protobufSerializeToFile(tc, &serializeTestSigned, tempFile,
-        {}); //TODO not working
+    protobufSerializeToFile(tc, &serializeTestSigned, tempFile, {
+        0x08, 0xfe, 0xff, 0xff, 0xff, 0x0f,
+        0x10, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01
+    });
 }
 
 void test30(const char* tempFile)
