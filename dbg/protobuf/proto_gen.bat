@@ -1,9 +1,10 @@
 
-dbgBack.exe
-protoc --cpp_out=. output.proto
-sed --in-place s/"\/\/include-here"/"#include \"front-back\/idl_tree.h\""/g output.cpp
-sed --in-place s/"\/\/include-here"/"#include \"front-back\/idl_tree.h\""/g output.h
+hare-idl --templatePath=../../src/targets/cpp/codegen/protobuf/ --template=main.txt --template=mapping.txt --template=encoding.txt --template=proto.txt --template=dbg_assert_equal.txt --inputBinary=sample.h.idlbin
 
+sed --in-place s/"\/\/include-here"/"#include \"sample.h\""/g output.h
+sed --in-place s/"\/\/include-here"/"#include \"sample.h\""/g output.cpp
 del sed*
+
+protoc --cpp_out=. output.proto
 
 
