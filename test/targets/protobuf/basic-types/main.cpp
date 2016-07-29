@@ -19,6 +19,8 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "output.h"
 #include "protobuf/baselib.h"
 
+#include "gtest/gtest.h"
+
 #include <iostream>
 
 using namespace std;
@@ -26,8 +28,11 @@ using namespace std;
 template<class T>
 void protobufSerializeToFile(const T& root, void(*func)(const T&, OProtobufStream& os), const char* fileName, const vector<uint8_t>& result)
 {
-    FILE* out = fopen(fileName, "w+b");
-    assert(out);
+    string fullName(fileName);
+    fullName += ".protobuf.bin";
+
+    FILE* out = fopen(fullName.c_str(), "w+b");
+    ASSERT_NE(out, nullptr);
     OProtobufStream o(out);
 
     func(root, o);
@@ -39,157 +44,144 @@ void protobufSerializeToFile(const T& root, void(*func)(const T&, OProtobufStrea
         rewind(out);
         size_t readSize = fread(&toRead[0], sizeof(toRead[0]), toRead.size(), out);
 
-        assert(readSize == result.size());
-        assert(fgetc(out) == EOF);
+        ASSERT_EQ(readSize, result.size());
+        ASSERT_EQ(fgetc(out), EOF);
 
         for(size_t i = 0; i < result.size(); ++i) {
-            assert(result[i] == toRead[i]);
+            EXPECT_EQ(result[i], toRead[i]);
         }
     }
     fclose(out);
 }
 
-void test10(const char* tempFile)
+TEST(BasicTypes, UnsignedVarIntZero)
 {
     TestUnsigned tc;
 
-    protobufSerializeToFile(tc, &serializeTestUnsigned, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestUnsigned, "test10", {
         0x08, 0x00,
         0x10, 0x00
     });
 }
 
-void test11(const char* tempFile)
+TEST(BasicTypes, UnsignedVarIntMax)
 {
     TestUnsigned tc;
 
     tc.max_u32 = UINT32_MAX;
     tc.max_u64 = UINT64_MAX;
 
-    protobufSerializeToFile(tc, &serializeTestUnsigned, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestUnsigned, "test11", {
         0x08, 0xff, 0xff, 0xff, 0xff, 0x0f,
         0x10, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01
     });
 }
 
-void test20(const char* tempFile)
+TEST(BasicTypes, SignedVarIntZero)
 {
     TestSigned tc;
 
-    protobufSerializeToFile(tc, &serializeTestSigned, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestSigned, "test20", {
         0x08, 0x00,
         0x10, 0x00
     });
 }
 
-void test21(const char* tempFile)
+TEST(BasicTypes, SignedVarIntMin)
 {
     TestSigned tc;
 
     tc.max_s32 = INT32_MIN;
     tc.max_s64 = INT64_MIN;
 
-    protobufSerializeToFile(tc, &serializeTestSigned, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestSigned, "tes21", {
         0x08, 0xff, 0xff, 0xff, 0xff, 0x0f,
         0x10, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01
     });
 }
 
 
-void test22(const char* tempFile)
+TEST(BasicTypes, SignedVarIntMax)
 {
     TestSigned tc;
 
     tc.max_s32 = INT32_MAX;
     tc.max_s64 = INT64_MAX;
 
-    protobufSerializeToFile(tc, &serializeTestSigned, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestSigned, "test22", {
         0x08, 0xfe, 0xff, 0xff, 0xff, 0x0f,
         0x10, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01
     });
 }
 
-void test30(const char* tempFile)
+TEST(BasicTypes, FixedFpZero)
 {
     TestFixed tc;
 
-    protobufSerializeToFile(tc, &serializeTestFixed, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestFixed, "test30", {
         0x0d, 0x00, 0x00, 0x00, 0x00,
         0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     });
 }
 
-void test31(const char* tempFile)
+TEST(BasicTypes, FixedFpNonZero)
 {
     TestFixed tc;
 
     tc.aFloat = -128;
     tc.aDouble = 128;
 
-    protobufSerializeToFile(tc, &serializeTestFixed, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestFixed, "test31", {
         0x0d, 0x00, 0x00, 0x00, 0xc3,
         0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x40
     });
 }
 
-void test40(const char* tempFile)
+TEST(BasicTypes, StringEmpty)
 {
     TestString tc;
 
-    protobufSerializeToFile(tc, &serializeTestString, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestString, "test40", {
         0x0a, 0x00 
     });
 }
 
-void test41(const char* tempFile)
+TEST(BasicTypes, StringText)
 {
     TestString tc;
 
     tc.description = "Hello world!";
 
-    protobufSerializeToFile(tc, &serializeTestString, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestString, "test41", {
         0x0a, 0x0c, 'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '!'
     });
 }
-void test50(const char* tempFile)
+
+TEST(BasicTypes, EnumBool0)
 {
     TestMisc tc;
 
-    protobufSerializeToFile(tc, &serializeTestMisc, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestMisc, "test50", {
         0x08, 0x01,
         0x10, 0x00
     });
 }
 
-void test51(const char* tempFile)
+TEST(BasicTypes, EnumBool1)
 {
     TestMisc tc;
 
     tc.aValue = TestMisc::Second;
     tc.flag = true;
 
-    protobufSerializeToFile(tc, &serializeTestMisc, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestMisc, "test51", {
           0x08, 0x02,
           0x10, 0x01 
     });
 }
 
-
-int main()
-{
-    test10("test10.protobuf.bin");
-    test11("test11.protobuf.bin");
-    test20("test20.protobuf.bin");
-    test21("test21.protobuf.bin");
-    test22("test22.protobuf.bin");
-    test30("test30.protobuf.bin");
-    test31("test31.protobuf.bin");
-    test40("test40.protobuf.bin");
-    test41("test41.protobuf.bin");
-    test50("test50.protobuf.bin");
-    test51("test51.protobuf.bin");
-
-    printf("Ok!\n");
-
-    return 0;
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
+

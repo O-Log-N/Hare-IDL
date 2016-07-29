@@ -19,17 +19,23 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "output.h"
 #include "protobuf/baselib.h"
 
+#include "gtest/gtest.h"
+
 #include <iostream>
 
 using namespace std;
 
-void protobufSerializeToFile(const TestClass& root, const char* fileName, const vector<uint8_t>& result)
+template<class T>
+void protobufSerializeToFile(const T& root, void(*func)(const T&, OProtobufStream& os), const char* fileName, const vector<uint8_t>& result)
 {
-    FILE* out = fopen(fileName, "w+b");
-    assert(out);
+    string fullName(fileName);
+    fullName += ".protobuf.bin";
+
+    FILE* out = fopen(fullName.c_str(), "w+b");
+    ASSERT_NE(out, nullptr);
     OProtobufStream o(out);
 
-    serializeTestClass(root, o);
+    func(root, o);
 
     if(!result.empty()) {
 
@@ -38,30 +44,30 @@ void protobufSerializeToFile(const TestClass& root, const char* fileName, const 
         rewind(out);
         size_t readSize = fread(&toRead[0], sizeof(toRead[0]), toRead.size(), out);
 
-        assert(readSize == result.size());
-        assert(fgetc(out) == EOF);
+        ASSERT_EQ(readSize, result.size());
+        ASSERT_EQ(fgetc(out), EOF);
 
         for(size_t i = 0; i < result.size(); ++i) {
-            assert(result[i] == toRead[i]);
+            EXPECT_EQ(result[i], toRead[i]);
         }
     }
     fclose(out);
 }
 
-void test1(const char* tempFile)
+TEST(PackedSequence, UnpackedStrings)
 {
     TestClass tc;
 
     tc.unpackedStrings.push_back("hello");
     tc.unpackedStrings.push_back("world");
 
-    protobufSerializeToFile(tc, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestClass, "test1", {
         0x0a, 5, 'h', 'e', 'l', 'l', 'o',
         0x0a, 5, 'w', 'o', 'r', 'l', 'd'
     });
 }
 
-void test2(const char* tempFile)
+TEST(PackedSequence, PackedVarInts)
 {
     TestClass tc;
 
@@ -71,7 +77,7 @@ void test2(const char* tempFile)
     tc.packedVarInts.push_back(100000);
     tc.packedVarInts.push_back(-100000);
 
-    protobufSerializeToFile(tc, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestClass, "test2", {
         0x12, 0x0b,
         0x00,
         0xd0, 0x0f,
@@ -81,7 +87,7 @@ void test2(const char* tempFile)
     });
 }
 
-void test3(const char* tempFile)
+TEST(PackedSequence, packedDoubles)
 {
     TestClass tc;
 
@@ -90,7 +96,7 @@ void test3(const char* tempFile)
     tc.packedDoubles.push_back(1.);
     tc.packedDoubles.push_back(-10.5e-6);
 
-    protobufSerializeToFile(tc, tempFile, {
+    protobufSerializeToFile(tc, &serializeTestClass, "test3", {
         0x1a, 0x20,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0xbf,
@@ -99,7 +105,7 @@ void test3(const char* tempFile)
     });
 }
 
-void test4(const char* tempFile)
+TEST(PackedSequence, PackedEnum)
 {
     TestClass tc;
 
@@ -107,19 +113,12 @@ void test4(const char* tempFile)
     tc.packedEnum.push_back(TestClass::First);
     tc.packedEnum.push_back(TestClass::Second);
 
-    protobufSerializeToFile(tc, tempFile,
-        {0x22, 0x03, 0x01, 0x00, 0x02});
+    protobufSerializeToFile(tc, &serializeTestClass, "test4", {
+        0x22, 0x03, 0x01, 0x00, 0x02
+    });
 }
 
-
-int main()
-{
-    test1("test1.protobuf.bin");
-    test2("test2.protobuf.bin");
-    test3("test3.protobuf.bin");
-    test4("test4.protobuf.bin");
-
-    printf("Ok!\n");
-
-    return 0;
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
