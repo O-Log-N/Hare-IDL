@@ -123,6 +123,7 @@ uint8_t* serializeToStringFixedUint64(uint64_t value, uint8_t* buff)
 uint8_t* deserializeFromStringFixedUint64(uint64_t& value, uint8_t* buff)
 {
     // TODO: version favouring little endian platforms
+    value = 0;
     uint64_t tmp;
 
     for (int ctr = 0; ctr < 64; ctr += 8)
@@ -169,7 +170,7 @@ uint8_t* deserializeUnsignedFixed64FromString(uint64_t& value, uint8_t* buff)
 
 uint8_t* deserializeSignedFixed64FromString(int64_t& value, uint8_t* buff)
 {
-    uint64_t tmp = 0;
+    uint64_t tmp;
     buff = deserializeFromStringFixedUint64(tmp, buff);
     value = *(int64_t*)(&tmp);
     return buff;
@@ -177,7 +178,7 @@ uint8_t* deserializeSignedFixed64FromString(int64_t& value, uint8_t* buff)
 
 uint8_t* deserializeDoubleFromString(double& value, uint8_t* buff)
 {
-    uint64_t tmp = 0;
+    uint64_t tmp;
     buff = deserializeFromStringFixedUint64(tmp, buff);
     value = *(double*)(&tmp);
     return buff;
@@ -202,6 +203,7 @@ uint8_t* serializeToStringFixedUint32(uint32_t value, uint8_t* buff)
 uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff)
 {
     // TODO: version favouring little endian platforms
+    value = 0;
     uint32_t tmp;
 
     for (int ctr = 0; ctr < 32; ctr += 8)

@@ -346,7 +346,7 @@ public:
 class IProtobufStream
 {
 protected:
-    uint8_t* instr;
+    const uint8_t* instr;
     size_t buffSz;
     size_t readPos;
     size_t readData(uint8_t* buff, size_t cnt)
@@ -366,7 +366,7 @@ protected:
         }
     }
 public:
-    IProtobufStream(uint8_t* inStr, size_t buffSz_) : instr(inStr), buffSz(buffSz_) { readPos = 0; }
+    IProtobufStream(const uint8_t* inStr, size_t buffSz_) : instr(inStr), buffSz(buffSz_) { readPos = 0; }
 
     //mb: need to diferentiate a 'clean' end of stream (at the end of a field),
     // from a stream ending in the middle of a read.
