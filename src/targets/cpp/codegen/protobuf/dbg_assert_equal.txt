@@ -42,7 +42,7 @@ inline void assertEqual@PARAM-NAME@( const @PARAM-MAPPING-NAME@& left, const @PA
 inline void assertEqual@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& left, const @PARAM-DU.MAPPING-STRUCT-NAME()@& right ) {
 
   if(left.get() == nullptr) {
-    assert(right.get() == nullptr);
+    EXPECT_EQ(right.get(), nullptr);
   }
 
   @@LET LOCAL-MEMCTR=1
@@ -50,10 +50,10 @@ inline void assertEqual@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-
    @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
     @@ASSERT LOCAL-MEMBER.GET-MAPPING-ANNOTATION( "POLY-POINTER-TYPE" ).HAS-VALUE()
     @@LET LOCAL-POLY-PTR = LOCAL-MEMBER.MEMBER-TYPE().ENCODING-MEMBER-TYPE()
-  else if ( typeid( *left ) == typeid( @LOCAL-POLY-PTR@ ) ) {
+  else if(typeid(*left) == typeid(@LOCAL-POLY-PTR@)) {
     auto l = dynamic_cast<@LOCAL-POLY-PTR@*>(left.get());
 
-    assert (typeid(*right) == typeid( @LOCAL-POLY-PTR@ ));
+    EXPECT_EQ(typeid(*right), typeid(@LOCAL-POLY-PTR@));
     auto r = dynamic_cast<@LOCAL-POLY-PTR@*>(right.get());
 
     assertEqual@LOCAL-POLY-PTR@(*l , *r);
@@ -63,7 +63,7 @@ inline void assertEqual@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-
    @@FOR-EACH END
 
    else {
-     assert(false);
+     EXPECT_TRUE(false);
    }
 }
 @@END-TEMPLATE NAME="ASSERT-EQUAL-DU-OWNING-PTR"
@@ -82,7 +82,7 @@ inline void assertEqual@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING
 @@BEGIN-TEMPLATE NAME="ASSERT-EQUAL-TYPE"
 @@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
 @@IF ((PARAM-TYPE.IS-INTEGER()) || (PARAM-TYPE.IS-FIXED-POINT()) || (PARAM-TYPE.IS-FLOATING-POINT()) || (PARAM-TYPE.IS-CHARACTER-STRING()) || (PARAM-TYPE.IS-ENUM()))
-    assert(@PARAM-NAME-LEFT@ == @PARAM-NAME-RIGHT@);
+    EXPECT_EQ(@PARAM-NAME-LEFT@, @PARAM-NAME-RIGHT@);
 @@ELIF PARAM-TYPE.IS-STRUCTURE()
     assertEqual@PARAM-TYPE.ENCODING-MEMBER-TYPE()@(@PARAM-NAME-LEFT@ , @PARAM-NAME-RIGHT@);
 @@ELIF PARAM-TYPE.IS-SEQUENCE()
@@ -95,11 +95,11 @@ inline void assertEqual@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING
   @@IF PARAM-TYPE.COLLECTION-TYPE().IS-STRUCTURE()
       assertEqual@PARAM-TYPE.COLLECTION-TYPE().ENCODING-MEMBER-TYPE()@(*it1, *it2);
   @@ELSE
-      assert(*it1 == *it2);
+      EXPECT_EQ(*it1, *it2);
   @@ENDIF
       }
-      assert(it1 == it1_end);
-      assert(it2 == it2_end);
+      EXPECT_EQ(it1, it1_end);
+      EXPECT_EQ(it2, it2_end);
     }
 @@ELIF PARAM-TYPE.IS-DICTIONARY()
     {
@@ -111,16 +111,16 @@ inline void assertEqual@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING
   @@IF PARAM-TYPE.COLLECTION-TYPE2().IS-STRUCTURE()
       assertEqual@PARAM-TYPE.COLLECTION-TYPE2().ENCODING-MEMBER-TYPE()@(it1->first, it2->first);
   @@ELSE
-      assert(it1->first == it2->first);
+      EXPECT_EQ(it1->first, it2->first);
   @@ENDIF
   @@IF PARAM-TYPE.COLLECTION-TYPE().IS-STRUCTURE()
       assertEqual@PARAM-TYPE.COLLECTION-TYPE().ENCODING-MEMBER-TYPE()@(it1->second, it2->second);
   @@ELSE
-      assert(it1->second == it2->second);
+      EXPECT_EQ(it1->second, it2->second);
   @@ENDIF
       }
-      assert(it1 == it1_end);
-      assert(it2 == it2_end);
+      EXPECT_EQ(it1, it1_end);
+      EXPECT_EQ(it2, it2_end);
     }
 @@ELSE
   @@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
@@ -169,9 +169,9 @@ inline void assertEqual@PARAM-NAME@( const @PARAM-MAPPING-NAME@& left, const pb:
 inline void assertEqual@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& left, const pb::@PARAM-DU.STRUCT-NAME()@& right ) {
 
   @FUNCTION-DECLEAR-AND-GET-DISCRIMINATOR-VALUE(PARAM-DU, "left", "disc")@
-  assert(disc == right.discriminator());
+  EXPECT_TRUE(disc == right.discriminator());
 
-  switch ( disc )
+  switch(disc)
   {
   @@LET LOCAL-MEMCTR=2
   @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
@@ -197,8 +197,8 @@ inline void assertEqual@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-
     }
     break;
   @@FOR-EACH END
-    //default:
-      //assert( false );
+    default:
+      EXPECT_TRUE(false);
   }
 }
 @@END-TEMPLATE NAME="ASSERT-EQUAL-2-GPB-DU"
@@ -220,17 +220,17 @@ inline void assertEqual@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-
       @@ASSERT LOCAL-MEMBER.GET-MAPPING-ANNOTATION( "POLY-POINTER-TYPE" ).HAS-VALUE()
       @@LET LOCAL-POLY-PTR = LOCAL-MEMBER.MEMBER-TYPE().ENCODING-MEMBER-TYPE()
       @@LET LOCAL-RIGHT-NAME="du_@LOCAL-MEMBER.MAPPING-MEMBER-NAME().CAMEL-CASE-TO-LOWER-UNDERSCORE()@()"
-  else if ( typeid( *left ) == typeid( @LOCAL-POLY-PTR@ ) ) {
+  else if(typeid(*left) == typeid(@LOCAL-POLY-PTR@)) {
     auto l = dynamic_cast<@LOCAL-POLY-PTR@*>(left.get());
 
-    assertEqual@LOCAL-POLY-PTR@( *l , right.@LOCAL-RIGHT-NAME@ );
+    assertEqual@LOCAL-POLY-PTR@(*l , right.@LOCAL-RIGHT-NAME@);
   }
       @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
     @@FOR-EACH END
   @@FOR-EACH END
 
    else {
-     assert(false);
+     EXPECT_TRUE(false);
    }
 }
 @@END-TEMPLATE NAME="ASSERT-EQUAL-2-GPB-DU-OWNING-PTR"
@@ -253,13 +253,13 @@ inline void assertEqual@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING
 
 @@BEGIN-TEMPLATE NAME="ASSERT-EQUAL-2-GPB-ENUM"
 @@ASSERT PARAM-MEMBER.MEMBER-TYPE().IS-ENUM()
-    switch ( @FUNCTION-GET-REF-TO-MEMBER("left", PARAM-MEMBER)@ )
+    switch(@FUNCTION-GET-REF-TO-MEMBER("left", PARAM-MEMBER)@)
     {
   @@LET LOCAL-NAME-RIGHT=FUNCTION-GET-REF-TO-MEMBER-PROTO("right", PARAM-MEMBER)
   @@FOR-EACH LOCAL-ENUM-VAL IN PARAM-MEMBER.MEMBER-TYPE().ENUM-VALUES()
-        case /* @LOCAL-ENUM-VAL.ENUM-VALUE-NAME()@ */ @LOCAL-ENUM-VAL.MAPPING-ENUM-VALUE-VALUE()@: assert(@LOCAL-NAME-RIGHT@ == @LOCAL-ENUM-VAL.ENCODING-ENUM-VALUE-VALUE()@ ); break;
+        case /* @LOCAL-ENUM-VAL.ENUM-VALUE-NAME()@ */ @LOCAL-ENUM-VAL.MAPPING-ENUM-VALUE-VALUE()@: EXPECT_TRUE(@LOCAL-NAME-RIGHT@ == @LOCAL-ENUM-VAL.ENCODING-ENUM-VALUE-VALUE()@); break;
   @@FOR-EACH END
-        default: assert( false );
+        default: EXPECT_TRUE(false);
     }
 @@END-TEMPLATE NAME="ASSERT-EQUAL-2-GPB-ENUM"
 
@@ -276,7 +276,7 @@ inline void assertEqual@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING
       @@INCLUDE TEMPLATE="ASSERT-EQUAL-TYPE" PARAM-NAME-LEFT="it1->first" PARAM-NAME-RIGHT="it2->key()" PARAM-TYPE=PARAM-MEMBER.MEMBER-TYPE().COLLECTION-TYPE2()
       @@INCLUDE TEMPLATE="ASSERT-EQUAL-TYPE" PARAM-NAME-LEFT="it1->second" PARAM-NAME-RIGHT="it2->value()" PARAM-TYPE=PARAM-MEMBER.MEMBER-TYPE().COLLECTION-TYPE()
       }
-      assert(it1 == it1_end);
-      assert(it2 == it2_end);
+      EXPECT_TRUE(it1 == it1_end);
+      EXPECT_TRUE(it2 == it2_end);
     }
 @@END-TEMPLATE NAME="ASSERT-EQUAL-2-GPB-MAP"

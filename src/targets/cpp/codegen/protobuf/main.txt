@@ -61,8 +61,8 @@ class IProtobufStream;
 @@CLOSE-OUTPUT-FILE
 @@OPEN-OUTPUT-FILE FILENAME="output.proto"
 
+syntax="proto2";
 package pb;
-//syntax="proto2"
 
 // PROTO MESSAGES
   @@INCLUDE TEMPLATE="PROTO-GENERATE" PARAM-ROOT=PARAM-ROOT
@@ -77,6 +77,14 @@ package pb;
 #include <cassert>
 #include "output.h"
 #include "output.pb.h"
+
+#ifndef EXPECT_TRUE
+#define EXPECT_TRUE assert
+#endif
+
+#ifndef EXPECT_EQ
+#define EXPECT_EQ(left, right) assert(left == right)
+#endif
 
 // ASSERT-EQUAL
   @@INCLUDE TEMPLATE="ASSERT-EQUAL-GENERATE-DECLARATIONS" PARAM-ROOT=PARAM-ROOT
