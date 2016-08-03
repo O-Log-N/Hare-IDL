@@ -75,7 +75,8 @@ static void bl2_serializeVarInt(benchmark::State& state) {
         typedef bl2::OProtobufStream<bl2::FileWriter, 4000> OS;
         
         FILE* out = fopen("baselib2.protobuf.bin", "w+b");
-        OS os(out);
+        bl2::FileWriter wr(out);
+        OS os(wr);
 //        state.PauseTiming();
 //        state.ResumeTiming();
         for (size_t i = 0; i != data.size(); ++i) {
@@ -87,15 +88,61 @@ static void bl2_serializeVarInt(benchmark::State& state) {
 }
 
 
+static void deserializeVarInt(benchmark::State& state) {
+
+    const size_t buffSize = 64 * 1024;
+    uint8_t baseBuff[buffSize];
+    FILE* in = fopen("baselib.protobuf.bin", "rb");
+    size_t sz = fread(baseBuff, 1, buffSize, in);
+    assert(sz < buffSize);
+
+    while (state.KeepRunning()) {
+        IProtobufStream is(baseBuff, sz);
+        while (!is.isEndOfStream()) {
+            int field;
+            int type;
+            int64_t value;
+            is.readFieldTypeAndID(type, field);
+            is.readVariantInt64(value);
+        }
+    }
+    fclose(in);
+}
+
+static void bl2_deserializeVarInt(benchmark::State& state) {
+
+    //    fstream out("baselib2.protobuf.bin", ios_base::binary| ios_base::out | ios_base::trunc);
+    typedef bl2::IProtobufStream<bl2::FileReader> IS;
+
+    const size_t buffSize = 64 * 1024;
+    uint8_t baseBuff[buffSize];
+    FILE* in = fopen("baselib.protobuf.bin", "rb");
+
+    while (state.KeepRunning()) {
+        bl2::FileReader rd(in);
+        bl2::IProtobufBuffer buff(baseBuff, buffSize);
+        IS is(buff, rd);
+        while (!is.isEndOfStream()) {
+            int field;
+            bl2::WIRE_TYPE type;
+            int64_t value;
+            is.readFieldTypeAndID(type, field);
+            is.readVariantInt64(value);
+        }
+        rewind(in);
+    }
+    fclose(in);
+}
+
 //BENCHMARK(serializeVarInt);
 //BENCHMARK(serializeDouble);
 
 //BENCHMARK(bl2_serializeVarInt);
 //BENCHMARK(bl2_serializeDouble);
-BENCHMARK(serializeVarInt)->Repetitions(10);
+BENCHMARK(deserializeVarInt)->Repetitions(10);
 //BENCHMARK(serializeDouble);
 
-BENCHMARK(bl2_serializeVarInt)->Repetitions(10);
+BENCHMARK(bl2_deserializeVarInt)->Repetitions(10);
 
 BENCHMARK_MAIN();
 

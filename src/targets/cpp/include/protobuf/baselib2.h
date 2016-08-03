@@ -70,6 +70,18 @@ void uint64ToSint64(uint64_t src, int64_t& target)
     target = (src >> 1) ^ -(src & 1);
 }
 
+constexpr
+uint64_t sint64ToUint64(int64_t src)
+{
+    return (src << 1) ^ (src >> 63);
+}
+
+constexpr
+int64_t uint64ToSint64(uint64_t src)
+{
+    return (src >> 1) ^ -(src & 1);
+}
+
 
 uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff);
 
@@ -159,6 +171,9 @@ constexpr size_t getTagSize(uint64_t tag) { return getUnsignedVarIntSize(tag << 
 constexpr size_t getFixedSize(float) { return 4; }
 constexpr size_t getFixedSize(double) { return 8; }
 
+
+const size_t MIN_BUFFER_LEFT = 20;
+
 class FileWriter
 {
 private:
@@ -180,7 +195,6 @@ protected:
     uint8_t buff[SIZE];
     uint8_t* buff_ptr = buff;
     WR& wr;
-    const size_t MIN_BUFFER_LEFT = 20;
 
     void writeData(const string& data)
     {
@@ -196,7 +210,7 @@ protected:
         flush();
     }
 public:
-    OProtobufStream(WR wr) : wr(wr) {}
+    OProtobufStream(WR& wr) : wr(wr) {}
 
     void flush()
     {
@@ -207,8 +221,7 @@ public:
     void writeInt(int fieldNumber, int64_t x)
     {
         buff_ptr = serializeHeaderToString(fieldNumber, WIRE_TYPE::VARINT, buff_ptr);
-        uint64_t unsig;
-        sint64ToUint64(x, unsig);
+        uint64_t unsig = sint64ToUint64(x);
         buff_ptr = serializeToStringVariantUint64(unsig, buff_ptr);
         write();
     }
@@ -251,8 +264,7 @@ public:
     //mb without fieldNumber, to be used by packed sequence
     void writePackedSignedVarInt(int64_t x)
     {
-        uint64_t unsig;
-        sint64ToUint64(x, unsig);
+        uint64_t unsig = sint64ToUint64(x);
         buff_ptr = serializeToStringVariantUint64(unsig, buff_ptr);
         write();
     }
@@ -279,373 +291,208 @@ public:
     }
 };
 
-#if 0
-class IStream
+class FileReader
 {
-protected:
-    FILE* instr;
+private:
+    FILE* file;
 public:
-    IStream(FILE* inStr) : instr(inStr) {}
-    bool readFieldTypeAndID(int& type, int& fieldNumber)
-    {
-        uint8_t buff[12];
-        memset(buff, 0, 12);
-        int pos = 0;
-        size_t readret;
-        for (;;)
-        {
-            readret = fread(buff + pos, 1, 1, instr);
-            if (readret == 0)
-                return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
-            if ((buff[pos] & 0x80) == 0)
-            {
-                deserializeHeaderFromString(fieldNumber, type, buff);
-                return true;
-            }
-            ++pos;
-        }
-        return false; // TODO: think about incomplete/broken packet
-    }
-    bool readInt32(int32_t& x)
-    {
-        uint8_t buff[4];
-        size_t readret = fread(buff, 1, 4, instr);
-        if (readret < 4)
-            return false;
-        deserializeSignedFixed32FromString(x, buff);
-        return true;
-    }
-    bool readInt64(int64_t& x)
-    {
-        uint8_t buff[8];
-        size_t readret = fread(buff, 1, 8, instr);
-        if (readret < 8)
-            return false;
-        deserializeSignedFixed64FromString(x, buff);
-        return true;
-    }
-#if 0
-    bool readVariantInt32(int32_t& x)
-    {
-        uint8_t buff[4];
-        size_t readret = fread(buff, 1, 4, instr);
-        if (readret < 4)
-            return false;
-        deserializeSignedVariantFromString(x, buff);
-        return true;
-    }
-#endif // 0
-    bool readVariantInt64(int64_t& x)
-    {
-        uint8_t buff[12];
-        memset(buff, 0, 12);
-        int pos = 0;
-        size_t readret;
-        uint32_t stringSz = 0;
-        for (;;)
-        {
-            readret = fread(buff + pos, 1, 1, instr);
-            if (readret == 0)
-                return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
-            if ((buff[pos] & 0x80) == 0)
-            {
-                deserializeSignedVariantFromString(x, buff);
-                break;
-            }
-            ++pos;
-        }
-        return true;
-    }
-#if 0
-    bool readInt64(int64_t& x)
-    {
-        uint8_t buff[1000];
-        uint8_t* ret = serializeUnsignedVariantToString(fieldNumber, x, buff);
-        fwrite(buff, ret - buff, 1, outstr);
-    }
-    bool readDouble(double& x)
-    {
-        uint8_t buff[1000];
-        uint8_t* ret = serializeDoubleToString(fieldNumber, x, buff);
-        fwrite(buff, ret - buff, 1, outstr);
-    }
-#endif
-    bool readString(std::string& x)
-    {
-        uint8_t buff[12];
-        memset(buff, 0, 12);
-        int pos = 0;
-        size_t readret;
-        uint64_t stringSz = 0;
-        for (;;)
-        {
-            readret = fread(buff + pos, 1, 1, instr);
-            if (readret == 0)
-                return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
-            if ((buff[pos] & 0x80) == 0)
-            {
-                deserializeUnsignedVariantFromString(stringSz, buff);
-                break;
-            }
-            ++pos;
-        }
+    FileReader(FILE* file) :file(file) {}
 
-        for (; stringSz; --stringSz)
-        {
-            readret = fread(buff, 1, 1, instr);
-            if (readret == 0)
-                return false; // incmplete or broken record
-            x.push_back(buff[0]);
-        }
-
-        return true;
+    size_t read(void* buffer, size_t size)
+    {
+        return fread(buffer, 1, size, file);
     }
 };
 
-#else
+class IProtobufBuffer
+{
+public:
+    uint8_t* const buffer;
+    const size_t bufferSize;
+    uint8_t* dataPtr;
+    uint8_t* dataEnd;
+    size_t readSize;
 
+    IProtobufBuffer(uint8_t* buffer, size_t bufferSize) :
+        buffer(buffer), bufferSize(bufferSize), dataPtr(buffer), dataEnd(buffer) {}
+
+
+};
+
+
+template<class RD>
 class IProtobufStream
 {
-protected:
-    const uint8_t* instr;
-    size_t buffSz;
-    size_t readPos;
-    size_t readData(uint8_t* buff, size_t cnt)
+private:
+    IProtobufBuffer& buffer;
+
+    size_t inputLeft = SIZE_MAX;
+
+    RD& rd;
+    
+
+    bool readData(std::string& data, size_t size)
     {
-        if (readPos + cnt <= buffSz)
-        {
-            memcpy(buff, instr + readPos, cnt);
-            readPos += cnt;
-            return cnt;
+        data.resize(size);
+
+        size_t left = buffer.dataEnd - buffer.dataPtr;
+        if (size < left) {
+            memcpy(data.data(), buffer.dataPtr, size);
+            buffer.dataPtr += size;
+            return true;
         }
-        else
-        {
-            cnt = buffSz - readPos;
-            memcpy(buff, instr + readPos, cnt);
-            readPos += cnt;
-            return cnt;
+        else if (left + inputLeft < size) {
+            return false;
+        }
+        else {
+            memcpy(data.data(), buffer.dataPtr, left);
+            buffer.dataPtr = buffer.buffer;
+            buffer.dataEnd = buffer.buffer;
+
+            size_t sz = rd.read(data.data() + left, size - left);
+
+            if (sz != size - left)
+                return false;
+
+            // => left + inputLeft >= size == sz + left
+            // => inputLeft >= sz
+            inputLeft -= sz;
+
+            return true;
         }
     }
+
+    bool read()
+    {
+        size_t left = buffer.dataEnd - buffer.dataPtr;
+        if (left > MIN_BUFFER_LEFT || inputLeft == 0)
+            return true;
+
+        memcpy(buffer.buffer, buffer.dataPtr, left);
+        buffer.dataPtr = buffer.buffer;
+        buffer.dataEnd = buffer.buffer + left;
+
+        size_t toRead = buffer.bufferSize - 1 - left;
+
+        size_t sz = rd.read(buffer.dataEnd, toRead);
+            
+        buffer.dataEnd += sz;
+        *(buffer.dataEnd) = 0; //to force stop reading VarInt past end of buffer
+
+        if (inputLeft != SIZE_MAX) {
+            if (sz != toRead && sz < inputLeft) //EOF and not enought read
+                return false;
+
+            inputLeft -= sz < inputLeft ? sz : inputLeft;
+        }
+        else {
+            if (sz != toRead) { //EOF
+                inputLeft = 0;
+            }
+        }
+        return true;
+    }
+
 public:
-    IProtobufStream(const uint8_t* inStr, size_t buffSz_) : instr(inStr), buffSz(buffSz_) { readPos = 0; }
+    IProtobufStream(IProtobufBuffer& buffer, RD& rd) :
+        buffer(buffer), rd(rd) {}
 
     //mb: need to diferentiate a 'clean' end of stream (at the end of a field),
     // from a stream ending in the middle of a read.
-    FORCE_INLINE bool isEndOfStream() const {
-        return readPos == buffSz;
+    bool isEndOfStream() const {
+        return inputLeft == 0 && buffer.dataPtr == buffer.dataEnd;
     }
 
-    bool readFieldTypeAndID(int& type, int& fieldNumber)
+    bool readFieldTypeAndID(WIRE_TYPE& type, int& fieldNumber)
     {
-        uint8_t buff[12];
-        //		memset( buff, 0, 12 );
-        int pos = 0;
-        size_t readret;
-        for (;;)
-        {
-            //			readret = fread( buff + pos, 1, 1, instr );
-            readret = readData(buff + pos, 1);
-            if (readret == 0)
-                return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
-            if ((buff[pos] & 0x80) == 0)
-            {
-                deserializeHeaderFromString(fieldNumber, type, buff);
-                return true;
-            }
-            ++pos;
-        }
-        return false; // TODO: think about incomplete/broken packet
-    }
-    FORCE_INLINE uint64_t readFieldTypeAndID()
-    {
-        uint64_t ret = (uint64_t)(-1);
-        uint8_t buff[12];
-        //		memset( buff, 0, 12 );
-        int pos = 0;
-        size_t readret;
-        for (pos; pos<12; ++pos)
-        {
-            //			readret = fread( buff + pos, 1, 1, instr );
-            readret = readData(buff + pos, 1);
-            if (readret == 0)
-                return (uint64_t)(-1); // nothing to read (anymore); TODO: think about incomplete/broken packet
-            if ((buff[pos] & 0x80) == 0)
-            {
-                deserializeFromStringVariantUint64(ret, buff);
-                return ret;
-            }
-        }
-        return (uint64_t)(-1); // TODO: think about incomplete/broken packet
-    }
-    FORCE_INLINE bool readInt32(int32_t& x)
-    {
-        uint8_t buff[4];
-        //		size_t readret = fread( buff, 1, 4, instr );
-        size_t readret = readData(buff, 4);
-        if (readret < 4)
+        if(!read())
             return false;
-        deserializeSignedFixed32FromString(x, buff);
-        return true;
+
+        uint64_t key;
+        buffer.dataPtr = deserializeFromStringVariantUint64(key, buffer.dataPtr);
+        type = static_cast<WIRE_TYPE>(key & 7);
+        fieldNumber = key >> 3;
+
+        return buffer.dataPtr != buffer.dataEnd + 1; //read past the end of buffer
     }
-    FORCE_INLINE bool readInt64(int64_t& x)
+
+    bool readVariantInt64(int64_t& x)
     {
-        uint8_t buff[8];
-        //		size_t readret = fread( buff, 1, 8, instr );
-        size_t readret = readData(buff, 8);
-        if (readret < 8)
+        if (!read())
             return false;
-        deserializeSignedFixed64FromString(x, buff);
-        return true;
+
+        uint64_t preValue;
+        buffer.dataPtr = deserializeFromStringVariantUint64(preValue, buffer.dataPtr);
+        x = uint64ToSint64(preValue);
+
+        return buffer.dataPtr != buffer.dataEnd + 1; //read past the end of buffer
     }
-#if 0
-    bool readVariantInt32(int32_t& x)
-    {
-        uint8_t buff[4];
-        size_t readret = fread(buff, 1, 4, instr);
-        if (readret < 4)
-            return false;
-        deserializeSignedVariantFromString(x, buff);
-        return true;
-    }
-#endif // 0
-    FORCE_INLINE bool readVariantInt64(int64_t& x)
-    {
-        uint8_t buff[12];
-        memset(buff, 0, 12);
-        int pos = 0;
-        size_t readret;
-        uint32_t stringSz = 0;
-        for (;;)
-        {
-            //			readret = fread( buff + pos, 1, 1, instr );
-            readret = readData(buff + pos, 1);
-            if (readret == 0)
-                return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
-            if ((buff[pos] & 0x80) == 0)
-            {
-                deserializeSignedVariantFromString(x, buff);
-                break;
-            }
-            ++pos;
-        }
-        return true;
-    }
+
+
     //MB copy and paste from readVariantInt64, 
     // but calls deserializeUnsignedVariantFromString
-    FORCE_INLINE bool readVariantUInt64(uint64_t& x)
+    bool readVariantUInt64(uint64_t& x)
     {
-        uint8_t buff[12];
-        memset(buff, 0, 12);
-        int pos = 0;
-        size_t readret;
-        uint32_t stringSz = 0;
-        for (;;)
-        {
-            //			readret = fread( buff + pos, 1, 1, instr );
-            readret = readData(buff + pos, 1);
-            if (readret == 0)
-                return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
-            if ((buff[pos] & 0x80) == 0)
-            {
-                deserializeUnsignedVariantFromString(x, buff);
-                break;
-            }
-            ++pos;
-        }
-        return true;
-    }
-
-    FORCE_INLINE bool readFixed64Bit(double& x)
-    {
-        uint8_t buff[8];
-        //		size_t readret = fread( buff, 1, 8, instr );
-        size_t readret = readData(buff, 8);
-        if (readret < 8)
+        if (!read())
             return false;
-        deserializeDoubleFromString(x, buff);
-        return true;
+
+        buffer.dataPtr = deserializeFromStringVariantUint64(x, buffer.dataPtr);
+
+        return buffer.dataPtr != buffer.dataEnd + 1; //read past the end of buffer
     }
 
-    FORCE_INLINE bool readFixed32Bit(float& x)
+    bool readFixed64Bit(double& x)
     {
-        uint8_t buff[4];
-        size_t readret = readData(buff, 4);
-        if (readret < 4)
+        if (!read())
             return false;
-        deserializeFloatFromString(x, buff);
+
+        if (buffer.dataEnd - buffer.dataPtr < 8)
+            return false;
+
+        deserializeDoubleFromString(x, buffer.dataPtr);
+        buffer.dataPtr += 8;
         return true;
     }
 
-#if 0
-    bool readInt64(int64_t& x)
+    bool readFixed32Bit(float& x)
     {
-        uint8_t buff[1000];
-        uint8_t* ret = serializeUnsignedVariantToString(fieldNumber, x, buff);
-        fwrite(buff, ret - buff, 1, outstr);
-    }
-    bool readDouble(double& x)
-    {
-        uint8_t buff[1000];
-        uint8_t* ret = serializeDoubleToString(fieldNumber, x, buff);
-        fwrite(buff, ret - buff, 1, outstr);
-    }
-#endif
-    FORCE_INLINE bool readString(std::string& x)
-    {
-        uint8_t buff[12];
-        memset(buff, 0, 12);
-        int pos = 0;
-        size_t readret;
-        uint64_t stringSz = 0;
-        for (;;)
-        {
-            //			readret = fread( buff + pos, 1, 1, instr );
-            readret = readData(buff + pos, 1);
-            if (readret == 0)
-                return false; // nothing to read (anymore); TODO: think about incomplete/broken packet
-            if ((buff[pos] & 0x80) == 0)
-            {
-                deserializeUnsignedVariantFromString(stringSz, buff);
-                break;
-            }
-            ++pos;
-        }
+        if (!read())
+            return false;
 
-#if 1
-//        x.resize(stringSz + 1);
-        x.resize(stringSz);
-        uint8_t* strBuff = reinterpret_cast<uint8_t*>(const_cast<char*>(x.c_str()));
-//        strBuff[stringSz] = 0;
-        return stringSz == readData(strBuff, stringSz);
-#else
-        for (; stringSz; --stringSz)
-        {
-            //			readret = fread( buff, 1, 1, instr );
-            readret = readData(buff, 1);
-            if (readret == 0)
-                return false; // incmplete or broken record
-            x.push_back(buff[0]);
-        }
+        if (buffer.dataEnd - buffer.dataPtr < 4)
+            return false;
 
+        deserializeFloatFromString(x, buffer.dataPtr);
+        buffer.dataPtr += 4;
         return true;
-#endif // 1/0
+    }
+
+    bool readString(std::string& x)
+    {
+        uint64_t size;
+        if (!readVariantUInt64(size))
+            return false;
+
+
+        return readData(x, size);
     }
 
     //MB check!
-    IProtobufStream makeSubStream(size_t cnt)
+    std::pair<bool, IProtobufStream> makeSubStream(size_t subSize)
     {
-        
-        if (readPos + cnt > buffSz)
-            cnt = buffSz - readPos;
+        IProtobufStream is(*this);
 
-        size_t oldReadPos = readPos;
-        readPos += cnt;
-        return IProtobufStream(instr + oldReadPos, cnt);
+        if (inputLeft >= subSize) {
+            inputLeft -= subSize;
+            is.inputLeft = subSize;
+            return make_pair(true, is);
+        }
+        else {
+            return make_pair(false, is);
+        }
     }
 
 };
-
-#endif // 0
 
 } //namespace bl
 
