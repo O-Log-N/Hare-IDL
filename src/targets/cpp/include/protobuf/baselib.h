@@ -139,6 +139,12 @@ protected:
     FILE* outstr;
 public:
     OProtobufStream(FILE* outStr) : outstr(outStr) {}
+
+    void flush()
+    {
+        ;//do nothing
+    }
+
     void writeInt(int fieldNumber, int64_t x)
     {
         uint8_t buff[1000];
@@ -577,6 +583,19 @@ public:
         if (readPos + cnt > buffSz)
             cnt = buffSz - readPos;
 
+        size_t oldReadPos = readPos;
+        readPos += cnt;
+        return IProtobufStream(instr + oldReadPos, cnt);
+    }
+
+    //MB check!
+    IProtobufStream makeSubStream(bool& ok, size_t cnt)
+    {
+        ok = readPos + cnt <= buffSz;
+
+        if (!ok) {
+            cnt = buffSz - readPos;
+        }
         size_t oldReadPos = readPos;
         readPos += cnt;
         return IProtobufStream(instr + oldReadPos, cnt);

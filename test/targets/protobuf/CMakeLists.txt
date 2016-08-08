@@ -12,6 +12,7 @@ add_subdirectory(../../../3rdparty/protobuf/cmake protobuf)
 
 add_subdirectory(basic-types)
 add_subdirectory(gpb-loop)
+add_subdirectory(gpb-sequence-loop)
 add_subdirectory(packed-sequence)
 add_subdirectory(poly-ptr)
 

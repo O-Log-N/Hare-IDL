@@ -72,27 +72,40 @@ TEST(GpbLoop, Test10)
 TEST(GpbLoop, Test11)
 {
     TestClass tc;
-    tc.max_u8 = UINT8_MAX;
-    tc.max_u16 = UINT16_MAX;
-    tc.max_u32 = UINT32_MAX;
-    tc.max_u64 = UINT64_MAX;
 
-    tc.max_s8 = INT8_MIN;
-    tc.max_s16 = INT16_MIN;
-    tc.max_s32 = INT32_MIN;
-    tc.max_s64 = INT64_MIN;
+    tc.someUints.push_back(10);
+    tc.someUints.push_back(1000);
+    tc.someUints.push_back(100000);
+    tc.someUints.push_back(10000000);
 
-    tc.aFloat = 1.0;
-    tc.aDouble = 2.0;
+    tc.someInts.push_back(10);
+    tc.someInts.push_back(-1000);
+    tc.someInts.push_back(100000);
+    tc.someInts.push_back(-10000000);
 
-    tc.description = "Hello world!";
+    tc.someFloats.push_back(1.0);
+    tc.someFloats.push_back(2.0);
 
-    tc.aValue = TestClass::Second;
+    tc.someDoubles.push_back(1.0);
+    tc.someDoubles.push_back(2.0);
+    tc.someDoubles.push_back(3.0);
+    tc.someDoubles.push_back(4.0);
 
-    tc.flag = true;
+    tc.someStrings.push_back("Hello");
+    tc.someStrings.push_back("world!");
 
+    //mb: THIS HAS A BUG, FIX
+/*
+    tc.someValues.push_back(TestClass::Nothing);
+    tc.someValues.push_back(TestClass::First);
+    tc.someValues.push_back(TestClass::Second);
+
+    tc.someBools.push_back(true);
+    tc.someBools.push_back(false);
+*/
     protobufTestLoop(tc, "test11");
 }
+
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

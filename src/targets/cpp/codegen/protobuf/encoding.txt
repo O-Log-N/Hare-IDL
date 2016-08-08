@@ -234,9 +234,9 @@ void serialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& 
     switch ( @PARAM-NAME@ )
     {
    @@FOR-EACH LOCAL-ENUM-VAL IN PARAM-TYPE.ENUM-VALUES()
-      case /* @LOCAL-ENUM-VAL.ENUM-VALUE-NAME()@ */ @LOCAL-ENUM-VAL.MAPPING-ENUM-VALUE-VALUE()@: o.writeUInt(@PARAM-MEMCTR@, @LOCAL-ENUM-VAL.ENCODING-ENUM-VALUE-VALUE()@ ); break;
+      case /* @LOCAL-ENUM-VAL.ENUM-VALUE-NAME()@ */ @LOCAL-ENUM-VAL.MAPPING-ENUM-VALUE-VALUE()@: o.writeUInt( @PARAM-MEMCTR@, @LOCAL-ENUM-VAL.ENCODING-ENUM-VALUE-VALUE()@ ); break;
    @@FOR-EACH END
-        default: assert( false );
+        default: o.writeUInt( @PARAM-MEMCTR@, 0 ); assert( false );
     }
 @@END-TEMPLATE NAME="SERIALIZE-ENUM"
 
@@ -250,7 +250,7 @@ void serialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& 
   @@FOR-EACH LOCAL-ENUM-VAL IN PARAM-TYPE.ENUM-VALUES()
           case /* @LOCAL-ENUM-VAL.ENUM-VALUE-NAME()@ */ @LOCAL-ENUM-VAL.MAPPING-ENUM-VALUE-VALUE()@: o.writePackedUnsignedVarInt(@LOCAL-ENUM-VAL.ENCODING-ENUM-VALUE-VALUE()@ ); break;
   @@FOR-EACH END
-            default: assert( false );
+            default: o.writePackedUnsignedVarInt( 0 ); assert( false );
         }
 @@END-TEMPLATE NAME="SERIALIZE-PACKED-ENUM"
 
@@ -393,9 +393,13 @@ bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, I
     if( fieldType != LENGTH_DELIMITED )
       return false;
 
-    uint64_t sz = 0;
-    i.readVariantUInt64(sz);
-    IProtobufStream is = i.makeSubStream(sz);
+    uint64_t sz;
+    readOk = i.readVariantUInt64( sz );
+    if ( !readOk )
+      return false;
+    IProtobufStream is = i.makeSubStream( readOk, sz );
+    if ( !readOk )
+      return false;
 
     switch ( fieldNumber )
     {
@@ -532,9 +536,13 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
       readOk = i.readString( @PARAM-NAME@ );
 @@ELIF PARAM-TYPE.IS-STRUCTURE()
       if( fieldType != LENGTH_DELIMITED ) return false;
-      uint64_t sz = 0;
-      i.readVariantUInt64(sz);
-      IProtobufStream is = i.makeSubStream(sz);
+      uint64_t sz;
+      readOk = i.readVariantUInt64( sz );
+      if ( !readOk )
+        return false;
+      IProtobufStream is = i.makeSubStream( readOk, sz );
+      if ( !readOk )
+        return false;
       readOk = deserialize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@(@PARAM-NAME@, is);
 @@ELIF PARAM-TYPE.IS-ENUM()
       if( fieldType != VARINT ) return false;
@@ -550,9 +558,13 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
     @@ASSERT "0" MSG="Cannot process member for size: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
   @@ELIF FUNCTION-IS-FIXED-SIZE-TYPE(PARAM-TYPE.COLLECTION-TYPE())
     if( fieldType == LENGTH_DELIMITED ) {
-      uint64_t sz = 0;
-      i.readVariantUInt64(sz);
-      IProtobufStream is = i.makeSubStream(sz);
+      uint64_t sz;
+      readOk = i.readVariantUInt64(sz);
+      if ( !readOk )
+        return false;
+      IProtobufStream is = i.makeSubStream( readOk, sz );
+      if ( !readOk )
+        return false;
       IProtobufStream& i = is;
 
       while(!i.isEndOfStream()) {
@@ -648,10 +660,15 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-DICTIONARY"
 @@ASSERT PARAM-TYPE.IS-DICTIONARY()
-  if( fieldType != LENGTH_DELIMITED ) return false;
-  uint64_t sz = 0;
-  i.readVariantUInt64(sz);
-  IProtobufStream is = i.makeSubStream(sz);
+  if( fieldType != LENGTH_DELIMITED )
+    return false;
+  uint64_t sz;
+  readOk = i.readVariantUInt64( sz );
+  if ( !readOk )
+    return false;
+  IProtobufStream is = i.makeSubStream( readOk, sz );
+  if ( !readOk )
+    return false;
   IProtobufStream& i = is;
   @PARAM-TYPE.COLLECTION-TYPE2().ENCODING-MEMBER-TYPE()@ key;
   @PARAM-TYPE.COLLECTION-TYPE().ENCODING-MEMBER-TYPE()@ value;
@@ -733,8 +750,13 @@ bool discardUnexpectedField( int fieldType, IProtobufStream& i ) {
   case LENGTH_DELIMITED:
     {
       uint64_t sz;
-      i.readVariantUInt64( sz );
-      IProtobufStream is = i.makeSubStream( sz );
+      bool readOk = i.readVariantUInt64( sz );
+      if( !readOk )
+        return false;
+      IProtobufStream is = i.makeSubStream( readOk, sz );
+      if ( !readOk )
+        return false;
+
       string temp;
       return is.readString( temp );
     }
@@ -742,8 +764,7 @@ bool discardUnexpectedField( int fieldType, IProtobufStream& i ) {
   case FIXED_32_BIT:
     {
       float temp;
-//          readOk = i.readFixed32Bit( temp );
-      return false;
+      return i.readFixed32Bit( temp );
     }
     break;
   default:
