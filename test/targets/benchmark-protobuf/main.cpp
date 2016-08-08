@@ -100,7 +100,7 @@ static void serializeVarInt(benchmark::State& state) {
 
     vector<int64_t> data = constructData64();
     while (state.KeepRunning()) {
-        FILE* out = fopen("baselib.protobuf.bin", "w+b");
+        FILE* out = fopen("varint.protobuf.bin", "w+b");
         OProtobufStream os(out);
 //        state.PauseTiming();
 //        state.ResumeTiming();
@@ -118,7 +118,7 @@ static void bl2_serializeVarInt(benchmark::State& state) {
     while (state.KeepRunning()) {
 
 
-        FILE* out = fopen("baselib2.protobuf.bin", "w+b");
+        FILE* out = fopen("varint2.protobuf.bin", "w+b");
 
         typedef bl2::OProtobufStream<bl2::FileWriter> OS;
         const size_t buffSize = 4 * 1024;
@@ -138,25 +138,30 @@ static void bl2_serializeVarInt(benchmark::State& state) {
 
 static void deserializeVarInt(benchmark::State& state) {
 
-    const size_t buffSize = 64 * 1024;
-    uint8_t baseBuff[buffSize];
-    FILE* in = fopen("baselib.protobuf.bin", "rb");
-    size_t sz = fread(baseBuff, 1, buffSize, in);
-    assert(sz < buffSize);
-
     while (state.KeepRunning()) {
+        const size_t buffSize = 64 * 1024;
+        uint8_t baseBuff[buffSize];
+        FILE* in = fopen("varint.protobuf.bin", "rb");
+        size_t sz = fread(baseBuff, 1, buffSize, in);
+        assert(sz < buffSize);
+
         IProtobufStream is(baseBuff, sz);
         int field;
         int type;
         int64_t value;
+        bool ok = true;
+
         while (!is.isEndOfStream()) {
-            if(!is.readFieldTypeAndID(type, field))
+            ok = is.readFieldTypeAndID(type, field);
+            if(!ok)
                 break;
-            if (!is.readVariantInt64(value))
+            ok = is.readVariantInt64(value);
+            if (!ok)
                 break;
         }
+
+        fclose(in);
     }
-    fclose(in);
 }
 
 static void bl2_deserializeVarInt(benchmark::State& state) {
@@ -164,33 +169,30 @@ static void bl2_deserializeVarInt(benchmark::State& state) {
     //    fstream out("baselib2.protobuf.bin", ios_base::binary| ios_base::out | ios_base::trunc);
     typedef bl2::IProtobufStream<bl2::FileReader> IS;
 
-    const size_t buffSize = 64 * 1024;
-    uint8_t baseBuff[buffSize];
-    FILE* in = fopen("baselib.protobuf.bin", "rb");
-
     while (state.KeepRunning()) {
+        const size_t buffSize = 64 * 1024;
+        uint8_t baseBuff[buffSize];
+        FILE* in = fopen("varint.protobuf.bin", "rb");
+
         bl2::FileReader rd(in);
         bl2::IProtobufBuffer<bl2::FileReader> buff(baseBuff, buffSize, rd);
         IS is(buff);
         int field;
         bl2::WIRE_TYPE type;
         int64_t value;
+        bool ok = true;
         
         while (!is.isEndOfStream()) {
-            {
-                bool ok = is.readFieldTypeAndID(type, field);
-                if (!ok)
-                    break;
-            }
-            {
-                bool ok = is.readVariantInt64(value);
-                if (!ok)
-                    break;
-            }
+            ok = is.readFieldTypeAndID(type, field);
+            if (!ok)
+                break;
+            ok = is.readVariantInt64(value);
+            if (!ok)
+                break;
         }
-        rewind(in);
+
+        fclose(in);
     }
-    fclose(in);
 }
 
 static void serializeDouble(benchmark::State& state) {
@@ -229,46 +231,59 @@ static void bl2_serializeDouble(benchmark::State& state) {
 
 static void deserializeDouble(benchmark::State& state) {
 
-    const size_t buffSize = 64 * 1024;
-    uint8_t baseBuff[buffSize];
-    FILE* in = fopen("double.protobuf.bin", "rb");
-    size_t sz = fread(baseBuff, 1, buffSize, in);
-    assert(sz < buffSize);
-
     while (state.KeepRunning()) {
+        const size_t buffSize = 64 * 1024;
+        uint8_t baseBuff[buffSize];
+        FILE* in = fopen("double.protobuf.bin", "rb");
+        size_t sz = fread(baseBuff, 1, buffSize, in);
+        assert(sz < buffSize);
+
         IProtobufStream is(baseBuff, sz);
         int field;
         int type;
         double value;
-        while (!is.isEndOfStream() && is.readFieldTypeAndID(type, field) && is.readFixed64Bit(value)) {
-            ;
+        bool ok = true;
+        while (!is.isEndOfStream()) {
+
+            ok = is.readFieldTypeAndID(type, field);
+            if (!ok)
+                break;
+            ok = is.readFixed64Bit(value);
+            if (!ok)
+                break;
         }
+
+        fclose(in);
     }
-    fclose(in);
 }
 
 static void bl2_deserializeDouble(benchmark::State& state) {
 
     typedef bl2::IProtobufStream<bl2::FileReader> IS;
 
-    const size_t buffSize = 64 * 1024;
-    uint8_t baseBuff[buffSize];
-    FILE* in = fopen("double.protobuf.bin", "rb");
-
     while (state.KeepRunning()) {
+        const size_t buffSize = 64 * 1024;
+        uint8_t baseBuff[buffSize];
+        FILE* in = fopen("double.protobuf.bin", "rb");
+
         bl2::FileReader rd(in);
         bl2::IProtobufBuffer<bl2::FileReader> buff(baseBuff, buffSize, rd);
         IS is(buff);
         int field;
         bl2::WIRE_TYPE type;
         double value;
+        bool ok = true;
         while (!is.isEndOfStream()) {
-            if(is.readFieldTypeAndID(type, field));
-            is.readFixed64Bit(value);
+            ok = is.readFieldTypeAndID(type, field);
+            if (!ok)
+                break;
+            ok = is.readFixed64Bit(value);
+            if (!ok)
+                break;
         }
-        rewind(in);
+
+        fclose(in);
     }
-    fclose(in);
 }
 
 static void serializeString(benchmark::State& state) {
@@ -351,12 +366,13 @@ static void bl2_deserializeString(benchmark::State& state) {
     }
 }
 
-//BENCHMARK(serializeVarInt);
+BENCHMARK(serializeVarInt);
+BENCHMARK(bl2_serializeVarInt);
 //BENCHMARK(serializeVarInt)->Repetitions(10);
 //BENCHMARK(bl2_serializeVarInt)->Repetitions(10);
 
-//BENCHMARK(deserializeVarInt)->Repetitions(10);
-//BENCHMARK(bl2_deserializeVarInt)->Repetitions(10);
+BENCHMARK(deserializeVarInt)->Repetitions(10);
+BENCHMARK(bl2_deserializeVarInt)->Repetitions(10);
 
 //BENCHMARK(serializeDouble);
 //BENCHMARK(serializeDouble)->Repetitions(10);
@@ -366,11 +382,11 @@ static void bl2_deserializeString(benchmark::State& state) {
 //BENCHMARK(bl2_deserializeDouble)->Repetitions(10);
 
 //BENCHMARK(serializeString);
-BENCHMARK(serializeString);
-BENCHMARK(bl2_serializeString);
+//BENCHMARK(serializeString);
+//BENCHMARK(bl2_serializeString);
 
-BENCHMARK(deserializeString)->Repetitions(10);
-BENCHMARK(bl2_deserializeString)->Repetitions(10);
+//BENCHMARK(deserializeString)->Repetitions(10);
+//BENCHMARK(bl2_deserializeString)->Repetitions(10);
 
 BENCHMARK_MAIN();
 

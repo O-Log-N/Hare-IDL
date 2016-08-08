@@ -183,31 +183,26 @@ public:
     void writeInt(int fieldNumber, int64_t x)
     {
         dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::VARINT, dataPtr);
-        uint64_t unsig = sint64ToUint64(x);
-        dataPtr = serializeToStringVariantUint64(unsig, dataPtr);
-        write();
+        writePackedSignedVarInt(x);
     }
     
     //MB
     void writeUInt(int fieldNumber, uint64_t x)
     {
         dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::VARINT, dataPtr);
-        dataPtr = serializeToStringVariantUint64(x, dataPtr);
-        write();
+        writePackedUnsignedVarInt(x);
     }
 
     void writeDouble(int fieldNumber, double x)
     {
         dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::FIXED_64_BIT, dataPtr);
-        dataPtr = serializeToStringFixedUint64(*(uint64_t*)(&x), dataPtr);
-        write();
+        writePackedDouble(x);
     }
 
     void writeFloat(int fieldNumber, float x)
     {
         dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::FIXED_32_BIT, dataPtr);
-        dataPtr = serializeToStringFixedUint32(*(uint32_t*)(&x), dataPtr);
-        write();
+        writePackedFloat(x);
     }
 
     void writeString(int fieldNumber, const std::string& x)
