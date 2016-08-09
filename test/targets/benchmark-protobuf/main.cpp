@@ -178,7 +178,7 @@ static void bl2_deserializeVarInt(benchmark::State& state) {
         bl2::IProtobufBuffer<bl2::FileReader> buff(baseBuff, buffSize, rd);
         IS is(buff);
         int field;
-        bl2::WIRE_TYPE type;
+        int type;
         int64_t value;
         bool ok = true;
         
@@ -270,7 +270,7 @@ static void bl2_deserializeDouble(benchmark::State& state) {
         bl2::IProtobufBuffer<bl2::FileReader> buff(baseBuff, buffSize, rd);
         IS is(buff);
         int field;
-        bl2::WIRE_TYPE type;
+        int type;
         double value;
         bool ok = true;
         while (!is.isEndOfStream()) {
@@ -355,7 +355,7 @@ static void bl2_deserializeString(benchmark::State& state) {
         bl2::IProtobufBuffer<bl2::FileReader> buff(baseBuff, buffSize, rd);
         IS is(buff);
         int field;
-        bl2::WIRE_TYPE type;
+        int type;
         string value;
         while (!is.isEndOfStream()) {
             if (is.readFieldTypeAndID(type, field))
@@ -366,8 +366,8 @@ static void bl2_deserializeString(benchmark::State& state) {
     }
 }
 
-BENCHMARK(serializeVarInt);
-BENCHMARK(bl2_serializeVarInt);
+//BENCHMARK(serializeVarInt);
+//BENCHMARK(bl2_serializeVarInt);
 //BENCHMARK(serializeVarInt)->Repetitions(10);
 //BENCHMARK(bl2_serializeVarInt)->Repetitions(10);
 

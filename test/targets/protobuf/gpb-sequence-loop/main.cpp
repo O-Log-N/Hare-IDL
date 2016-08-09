@@ -99,10 +99,10 @@ TEST(GpbLoop, Test11)
     tc.someValues.push_back(TestClass::Nothing);
     tc.someValues.push_back(TestClass::First);
     tc.someValues.push_back(TestClass::Second);
-/*
+
     tc.someBools.push_back(true);
     tc.someBools.push_back(false);
-*/
+
     protobufTestLoop(tc, "test11");
 }
 

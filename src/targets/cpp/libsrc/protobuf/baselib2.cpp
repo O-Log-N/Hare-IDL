@@ -16,6 +16,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace bl2
 {
 
+
+
+uint8_t* serializeHeaderToString(int fieldNumber, WIRE_TYPE wire_type, uint8_t* buff)
+{
+    uint64_t key = (fieldNumber << 3) | wire_type;
+    return serializeToStringVariantUint64(key, buff);
+}
+
+uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff)
+{
+    uint64_t key;
+    buff = deserializeFromStringVariantUint64(key, buff);
+    type = key & 7;
+    fieldNumber = key >> 3;
+    return buff;
+}
+
 ///////////////////////////   WIRE_TYPE::VARINT      ////////////////////////////////////
 
 uint8_t* serializeToStringVariantUint64(uint64_t value, uint8_t* buff)
@@ -48,14 +65,6 @@ uint8_t* deserializeFromStringVariantUint64(uint64_t& value, uint8_t* buff)
 }
 
 
-uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff)
-{
-    uint64_t key;
-    buff = deserializeFromStringVariantUint64(key, buff);
-    type = key & 7;
-    fieldNumber = key >> 3;
-    return buff;
-}
 
 
 ///////////////////////////   WIRE_TYPE::FIXED_64_BIT      ////////////////////////////////////
@@ -121,11 +130,9 @@ uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff)
 
 ///////////////////////////     WIRE_TYPE::LENGTH_DELIMITED    ////////////////////////////////////
 
-//MB
 uint8_t* serializeLengthDelimitedHeaderToString(int fieldNumber, size_t valueSize, uint8_t* buff)
 {
-    uint32_t key = (fieldNumber << 3) | WIRE_TYPE::LENGTH_DELIMITED;
-    buff = serializeToStringVariantUint64(key, buff);
+    buff = serializeHeaderToString(fieldNumber, LENGTH_DELIMITED, buff);
     return serializeToStringVariantUint64(valueSize, buff);
 }
 

@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
 	// deserialize tree
     const char* fileName = "idl_tree.h.idlbin";
-    if (argc > 2) {
+    if (argc >= 2) {
         fileName = argv[1];
     }
 

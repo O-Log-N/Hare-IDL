@@ -71,6 +71,8 @@ int64_t uint64ToSint64(uint64_t src)
 }
 
 
+//uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff);
+uint8_t* serializeHeaderToString(int fieldNumber, WIRE_TYPE wire_type, uint8_t* buff);
 uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff);
 
 
@@ -91,18 +93,7 @@ uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff);
 
 ///////////////////////////     WIRE_TYPE::LENGTH_DELIMITED    ////////////////////////////////////
 
-//MB
 uint8_t* serializeLengthDelimitedHeaderToString(int fieldNumber, size_t valueSize, uint8_t* buff);
-
-
-
-//MB
-inline
-uint8_t* serializeHeaderToString(int fieldNumber, WIRE_TYPE wire_type, uint8_t* buff)
-{
-    uint64_t key = (fieldNumber << 3) | wire_type;
-    return serializeToStringVariantUint64(key, buff);
-}
 
 
 
@@ -186,7 +177,6 @@ public:
         writePackedSignedVarInt(x);
     }
     
-    //MB
     void writeUInt(int fieldNumber, uint64_t x)
     {
         dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::VARINT, dataPtr);
@@ -211,14 +201,12 @@ public:
         writeData(x);
     }
 
-    //mb
     void writeObjectTagAndSize(int fieldNumber, size_t sz)
     {
         dataPtr = serializeLengthDelimitedHeaderToString(fieldNumber, sz, dataPtr);
         write();
     }
 
-    //mb without fieldNumber, to be used by packed sequence
     void writePackedSignedVarInt(int64_t x)
     {
         uint64_t unsig = sint64ToUint64(x);
@@ -226,21 +214,18 @@ public:
         write();
     }
 
-    //mb without fieldNumber, to be used by packed sequence
     void writePackedUnsignedVarInt(uint64_t x)
     {
         dataPtr = serializeToStringVariantUint64(x, dataPtr);
         write();
     }
 
-    //mb without fieldNumber, to be used by packed sequence
     void writePackedDouble(double x)
     {
         dataPtr = serializeToStringFixedUint64(*(uint64_t*)(&x), dataPtr);
         write();
     }
 
-    //mb without fieldNumber, to be used by packed sequence
     void writePackedFloat(float x)
     {
         dataPtr = serializeToStringFixedUint32(*(uint32_t*)(&x), dataPtr);
@@ -303,7 +288,6 @@ public:
     bool readData(std::string& data, size_t size)
     {
         data.resize(size);
-        const void* dest = data.data();
 
         size_t left = dataEnd - dataPtr;
         if (size <= left) {
@@ -353,15 +337,12 @@ public:
         return buffer.isEndOfStream(last);
     }
 
-    bool readFieldTypeAndID(WIRE_TYPE& type, int& fieldNumber)
+    bool readFieldTypeAndID(int& type, int& fieldNumber)
     {
         buffer.preRead();
 
-        uint64_t key;
-        buffer.dataPtr = deserializeFromStringVariantUint64(key, buffer.dataPtr);
-        type = static_cast<WIRE_TYPE>(key & 7);
-        fieldNumber = key >> 3;
-
+        buffer.dataPtr = deserializeHeaderFromString(fieldNumber, type, buffer.dataPtr);
+        
         return buffer.dataPtr <= buffer.dataEnd; //read past the end of buffer
     }
 
@@ -377,8 +358,6 @@ public:
     }
 
 
-    //MB copy and paste from readVariantInt64, 
-    // but calls deserializeUnsignedVariantFromString
     bool readVariantUInt64(uint64_t& x)
     {
         buffer.preRead();
@@ -393,7 +372,9 @@ public:
         buffer.preRead();
 
         if (buffer.dataEnd - buffer.dataPtr >= 8) {
-            deserializeDoubleFromString(x, buffer.dataPtr);
+            uint64_t tmp;
+            deserializeFromStringFixedUint64(tmp, buffer.dataPtr);
+            x = *reinterpret_cast<double*>(&tmp);
             buffer.dataPtr += 8;
             return true;
         }
@@ -406,7 +387,9 @@ public:
         buffer.preRead();
 
         if (buffer.dataEnd - buffer.dataPtr >= 4) {
-            deserializeFloatFromString(x, buffer.dataPtr);
+            uint32_t tmp;
+            deserializeFromStringFixedUint32(tmp, buffer.dataPtr);
+            x = *reinterpret_cast<float*>(&tmp);
             buffer.dataPtr += 4;
             return true;
         }

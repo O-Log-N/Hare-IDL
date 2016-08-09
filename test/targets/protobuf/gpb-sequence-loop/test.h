@@ -31,7 +31,6 @@ using namespace std;
 struct TestClass {
 
   vector<uint64_t> someUints;
-
   vector<int32_t> someInts;
 
   vector<float> someFloats;
