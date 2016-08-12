@@ -72,14 +72,19 @@ int64_t uint64ToSint64(uint64_t src)
 
 
 //uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff);
-uint8_t* serializeHeaderToString(int fieldNumber, WIRE_TYPE wire_type, uint8_t* buff);
 uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff);
 
 
 ///////////////////////////   WIRE_TYPE::VARINT      ////////////////////////////////////
 
+/*
+    mb: serializeToStringVariantUint64 will read at most 10 bytes from buffer
+    However, if there is risk of buffer being overread, a null byte must be
+    set after the last buffer position, to force stop the algorithm.
+*/
 uint8_t* serializeToStringVariantUint64(uint64_t value, uint8_t* buff);
 uint8_t* deserializeFromStringVariantUint64(uint64_t& value, uint8_t* buff);
+
 
 ///////////////////////////   WIRE_TYPE::FIXED_64_BIT      ////////////////////////////////////
 
@@ -96,6 +101,12 @@ uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff);
 uint8_t* serializeLengthDelimitedHeaderToString(int fieldNumber, size_t valueSize, uint8_t* buff);
 
 
+///// inline
+inline uint8_t* serializeHeaderToString(int fieldNumber, int wire_type, uint8_t* buff)
+{
+    int key = (fieldNumber << 3) | wire_type;
+    return serializeToStringVariantUint64(key, buff);
+}
 
 //MB begin
 constexpr size_t getUnsignedVarIntSize(uint64_t value)

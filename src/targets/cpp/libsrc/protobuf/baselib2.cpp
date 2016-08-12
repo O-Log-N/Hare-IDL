@@ -13,16 +13,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 *******************************************************************************/
 #include <protobuf/baselib2.h>
 
+#define IS_LITTLE_ENDIAN 1
+
 namespace bl2
 {
-
-
-
-uint8_t* serializeHeaderToString(int fieldNumber, WIRE_TYPE wire_type, uint8_t* buff)
-{
-    uint64_t key = (fieldNumber << 3) | wire_type;
-    return serializeToStringVariantUint64(key, buff);
-}
 
 uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff)
 {
@@ -34,6 +28,11 @@ uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff)
 }
 
 ///////////////////////////   WIRE_TYPE::VARINT      ////////////////////////////////////
+
+/*
+    mb: manual loop unrool seems to be detrimental for this particular case.
+*/
+
 
 uint8_t* serializeToStringVariantUint64(uint64_t value, uint8_t* buff)
 {
@@ -48,6 +47,9 @@ uint8_t* serializeToStringVariantUint64(uint64_t value, uint8_t* buff)
     return buff;
 }
 
+
+
+/*
 uint8_t* deserializeFromStringVariantUint64(uint64_t& value, uint8_t* buff)
 {
     value = 0;
@@ -63,15 +65,93 @@ uint8_t* deserializeFromStringVariantUint64(uint64_t& value, uint8_t* buff)
 
     return buff;
 }
+*/
+
+/* mb:  manual loop unroll goes faster,
+        but more importantly is that it will not keep eating from the buffer
+        in case of a broken packet. It will always stop after 10 bytes.
+        TODO: how to signal such stream error
+*/
+
+uint8_t* deserializeFromStringVariantUint64(uint64_t& value, uint8_t* buff)
+{
+    value = 0;
+    {
+        value |= uint64_t(*buff & 0x7f);
+        if (*buff & 0x80)
+        {
+            ++buff;
+            value |= uint64_t(*buff & 0x7f) << 7;
+            if (*buff & 0x80)
+            {
+                ++buff;
+                value |= uint64_t(*buff & 0x7f) << 14;
+                if (*buff & 0x80)
+                {
+                    ++buff;
+                    value |= uint64_t(*buff & 0x7f) << 21;
+                    if (*buff & 0x80)
+                    {
+                        ++buff;
+                        value |= uint64_t(*buff & 0x7f) << 28;
+                        if (*buff & 0x80)
+                        {
+                            ++buff;
+                            value |= uint64_t(*buff & 0x7f) << 35;
+                            if (*buff & 0x80)
+                            {
+                                ++buff;
+                                value |= uint64_t(*buff & 0x7f) << 42;
+                                if (*buff & 0x80)
+                                {
+                                    ++buff;
+                                    value |= uint64_t(*buff & 0x7f) << 49;
+                                    if (*buff & 0x80)
+                                    {
+                                        ++buff;
+                                        value |= uint64_t(*buff & 0x7f) << 56;
+                                        if (*buff & 0x80)
+                                        {
+                                            ++buff;
+                                            value |= uint64_t(*buff & 0x7f) << 63;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    ++buff;
+    return buff;
+}
 
 
 
 
 ///////////////////////////   WIRE_TYPE::FIXED_64_BIT      ////////////////////////////////////
 
+#if IS_LITTLE_ENDIAN
+
 uint8_t* serializeToStringFixedUint64(uint64_t value, uint8_t* buff)
 {
-    // TODO: version favouring little endian platforms
+    *reinterpret_cast<uint64_t*>(buff) = value;
+    return buff + 8;
+}
+
+uint8_t* deserializeFromStringFixedUint64(uint64_t& value, uint8_t* buff)
+{
+    value = *reinterpret_cast<uint64_t*>(buff);
+    return buff + 8;
+}
+
+#else
+
+uint8_t* serializeToStringFixedUint64(uint64_t value, uint8_t* buff)
+{
     for (int ctr = 0; ctr < 8; ++ctr)
     {
         *(buff++) = value & 0xff;
@@ -82,7 +162,6 @@ uint8_t* serializeToStringFixedUint64(uint64_t value, uint8_t* buff)
 
 uint8_t* deserializeFromStringFixedUint64(uint64_t& value, uint8_t* buff)
 {
-    // TODO: version favouring little endian platforms
     value = 0;
     uint64_t tmp;
 
@@ -96,12 +175,29 @@ uint8_t* deserializeFromStringFixedUint64(uint64_t& value, uint8_t* buff)
     return buff;
 }
 
+#endif
+
 
 ///////////////////////////     WIRE_TYPE::FIXED_32_BIT    ////////////////////////////////////
 
+#if IS_LITTLE_ENDIAN
+
 uint8_t* serializeToStringFixedUint32(uint32_t value, uint8_t* buff)
 {
-    // TODO: version favouring little endian platforms
+    *reinterpret_cast<uint32_t*>(buff) = value;
+    return buff + 4;
+}
+
+uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff)
+{
+    value = *reinterpret_cast<uint32_t*>(buff);
+    return buff + 4;
+}
+
+#else
+
+uint8_t* serializeToStringFixedUint32(uint32_t value, uint8_t* buff)
+{
     *(buff++) = value & 0xff;
     value >>= 8;
     *(buff++) = value & 0xff;
@@ -114,7 +210,6 @@ uint8_t* serializeToStringFixedUint32(uint32_t value, uint8_t* buff)
 
 uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff)
 {
-    // TODO: version favouring little endian platforms
     value = 0;
     uint32_t tmp;
 
@@ -128,6 +223,7 @@ uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff)
     return buff;
 }
 
+#endif
 ///////////////////////////     WIRE_TYPE::LENGTH_DELIMITED    ////////////////////////////////////
 
 uint8_t* serializeLengthDelimitedHeaderToString(int fieldNumber, size_t valueSize, uint8_t* buff)
