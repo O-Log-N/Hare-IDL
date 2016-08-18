@@ -5,12 +5,17 @@
 #include <iomanip>
 #include <limits>
 
+#include "sample.h"
 #include "front-back/idl_tree.h"
-#include "front-back/idl_tree_serializer.h"
 #include "output.pb.h"
 #include "output.h"
+
 #include "protobuf/baselib.h"
+
+#include "front-back/idl_tree_serializer.h"
+
 #include "dbg_assert_equal.h"
+#include "dbg_print.h"
 
 using namespace std;
 
@@ -48,6 +53,7 @@ void protobufReadAndReply(istream& is, ostream& os, const Root& our)
 //}
 
 unique_ptr<Root> protobufDeserializeFromFile(const char* fileName) {
+
     unique_ptr<Root> root(new Root);
     uint8_t baseBuff[0x10000];
     FILE* in = fopen(fileName, "rb");
@@ -81,6 +87,17 @@ unique_ptr<Root> deserializeFile(const char* fileName) {
     return ok ? std::move(root) : nullptr;
 }
 
+//unique_ptr<TestClass> createSample() {
+//
+//    unique_ptr<TestClass> root(new TestClass);
+//
+//    root->bigInt = INT64_MIN;
+//    root->aFloat = 0;
+//
+//    return root;
+//}
+
+
 
 void dumpStream(istream& is)
 {
@@ -96,10 +113,10 @@ int main(int argc, char* argv[])
   const char* sendFile = "character.send.bin";
   const char* recvFile = "character.recv.bin";
 
-  unique_ptr<Root> toSend = deserializeFile("../../Hare-IDL/dbg/protobuf/idl_tree.h.idlbin");
+  unique_ptr<Root> toSend = deserializeFile("../../Hare-IDL/src/front-back/idl_tree.h.idlbin");
 //  unique_ptr<Root> toSend = deserializeFile("idl_tree.h.idlbin");
-  //unique_ptr<Root> toSend = createSample();
-
+//  unique_ptr<Root> toSend = createSample();
+  assert(toSend);
   protobufSerializeToFile(sendFile, *toSend);
 
   fstream is(sendFile, ios::in | ios::binary);
@@ -111,6 +128,8 @@ int main(int argc, char* argv[])
 
   assert(recv);
   assertEqualRoot(*toSend, *recv);
+
+  dbgPrintRoot(*toSend, cout, 0);
 
   google::protobuf::ShutdownProtobufLibrary();
 

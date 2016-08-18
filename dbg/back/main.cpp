@@ -22,38 +22,6 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "front/idl/parser.h"
 #include "front-back/idl_tree_serializer.h"
 
-DataMember* makeMember(const string& type_name, const string& name)
-{
-	DataMember* dm = new DataMember;
-	dm->type.name = type_name;
-	dm->name = name;
-	return dm;
-}
-
-void loadFakeSample( Root& root )
-{
-	// a quite rudimentary sample - just to make sure main things work
-	Structure* stre;
-
-	stre = new Structure;
-	stre->name = "Character";
-	stre->declType = Structure::MAPPING;
-	stre->type = Structure::STRUCT;
-
-	stre->members.push_back( unique_ptr<EncodedOrMember>( makeMember("UINT16", "character_id") ) );
-	stre->members.push_back( unique_ptr<EncodedOrMember>( makeMember("double", "x")) );
-	stre->members.push_back( unique_ptr<EncodedOrMember>( makeMember("double", "y")) );
-	stre->members.push_back( unique_ptr<EncodedOrMember>( makeMember("double", "z")) );
-	stre->members.push_back( unique_ptr<EncodedOrMember>( makeMember("double", "vx")) );
-	stre->members.push_back( unique_ptr<EncodedOrMember>( makeMember("double", "vy")) );
-	stre->members.push_back( unique_ptr<EncodedOrMember>( makeMember("double", "vz")) );
-	stre->members.push_back( unique_ptr<EncodedOrMember>( makeMember("float", "angle")) );
-//	map2->addAttribute(make_inline_enum_att("Animation", /* TODO Standing, Walking, Running */ "anim")) );
-	stre->members.push_back( unique_ptr<EncodedOrMember>( makeMember("UINT8", "animation_frame")) );
-	stre->members.push_back( unique_ptr<EncodedOrMember>( makeMember("MyInventory", "inventory")) );
-
-	root.structures.push_back( unique_ptr<Structure>(stre) );
-}
 
 Root* deserializeFile(const char* fileName) {
     unique_ptr<Root> root(new Root());
@@ -67,48 +35,6 @@ Root* deserializeFile(const char* fileName) {
     return root.release();
 }
 
-void addTestInherit(Root& root)
-{
-    for (auto& it : root.structures)
-    {
-        if (it->name == "Structure")
-            it->inheritedFrom = "EncodedMembers";
-        else if (it->name == "EncodedMembers")
-            it->inheritedFrom = "EncodedOrMember";
-        else if (it->name == "DataMember")
-            it->inheritedFrom = "EncodedOrMember";
-        //else if ( it->name == "CharacterSet" )
-        //	it->inheritedFrom = "CharacterRange";
-    }
-}
-
-struct CmdOptions {
-    vector<string> templs;
-    string inFile;
-};
-
-CmdOptions getCmdOption(const char** begin, const char** end)
-{
-    CmdOptions result;
-    for (const char** it = begin; it != end; ++it) {
-        string current(*it);
-        if (current.substr(0, 7) == "--template=")
-            result.templs.push_back(current.substr(7));
-        else if (current.substr(0, 1) == "-") {
-            fmt::print("Unrecognized command line option: {}\n", current);
-        }
-        else {
-            if (result.inFile.empty())
-                result.inFile = current;
-            else
-                fmt::print("More than one input file not allowed: {}\n", current);
-        }
-    }
-
-    return result;
-}
-
-
 int main(int argc, char* argv[])
 {
 	try
@@ -116,8 +42,8 @@ int main(int argc, char* argv[])
 
 
         //Root* root = parseSourceFile("idl_tree.idl", false);
-        //Root* root = deserializeFile("../../Hare-IDL/dbg/protobuf/idl_tree.h.idlbin");
-        Root* root = deserializeFile("idl_tree.h.idlbin");
+        Root* root = deserializeFile("../../Hare-IDL/dbg/protobuf/sample.h.idlbin");
+        //Root* root = deserializeFile("idl_tree.h.idlbin");
 //		loadFakeSample( root );
         HAREASSERT(root);
 
@@ -125,7 +51,7 @@ int main(int argc, char* argv[])
         //idlcBackEnd(*root, "../../Hare-IDL/src/targets/cpp/codegen/protobuf/", 
         //    {"main.txt", "mapping.txt", "encoding.txt", "proto.txt" , "dbg_assert_equal.txt"}, false);
         idlcBackEnd(*root, "../../src/targets/cpp/codegen/protobuf/",
-        { "main.txt", "mapping.txt", "encoding.txt", "proto.txt", "dbg_assert_equal.txt" }, false);
+        { "main.txt", "mapping.txt", "encoding.txt", "proto.txt", "dbg_assert_equal.txt", "dbg_print.txt" }, false);
     }
 	catch ( std::exception& x )
 	{

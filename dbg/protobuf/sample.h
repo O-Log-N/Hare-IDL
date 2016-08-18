@@ -27,13 +27,15 @@ Copyright (C) 2016 OLogN Technologies AG
 
 using namespace std;
 
-struct Root {
+struct TestClass {
   
-  int64_t bigInt;
-  uint64_t bigUint;
+  int64_t bigInt = 0;
+  uint64_t bigUint = 0;
 
-  int32_t notSoBigInt;
-  uint32_t notSoBigUint;
+  int32_t notSoBigInt = 0;
+  uint32_t notSoBigUint = 0;
+
+  float aFloat = 0;
 };
 
 #endif // SAMPLE_H

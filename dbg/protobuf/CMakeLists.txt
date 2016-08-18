@@ -3,15 +3,22 @@ cmake_minimum_required(VERSION 3.2)
 
 project("dbg-protobuf")
 
-link_directories(../../../protobuf/protobuf-2.6.1/vsprojects/Debug)
+SET(protobuf_BUILD_TESTS OFF CACHE BOOL "Build tests")
+SET(protobuf_MSVC_STATIC_RUNTIME OFF CACHE BOOL "Link static runtime libraries")
+add_subdirectory(../../3rdparty/protobuf/cmake protobuf)
 
 add_executable(dbgProtobuf
   main.cpp
+  sample.h
   output.h
   output.cpp
   output.pb.h
   output.pb.cc
-  dbg_are_equal.h
+  dbg_assert_equal.h
+  dbg_print.h
+  ../../src/front-back/idl_tree.h
+  ../../src/front-back/idl_tree_serializer.cpp
+  ../../src/front-back/idl_tree_serializer.h
   ../../src/targets/cpp/include/protobuf/baselib.h
   ../../src/targets/cpp/libsrc/protobuf/baselib.cpp
 )
@@ -19,7 +26,7 @@ add_executable(dbgProtobuf
 include_directories(
   ../../src
   ../../src/targets/cpp/include
-  ../../../protobuf/protobuf-2.6.1/src
+  ../../3rdparty/protobuf/src
 )
 
 add_definitions(-D_SCL_SECURE_NO_WARNINGS)
