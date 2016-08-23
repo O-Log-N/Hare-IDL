@@ -72,8 +72,10 @@ CmdOptions getCmdOptionFake(char**, char**)
     CmdOptions result;
 
     result.templPath = "../../Hare-IDL/src/targets/cpp/codegen/protobuf/";
-    result.templs = { "main.txt", "mapping.txt", "encoding.txt", "proto.txt", "dbg_assert_equal.txt" };
-    result.inputBinary = "../../Hare-IDL/test/targets/protobuf/packed-sequence/test.h.idlbin";
+    result.templs = { "main.txt", "mapping.txt", "encoding.txt", "proto.txt",
+        "dbg_assert_equal.txt", "dbg_print.txt" };
+//    result.inputBinary = "../../Hare-IDL/test/targets/protobuf/packed-sequence/test.h.idlbin";
+    result.inputIdl = "../../Hare-IDL/dbg/protobuf/sample.idl";
 
     return result;
 }
@@ -83,7 +85,7 @@ int main(int argc, char* argv[])
 	try
 	{
         HAREASSERT(argc >= 1);
-        CmdOptions opts = getCmdOption(argv + 1, argv + argc);
+        CmdOptions opts = getCmdOptionFake(argv + 1, argv + argc);
 
         Root* root = 0;
         if(!opts.inputIdl.empty()) {
