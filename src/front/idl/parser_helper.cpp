@@ -844,10 +844,6 @@ YYSTYPE createEncoding(YYSTYPE token, YYSTYPE arg_list, YYSTYPE id)
 
     yy->encodingSpecifics.attrs = argumentListFromYy(arg_list);
 
-    EncodedMembers* g = new EncodedMembers();
-    g->location = yy->location;
-    yy->members.push_back(unique_ptr<EncodedOrMember>(g));
-
     return new YyPtr<Structure>(yy);
 }
 
@@ -859,8 +855,7 @@ YYSTYPE addToEncoding(YYSTYPE decl, YYSTYPE elem)
     Structure* yy = getPointedFromYyPtr<Structure>(decl);
 
     EncodedOrMember* g = releasePointedFromYyPtr<EncodedOrMember>(elem);
-    EncodedMembers* em = dynamic_cast<EncodedMembers*>(yy->members.back().get());
-    em->members.push_back(unique_ptr<EncodedOrMember>(g));
+    yy->members.push_back(unique_ptr<EncodedOrMember>(g));
 
     return d0.release();
 }

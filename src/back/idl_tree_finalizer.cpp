@@ -896,6 +896,44 @@ void inheritanceAddDiscriminatorValues( BackRoot& root )
 }
 */
 
+TREE_DATA_COMPLETION_SCENARIO guessTreeScenario(const BackRoot& root)
+{
+    bool hasIdl = !root.structuresIdl.empty();
+    bool hasMapping = !root.structuresMapping.empty();
+    bool hasEncoding = !root.structuresEncoding.empty();
+
+    if (hasIdl && hasMapping && hasEncoding) {
+        assert(false);
+        //        return TREE_DATA_COMPLETION_SCENARIO::IDL_MAP_ENC;
+    }
+    else if (hasIdl && hasMapping) {
+        assert(false);
+//        return TREE_DATA_COMPLETION_SCENARIO::IDL_MAP;
+    }
+    else if (hasIdl && hasEncoding) {
+        assert(false);
+//        return TREE_DATA_COMPLETION_SCENARIO::IDL_ENC;
+    }
+    else if (hasIdl) {
+        return TREE_DATA_COMPLETION_SCENARIO::IDL_ONLY;
+    }
+    else if (hasMapping && hasEncoding) {
+        assert(false);
+//        return TREE_DATA_COMPLETION_SCENARIO::MAJOR_MAP_ENC; //TODO also may be MAJOR_ENC_MAP
+    }
+    else if (hasMapping) {
+        return TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY;
+    }
+    else if (hasEncoding) {
+        assert(false);
+//        return TREE_DATA_COMPLETION_SCENARIO::ENC_ONLY;
+    } 
+    else {
+        assert(false);
+//        return TREE_DATA_COMPLETION_SCENARIO::IDL_MAP_ENC; //TODO error?
+    }
+}
+
 void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario )
 {
 	traverseStructTreesForStructureMembersMappingTypeToKind( root.structuresMapping );
