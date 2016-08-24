@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
 	try
 	{
         HAREASSERT(argc >= 1);
-        CmdOptions opts = getCmdOptionFake(argv + 1, argv + argc);
+        CmdOptions opts = getCmdOption(argv + 1, argv + argc);
 
         Root* root = 0;
         if(!opts.inputIdl.empty()) {
