@@ -15,4 +15,3 @@ add_subdirectory(gpb-loop)
 add_subdirectory(gpb-sequence-loop)
 add_subdirectory(packed-sequence)
 add_subdirectory(poly-ptr)
-

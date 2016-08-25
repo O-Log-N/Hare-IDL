@@ -20,7 +20,7 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "output.pb.h"
 
 #include "gtest/gtest.h"
-#include "dbg_assert_equal.h"
+#include "dbg_helpers.h"
 #include "protobuf/baselib.h"
 
 

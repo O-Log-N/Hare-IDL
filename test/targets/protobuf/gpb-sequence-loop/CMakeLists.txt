@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.2)
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/output.cpp ${CMAKE_CURRENT_SOURCE_DIR}/output.h
                    ${CMAKE_CURRENT_SOURCE_DIR}/output.pb.h ${CMAKE_CURRENT_SOURCE_DIR}/output.pb.cc
-                   ${CMAKE_CURRENT_SOURCE_DIR}/dbg_assert_equal.h
+                   ${CMAKE_CURRENT_SOURCE_DIR}/dbg_helpers.h
                    ${CMAKE_CURRENT_SOURCE_DIR}/output.proto
                    COMMAND generate.bat
                    MAIN_DEPENDENCY test.h

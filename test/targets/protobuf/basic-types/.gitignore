@@ -3,4 +3,4 @@
 *.obj
 *.exe
 output.*
-/dbg_assert_equal.h
+dbg_helpers.h
