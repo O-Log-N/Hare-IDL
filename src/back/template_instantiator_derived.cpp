@@ -702,12 +702,21 @@ void DiscriminatedUnionExpressionObject::execBuiltinFunction( Stack& stack, Pred
 					const BackDataMember* member = dynamic_cast<const BackDataMember*>( structure->getConstMember( j ) );
 					if ( member != NULL && member != enumMember )
 					{
-						for ( auto& itIfVal:member->whenDiscriminant )
-							if ( itIfVal == itv.first )
-							{
-								usedMembers.push_back( member );
-								break;
-							}
+                        if (member->whenDiscriminant.empty()) //empty discriminant list, means all of them
+                        {
+                            usedMembers.push_back(member);
+                        }
+                        else
+                        {
+                            for (auto& itIfVal : member->whenDiscriminant)
+                            {
+                                if (itIfVal == itv.first)
+                                {
+                                    usedMembers.push_back(member);
+                                    break;
+                                }
+                            }
+                        }
 					}
 				}
 
