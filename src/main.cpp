@@ -73,8 +73,8 @@ CmdOptions getCmdOptionFake(char**, char**)
 
     result.templPath = "../../Hare-IDL/src/targets/cpp/codegen/protobuf/";
     result.templs = { "main.txt", "mapping.txt", "encoding.txt", "proto.txt",
-        "dbg_assert_equal.txt", "dbg_print.txt" };
-//    result.inputBinary = "../../Hare-IDL/test/targets/protobuf/packed-sequence/test.h.idlbin";
+        "dbg_helpers.txt" };
+//    result.inputBinary = "../../Hare-IDL/test/targets/protobuf/poly-ptr/test.h.idlbin";
     result.inputIdl = "../../Hare-IDL/dbg/protobuf/sample.idl";
 
     return result;
