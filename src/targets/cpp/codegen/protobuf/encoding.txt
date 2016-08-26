@@ -93,7 +93,7 @@ void serialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& 
   switch ( disc )
   {
   @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
-    case @LOCAL-DU-OPTION.ENCODING-DISCRIMINATED-UNION-OPTION-VALUE()@:
+    case @LOCAL-DU-OPTION.MAPPING-DISCRIMINATED-UNION-OPTION-VALUE()@:
     {
     @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
       @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-NAME=FUNCTION-GET-REF-TO-MEMBER("s", LOCAL-MEMBER) PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-MEMCTR=LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() )
@@ -289,8 +289,6 @@ bool deserialize@PARAM-NAME@( @PARAM-MAPPING-NAME@& s, IProtobufStream& i );
 @@BEGIN-TEMPLATE NAME="DESERIALIZATION-GENERATE-IMPLEMENTATIONS"
 @@ASSERT IS-ROOT(PARAM-ROOT)
 
-  @@INCLUDE TEMPLATE="DISCARD-UNEXPECTED-FIELD"
-
   @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-STRUCTS()
      @@INCLUDE TEMPLATE="DESERIALIZE-STRUCT" PARAM-STRUCT=LOCAL-PS-IT
   @@FOR-EACH END
@@ -319,7 +317,7 @@ bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, I
 
   switch (s.@PARAM-DU.MAPPING-DISCRIMINATOR-NAME()@) {
   @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
-    case @LOCAL-DU-OPTION.ENCODING-DISCRIMINATED-UNION-OPTION-VALUE()@:
+    case @LOCAL-DU-OPTION.MAPPING-DISCRIMINATED-UNION-OPTION-VALUE()@:
       @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
         readOk = readOk && initFlags[@LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() )@ - 1];
       @@FOR-EACH END
@@ -398,11 +396,10 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 
   @@INCLUDE TEMPLATE="DESERIALIZE-DU-OR-STRUCT-COMMON" PARAM-DU-OR-STRUCT=PARAM-STRUCT
 
-  bool OK = true;
-  for ( int i=0; i<memcnt; i++ )
-    OK = OK && initFlags[i];
+  for ( size_t i = 0; i != memcnt; i++ )
+    readOk = readOk && initFlags[i];
 
-  return OK;
+  return readOk;
 }
 @@END-TEMPLATE NAME="DESERIALIZE-STRUCT"
 
@@ -413,13 +410,15 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 @@FOR-EACH LOCAL-MEMBER IN PARAM-DU-OR-STRUCT.MEMBERS()
   @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
 @@FOR-EACH END
-   const int memcnt = @LOCAL-MEMCTR@;
+   const size_t memcnt = @LOCAL-MEMCTR@;
    bool initFlags[memcnt] = { false };
 @@LET LOCAL-MEMCTR=0
 @@FOR-EACH LOCAL-MEMBER IN PARAM-DU-OR-STRUCT.MEMBERS()
   @@INCLUDE TEMPLATE="DESERIALIZE-TYPE-INIT" PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-FLAG="initFlags[@LOCAL-MEMCTR@]"
 @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
 @@FOR-EACH END
+  
+  bool readOk = true;
 
   while(!i.isEndOfStream())
   {
@@ -695,52 +694,6 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
   @@FOR-EACH END
  @@END-TEMPLATE NAME="DESERIALIZE-PACKED-ENUM"
 
-@@BEGIN-TEMPLATE NAME="DISCARD-UNEXPECTED-FIELD"
-inline
-bool discardUnexpectedField( int fieldType, IProtobufStream& i ) {
-
-  // Unexpected field, just read and discard
-  switch(fieldType)
-  {
-  case VARINT:
-    {
-      uint64_t temp;
-      return i.readVariantUInt64( temp );
-    }
-    break;
-  case FIXED_64_BIT:
-    {
-      double temp;
-      return i.readFixed64Bit( temp );
-    }
-    break;
-  case LENGTH_DELIMITED:
-    {
-      uint64_t sz;
-      bool readOk = i.readVariantUInt64( sz );
-      if( !readOk )
-        return false;
-      IProtobufStream is = i.makeSubStream( readOk, sz );
-      if ( !readOk )
-        return false;
-
-      string temp;
-      return is.readString( temp );
-    }
-    break;
-  case FIXED_32_BIT:
-    {
-      float temp;
-      return i.readFixed32Bit( temp );
-    }
-    break;
-  default:
-    return false;
-  }
-}
-@@END-TEMPLATE NAME="DISCARD-UNEXPECTED-FIELD"
-
-
 
 @@--------   GET-SIZE   --------
 
@@ -791,7 +744,7 @@ size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-N
   switch ( disc )
   {
   @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
-    case @LOCAL-DU-OPTION.ENCODING-DISCRIMINATED-UNION-OPTION-VALUE()@:
+    case @LOCAL-DU-OPTION.MAPPING-DISCRIMINATED-UNION-OPTION-VALUE()@:
     {
     @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
       @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-NAME=FUNCTION-GET-REF-TO-MEMBER("s", LOCAL-MEMBER) PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-MEMCTR=LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() )
