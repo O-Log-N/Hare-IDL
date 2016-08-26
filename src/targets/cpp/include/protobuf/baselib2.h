@@ -438,6 +438,9 @@ public:
 
 };
 
+//mb
+bool discardUnexpectedField( int fieldType, IProtobufStream& i );
+
 } //namespace bl
 
 #endif // BASELIB_H

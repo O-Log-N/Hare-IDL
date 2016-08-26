@@ -233,5 +233,49 @@ uint8_t* serializeLengthDelimitedHeaderToString(int fieldNumber, size_t valueSiz
 }
 
 
+
+//MB
+bool discardUnexpectedField( int fieldType, IProtobufStream& i ) {
+
+  // Unexpected field, just read and discard
+  switch(fieldType)
+  {
+  case VARINT:
+    {
+      uint64_t temp;
+      return i.readVariantUInt64( temp );
+    }
+    break;
+  case FIXED_64_BIT:
+    {
+      double temp;
+      return i.readFixed64Bit( temp );
+    }
+    break;
+  case LENGTH_DELIMITED:
+    {
+      uint64_t sz;
+      bool readOk = i.readVariantUInt64( sz );
+      if( !readOk )
+        return false;
+      IProtobufStream is = i.makeSubStream( readOk, sz );
+      if ( !readOk )
+        return false;
+
+      string temp;
+      return is.readString( temp );
+    }
+    break;
+  case FIXED_32_BIT:
+    {
+      float temp;
+      return i.readFixed32Bit( temp );
+    }
+    break;
+  default:
+    return false;
+  }
+}
+
 } //namespace bl
 

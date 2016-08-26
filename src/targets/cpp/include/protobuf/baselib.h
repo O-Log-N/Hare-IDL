@@ -605,6 +605,8 @@ public:
 
 #endif // 0
 
+//mb
+bool discardUnexpectedField( int fieldType, IProtobufStream& i );
 
 #endif // BASELIB_H
 
