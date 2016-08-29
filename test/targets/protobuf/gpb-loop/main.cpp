@@ -66,7 +66,7 @@ TEST(GpbLoop, Test10)
 {
     TestClass tc;
 
-    protobufTestLoop(tc, "test10");
+    protobufTestLoop(tc, "file10");
 }
 
 TEST(GpbLoop, Test11)
@@ -91,7 +91,7 @@ TEST(GpbLoop, Test11)
 
     tc.flag = true;
 
-    protobufTestLoop(tc, "test11");
+    protobufTestLoop(tc, "file11");
 }
 
 int main(int argc, char **argv) {

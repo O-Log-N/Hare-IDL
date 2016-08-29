@@ -11,6 +11,7 @@ SET(protobuf_MSVC_STATIC_RUNTIME OFF CACHE BOOL "Link static runtime libraries")
 add_subdirectory(../../../3rdparty/protobuf/cmake protobuf)
 
 add_subdirectory(basic-types)
+add_subdirectory(discriminated-union)
 add_subdirectory(gpb-loop)
 add_subdirectory(gpb-sequence-loop)
 add_subdirectory(packed-sequence)

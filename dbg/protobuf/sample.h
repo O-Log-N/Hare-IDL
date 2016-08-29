@@ -27,15 +27,13 @@ Copyright (C) 2016 OLogN Technologies AG
 
 using namespace std;
 
-struct TestClass {
-  
-  int64_t bigInt = 0;
-  uint64_t bigUint = 0;
-
-  int32_t notSoBigInt = 0;
-  uint32_t notSoBigUint = 0;
-
-  float aFloat = 0;
+struct Publishable {
+    enum TYPE { Abc = 1, Def = 2, Ghi = 3, Klm = 4 } disc;
+    std::string name;
+    int8_t value1;
+    int16_t value2;
+    int32_t value3;
 };
+
 
 #endif // SAMPLE_H

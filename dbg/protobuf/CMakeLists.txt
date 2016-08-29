@@ -14,8 +14,7 @@ add_executable(dbgProtobuf
   output.cpp
   output.pb.h
   output.pb.cc
-  dbg_assert_equal.h
-  dbg_print.h
+  dbg_helpers.h
   ../../src/front-back/idl_tree.h
   ../../src/front-back/idl_tree_serializer.cpp
   ../../src/front-back/idl_tree_serializer.h

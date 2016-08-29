@@ -1,0 +1,34 @@
+//Copyright (C) 2016 OLogN Technologies AG
+
+
+//PUBLISHABLE-STRUCT Publishable {
+//    enum TYPE { Abc = 1, Def = 2, Ghi = 3, Klm = 4 } disc;
+//    PRINTABLE-ASCII-STRING name;
+//    INT8 value1;
+//    INT16 value2;
+//    INT32 value3;
+//};
+
+//MAPPING(Lang="CPP",Role="Server") PUBLISHABLE-STRUCT Publishable {
+//    enum TYPE { Abc = 1, Def = 2, Ghi = 3, Klm = 4 } disc;
+//    string name;
+//    int8_t value1;
+//    int16_t value2;
+//    int32_t value3;
+//};
+
+//ENCODING(Name="MYENCODING1") PUBLISHABLE-STRUCT Publishable {
+//  VLQ value1;
+//  VLQ value2;
+//  VLQ value3;
+//};
+
+
+DISCRIMINATED-UNION(DISCRIMINANT=disc) DiscriminatedUnion {
+    PRINTABLE-ASCII-STRING name;
+    enum TYPE { Abc = 1, Def = 2, Ghi = 3, Klm = 4 } disc;
+    INT8 value1 WHEN-DISCRIMINANT-IN { Abc, Def };
+    INT16 value2 WHEN-DISCRIMINANT-IS Ghi;
+    INT32 value3 WHEN-DISCRIMINANT-IS Klm;
+};
+

@@ -58,7 +58,7 @@ TEST(PolyPtr, NullPtr)
 {
     TestClass tc;
 
-    protobufSerializeToFile(tc, &serializeTestClass, "test10", {
+    protobufSerializeToFile(tc, &serializeTestClass, "file10", {
         0x0a, 0x00
     });
 }
@@ -68,7 +68,7 @@ TEST(PolyPtr, BasePtr)
     TestClass tc;
     tc.ptr.reset(new TestBase);
 
-    protobufSerializeToFile(tc, &serializeTestClass, "test11", {
+    protobufSerializeToFile(tc, &serializeTestClass, "file11", {
         0x0a, 0x04,
         0x12, 0x02, 0x08, 0x00 
     });
@@ -79,7 +79,7 @@ TEST(PolyPtr, DerivedPtr)
     TestClass tc;
     tc.ptr.reset(new TestDerived);
 
-    protobufSerializeToFile(tc, &serializeTestClass, "test20", {
+    protobufSerializeToFile(tc, &serializeTestClass, "file20", {
         0x0a, 0x06,
         0x1a, 0x04, 0x0a, 0x02, 0x08, 0x00
     });

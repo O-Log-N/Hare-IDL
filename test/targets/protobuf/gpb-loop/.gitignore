@@ -2,5 +2,5 @@
 *.h.idlbin
 *.obj
 *.exe
-output.*
+output*
 dbg_helpers.h

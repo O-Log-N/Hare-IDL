@@ -15,7 +15,7 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#include "test.h"
+#include "output_declare.h"
 #include "output.h"
 #include "protobuf/baselib.h"
 
@@ -54,71 +54,57 @@ void protobufSerializeToFile(const T& root, void(*func)(const T&, OProtobufStrea
     fclose(out);
 }
 
-TEST(PackedSequence, UnpackedStrings)
+TEST(DiscriminatedUnion, OptionAbc)
 {
     TestClass tc;
+    tc.disc = TestClass::Abc;
+    tc.name = "Abc";
+    tc.value1 = 1;
 
-    tc.unpackedStrings.push_back("hello");
-    tc.unpackedStrings.push_back("world");
-
-    protobufSerializeToFile(tc, &serializeTestClass, "file1", {
-        0x0a, 5, 'h', 'e', 'l', 'l', 'o',
-        0x0a, 5, 'w', 'o', 'r', 'l', 'd'
+    protobufSerializeToFile(tc, &serializeTestClass, "file10", {
+        0x10, 0x01, 0x0a, 0x03, 'A', 'b', 'c', 0x18, 0x02
     });
 }
 
-TEST(PackedSequence, PackedVarInts)
+TEST(DiscriminatedUnion, OptionDef)
 {
     TestClass tc;
+    tc.disc = TestClass::Def;
+    tc.name = "Def";
+    tc.value1 = 1;
 
-    tc.packedVarInts.push_back(0);
-    tc.packedVarInts.push_back(1000);
-    tc.packedVarInts.push_back(-1000);
-    tc.packedVarInts.push_back(100000);
-    tc.packedVarInts.push_back(-100000);
-
-    protobufSerializeToFile(tc, &serializeTestClass, "file2", {
-        0x12, 0x0b,
-        0x00,
-        0xd0, 0x0f,
-        0xcf, 0x0f,
-        0xbf, 0xe5, 0x03,
-        0xc0, 0xe5, 0x03
+    protobufSerializeToFile(tc, &serializeTestClass, "file11", {
+        0x10, 0x02, 0x0a, 0x03, 'D', 'e', 'f', 0x18, 0x02
     });
 }
 
-TEST(PackedSequence, packedDoubles)
+TEST(DiscriminatedUnion, OptionGhi)
 {
     TestClass tc;
+    tc.disc = TestClass::Ghi;
+    tc.name = "Ghi";
+    tc.value2 = 1;
 
-    tc.packedDoubles.push_back(0.);
-    tc.packedDoubles.push_back(-1.);
-    tc.packedDoubles.push_back(1.);
-    tc.packedDoubles.push_back(-10.5e-6);
-
-    protobufSerializeToFile(tc, &serializeTestClass, "file3", {
-        0x1a, 0x20,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0xbf,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x3f,
-        0xc9, 0xc7, 0xee, 0x02, 0x25, 0x05, 0xe6, 0xbe
+    protobufSerializeToFile(tc, &serializeTestClass, "file12", {
+        0x10, 0x03, 0x0a, 0x03, 'G', 'h', 'i', 0x20, 0x02
     });
 }
 
-TEST(PackedSequence, PackedEnum)
+TEST(DiscriminatedUnion, OptionKlm)
 {
     TestClass tc;
+    tc.disc = TestClass::Klm;
+    tc.name = "Klm";
+    tc.value3 = 1;
 
-    tc.packedEnum.push_back(TestClass::Nothing);
-    tc.packedEnum.push_back(TestClass::First);
-    tc.packedEnum.push_back(TestClass::Second);
-
-    protobufSerializeToFile(tc, &serializeTestClass, "file4", {
-        0x22, 0x03, 0x01, 0x00, 0x02
+    protobufSerializeToFile(tc, &serializeTestClass, "file13", {
+        0x10, 0x04, 0x0a, 0x03, 'K', 'l', 'm', 0x28, 0x02
     });
 }
+
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+

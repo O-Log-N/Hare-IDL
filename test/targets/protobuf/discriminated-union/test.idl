@@ -1,0 +1,11 @@
+//Copyright (C) 2016 OLogN Technologies AG
+
+
+DISCRIMINATED-UNION(DISCRIMINANT=disc) TestClass {
+    PRINTABLE-ASCII-STRING name;
+    enum TYPE { Abc = 1, Def = 2, Ghi = 3, Klm = 4 } disc;
+    INT8 value1 WHEN-DISCRIMINANT-IN { Abc, Def };
+    INT16 value2 WHEN-DISCRIMINANT-IS Ghi;
+    INT32 value3 WHEN-DISCRIMINANT-IS Klm;
+};
+

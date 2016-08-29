@@ -12,7 +12,7 @@
 
 #include "protobuf/baselib.h"
 
-#include "front-back/idl_tree_serializer.h"
+//#include "front-back/idl_tree_serializer.h"
 
 #include "dbg_assert_equal.h"
 #include "dbg_print.h"

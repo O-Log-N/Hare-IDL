@@ -58,7 +58,7 @@ TEST(BasicTypes, UnsignedVarIntZero)
 {
     TestUnsigned tc;
 
-    protobufSerializeToFile(tc, &serializeTestUnsigned, "test10", {
+    protobufSerializeToFile(tc, &serializeTestUnsigned, "file10", {
         0x08, 0x00,
         0x10, 0x00
     });
@@ -71,7 +71,7 @@ TEST(BasicTypes, UnsignedVarIntMax)
     tc.max_u32 = UINT32_MAX;
     tc.max_u64 = UINT64_MAX;
 
-    protobufSerializeToFile(tc, &serializeTestUnsigned, "test11", {
+    protobufSerializeToFile(tc, &serializeTestUnsigned, "file11", {
         0x08, 0xff, 0xff, 0xff, 0xff, 0x0f,
         0x10, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01
     });
@@ -81,7 +81,7 @@ TEST(BasicTypes, SignedVarIntZero)
 {
     TestSigned tc;
 
-    protobufSerializeToFile(tc, &serializeTestSigned, "test20", {
+    protobufSerializeToFile(tc, &serializeTestSigned, "file20", {
         0x08, 0x00,
         0x10, 0x00
     });
@@ -94,7 +94,7 @@ TEST(BasicTypes, SignedVarIntMin)
     tc.max_s32 = INT32_MIN;
     tc.max_s64 = INT64_MIN;
 
-    protobufSerializeToFile(tc, &serializeTestSigned, "tes21", {
+    protobufSerializeToFile(tc, &serializeTestSigned, "file21", {
         0x08, 0xff, 0xff, 0xff, 0xff, 0x0f,
         0x10, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01
     });
@@ -108,7 +108,7 @@ TEST(BasicTypes, SignedVarIntMax)
     tc.max_s32 = INT32_MAX;
     tc.max_s64 = INT64_MAX;
 
-    protobufSerializeToFile(tc, &serializeTestSigned, "test22", {
+    protobufSerializeToFile(tc, &serializeTestSigned, "file22", {
         0x08, 0xfe, 0xff, 0xff, 0xff, 0x0f,
         0x10, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01
     });
@@ -118,7 +118,7 @@ TEST(BasicTypes, FixedFpZero)
 {
     TestFixed tc;
 
-    protobufSerializeToFile(tc, &serializeTestFixed, "test30", {
+    protobufSerializeToFile(tc, &serializeTestFixed, "file30", {
         0x0d, 0x00, 0x00, 0x00, 0x00,
         0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     });
@@ -131,7 +131,7 @@ TEST(BasicTypes, FixedFpNonZero)
     tc.aFloat = -128;
     tc.aDouble = 128;
 
-    protobufSerializeToFile(tc, &serializeTestFixed, "test31", {
+    protobufSerializeToFile(tc, &serializeTestFixed, "file31", {
         0x0d, 0x00, 0x00, 0x00, 0xc3,
         0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x40
     });
@@ -141,7 +141,7 @@ TEST(BasicTypes, StringEmpty)
 {
     TestString tc;
 
-    protobufSerializeToFile(tc, &serializeTestString, "test40", {
+    protobufSerializeToFile(tc, &serializeTestString, "file40", {
         0x0a, 0x00 
     });
 }
@@ -152,7 +152,7 @@ TEST(BasicTypes, StringText)
 
     tc.description = "Hello world!";
 
-    protobufSerializeToFile(tc, &serializeTestString, "test41", {
+    protobufSerializeToFile(tc, &serializeTestString, "file41", {
         0x0a, 0x0c, 'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '!'
     });
 }
@@ -161,7 +161,7 @@ TEST(BasicTypes, EnumBool0)
 {
     TestMisc tc;
 
-    protobufSerializeToFile(tc, &serializeTestMisc, "test50", {
+    protobufSerializeToFile(tc, &serializeTestMisc, "file50", {
         0x08, 0x01,
         0x10, 0x00
     });
@@ -174,7 +174,7 @@ TEST(BasicTypes, EnumBool1)
     tc.aValue = TestMisc::Second;
     tc.flag = true;
 
-    protobufSerializeToFile(tc, &serializeTestMisc, "test51", {
+    protobufSerializeToFile(tc, &serializeTestMisc, "file51", {
           0x08, 0x02,
           0x10, 0x01 
     });
