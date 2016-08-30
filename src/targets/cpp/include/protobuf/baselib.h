@@ -137,7 +137,6 @@ class OProtobufStream
 {
 protected:
     FILE* outstr;
-    vector<size_t> sizeStack;
 public:
     OProtobufStream(FILE* outStr) : outstr(outStr) {}
 
@@ -222,20 +221,6 @@ public:
         uint8_t buff[1000];
         uint8_t* ret = serializeFloatToString(x, buff);
         fwrite(buff, ret - buff, 1, outstr);
-    }
-
-    void pushSize(size_t sz) {
-        sizeStack.push_back(sz);
-    }
-
-    void sizeEmpty() const {
-        return sizeStack.empty();
-    }
-
-    void writeObjectTagAndSize(int fieldNumber)
-    {
-        writeObjectTagAndSize(fieldNumber, sizeStack.back());
-        sizeStack.pop_back();
     }
 };
 

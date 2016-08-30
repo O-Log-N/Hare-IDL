@@ -10,9 +10,10 @@
 #define OUTPUT_DECLARE_H_INCLUDED
 
 //include-here
+#include <string>
+#include <vector>
 
 // DECLARATIONS
-
 @@INCLUDE TEMPLATE="FORWARD-DECLARING" PARAM-ROOT=PARAM-ROOT
 
 @@INCLUDE TEMPLATE="SMART-DECLARING-ENTRY" PARAM-ROOT=PARAM-ROOT
@@ -26,18 +27,23 @@
 #define OUTPUT_H_INCLUDED
 
 //include-here
+#include <string>
+#include <vector>
+#include <deque>
 
 class OProtobufStream;
 class IProtobufStream;
 
-// functions
-    
-// serialization
+// internal functions
 @@INCLUDE TEMPLATE="SERIALIZATION-GENERATE-DECLARATIONS" PARAM-ROOT=PARAM-ROOT
+@@INCLUDE TEMPLATE="GET-SIZE-GENERATE-DECLARATIONS" PARAM-ROOT=PARAM-ROOT
+
+//PUBLIC API
+
+// serialization
+@@INCLUDE TEMPLATE="SERIALIZATION-GENERATE-INLINE-API" PARAM-ROOT=PARAM-ROOT
 // deserialization
 @@INCLUDE TEMPLATE="DESERIALIZATION-GENERATE-DECLARATIONS" PARAM-ROOT=PARAM-ROOT
-// GET-SIZE
-@@INCLUDE TEMPLATE="GET-SIZE-GENERATE-DECLARATIONS" PARAM-ROOT=PARAM-ROOT
 
 #endif // OUTPUT_H_INCLUDED
 
@@ -46,6 +52,7 @@ class IProtobufStream;
 
 #include "output.h"
 #include "protobuf/baselib.h"
+#include "hare/hare.h"
 
 //include-here
 
