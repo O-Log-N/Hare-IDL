@@ -17,42 +17,8 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "output_declare.h"
 #include "output.h"
-#include "protobuf/baselib.h"
-
-#include "gtest/gtest.h"
-
-#include <iostream>
-
-using namespace std;
-
-template<class T>
-void protobufSerializeToFile(const T& root, void(*func)(const T&, OProtobufStream& os), const char* fileName, const vector<uint8_t>& result)
-{
-    string fullName(fileName);
-    fullName += ".protobuf.bin";
-
-    FILE* out = fopen(fullName.c_str(), "w+b");
-    ASSERT_NE(out, nullptr);
-    OProtobufStream o(out);
-
-    func(root, o);
-
-    if(!result.empty()) {
-
-        vector<uint8_t> toRead(result.size());
-
-        rewind(out);
-        size_t readSize = fread(&toRead[0], sizeof(toRead[0]), toRead.size(), out);
-
-        ASSERT_EQ(readSize, result.size());
-        ASSERT_EQ(fgetc(out), EOF);
-
-        for(size_t i = 0; i < result.size(); ++i) {
-            EXPECT_EQ(result[i], toRead[i]);
-        }
-    }
-    fclose(out);
-}
+#include "../test_helper.h"
+#include "dbg_helpers.h"
 
 TEST(DiscriminatedUnion, OptionAbc)
 {
@@ -61,8 +27,8 @@ TEST(DiscriminatedUnion, OptionAbc)
     tc.name = "Abc";
     tc.value1 = 1;
 
-    protobufSerializeToFile(tc, &serializeTestClass, "file10", {
-        0x10, 0x01, 0x0a, 0x03, 'A', 'b', 'c', 0x18, 0x02
+    testHelper(tc, &serializeTestClass, &deserializeTestClass, &assertEqualTestClass, "file10", {
+        0x10, 0x00, 0x0a, 0x03, 'A', 'b', 'c', 0x18, 0x02
     });
 }
 
@@ -73,8 +39,8 @@ TEST(DiscriminatedUnion, OptionDef)
     tc.name = "Def";
     tc.value1 = 1;
 
-    protobufSerializeToFile(tc, &serializeTestClass, "file11", {
-        0x10, 0x02, 0x0a, 0x03, 'D', 'e', 'f', 0x18, 0x02
+    testHelper(tc, &serializeTestClass, &deserializeTestClass, &assertEqualTestClass, "file11", {
+        0x10, 0x01, 0x0a, 0x03, 'D', 'e', 'f', 0x18, 0x02
     });
 }
 
@@ -85,8 +51,8 @@ TEST(DiscriminatedUnion, OptionGhi)
     tc.name = "Ghi";
     tc.value2 = 1;
 
-    protobufSerializeToFile(tc, &serializeTestClass, "file12", {
-        0x10, 0x03, 0x0a, 0x03, 'G', 'h', 'i', 0x20, 0x02
+    testHelper(tc, &serializeTestClass, &deserializeTestClass, &assertEqualTestClass, "file12", {
+        0x10, 0x02, 0x0a, 0x03, 'G', 'h', 'i', 0x20, 0x02
     });
 }
 
@@ -97,8 +63,8 @@ TEST(DiscriminatedUnion, OptionKlm)
     tc.name = "Klm";
     tc.value3 = 1;
 
-    protobufSerializeToFile(tc, &serializeTestClass, "file13", {
-        0x10, 0x04, 0x0a, 0x03, 'K', 'l', 'm', 0x28, 0x02
+    testHelper(tc, &serializeTestClass, &deserializeTestClass, &assertEqualTestClass, "file13", {
+        0x10, 0x03, 0x0a, 0x03, 'K', 'l', 'm', 0x28, 0x02
     });
 }
 

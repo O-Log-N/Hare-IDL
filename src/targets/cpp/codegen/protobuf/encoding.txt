@@ -26,11 +26,12 @@
 
 @@BEGIN-TEMPLATE NAME="SERIALIZE-INLINE-GENERATE"
 inline
-void serialize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, OProtobufStream& o )
+size_t serialize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, OProtobufStream& o )
 {
   std::deque<size_t> stk;
-  auto sz = protobufGetSize@PARAM-NAME@( s, o, stk );
-  serialize@PARAM-NAME@( s, o, stk );
+  size_t sz = protobufGetSize@PARAM-NAME@( s, stk );
+  protobufSerialize@PARAM-NAME@( s, o, stk );
+  return sz;
 }
 @@END-TEMPLATE NAME="SERIALIZE-INLINE-GENERATE"
 
@@ -46,7 +47,7 @@ void serialize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, OProtobufStream& o )
 
 
 @@BEGIN-TEMPLATE NAME="SERIALIZE-DECLARE-FN-ONLY"
-void serialize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, OProtobufStream& o, std::deque<size_t>& stk );
+void protobufSerialize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, OProtobufStream& o, std::deque<size_t>& stk );
 @@END-TEMPLATE NAME="SERIALIZE-DECLARE-FN-ONLY"
 
 @@BEGIN-TEMPLATE NAME="SERIALIZATION-GENERATE-IMPLEMENTATIONS"
@@ -78,25 +79,29 @@ void serialize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, OProtobufStream& o, s
 
 @@BEGIN-TEMPLATE NAME="SERIALIZE-DU"
 @@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
-void serialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& s, OProtobufStream& o, std::deque<size_t>& stk ) {
+void protobufSerialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& s, OProtobufStream& o, std::deque<size_t>& stk ) {
 
   @@LET LOCAL-MEMBERS-MAP=FUNCTION-CREATE-DU-MEMBERS-MAP(PARAM-DU)
+  @@LET LOCAL-DISC-MEMCTR=LOCAL-MEMBERS-MAP.FIND-IN-MAP( PARAM-DU.MAPPING-DISCRIMINATOR-NAME() )
 
   uint8_t disc = s.@PARAM-DU.MAPPING-DISCRIMINATOR-NAME()@;
-  o.writeUInt( @LOCAL-MEMBERS-MAP.FIND-IN-MAP( PARAM-DU.MAPPING-DISCRIMINATOR-NAME() )@, disc );
   switch ( disc )
   {
+  @@LET LOCAL-MAX=0
   @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
     case @LOCAL-DU-OPTION.MAPPING-DISCRIMINATED-UNION-OPTION-VALUE()@:
     {
+    o.writeUInt( @LOCAL-DISC-MEMCTR@, @LOCAL-DU-OPTION.ENCODING-DISCRIMINATED-UNION-OPTION-VALUE()@ );
     @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
       @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-NAME=FUNCTION-GET-REF-TO-MEMBER("s", LOCAL-MEMBER) PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-MEMCTR=LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() )
     @@FOR-EACH END
     }
     break;
+    @@LET LOCAL-MAX=LOCAL-MAX+1
   @@FOR-EACH END
     default:
-      // treat as empty
+      // TODO use special value to signal error?
+      o.writeUInt( @LOCAL-DISC-MEMCTR@, @LOCAL-MAX@ );
       // HAREASSERT( false );
       break;
   }
@@ -107,7 +112,7 @@ void serialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& 
 @@BEGIN-TEMPLATE NAME="SERIALIZE-DU-OWNING-PTR"
 @@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
 @@ASSERT PARAM-DU.GET-MAPPING-ANNOTATION( "OWNING-PTR" ).HAS-VALUE()
-void serialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& s, OProtobufStream& o, std::deque<size_t>& stk ) {
+void protobufSerialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& s, OProtobufStream& o, std::deque<size_t>& stk ) {
 
   @@LET LOCAL-MEMBERS-MAP=FUNCTION-CREATE-DU-MEMBERS-MAP(PARAM-DU)
 
@@ -122,7 +127,7 @@ void serialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& 
         auto ptr = dynamic_cast<@LOCAL-POLY-PTR@*>( s.get() );
         o.writeObjectTagAndSize( @LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() )@, stk.front() );
         stk.pop_front();
-        serialize@LOCAL-POLY-PTR@( *ptr, o, stk );
+        protobufSerialize@LOCAL-POLY-PTR@( *ptr, o, stk );
       }
     @@FOR-EACH END
   @@FOR-EACH END
@@ -136,7 +141,7 @@ void serialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& 
 
 @@BEGIN-TEMPLATE NAME="SERIALIZE-STRUCT"
 @@ASSERT IS-SERIALIZABLE-STRUCT(PARAM-STRUCT)
-void serialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& s, OProtobufStream& o, std::deque<size_t>& stk ) {
+void protobufSerialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& s, OProtobufStream& o, std::deque<size_t>& stk ) {
 
   @@LET LOCAL-MEMCTR=1
   @@FOR-EACH LOCAL-MEMBER IN PARAM-STRUCT.MEMBERS()
@@ -170,7 +175,7 @@ void serialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& 
 @@ELIF PARAM-TYPE.IS-STRUCTURE()
     o.writeObjectTagAndSize( @PARAM-MEMCTR@, stk.front() );
     stk.pop_front();
-    serialize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@( @PARAM-NAME@, o, stk );
+    protobufSerialize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@( @PARAM-NAME@, o, stk );
 @@-ELIF PARAM-TYPE.IS-DISCRIMINATED-UNION()
    @@-DBG-PRINT "[---0---], PARAM-TYPE = @PARAM-TYPE@"
 @@ELIF PARAM-TYPE.IS-ENUM()
@@ -243,7 +248,6 @@ void serialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& 
         break;
     }
 @@END-TEMPLATE NAME="SERIALIZE-ENUM"
-
 
 
 @@BEGIN-TEMPLATE NAME="SERIALIZE-PACKED-ENUM"
@@ -706,7 +710,7 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 @@END-TEMPLATE NAME="GET-SIZE-GENERATE-DECLARATIONS"
 
 @@BEGIN-TEMPLATE NAME="GET-SIZE-DECLARE-FN-ONLY"
-size_t protobufGetSize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, OProtobufStream& o, std::deque<size_t>& stk );
+size_t protobufGetSize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, std::deque<size_t>& stk );
 @@END-TEMPLATE NAME="GET-SIZE-DECLARE-FN-ONLY"
 
 @@BEGIN-TEMPLATE NAME="GET-SIZE-GENERATE-IMPLEMENTATIONS"
@@ -728,29 +732,33 @@ size_t protobufGetSize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, OProtobufStre
 
 @@BEGIN-TEMPLATE NAME="GET-SIZE-DU"
 @@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
-size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& s, OProtobufStream& o, std::deque<size_t>& stk ) {
+size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& s, std::deque<size_t>& stk ) {
 
   @@LET LOCAL-MEMBERS-MAP=FUNCTION-CREATE-DU-MEMBERS-MAP(PARAM-DU)
-
-  uint8_t disc = s.@PARAM-DU.MAPPING-DISCRIMINATOR-NAME()@;
+  @@LET LOCAL-DISC-MEMCTR=LOCAL-MEMBERS-MAP.FIND-IN-MAP( PARAM-DU.MAPPING-DISCRIMINATOR-NAME() )
 
   size_t sz = 0;
-  sz += getTagSize( @LOCAL-MEMBERS-MAP.FIND-IN-MAP( PARAM-DU.MAPPING-DISCRIMINATOR-NAME() )@ );
-  sz += getUnsignedVarIntSize( disc );
-
+  uint8_t disc = s.@PARAM-DU.MAPPING-DISCRIMINATOR-NAME()@;
   switch ( disc )
   {
+  @@LET LOCAL-MAX=0
   @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
     case @LOCAL-DU-OPTION.MAPPING-DISCRIMINATED-UNION-OPTION-VALUE()@:
     {
+    sz += getTagSize( @LOCAL-DISC-MEMCTR@ );
+    sz += getUnsignedVarIntSize( @LOCAL-DU-OPTION.ENCODING-DISCRIMINATED-UNION-OPTION-VALUE()@ );
+
     @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
       @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-NAME=FUNCTION-GET-REF-TO-MEMBER("s", LOCAL-MEMBER) PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-MEMCTR=LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() )
     @@FOR-EACH END
     }
     break;
+    @@LET LOCAL-MAX=LOCAL-MAX+1
   @@FOR-EACH END
     default:
-      // treat as empty
+      // TODO use special value to signal error?
+      sz += getTagSize( @LOCAL-DISC-MEMCTR@ );
+      sz += getUnsignedVarIntSize( @LOCAL-MAX@ );
       // HAREASSERT( false );
       break;
   }
@@ -762,7 +770,7 @@ size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-N
 @@BEGIN-TEMPLATE NAME="GET-SIZE-DU-OWNING-PTR"
 @@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
 @@ASSERT PARAM-DU.GET-MAPPING-ANNOTATION( "OWNING-PTR" ).HAS-VALUE()
-size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& s, OProtobufStream& o, std::deque<size_t>& stk ) {
+size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& s, std::deque<size_t>& stk ) {
 
   @@LET LOCAL-MEMBERS-MAP=FUNCTION-CREATE-DU-MEMBERS-MAP(PARAM-DU)
 
@@ -777,7 +785,7 @@ size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-N
         auto i = stk.size();
         stk.push_back(0);
         auto ptr = dynamic_cast<@LOCAL-POLY-PTR@*>( s.get() );
-        auto sz = protobufGetSize@LOCAL-POLY-PTR@( *ptr, o, stk );
+        auto sz = protobufGetSize@LOCAL-POLY-PTR@( *ptr, stk );
         stk[i] = sz;
 
         sz += getUnsignedVarIntSize( sz );
@@ -797,7 +805,7 @@ size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-N
 
 @@BEGIN-TEMPLATE NAME="GET-SIZE-STRUCT"
 @@ASSERT IS-SERIALIZABLE-STRUCT(PARAM-STRUCT)
-size_t protobufGetSize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING-STRUCT-NAME()@& s, OProtobufStream& o, std::deque<size_t>& stk ) {
+size_t protobufGetSize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING-STRUCT-NAME()@& s, std::deque<size_t>& stk ) {
   size_t sz = 0;
   @@LET LOCAL-MEMCTR=1
   @@FOR-EACH LOCAL-MEMBER IN PARAM-STRUCT.MEMBERS()
@@ -836,7 +844,7 @@ size_t protobufGetSize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING-
   {
   auto i = stk.size();
   stk.push_back(0);
-  auto sz_@PARAM-MEMCTR@ = protobufGetSize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@( @PARAM-NAME@, o, stk );
+  auto sz_@PARAM-MEMCTR@ = protobufGetSize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@( @PARAM-NAME@, stk );
   stk[i] = sz_@PARAM-MEMCTR@;
   sz += getTagSize(@PARAM-MEMCTR@);
   sz += getUnsignedVarIntSize(sz_@PARAM-MEMCTR@);

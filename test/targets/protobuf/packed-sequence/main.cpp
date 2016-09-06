@@ -17,42 +17,9 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "test.h"
 #include "output.h"
-#include "protobuf/baselib.h"
+#include "dbg_helpers.h"
+#include "../test_helper.h"
 
-#include "gtest/gtest.h"
-
-#include <iostream>
-
-using namespace std;
-
-template<class T>
-void protobufSerializeToFile(const T& root, void(*func)(const T&, OProtobufStream& os), const char* fileName, const vector<uint8_t>& result)
-{
-    string fullName(fileName);
-    fullName += ".protobuf.bin";
-
-    FILE* out = fopen(fullName.c_str(), "w+b");
-    ASSERT_NE(out, nullptr);
-    OProtobufStream o(out);
-
-    func(root, o);
-
-    if(!result.empty()) {
-
-        vector<uint8_t> toRead(result.size());
-
-        rewind(out);
-        size_t readSize = fread(&toRead[0], sizeof(toRead[0]), toRead.size(), out);
-
-        ASSERT_EQ(readSize, result.size());
-        ASSERT_EQ(fgetc(out), EOF);
-
-        for(size_t i = 0; i < result.size(); ++i) {
-            EXPECT_EQ(result[i], toRead[i]);
-        }
-    }
-    fclose(out);
-}
 
 TEST(PackedSequence, UnpackedStrings)
 {
@@ -61,7 +28,7 @@ TEST(PackedSequence, UnpackedStrings)
     tc.unpackedStrings.push_back("hello");
     tc.unpackedStrings.push_back("world");
 
-    protobufSerializeToFile(tc, &serializeTestClass, "file1", {
+    testHelper(tc, &serializeTestClass, "file1", {
         0x0a, 5, 'h', 'e', 'l', 'l', 'o',
         0x0a, 5, 'w', 'o', 'r', 'l', 'd'
     });
@@ -77,7 +44,7 @@ TEST(PackedSequence, PackedVarInts)
     tc.packedVarInts.push_back(100000);
     tc.packedVarInts.push_back(-100000);
 
-    protobufSerializeToFile(tc, &serializeTestClass, "file2", {
+    testHelper(tc, &serializeTestClass, "file2", {
         0x12, 0x0b,
         0x00,
         0xd0, 0x0f,
@@ -96,7 +63,7 @@ TEST(PackedSequence, packedDoubles)
     tc.packedDoubles.push_back(1.);
     tc.packedDoubles.push_back(-10.5e-6);
 
-    protobufSerializeToFile(tc, &serializeTestClass, "file3", {
+    testHelper(tc, &serializeTestClass, "file3", {
         0x1a, 0x20,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0xbf,
@@ -113,7 +80,7 @@ TEST(PackedSequence, PackedEnum)
     tc.packedEnum.push_back(TestClass::First);
     tc.packedEnum.push_back(TestClass::Second);
 
-    protobufSerializeToFile(tc, &serializeTestClass, "file4", {
+    testHelper(tc, &serializeTestClass, "file4", {
         0x22, 0x03, 0x01, 0x00, 0x02
     });
 }

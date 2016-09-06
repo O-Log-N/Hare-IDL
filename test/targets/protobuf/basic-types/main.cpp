@@ -17,48 +17,14 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "test.h"
 #include "output.h"
-#include "protobuf/baselib.h"
-
-#include "gtest/gtest.h"
-
-#include <iostream>
-
-using namespace std;
-
-template<class T>
-void protobufSerializeToFile(const T& root, void(*func)(const T&, OProtobufStream& os), const char* fileName, const vector<uint8_t>& result)
-{
-    string fullName(fileName);
-    fullName += ".protobuf.bin";
-
-    FILE* out = fopen(fullName.c_str(), "w+b");
-    ASSERT_NE(out, nullptr);
-    OProtobufStream o(out);
-
-    func(root, o);
-
-    if(!result.empty()) {
-
-        vector<uint8_t> toRead(result.size());
-
-        rewind(out);
-        size_t readSize = fread(&toRead[0], sizeof(toRead[0]), toRead.size(), out);
-
-        ASSERT_EQ(readSize, result.size());
-        ASSERT_EQ(fgetc(out), EOF);
-
-        for(size_t i = 0; i < result.size(); ++i) {
-            EXPECT_EQ(result[i], toRead[i]);
-        }
-    }
-    fclose(out);
-}
+#include "dbg_helpers.h"
+#include "../test_helper.h"
 
 TEST(BasicTypes, UnsignedVarIntZero)
 {
     TestUnsigned tc;
 
-    protobufSerializeToFile(tc, &serializeTestUnsigned, "file10", {
+    testHelper(tc, &serializeTestUnsigned, &deserializeTestUnsigned, &assertEqualTestUnsigned, "file10", {
         0x08, 0x00,
         0x10, 0x00
     });
@@ -71,7 +37,7 @@ TEST(BasicTypes, UnsignedVarIntMax)
     tc.max_u32 = UINT32_MAX;
     tc.max_u64 = UINT64_MAX;
 
-    protobufSerializeToFile(tc, &serializeTestUnsigned, "file11", {
+    testHelper(tc, &serializeTestUnsigned, &deserializeTestUnsigned, &assertEqualTestUnsigned, "file11", {
         0x08, 0xff, 0xff, 0xff, 0xff, 0x0f,
         0x10, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01
     });
@@ -81,7 +47,7 @@ TEST(BasicTypes, SignedVarIntZero)
 {
     TestSigned tc;
 
-    protobufSerializeToFile(tc, &serializeTestSigned, "file20", {
+    testHelper(tc, &serializeTestSigned, &deserializeTestSigned, &assertEqualTestSigned, "file20", {
         0x08, 0x00,
         0x10, 0x00
     });
@@ -94,7 +60,7 @@ TEST(BasicTypes, SignedVarIntMin)
     tc.max_s32 = INT32_MIN;
     tc.max_s64 = INT64_MIN;
 
-    protobufSerializeToFile(tc, &serializeTestSigned, "file21", {
+    testHelper(tc, &serializeTestSigned, &deserializeTestSigned, &assertEqualTestSigned, "file21", {
         0x08, 0xff, 0xff, 0xff, 0xff, 0x0f,
         0x10, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01
     });
@@ -108,7 +74,7 @@ TEST(BasicTypes, SignedVarIntMax)
     tc.max_s32 = INT32_MAX;
     tc.max_s64 = INT64_MAX;
 
-    protobufSerializeToFile(tc, &serializeTestSigned, "file22", {
+    testHelper(tc, &serializeTestSigned, &deserializeTestSigned, &assertEqualTestSigned, "file22", {
         0x08, 0xfe, 0xff, 0xff, 0xff, 0x0f,
         0x10, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01
     });
@@ -118,7 +84,7 @@ TEST(BasicTypes, FixedFpZero)
 {
     TestFixed tc;
 
-    protobufSerializeToFile(tc, &serializeTestFixed, "file30", {
+    testHelper(tc, &serializeTestFixed, &deserializeTestFixed, &assertEqualTestFixed, "file30", {
         0x0d, 0x00, 0x00, 0x00, 0x00,
         0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     });
@@ -131,7 +97,7 @@ TEST(BasicTypes, FixedFpNonZero)
     tc.aFloat = -128;
     tc.aDouble = 128;
 
-    protobufSerializeToFile(tc, &serializeTestFixed, "file31", {
+    testHelper(tc, &serializeTestFixed, &deserializeTestFixed, &assertEqualTestFixed, "file31", {
         0x0d, 0x00, 0x00, 0x00, 0xc3,
         0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x40
     });
@@ -141,7 +107,7 @@ TEST(BasicTypes, StringEmpty)
 {
     TestString tc;
 
-    protobufSerializeToFile(tc, &serializeTestString, "file40", {
+    testHelper(tc, &serializeTestString, &deserializeTestString, &assertEqualTestString, "file40", {
         0x0a, 0x00 
     });
 }
@@ -152,7 +118,7 @@ TEST(BasicTypes, StringText)
 
     tc.description = "Hello world!";
 
-    protobufSerializeToFile(tc, &serializeTestString, "file41", {
+    testHelper(tc, &serializeTestString, &deserializeTestString, &assertEqualTestString, "file41", {
         0x0a, 0x0c, 'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '!'
     });
 }
@@ -161,7 +127,7 @@ TEST(BasicTypes, EnumBool0)
 {
     TestMisc tc;
 
-    protobufSerializeToFile(tc, &serializeTestMisc, "file50", {
+    testHelper(tc, &serializeTestMisc, &deserializeTestMisc, &assertEqualTestMisc, "file50", {
         0x08, 0x01,
         0x10, 0x00
     });
@@ -174,7 +140,7 @@ TEST(BasicTypes, EnumBool1)
     tc.aValue = TestMisc::Second;
     tc.flag = true;
 
-    protobufSerializeToFile(tc, &serializeTestMisc, "file51", {
+    testHelper(tc, &serializeTestMisc, &deserializeTestMisc, &assertEqualTestMisc, "file51", {
           0x08, 0x02,
           0x10, 0x01 
     });

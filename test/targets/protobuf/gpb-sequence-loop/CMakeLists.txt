@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.2)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/output.cpp ${CMAKE_CURRENT_SOURCE_DIR}/output.h
                    ${CMAKE_CURRENT_SOURCE_DIR}/output.pb.h ${CMAKE_CURRENT_SOURCE_DIR}/output.pb.cc
                    ${CMAKE_CURRENT_SOURCE_DIR}/dbg_helpers.h
+                   ${CMAKE_CURRENT_SOURCE_DIR}/dbg_proto_helpers.h
                    ${CMAKE_CURRENT_SOURCE_DIR}/output.proto
                    COMMAND generate.bat
                    MAIN_DEPENDENCY test.h
@@ -18,6 +19,8 @@ add_executable(testGpbSequenceLoop
   output.cpp
   output.pb.h
   output.pb.cc
+  dbg_helpers.h
+  dbg_proto_helpers.h
   ../../../../src/targets/cpp/include/protobuf/baselib.h
   ../../../../src/targets/cpp/libsrc/protobuf/baselib.cpp
 )

@@ -21,6 +21,7 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #include "gtest/gtest.h"
 #include "dbg_helpers.h"
+#include "dbg_proto_helpers.h"
 #include "protobuf/baselib.h"
 
 

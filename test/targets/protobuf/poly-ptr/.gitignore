@@ -1,6 +1,0 @@
-*.protobuf.bin
-*.h.idlbin
-*.obj
-*.exe
-output*
-dbg_helpers.h
