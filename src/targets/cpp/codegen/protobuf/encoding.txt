@@ -96,7 +96,9 @@ void serialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& 
     break;
   @@FOR-EACH END
     default:
-      HAREASSERT( false );
+      // treat as empty
+      // HAREASSERT( false );
+      break;
   }
 }
 @@END-TEMPLATE NAME="SERIALIZE-DU"
@@ -124,8 +126,11 @@ void serialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& 
       }
     @@FOR-EACH END
   @@FOR-EACH END
-      else
-        HAREASSERT( false );
+      else {
+        // treat as nullptr
+        // HAREASSERT( false );
+        return;
+      }
 }
 @@END-TEMPLATE NAME="SERIALIZE-DU-OWNING-PTR"
 
@@ -232,7 +237,10 @@ void serialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& 
    @@FOR-EACH LOCAL-ENUM-VAL IN PARAM-TYPE.ENUM-VALUES()
       case /* @LOCAL-ENUM-VAL.ENUM-VALUE-NAME()@ */ @LOCAL-ENUM-VAL.MAPPING-ENUM-VALUE-VALUE()@: o.writeUInt( @PARAM-MEMCTR@, @LOCAL-ENUM-VAL.ENCODING-ENUM-VALUE-VALUE()@ ); break;
    @@FOR-EACH END
-        default: HAREASSERT( false );
+      default:
+        // HAREASSERT( false );
+        o.writeUInt( @PARAM-MEMCTR@, 0 );
+        break;
     }
 @@END-TEMPLATE NAME="SERIALIZE-ENUM"
 
@@ -244,9 +252,12 @@ void serialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& 
         switch ( @PARAM-NAME@ )
         {
   @@FOR-EACH LOCAL-ENUM-VAL IN PARAM-TYPE.ENUM-VALUES()
-          case /* @LOCAL-ENUM-VAL.ENUM-VALUE-NAME()@ */ @LOCAL-ENUM-VAL.MAPPING-ENUM-VALUE-VALUE()@: o.writePackedUnsignedVarInt(@LOCAL-ENUM-VAL.ENCODING-ENUM-VALUE-VALUE()@ ); break;
+          case /* @LOCAL-ENUM-VAL.ENUM-VALUE-NAME()@ */ @LOCAL-ENUM-VAL.MAPPING-ENUM-VALUE-VALUE()@: o.writePackedUnsignedVarInt( @LOCAL-ENUM-VAL.ENCODING-ENUM-VALUE-VALUE()@ ); break;
   @@FOR-EACH END
-            default: HAREASSERT( false );
+          default:
+            // HAREASSERT( false );
+            o.writePackedUnsignedVarInt( 0 );
+            break;
         }
 @@END-TEMPLATE NAME="SERIALIZE-PACKED-ENUM"
 
@@ -739,7 +750,9 @@ size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-N
     break;
   @@FOR-EACH END
     default:
-      HAREASSERT( false );
+      // treat as empty
+      // HAREASSERT( false );
+      break;
   }
 
   return sz;
@@ -775,8 +788,9 @@ size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-N
     @@FOR-EACH END
   @@FOR-EACH END
   else {
-    HAREASSERT( false );
-    return 0; // silence
+    // treat as nullptr
+    // HAREASSERT( false );
+    return 0;
   }
 }
 @@END-TEMPLATE NAME="GET-SIZE-DU-OWNING-PTR"

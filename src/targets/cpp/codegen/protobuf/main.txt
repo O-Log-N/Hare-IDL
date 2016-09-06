@@ -52,7 +52,6 @@ class IProtobufStream;
 
 #include "output.h"
 #include "protobuf/baselib.h"
-#include "hare/hare.h"
 
 //include-here
 
