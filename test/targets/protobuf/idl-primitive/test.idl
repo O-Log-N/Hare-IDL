@@ -1,0 +1,48 @@
+//Copyright (C) 2016 OLogN Technologies AG
+
+PUBLISHABLE-STRUCT TestClass {
+  
+  INTEGER[-10,10] integer0;
+  INTEGER(-20,20] integer1;
+  INTEGER[-30,30) integer2;
+  INTEGER(-40,40) integer3;
+
+  FIXED-POINT[-10,0.01,10] fixed0;
+  FIXED-POINT(-20,0.01,20] fixed1;
+  FIXED-POINT[-30,0.01,30) fixed2;
+  FIXED-POINT(-40,0.01,40) fixed3;
+  FIXED-POINT[-50.5,.5,50.5] fixed4;
+
+  FLOATING-POINT(53,11) floating0;
+//  FLOATING-POINT(65,15) floating1;
+
+//  CHARACTER{"UNICODE"} character0;
+//  CHARACTER{ 1-99, 100, 101-124, 125, 126 } character0;
+
+  CHARACTER-STRING{"UNICODE"} string0;
+  CHARACTER-STRING{ 1-99, 100, 101-124, 125, 126 }[5,10] string1;
+
+//  BIT-STRING[4,8] bit0;
+
+//  SEQUENCE<INTEGER[-10,10]> sequence0;
+//  SEQUENCE<UINT16> sequence1;
+
+//  DICTIONARY<INTEGER[-10,10], INTEGER[-10,10]> dictionary0;
+//  DICTIONARY<UINT16, INTEGER[-10,10]> dictionary1;
+//  DICTIONARY<INTEGER[-10,10], UINT16> dictionary2;
+//  DICTIONARY<UINT16, UINT16> dictionary3;
+
+  INT8 typedef0;
+  INT16 typedef1;
+  INT32 typedef2;
+  INT64 typedef3;
+  UINT8 typedef4;
+  UINT16 typedef5;
+  UINT32 typedef6;
+  UINT64 typedef7;
+  DOUBLE typedef8;
+//  DOUBLE80 typedef9;
+  PRINTABLE-ASCII-STRING typedef10;
+  UNICODE-STRING typedef11;
+};
+
