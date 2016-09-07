@@ -73,7 +73,7 @@ TEST(GpbLoop, Test10)
 TEST(GpbLoop, Test11)
 {
     TestClass tc;
-/*
+
     tc.someUints.push_back(10);
     tc.someUints.push_back(1000);
     tc.someUints.push_back(100000);
@@ -83,7 +83,7 @@ TEST(GpbLoop, Test11)
     tc.someInts.push_back(-1000);
     tc.someInts.push_back(100000);
     tc.someInts.push_back(-10000000);
-*/
+
     tc.someFloats.push_back(1.0);
     tc.someFloats.push_back(2.0);
 
@@ -91,11 +91,9 @@ TEST(GpbLoop, Test11)
     tc.someDoubles.push_back(2.0);
     tc.someDoubles.push_back(3.0);
     tc.someDoubles.push_back(4.0);
-/*
+
     tc.someStrings.push_back("Hello");
     tc.someStrings.push_back("world!");
-
-    //mb: THIS HAS A BUG, FIX
 
     tc.someValues.push_back(TestClass::Nothing);
     tc.someValues.push_back(TestClass::First);
@@ -103,7 +101,7 @@ TEST(GpbLoop, Test11)
 
     tc.someBools.push_back(true);
     tc.someBools.push_back(false);
-*/
+
     protobufTestLoop(tc, "file11");
 }
 

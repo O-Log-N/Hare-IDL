@@ -28,7 +28,7 @@ TEST(PackedSequence, UnpackedStrings)
     tc.unpackedStrings.push_back("hello");
     tc.unpackedStrings.push_back("world");
 
-    testHelper(tc, &serializeTestClass, "file1", {
+    testHelper(tc, &serializeTestClass, &deserializeTestClass, &assertEqualTestClass, "file1", {
         0x0a, 5, 'h', 'e', 'l', 'l', 'o',
         0x0a, 5, 'w', 'o', 'r', 'l', 'd'
     });
@@ -44,7 +44,7 @@ TEST(PackedSequence, PackedVarInts)
     tc.packedVarInts.push_back(100000);
     tc.packedVarInts.push_back(-100000);
 
-    testHelper(tc, &serializeTestClass, "file2", {
+    testHelper(tc, &serializeTestClass, &deserializeTestClass, &assertEqualTestClass, "file2", {
         0x12, 0x0b,
         0x00,
         0xd0, 0x0f,
@@ -63,7 +63,7 @@ TEST(PackedSequence, packedDoubles)
     tc.packedDoubles.push_back(1.);
     tc.packedDoubles.push_back(-10.5e-6);
 
-    testHelper(tc, &serializeTestClass, "file3", {
+    testHelper(tc, &serializeTestClass, &deserializeTestClass, &assertEqualTestClass, "file3", {
         0x1a, 0x20,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0xbf,
@@ -80,7 +80,7 @@ TEST(PackedSequence, PackedEnum)
     tc.packedEnum.push_back(TestClass::First);
     tc.packedEnum.push_back(TestClass::Second);
 
-    testHelper(tc, &serializeTestClass, "file4", {
+    testHelper(tc, &serializeTestClass, &deserializeTestClass, &assertEqualTestClass, "file4", {
         0x22, 0x03, 0x01, 0x00, 0x02
     });
 }

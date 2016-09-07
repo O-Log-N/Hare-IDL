@@ -24,7 +24,7 @@ TEST(PolyPtr, NullPtr)
 {
     TestClass tc;
 
-    testHelper(tc, &serializeTestClass, "file10", {
+    testHelper(tc, &serializeTestClass, &deserializeTestClass, &assertEqualTestClass, "file10", {
         0x0a, 0x00
     });
 }
@@ -34,7 +34,7 @@ TEST(PolyPtr, BasePtr)
     TestClass tc;
     tc.ptr.reset(new TestBase);
 
-    testHelper(tc, &serializeTestClass, "file11", {
+    testHelper(tc, &serializeTestClass, &deserializeTestClass, &assertEqualTestClass, "file11", {
         0x0a, 0x04,
         0x12, 0x02, 0x08, 0x00 
     });
@@ -45,7 +45,7 @@ TEST(PolyPtr, DerivedPtr)
     TestClass tc;
     tc.ptr.reset(new TestDerived);
 
-    testHelper(tc, &serializeTestClass, "file20", {
+    testHelper(tc, &serializeTestClass, &deserializeTestClass, &assertEqualTestClass, "file20", {
         0x0a, 0x06,
         0x1a, 0x04, 0x0a, 0x02, 0x08, 0x00
     });
