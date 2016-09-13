@@ -46,8 +46,28 @@ struct CmdOptions {
     string inputBinary;
 };
 
+CmdOptions getCmdOptionFake()
+{
+    CmdOptions result;
+
+    result.templPath = "../../Hare-IDL/src/targets/cpp/codegen/protobuf/";
+    result.templs = { "main.txt", "mapping.txt", "encoding.txt", "proto.txt",
+        "dbg_helpers.txt" };
+    //    result.inputBinary = "../../Hare-IDL/test/targets/protobuf/poly-ptr/test.h.idlbin";
+    result.inputIdl = "../../Hare-IDL/test/targets/protobuf/idl-primitive/test.idl";
+
+    return result;
+}
+
 CmdOptions getCmdOption(char** begin, char** end)
 {
+    if (begin != end) {
+        string current(*begin);
+        if (current == "--debug") {
+            return getCmdOptionFake();
+        }
+    }
+    
     CmdOptions result;
     for (char** it = begin; it != end; ++it) {
         string current(*it);
@@ -63,19 +83,6 @@ CmdOptions getCmdOption(char** begin, char** end)
             fmt::print("Unrecognized command line option: {}\n", current);
     }
 
-
-    return result;
-}
-
-CmdOptions getCmdOptionFake(char**, char**)
-{
-    CmdOptions result;
-
-    result.templPath = "../../Hare-IDL/src/targets/cpp/codegen/protobuf/";
-    result.templs = { "main.txt", "mapping.txt", "encoding.txt", "proto.txt",
-        "dbg_helpers.txt" };
-//    result.inputBinary = "../../Hare-IDL/test/targets/protobuf/poly-ptr/test.h.idlbin";
-    result.inputIdl = "../../Hare-IDL/dbg/protobuf/sample.idl";
 
     return result;
 }

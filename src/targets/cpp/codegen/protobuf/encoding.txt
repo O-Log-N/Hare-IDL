@@ -466,14 +466,10 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
 @@IF PARAM-TYPE.IS-INTEGER()
   if( fieldType != VARINT ) return false;
   @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER()
-    @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(1)
+    @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(64)
       uint64_t temp = 0;
       readOk = i.readVariantUInt64( temp );
-      @PARAM-NAME@ = static_cast<bool>( temp );
-    @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(64)
-      uint64_t temp = 0;
-      readOk = i.readVariantUInt64( temp );
-      @PARAM-NAME@ = temp;
+      @PARAM-NAME@ = static_cast<@PARAM-TYPE.MAPPING-MEMBER-TYPE()@>( temp );
     @@ELSE
       @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
     @@ENDIF
@@ -481,13 +477,14 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
     @@IF PARAM-TYPE.IS-SIGNED-INTEGER-FITTING-INT(64)
       int64_t temp = 0;
       readOk = i.readVariantInt64( temp );
-      @PARAM-NAME@ = temp;
+      @PARAM-NAME@ = static_cast<@PARAM-TYPE.MAPPING-MEMBER-TYPE()@>( temp );
     @@ELSE
       @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
     @@ENDIF
   @@ENDIF
 @@ELIF PARAM-TYPE.IS-FIXED-POINT()
-   @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
+      if( fieldType != FIXED_64_BIT ) return false;
+      readOk = i.readFixed64Bit( @PARAM-NAME@ );
 @@ELIF PARAM-TYPE.IS-FLOATING-POINT()
   @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(24,8)
       if( fieldType != FIXED_32_BIT ) return false;

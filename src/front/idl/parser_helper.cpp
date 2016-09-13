@@ -1005,6 +1005,13 @@ YYSTYPE createIdType(YYSTYPE id)
         yy->dataType->highLimit.inclusive = true;
         yy->dataType->highLimit.value = INT32_MAX;
     }
+    else if (name == "INT64") {
+        yy->dataType->kind = DataType::INTEGER;
+        yy->dataType->lowLimit.inclusive = true;
+        yy->dataType->lowLimit.value = INT64_MIN;
+        yy->dataType->highLimit.inclusive = true;
+        yy->dataType->highLimit.value = INT64_MAX;
+    }
     else if (name == "UINT8") {
         yy->dataType->kind = DataType::INTEGER;
         yy->dataType->lowLimit.inclusive = true;
@@ -1025,6 +1032,13 @@ YYSTYPE createIdType(YYSTYPE id)
         yy->dataType->lowLimit.value = 0;
         yy->dataType->highLimit.inclusive = true;
         yy->dataType->highLimit.value = UINT32_MAX;
+    }
+    else if (name == "UINT64") {
+        yy->dataType->kind = DataType::INTEGER;
+        yy->dataType->lowLimit.inclusive = true;
+        yy->dataType->lowLimit.value = 0;
+        yy->dataType->highLimit.inclusive = true;
+        yy->dataType->highLimit.value = UINT64_MAX;
     }
     else if (name == "DOUBLE") {
         yy->dataType->kind = DataType::FLOATING_POINT;
