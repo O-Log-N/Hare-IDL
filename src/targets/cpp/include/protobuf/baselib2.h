@@ -77,24 +77,37 @@ uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff)
 
 ///////////////////////////   WIRE_TYPE::VARINT      ////////////////////////////////////
 
+uint8_t* serializeToStringVariantUint64_loop(uint64_t value, uint8_t* buff);
+uint8_t* deserializeFromStringVariantUint64_loop(uint64_t& value, uint8_t* buff);
+
 /*
     mb: serializeToStringVariantUint64 will read at most 10 bytes from buffer
     However, if there is risk of buffer being overread, a null byte must be
     set after the last buffer position, to force stop the algorithm.
 */
+
 uint8_t* serializeToStringVariantUint64(uint64_t value, uint8_t* buff);
 uint8_t* deserializeFromStringVariantUint64(uint64_t& value, uint8_t* buff);
 
 
 ///////////////////////////   WIRE_TYPE::FIXED_64_BIT      ////////////////////////////////////
 
+uint8_t* serializeToStringFixedUint64_little(uint64_t value, uint8_t* buff);
+uint8_t* deserializeFromStringFixedUint64_little(uint64_t& value, uint8_t* buff);
+
 uint8_t* serializeToStringFixedUint64(uint64_t value, uint8_t* buff);
 uint8_t* deserializeFromStringFixedUint64(uint64_t& value, uint8_t* buff);
 
 ///////////////////////////     WIRE_TYPE::FIXED_32_BIT    ////////////////////////////////////
 
+uint8_t* serializeToStringFixedUint32_little(uint32_t value, uint8_t* buff);
+uint8_t* deserializeFromStringFixedUint32_little(uint32_t& value, uint8_t* buff);
+
 uint8_t* serializeToStringFixedUint32(uint32_t value, uint8_t* buff);
 uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff);
+
+uint8_t* serializeToStringFixedUint32_loop(uint32_t value, uint8_t* buff);
+uint8_t* deserializeFromStringFixedUint32_loop(uint32_t& value, uint8_t* buff);
 
 ///////////////////////////     WIRE_TYPE::LENGTH_DELIMITED    ////////////////////////////////////
 
@@ -148,6 +161,17 @@ public:
         fwrite(buffer, size, 1, file);
     }
 };
+class NullWriter
+{
+public:
+    NullWriter() {}
+
+    void write(const void* buffer, size_t size)
+    {
+        ;//do-nothing
+    }
+};
+
 //MB end
 
 template<class WR>
@@ -439,7 +463,48 @@ public:
 };
 
 //mb
-bool discardUnexpectedField( int fieldType, IProtobufStream& i );
+template<class T>
+bool discardUnexpectedField(int fieldType, IProtobufStream<T>& i) {
+
+    // Unexpected field, just read and discard
+    switch (fieldType)
+    {
+    case VARINT:
+    {
+        uint64_t temp;
+        return i.readVariantUInt64(temp);
+    }
+    break;
+    case FIXED_64_BIT:
+    {
+        double temp;
+        return i.readFixed64Bit(temp);
+    }
+    break;
+    case LENGTH_DELIMITED:
+    {
+        uint64_t sz;
+        bool readOk = i.readVariantUInt64(sz);
+        if (!readOk)
+            return false;
+        IProtobufStream<T> is = i.makeSubStream(readOk, sz);
+        if (!readOk)
+            return false;
+
+        string temp;
+        return is.readString(temp);
+    }
+    break;
+    case FIXED_32_BIT:
+    {
+        float temp;
+        return i.readFixed32Bit(temp);
+    }
+    break;
+    default:
+        return false;
+    }
+}
 
 } //namespace bl
 

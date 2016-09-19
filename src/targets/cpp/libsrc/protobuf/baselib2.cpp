@@ -13,8 +13,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 *******************************************************************************/
 #include <protobuf/baselib2.h>
 
-#define IS_LITTLE_ENDIAN 1
-
 namespace bl2
 {
 
@@ -29,12 +27,8 @@ uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff)
 
 ///////////////////////////   WIRE_TYPE::VARINT      ////////////////////////////////////
 
-/*
-    mb: manual loop unrool seems to be detrimental for this particular case.
-*/
 
-
-uint8_t* serializeToStringVariantUint64(uint64_t value, uint8_t* buff)
+uint8_t* serializeToStringVariantUint64_loop(uint64_t value, uint8_t* buff)
 {
     while (value >= 0x80)
     {
@@ -49,8 +43,8 @@ uint8_t* serializeToStringVariantUint64(uint64_t value, uint8_t* buff)
 
 
 
-/*
-uint8_t* deserializeFromStringVariantUint64(uint64_t& value, uint8_t* buff)
+
+uint8_t* deserializeFromStringVariantUint64_loop(uint64_t& value, uint8_t* buff)
 {
     value = 0;
     uint64_t tmp;
@@ -65,7 +59,25 @@ uint8_t* deserializeFromStringVariantUint64(uint64_t& value, uint8_t* buff)
 
     return buff;
 }
+
+
+/*
+mb: manual loop unrool seems to be detrimental for this particular case.
 */
+
+//TODO: unrool
+uint8_t* serializeToStringVariantUint64(uint64_t value, uint8_t* buff)
+{
+    while (value >= 0x80)
+    {
+        *buff = value & 0x7f;
+        *(buff++) |= 0x80;
+        value >>= 7;
+    }
+    *buff = value & 0x7f;
+    ++buff;
+    return buff;
+}
 
 /* mb:  manual loop unroll goes faster,
         but more importantly is that it will not keep eating from the buffer
@@ -134,21 +146,17 @@ uint8_t* deserializeFromStringVariantUint64(uint64_t& value, uint8_t* buff)
 
 ///////////////////////////   WIRE_TYPE::FIXED_64_BIT      ////////////////////////////////////
 
-#if IS_LITTLE_ENDIAN
-
-uint8_t* serializeToStringFixedUint64(uint64_t value, uint8_t* buff)
+uint8_t* serializeToStringFixedUint64_little(uint64_t value, uint8_t* buff)
 {
     *reinterpret_cast<uint64_t*>(buff) = value;
     return buff + 8;
 }
 
-uint8_t* deserializeFromStringFixedUint64(uint64_t& value, uint8_t* buff)
+uint8_t* deserializeFromStringFixedUint64_little(uint64_t& value, uint8_t* buff)
 {
     value = *reinterpret_cast<uint64_t*>(buff);
     return buff + 8;
 }
-
-#else
 
 uint8_t* serializeToStringFixedUint64(uint64_t value, uint8_t* buff)
 {
@@ -175,26 +183,20 @@ uint8_t* deserializeFromStringFixedUint64(uint64_t& value, uint8_t* buff)
     return buff;
 }
 
-#endif
-
 
 ///////////////////////////     WIRE_TYPE::FIXED_32_BIT    ////////////////////////////////////
 
-#if IS_LITTLE_ENDIAN
-
-uint8_t* serializeToStringFixedUint32(uint32_t value, uint8_t* buff)
+uint8_t* serializeToStringFixedUint32_little(uint32_t value, uint8_t* buff)
 {
     *reinterpret_cast<uint32_t*>(buff) = value;
     return buff + 4;
 }
 
-uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff)
+uint8_t* deserializeFromStringFixedUint32_little(uint32_t& value, uint8_t* buff)
 {
     value = *reinterpret_cast<uint32_t*>(buff);
     return buff + 4;
 }
-
-#else
 
 uint8_t* serializeToStringFixedUint32(uint32_t value, uint8_t* buff)
 {
@@ -211,6 +213,28 @@ uint8_t* serializeToStringFixedUint32(uint32_t value, uint8_t* buff)
 uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff)
 {
     value = 0;
+
+    value |= *(buff++);
+    value |= *(buff++) << 8;
+    value |= *(buff++) << 16;
+    value |= *(buff++) << 24;
+
+    return buff;
+}
+
+uint8_t* serializeToStringFixedUint32_loop(uint32_t value, uint8_t* buff)
+{
+    for (int ctr = 0; ctr != 4; ++ctr)
+    {
+        *(buff++) = value & 0xff;
+        value >>= 8;
+    }
+    return buff;
+}
+
+uint8_t* deserializeFromStringFixedUint32_loop(uint32_t& value, uint8_t* buff)
+{
+    value = 0;
     uint32_t tmp;
 
     for (int ctr = 0; ctr < 32; ctr += 8)
@@ -223,7 +247,6 @@ uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff)
     return buff;
 }
 
-#endif
 ///////////////////////////     WIRE_TYPE::LENGTH_DELIMITED    ////////////////////////////////////
 
 uint8_t* serializeLengthDelimitedHeaderToString(int fieldNumber, size_t valueSize, uint8_t* buff)
@@ -235,47 +258,6 @@ uint8_t* serializeLengthDelimitedHeaderToString(int fieldNumber, size_t valueSiz
 
 
 //MB
-bool discardUnexpectedField( int fieldType, IProtobufStream& i ) {
-
-  // Unexpected field, just read and discard
-  switch(fieldType)
-  {
-  case VARINT:
-    {
-      uint64_t temp;
-      return i.readVariantUInt64( temp );
-    }
-    break;
-  case FIXED_64_BIT:
-    {
-      double temp;
-      return i.readFixed64Bit( temp );
-    }
-    break;
-  case LENGTH_DELIMITED:
-    {
-      uint64_t sz;
-      bool readOk = i.readVariantUInt64( sz );
-      if( !readOk )
-        return false;
-      IProtobufStream is = i.makeSubStream( readOk, sz );
-      if ( !readOk )
-        return false;
-
-      string temp;
-      return is.readString( temp );
-    }
-    break;
-  case FIXED_32_BIT:
-    {
-      float temp;
-      return i.readFixed32Bit( temp );
-    }
-    break;
-  default:
-    return false;
-  }
-}
 
 } //namespace bl
 

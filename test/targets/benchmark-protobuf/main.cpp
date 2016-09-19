@@ -28,20 +28,22 @@ using namespace std;
 
 const size_t bigBuffSize = 128 * 1024;
 const size_t smallBuffSize = 4 * 1024;
+const size_t dataSetSize = 5000;
 
 vector<uint64_t> constructData64()
 {
     vector<uint64_t> data;
-    data.reserve(5000);
+    data.reserve(dataSetSize);
 
 
-    for(size_t i = 0; i != 5000; ++i) {
+    for(size_t i = 0; i != dataSetSize; ++i) {
 
         union {
             uint64_t asUint64;
             int32_t asInt[2];
         } value;
         
+        //Good enought for the purpose of the test
         value.asInt[0] = rand();
         value.asInt[1] = rand();
 
@@ -50,37 +52,23 @@ vector<uint64_t> constructData64()
     return data;
 }
 
-vector<double> constructDataDouble()
+vector<uint32_t> constructData32()
 {
-    vector<double> data;
-    data.reserve(5000);
-    vector<uint64_t> uintData = constructData64();
-    for (auto each : uintData) {
+    vector<uint32_t> data;
+    data.reserve(dataSetSize);
+
+
+    for (size_t i = 0; i != dataSetSize; ++i) {
 
         union {
-            uint64_t asUint;
-            double asDouble;
-        } value = {each};
+            uint32_t asUint32;
+            int32_t asInt;
+        } value;
 
-        data.push_back(value.asDouble);
-    }
-    return data;
-}
+        //Good enought for the purpose of the test
+        value.asInt = rand();
 
-
-vector<float> constructDataFloat()
-{
-    vector<float> data;
-    data.reserve(5000);
-    vector<uint64_t> uintData = constructData64();
-    for (auto each : uintData) {
-
-        union {
-            uint64_t asUint;
-            float asDouble;
-        } value = { each };
-
-        data.push_back(value.asDouble);
+        data.push_back(value.asUint32);
     }
     return data;
 }
@@ -112,372 +100,407 @@ vector<string> constructDataString()
     return data;
 }
 
-static void serializeVarIntToFile(benchmark::State& state) {
-
-    vector<uint64_t> data = constructData64();
-    while (state.KeepRunning()) {
-
-        FILE* out = fopen("varint.protobuf.bin", "w+b");
-        OProtobufStream os(out);
-//        state.PauseTiming();
-//        state.ResumeTiming();
-        for (size_t i = 0; i != data.size(); ++i) {
-            os.writeUInt(i, data[i]);
-        }
-        fclose(out);    
-    }
-}
-
-
-
-static void bl2_serializeVarIntToFile(benchmark::State& state) {
-
-//    fstream out("baselib2.protobuf.bin", ios_base::binary| ios_base::out | ios_base::trunc);
-    vector<uint64_t> data = constructData64();
-    while (state.KeepRunning()) {
-
-
-        FILE* out = fopen("varint2.protobuf.bin", "w+b");
-
-        typedef bl2::OProtobufStream<bl2::FileWriter> OS;
-        uint8_t baseBuff[smallBuffSize];
-        bl2::FileWriter wr(out);
-        OS os(baseBuff, smallBuffSize, wr);
-//        state.PauseTiming();
-//        state.ResumeTiming();
-        for (size_t i = 0; i != data.size(); ++i) {
-            os.writeUInt(i, data[i]);
-        }
-        os.flush();
-        fclose(out);    
-    }
-}
-
 static void serializeVarInt(benchmark::State& state) {
 
     vector<uint64_t> data = constructData64();
+    uint8_t baseBuff[bigBuffSize];
     while (state.KeepRunning()) {
-
-        uint8_t baseBuff[bigBuffSize];
 
         uint8_t* dataPtr = baseBuff;
         for (size_t i = 0; i != data.size(); ++i) {
-            dataPtr = serializeUnsignedVariantToString(i, data[i], dataPtr);
-        }
-    }
-}
-
-static void bl2_serializeVarInt(benchmark::State& state) {
-
-    vector<uint64_t> data = constructData64();
-    while (state.KeepRunning()) {
-
-        uint8_t baseBuff[bigBuffSize];
-
-        uint8_t* dataPtr = baseBuff;
-        for (size_t i = 0; i != data.size(); ++i) {
-            dataPtr = bl2::serializeHeaderToString(i, bl2::WIRE_TYPE::VARINT, dataPtr);
             dataPtr = bl2::serializeToStringVariantUint64(data[i], dataPtr);
         }
     }
 }
 
-static void checkSerializeVarInt(benchmark::State& state) {
+static void serializeVarInt_loop(benchmark::State& state) {
 
     vector<uint64_t> data = constructData64();
+    uint8_t baseBuff[bigBuffSize];
     while (state.KeepRunning()) {
-
-        uint8_t baseBuff[bigBuffSize];
 
         uint8_t* dataPtr = baseBuff;
         for (size_t i = 0; i != data.size(); ++i) {
-            dataPtr = serializeUnsignedVariantToString(i, data[i], dataPtr);
+            dataPtr = bl2::serializeToStringVariantUint64_loop(data[i], dataPtr);
         }
-
-        uint8_t baseBuff2[bigBuffSize];
-
-        uint8_t* dataPtr2 = baseBuff2;
-        for (size_t i = 0; i != data.size(); ++i) {
-            dataPtr2 = bl2::serializeHeaderToString(i, bl2::WIRE_TYPE::VARINT, dataPtr2);
-            dataPtr2 = bl2::serializeToStringVariantUint64(data[i], dataPtr2);
-        }
-
-
-        if (dataPtr2 - baseBuff2 != dataPtr - baseBuff)
-            throw 0;
-        for (size_t i = 0; i != dataPtr - baseBuff; ++i)
-            if (baseBuff[i] != baseBuff2[i])
-                throw 0;
     }
 }
-
 
 static void deserializeVarInt(benchmark::State& state) {
 
-    while (state.KeepRunning()) {
-        uint8_t baseBuff[bigBuffSize];
-        FILE* in = fopen("varint.protobuf.bin", "rb");
-        size_t sz = fread(baseBuff, 1, bigBuffSize, in);
-        assert(sz < bigBuffSize);
+    vector<uint64_t> data = constructData64();
+    uint8_t baseBuff[bigBuffSize];
 
-        IProtobufStream is(baseBuff, sz);
-        int field;
-        int type;
-        int64_t value;
+    uint8_t* dataPtr = baseBuff;
+    for (size_t i = 0; i != data.size(); ++i) {
+        dataPtr = bl2::serializeToStringVariantUint64(data[i], dataPtr);
+    }
+
+    while (state.KeepRunning()) {
+
+        vector<uint64_t> data;
+        data.reserve(dataSetSize);
+
+        uint8_t* ptr = baseBuff;
+        uint64_t value;
         bool ok = true;
 
-        while (!is.isEndOfStream()) {
-            ok = is.readFieldTypeAndID(type, field);
-            if(!ok)
+        while (ptr != dataPtr) {
+            ptr = bl2::deserializeFromStringVariantUint64(value, ptr);
+            if (ptr > dataPtr) {
+                state.SkipWithError("Read past end of buffer");
                 break;
-            ok = is.readVariantInt64(value);
-            if (!ok)
-                break;
+            }
+            data.push_back(value);
         }
-
-        fclose(in);
     }
 }
 
-static void bl2_deserializeVarInt(benchmark::State& state) {
+static void deserializeVarInt_loop(benchmark::State& state) {
 
-    //    fstream out("baselib2.protobuf.bin", ios_base::binary| ios_base::out | ios_base::trunc);
-    typedef bl2::IProtobufStream<bl2::FileReader> IS;
+    vector<uint64_t> data = constructData64();
+    uint8_t baseBuff[bigBuffSize];
+
+    uint8_t* dataPtr = baseBuff;
+    for (size_t i = 0; i != data.size(); ++i) {
+        dataPtr = bl2::serializeToStringVariantUint64(data[i], dataPtr);
+    }
 
     while (state.KeepRunning()) {
 
-        uint8_t baseBuff[bigBuffSize];
-        FILE* in = fopen("varint.protobuf.bin", "rb");
+        vector<uint64_t> data;
+        data.reserve(dataSetSize);
 
-        bl2::FileReader rd(in);
-        bl2::IProtobufBuffer<bl2::FileReader> buff(baseBuff, bigBuffSize, rd);
-        IS is(buff);
+        uint8_t* ptr = baseBuff;
         int field;
         int type;
-        int64_t value;
+        uint64_t value;
         bool ok = true;
-        
-        while (!is.isEndOfStream()) {
-            ok = is.readFieldTypeAndID(type, field);
-            if (!ok)
+
+        while (ptr != dataPtr) {
+            ptr = bl2::deserializeFromStringVariantUint64_loop(value, ptr);
+            if (ptr > dataPtr) {
+                state.SkipWithError("Read past end of buffer");
                 break;
-            ok = is.readVariantInt64(value);
-            if (!ok)
-                break;
-        }
-
-        fclose(in);
-    }
-}
-
-static void serializeDoubleToFile(benchmark::State& state) {
-
-    vector<double> data = constructDataDouble();
-    while (state.KeepRunning()) {
-        FILE* out = fopen("double.protobuf.bin", "w+b");
-        OProtobufStream os(out);
-        for (size_t i = 0; i != data.size(); ++i) {
-            os.writeDouble(i, data[i]);
-        }
-        fclose(out);
-    }
-}
-
-static void bl2_serializeDoubleToFile(benchmark::State& state) {
-
-    vector<double> data = constructDataDouble();
-    while (state.KeepRunning()) {
-
-        FILE* out = fopen("double2.protobuf.bin", "w+b");
-
-        typedef bl2::OProtobufStream<bl2::FileWriter> OS;
-
-        uint8_t baseBuff[smallBuffSize];
-        bl2::FileWriter wr(out);
-        OS os(baseBuff, smallBuffSize, wr);
-        for (size_t i = 0; i != data.size(); ++i) {
-            os.writeDouble(i, data[i]);
-        }
-        os.flush();
-        fclose(out);
-    }
-}
-
-static void checkSerializeDouble(benchmark::State& state) {
-
-    vector<double> data = constructDataDouble();
-    while (state.KeepRunning()) {
-
-        uint8_t baseBuff[bigBuffSize];
-
-        uint8_t* dataPtr = baseBuff;
-        for (size_t i = 0; i != data.size(); ++i) {
-            dataPtr = serializeDoubleToString(i, data[i], dataPtr);
-        }
-
-        uint8_t baseBuff2[bigBuffSize];
-
-        uint8_t* dataPtr2 = baseBuff2;
-        for (size_t i = 0; i != data.size(); ++i) {
-            dataPtr2 = bl2::serializeHeaderToString(i, bl2::WIRE_TYPE::FIXED_64_BIT, dataPtr2);
-            dataPtr2 = bl2::serializeToStringFixedUint64(*reinterpret_cast<uint64_t*>(&data[i]), dataPtr2);
-        }
-
-
-        if (dataPtr2 - baseBuff2 != dataPtr - baseBuff)
-            throw 0;
-        for (size_t i = 0; i != dataPtr - baseBuff; ++i)
-            if (baseBuff[i] != baseBuff2[i])
-                throw 0;
-    }
-}
-
-
-static void serializeDouble(benchmark::State& state) {
-
-    vector<double> data = constructDataDouble();
-    while (state.KeepRunning()) {
-
-        uint8_t baseBuff[bigBuffSize];
-
-        uint8_t* dataPtr = baseBuff;
-        for (size_t i = 0; i != data.size(); ++i) {
-            dataPtr = serializeDoubleToString(i, data[i], dataPtr);
+            }
+            data.push_back(value);
         }
     }
 }
 
-static void bl2_serializeDouble(benchmark::State& state) {
 
-    vector<double> data = constructDataDouble();
+static void serializeFixed64(benchmark::State& state) {
+
+    vector<uint64_t> data = constructData64();
+    uint8_t baseBuff[bigBuffSize];
     while (state.KeepRunning()) {
-
-        uint8_t baseBuff[bigBuffSize];
 
         uint8_t* dataPtr = baseBuff;
 
         for (size_t i = 0; i != data.size(); ++i) {
-//            dataPtr = bl2::serializeHeaderToString(i, bl2::WIRE_TYPE::FIXED_64_BIT, dataPtr);
-            dataPtr = bl2::serializeToStringFixedUint64(*reinterpret_cast<uint64_t*>(&data[i]), dataPtr);
+            dataPtr = bl2::serializeToStringFixedUint64(data[i], dataPtr);
         }
     }
 }
 
-static void deserializeDouble(benchmark::State& state) {
+static void serializeFixed64_little(benchmark::State& state) {
 
+    vector<uint64_t> data = constructData64();
+    uint8_t baseBuff[bigBuffSize];
     while (state.KeepRunning()) {
-
-        uint8_t baseBuff[bigBuffSize];
-        FILE* in = fopen("double.protobuf.bin", "rb");
-        size_t sz = fread(baseBuff, 1, bigBuffSize, in);
-        assert(sz < bigBuffSize);
-
-        IProtobufStream is(baseBuff, sz);
-        int field;
-        int type;
-        double value;
-        bool ok = true;
-        while (!is.isEndOfStream()) {
-
-            ok = is.readFieldTypeAndID(type, field);
-            if (!ok)
-                break;
-            ok = is.readFixed64Bit(value);
-            if (!ok)
-                break;
-        }
-
-        fclose(in);
-    }
-}
-
-static void bl2_deserializeDouble(benchmark::State& state) {
-
-    typedef bl2::IProtobufStream<bl2::FileReader> IS;
-
-    while (state.KeepRunning()) {
-
-        uint8_t baseBuff[bigBuffSize];
-        FILE* in = fopen("double.protobuf.bin", "rb");
-
-        bl2::FileReader rd(in);
-        bl2::IProtobufBuffer<bl2::FileReader> buff(baseBuff, bigBuffSize, rd);
-        IS is(buff);
-        int field;
-        int type;
-        double value;
-        bool ok = true;
-        while (!is.isEndOfStream()) {
-            ok = is.readFieldTypeAndID(type, field);
-            if (!ok)
-                break;
-            ok = is.readFixed64Bit(value);
-            if (!ok)
-                break;
-        }
-
-        fclose(in);
-    }
-}
-
-static void serializeFloatToFile(benchmark::State& state) {
-
-    vector<float> data = constructDataFloat();
-    while (state.KeepRunning()) {
-        FILE* out = fopen("float.protobuf.bin", "w+b");
-        OProtobufStream os(out);
-        for (size_t i = 0; i != data.size(); ++i) {
-            os.writeFloat(i, data[i]);
-        }
-        fclose(out);
-    }
-}
-
-static void bl2_serializeFloat(benchmark::State& state) {
-
-    vector<float> data = constructDataFloat();
-    while (state.KeepRunning()) {
-
-        uint8_t baseBuff[bigBuffSize];
 
         uint8_t* dataPtr = baseBuff;
 
         for (size_t i = 0; i != data.size(); ++i) {
-//            dataPtr = bl2::serializeHeaderToString(i, bl2::WIRE_TYPE::FIXED_32_BIT, dataPtr);
-            dataPtr = bl2::serializeToStringFixedUint32(*reinterpret_cast<uint32_t*>(&data[i]), dataPtr);
+            dataPtr = bl2::serializeToStringFixedUint64_little(data[i], dataPtr);
         }
     }
 }
 
+static void deserializeFixed64(benchmark::State& state) {
 
-static void bl2_deserializeFloat(benchmark::State& state) {
+    vector<uint64_t> data = constructData64();
+    uint8_t baseBuff[bigBuffSize];
 
-    typedef bl2::IProtobufStream<bl2::FileReader> IS;
+    uint8_t* dataPtr = baseBuff;
+    for (size_t i = 0; i != data.size(); ++i) {
+        dataPtr = bl2::serializeToStringFixedUint64(data[i], dataPtr);
+    }
+
+    vector<uint64_t> result;
+    result.reserve(dataSetSize);
 
     while (state.KeepRunning()) {
 
-        uint8_t baseBuff[bigBuffSize];
-        FILE* in = fopen("double.protobuf.bin", "rb");
+        result.clear();
 
-        bl2::FileReader rd(in);
-        bl2::IProtobufBuffer<bl2::FileReader> buff(baseBuff, bigBuffSize, rd);
-        IS is(buff);
-        int field;
-        int type;
-        float value;
-        bool ok = true;
-        while (!is.isEndOfStream()) {
-            ok = is.readFieldTypeAndID(type, field);
-            if (!ok)
+        uint8_t* ptr = baseBuff;
+        uint64_t value;
+
+        while (ptr != dataPtr) {
+            ptr = bl2::deserializeFromStringFixedUint64(value, ptr);
+            if (ptr > dataPtr) {
+                state.SkipWithError("Read past end of buffer");
                 break;
-            ok = is.readFixed32Bit(value);
-            if (!ok)
-                break;
+            }
+            result.push_back(value);
         }
-
-        fclose(in);
     }
 }
+
+static void deserializeFixed64_little(benchmark::State& state) {
+
+    vector<uint64_t> data = constructData64();
+    uint8_t baseBuff[bigBuffSize];
+
+    uint8_t* dataPtr = baseBuff;
+    for (size_t i = 0; i != data.size(); ++i) {
+        dataPtr = bl2::serializeToStringFixedUint64(data[i], dataPtr);
+    }
+
+    vector<uint64_t> result;
+    result.reserve(dataSetSize);
+
+    while (state.KeepRunning()) {
+
+        result.clear();
+        uint8_t* ptr = baseBuff;
+        uint64_t value;
+
+        while (ptr != dataPtr) {
+            ptr = bl2::deserializeFromStringFixedUint64_little(value, ptr);
+            if (ptr > dataPtr) {
+                state.SkipWithError("Read past end of buffer");
+                break;
+            }
+            result.push_back(value);
+        }
+    }
+}
+
+static void serializeFixed32(benchmark::State& state) {
+
+    vector<uint32_t> data = constructData32();
+    uint8_t baseBuff[bigBuffSize];
+    while (state.KeepRunning()) {
+
+        uint8_t* dataPtr = baseBuff;
+
+        for (size_t i = 0; i != data.size(); ++i) {
+            dataPtr = bl2::serializeToStringFixedUint32(data[i], dataPtr);
+        }
+    }
+}
+
+static void serializeFixed32_little(benchmark::State& state) {
+
+    vector<uint32_t> data = constructData32();
+    uint8_t baseBuff[bigBuffSize];
+    while (state.KeepRunning()) {
+
+        uint8_t* dataPtr = baseBuff;
+
+        for (size_t i = 0; i != data.size(); ++i) {
+            dataPtr = bl2::serializeToStringFixedUint32_little(data[i], dataPtr);
+        }
+    }
+}
+
+static void serializeFixed32_loop(benchmark::State& state) {
+
+    vector<uint32_t> data = constructData32();
+    uint8_t baseBuff[bigBuffSize];
+    while (state.KeepRunning()) {
+
+        uint8_t* dataPtr = baseBuff;
+
+        for (size_t i = 0; i != data.size(); ++i) {
+            dataPtr = bl2::serializeToStringFixedUint32_loop(data[i], dataPtr);
+        }
+    }
+}
+
+static void deserializeFixed32(benchmark::State& state) {
+
+    vector<uint32_t> data = constructData32();
+    uint8_t baseBuff[bigBuffSize];
+
+    uint8_t* dataPtr = baseBuff;
+    for (size_t i = 0; i != data.size(); ++i) {
+        dataPtr = bl2::serializeToStringFixedUint32(data[i], dataPtr);
+    }
+
+    vector<uint32_t> result;
+    result.reserve(dataSetSize);
+
+    while (state.KeepRunning()) {
+
+        result.clear();
+        uint8_t* ptr = baseBuff;
+        uint32_t value;
+
+        while (ptr != dataPtr) {
+            ptr = bl2::deserializeFromStringFixedUint32(value, ptr);
+            if (ptr > dataPtr) {
+                state.SkipWithError("Read past end of buffer");
+                break;
+            }
+            result.push_back(value);
+        }
+    }
+}
+
+static void deserializeFixed32_little(benchmark::State& state) {
+
+    vector<uint32_t> data = constructData32();
+    uint8_t baseBuff[bigBuffSize];
+
+    uint8_t* dataPtr = baseBuff;
+    for (size_t i = 0; i != data.size(); ++i) {
+        dataPtr = bl2::serializeToStringFixedUint32(data[i], dataPtr);
+    }
+
+    vector<uint32_t> result;
+    result.reserve(dataSetSize);
+
+    while (state.KeepRunning()) {
+
+        result.clear();
+        uint8_t* ptr = baseBuff;
+        uint32_t value;
+
+        while (ptr != dataPtr) {
+            ptr = bl2::deserializeFromStringFixedUint32_little(value, ptr);
+            if (ptr > dataPtr) {
+                state.SkipWithError("Read past end of buffer");
+                break;
+            }
+            result.push_back(value);
+        }
+    }
+}
+
+static void deserializeFixed32_loop(benchmark::State& state) {
+
+    vector<uint32_t> data = constructData32();
+    uint8_t baseBuff[bigBuffSize];
+
+    uint8_t* dataPtr = baseBuff;
+    for (size_t i = 0; i != data.size(); ++i) {
+        dataPtr = bl2::serializeToStringFixedUint32(data[i], dataPtr);
+    }
+
+    vector<uint32_t> result;
+    result.reserve(dataSetSize);
+
+    while (state.KeepRunning()) {
+
+        result.clear();
+        uint8_t* ptr = baseBuff;
+        uint32_t value;
+
+        while (ptr != dataPtr) {
+            ptr = bl2::deserializeFromStringFixedUint32_loop(value, ptr);
+            if (ptr > dataPtr) {
+                state.SkipWithError("Read past end of buffer");
+                break;
+            }
+            result.push_back(value);
+        }
+    }
+}
+
+static void deserializeFloat(benchmark::State& state) {
+
+    vector<uint32_t> data = constructData32();
+    uint8_t baseBuff[bigBuffSize];
+
+    uint8_t* dataPtr = baseBuff;
+    for (size_t i = 0; i != data.size(); ++i) {
+        dataPtr = bl2::serializeToStringFixedUint32(data[i], dataPtr);
+    }
+
+    vector<float> result;
+    result.reserve(dataSetSize);
+
+    while (state.KeepRunning()) {
+
+        result.clear();
+        uint8_t* ptr = baseBuff;
+        uint32_t value;
+
+        while (ptr != dataPtr) {
+            ptr = bl2::deserializeFromStringFixedUint32(value, ptr);
+            if (ptr > dataPtr) {
+                state.SkipWithError("Read past end of buffer");
+                break;
+            }
+            result.push_back(*reinterpret_cast<float*>(&value));
+        }
+    }
+}
+
+static void deserializeFloat_little(benchmark::State& state) {
+
+    vector<uint32_t> data = constructData32();
+    uint8_t baseBuff[bigBuffSize];
+
+    uint8_t* dataPtr = baseBuff;
+    for (size_t i = 0; i != data.size(); ++i) {
+        dataPtr = bl2::serializeToStringFixedUint32(data[i], dataPtr);
+    }
+
+    vector<float> result;
+    result.reserve(dataSetSize);
+
+    while (state.KeepRunning()) {
+
+        result.clear();
+        uint8_t* ptr = baseBuff;
+        uint32_t value;
+
+        while (ptr != dataPtr) {
+            ptr = bl2::deserializeFromStringFixedUint32_little(value, ptr);
+            if (ptr > dataPtr) {
+                state.SkipWithError("Read past end of buffer");
+                break;
+            }
+            result.push_back(*reinterpret_cast<float*>(&value));
+        }
+    }
+}
+
+static void deserializeFloat_loop(benchmark::State& state) {
+
+    vector<uint32_t> data = constructData32();
+    uint8_t baseBuff[bigBuffSize];
+
+    uint8_t* dataPtr = baseBuff;
+    for (size_t i = 0; i != data.size(); ++i) {
+        dataPtr = bl2::serializeToStringFixedUint32(data[i], dataPtr);
+    }
+
+    vector<float> result;
+    result.reserve(dataSetSize);
+
+    while (state.KeepRunning()) {
+
+        result.clear();
+        uint8_t* ptr = baseBuff;
+        uint32_t value;
+
+        while (ptr != dataPtr) {
+            ptr = bl2::deserializeFromStringFixedUint32_loop(value, ptr);
+            if (ptr > dataPtr) {
+                state.SkipWithError("Read past end of buffer");
+                break;
+            }
+            result.push_back(*reinterpret_cast<float*>(&value));
+        }
+    }
+}
+
+
 
 static void serializeString(benchmark::State& state) {
 
@@ -559,28 +582,27 @@ static void bl2_deserializeString(benchmark::State& state) {
     }
 }
 
-//BENCHMARK(serializeVarIntToFile);
-//BENCHMARK(bl2_serializeVarIntToFile);
-//BENCHMARK(checkSerializeVarInt);
-//BENCHMARK(serializeVarInt)->Repetitions(10);
-//BENCHMARK(bl2_serializeVarInt)->Repetitions(10);
+BENCHMARK(serializeVarInt);
+BENCHMARK(serializeVarInt_loop);
+BENCHMARK(deserializeVarInt);
+BENCHMARK(deserializeVarInt_loop);
 
-//BENCHMARK(deserializeVarInt)->Repetitions(10);
-//BENCHMARK(bl2_deserializeVarInt)->Repetitions(10);
+BENCHMARK(serializeFixed64);
+BENCHMARK(serializeFixed64_little);
+BENCHMARK(deserializeFixed64);
+BENCHMARK(deserializeFixed64_little);
 
-//BENCHMARK(serializeDoubleToFile);
-//BENCHMARK(bl2_serializeDoubleToFile);
+BENCHMARK(serializeFixed32);
+BENCHMARK(serializeFixed32_little);
+BENCHMARK(serializeFixed32_loop);
+BENCHMARK(deserializeFixed32);
+BENCHMARK(deserializeFixed32_little);
+BENCHMARK(deserializeFixed32_loop);
 
-//BENCHMARK(checkSerializeDouble);
-//BENCHMARK(serializeDouble)->Repetitions(10);
-BENCHMARK(bl2_serializeDouble)->Repetitions(10);
+BENCHMARK(deserializeFloat);
+BENCHMARK(deserializeFloat_little);
+BENCHMARK(deserializeFloat_loop);
 
-//BENCHMARK(deserializeDouble)->Repetitions(10);
-BENCHMARK(bl2_deserializeDouble)->Repetitions(10);
-
-//BENCHMARK(serializeFloatToFile);
-BENCHMARK(bl2_serializeFloat)->Repetitions(10);
-BENCHMARK(bl2_deserializeFloat)->Repetitions(10);
 
 //BENCHMARK(serializeString);
 //BENCHMARK(serializeString);
