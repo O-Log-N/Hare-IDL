@@ -32,8 +32,7 @@ uint8_t* serializeToStringVariantUint64_loop(uint64_t value, uint8_t* buff)
 {
     while (value >= 0x80)
     {
-        *buff = value & 0x7f;
-        *(buff++) |= 0x80;
+        *(buff++) = (value & 0x7f) | 0x80;
         value >>= 7;
     }
     *buff = value & 0x7f;
@@ -65,17 +64,46 @@ uint8_t* deserializeFromStringVariantUint64_loop(uint64_t& value, uint8_t* buff)
 mb: manual loop unrool seems to be detrimental for this particular case.
 */
 
-//TODO: unrool
 uint8_t* serializeToStringVariantUint64(uint64_t value, uint8_t* buff)
 {
-    while (value >= 0x80)
-    {
-        *buff = value & 0x7f;
-        *(buff++) |= 0x80;
+    if (value > 0x7f) {
+        *(buff++) = (value & 0x7f) | 0x80;
         value >>= 7;
+        if (value > 0x7f) {
+            *(buff++) = (value & 0x7f) | 0x80;
+            value >>= 7;
+            if (value > 0x7f) {
+                *(buff++) = (value & 0x7f) | 0x80;
+                value >>= 7;
+                if (value > 0x7f) {
+                    *(buff++) = (value & 0x7f) | 0x80;
+                    value >>= 7;
+                    if (value > 0x7f) {
+                        *(buff++) = (value & 0x7f) | 0x80;
+                        value >>= 7;
+                        if (value > 0x7f) {
+                            *(buff++) = (value & 0x7f) | 0x80;
+                            value >>= 7;
+                            if (value > 0x7f) {
+                                *(buff++) = (value & 0x7f) | 0x80;
+                                value >>= 7;
+                                if (value > 0x7f) {
+                                    *(buff++) = (value & 0x7f) | 0x80;
+                                    value >>= 7;
+                                    if (value > 0x7f) {
+                                        *(buff++) = (value & 0x7f) | 0x80;
+                                        value >>= 7;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
     }
-    *buff = value & 0x7f;
-    ++buff;
+    *(buff++) = value & 0x7f;
     return buff;
 }
 
@@ -160,6 +188,74 @@ uint8_t* deserializeFromStringFixedUint64_little(uint64_t& value, uint8_t* buff)
 
 uint8_t* serializeToStringFixedUint64(uint64_t value, uint8_t* buff)
 {
+    *(buff++) = value & 0xff;
+    value >>= 8;
+    *(buff++) = value & 0xff;
+    value >>= 8;
+    *(buff++) = value & 0xff;
+    value >>= 8;
+    *(buff++) = value & 0xff;
+    value >>= 8;
+    *(buff++) = value & 0xff;
+    value >>= 8;
+    *(buff++) = value & 0xff;
+    value >>= 8;
+    *(buff++) = value & 0xff;
+    value >>= 8;
+    *(buff++) = value & 0xff;
+    return buff;
+}
+
+uint8_t* serializeToStringFixedUint64_2(uint64_t value, uint8_t* buff)
+{
+    buff[0] = value & 0xff;
+    buff[1] = (value >> 8) & 0xff;
+    buff[2] = (value >> 16) & 0xff;
+    buff[3] = (value >> 24) & 0xff;
+    buff[4] = (value >> 32) & 0xff;
+    buff[5] = (value >> 40) & 0xff;
+    buff[6] = (value >> 48) & 0xff;
+    buff[7] = (value >> 56) & 0xff;
+    
+    return buff + 8;
+}
+
+uint8_t* deserializeFromStringFixedUint64(uint64_t& value, uint8_t* buff)
+{
+    value = 0;
+
+    value |= uint64_t(*(buff++));
+    value |= uint64_t(*(buff++)) << 8;
+    value |= uint64_t(*(buff++)) << 16;
+    value |= uint64_t(*(buff++)) << 24;
+    value |= uint64_t(*(buff++)) << 32;
+    value |= uint64_t(*(buff++)) << 40;
+    value |= uint64_t(*(buff++)) << 48;
+    value |= uint64_t(*(buff++)) << 56;
+
+    return buff;
+}
+
+uint8_t* deserializeFromStringFixedUint64_2(uint64_t& value, uint8_t* buff)
+{
+    value = 0;
+
+    value |= uint64_t(buff[0]);
+    value |= uint64_t(buff[1]) << 8;
+    value |= uint64_t(buff[2]) << 16;
+    value |= uint64_t(buff[3]) << 24;
+    value |= uint64_t(buff[4]) << 32;
+    value |= uint64_t(buff[5]) << 40;
+    value |= uint64_t(buff[6]) << 48;
+    value |= uint64_t(buff[7]) << 56;
+
+    return buff + 8;
+}
+
+
+
+uint8_t* serializeToStringFixedUint64_loop(uint64_t value, uint8_t* buff)
+{
     for (int ctr = 0; ctr < 8; ++ctr)
     {
         *(buff++) = value & 0xff;
@@ -168,7 +264,7 @@ uint8_t* serializeToStringFixedUint64(uint64_t value, uint8_t* buff)
     return buff;
 }
 
-uint8_t* deserializeFromStringFixedUint64(uint64_t& value, uint8_t* buff)
+uint8_t* deserializeFromStringFixedUint64_loop(uint64_t& value, uint8_t* buff)
 {
     value = 0;
     uint64_t tmp;
@@ -214,12 +310,34 @@ uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff)
 {
     value = 0;
 
-    value |= *(buff++);
-    value |= *(buff++) << 8;
-    value |= *(buff++) << 16;
-    value |= *(buff++) << 24;
+    value |= uint32_t(*(buff++));
+    value |= uint32_t(*(buff++)) << 8;
+    value |= uint32_t(*(buff++)) << 16;
+    value |= uint32_t(*(buff++)) << 24;
 
     return buff;
+}
+
+uint8_t* serializeToStringFixedUint32_2(uint32_t value, uint8_t* buff)
+{
+    buff[0] = value & 0xff;
+    buff[1] = (value >> 8) & 0xff;
+    buff[2] = (value >> 16) & 0xff;
+    buff[3] = (value >> 24) & 0xff;
+
+    return buff + 4;
+}
+
+uint8_t* deserializeFromStringFixedUint32_2(uint32_t& value, uint8_t* buff)
+{
+    value = 0;
+
+    value |= uint32_t(buff[0]);
+    value |= uint32_t(buff[1]) << 8;
+    value |= uint32_t(buff[2]) << 16;
+    value |= uint32_t(buff[3]) << 24;
+
+    return buff + 4;
 }
 
 uint8_t* serializeToStringFixedUint32_loop(uint32_t value, uint8_t* buff)
