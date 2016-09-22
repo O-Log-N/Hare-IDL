@@ -12,7 +12,7 @@ foreach(flag_var
   endif()
 endforeach()
 
-SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /GL" )
+SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /Ox /GL" )
 SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /LTCG" )
 
 # SET(protobuf_BUILD_TESTS OFF CACHE BOOL "Build tests")

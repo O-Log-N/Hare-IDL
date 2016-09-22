@@ -99,9 +99,11 @@ uint8_t* serializeToStringFixedUint64(uint64_t value, uint8_t* buff);
 uint8_t* serializeToStringFixedUint64_2(uint64_t value, uint8_t* buff);
 uint8_t* deserializeFromStringFixedUint64(uint64_t& value, uint8_t* buff);
 uint8_t* deserializeFromStringFixedUint64_2(uint64_t& value, uint8_t* buff);
+uint8_t* deserializeFromStringFixedUint64_3(uint64_t& value, uint8_t* buff);
 
 uint8_t* serializeToStringFixedUint64_loop(uint64_t value, uint8_t* buff);
 uint8_t* deserializeFromStringFixedUint64_loop(uint64_t& value, uint8_t* buff);
+uint8_t* serializeToStringFixedUint64_loop2(uint64_t value, uint8_t* buff);
 
 ///////////////////////////     WIRE_TYPE::FIXED_32_BIT    ////////////////////////////////////
 
@@ -113,9 +115,11 @@ uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff);
 
 uint8_t* serializeToStringFixedUint32_2(uint32_t value, uint8_t* buff);
 uint8_t* deserializeFromStringFixedUint32_2(uint32_t& value, uint8_t* buff);
+uint8_t* deserializeFromStringFixedUint32_3(uint32_t& value, uint8_t* buff);
 
 uint8_t* serializeToStringFixedUint32_loop(uint32_t value, uint8_t* buff);
 uint8_t* deserializeFromStringFixedUint32_loop(uint32_t& value, uint8_t* buff);
+uint8_t* serializeToStringFixedUint32_loop2(uint32_t value, uint8_t* buff);
 
 ///////////////////////////     WIRE_TYPE::LENGTH_DELIMITED    ////////////////////////////////////
 
