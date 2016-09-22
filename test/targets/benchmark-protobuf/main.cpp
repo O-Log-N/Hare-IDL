@@ -354,13 +354,13 @@ static void bl2_deserializeString(benchmark::State& state) {
     }
 }
 
-BENCHMARK(serializeVarInt_loop);
 BENCHMARK(serializeVarInt);
+BENCHMARK(serializeVarInt_loop);
 
 BENCHMARK(serializeFixed64_little);
+BENCHMARK(serializeFixed64);
 BENCHMARK(serializeFixed64_2);
 BENCHMARK(serializeFixed64_loop);
-BENCHMARK(serializeFixed64);
 BENCHMARK(serializeFixed64_loop2);
 
 BENCHMARK(serializeFixed32_little);
@@ -369,21 +369,19 @@ BENCHMARK(serializeFixed32_2);
 BENCHMARK(serializeFixed32_loop);
 BENCHMARK(serializeFixed32_loop2);
 
-
 BENCHMARK(deserializeVarInt);
 BENCHMARK(deserializeVarInt_loop);
 
 BENCHMARK(deserializeFixed64_little);
 BENCHMARK(deserializeFixed64);
-BENCHMARK(deserializeFixed64_3);
 BENCHMARK(deserializeFixed64_2);
+BENCHMARK(deserializeFixed64_3);
 BENCHMARK(deserializeFixed64_loop);
-
 
 BENCHMARK(deserializeFixed32_little);
 BENCHMARK(deserializeFixed32);
-BENCHMARK(deserializeFixed32_3);
 BENCHMARK(deserializeFixed32_2);
+BENCHMARK(deserializeFixed32_3);
 BENCHMARK(deserializeFixed32_loop);
 
 //BENCHMARK(serializeString);
