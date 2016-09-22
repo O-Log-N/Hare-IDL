@@ -21,6 +21,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <assert.h>
 #include <stdio.h>
 #include <string>
+#include <cstring>
+
 using namespace std;
 
 #ifdef _MSC_VER
