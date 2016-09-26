@@ -31,6 +31,8 @@ add_subdirectory(../../../3rdparty/benchmark benchmark EXCLUDE_FROM_ALL)
 
 add_executable(benchmarkProtobuf
   main.cpp
+  baselib_func_benchmark.h
+  baselib_func_benchmark.cpp
   ../../../src/targets/cpp/include/protobuf/baselib.h
   ../../../src/targets/cpp/libsrc/protobuf/baselib.cpp
   ../../../src/targets/cpp/include/protobuf/baselib2.h

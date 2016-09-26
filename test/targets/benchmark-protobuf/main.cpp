@@ -16,7 +16,7 @@ Copyright (C) 2016 OLogN Technologies AG
 *******************************************************************************/
 
 #include "protobuf/baselib.h"
-#include "protobuf/baselib2.h"
+#include "baselib_func_benchmark.h"
 
 #include "benchmark/benchmark.h"
 
@@ -173,186 +173,107 @@ vector<string> constructDataString()
 #define DESERIALIZE_VAR_INT(FUNC) DESERIALIZE_GENERIC(uint64_t, serializeToStringVariantUint64, FUNC)
 
 void serializeVarInt(benchmark::State& state) {
-    SERIALIZE_VAR_INT(bl2::serializeToStringVariantUint64);
+    SERIALIZE_VAR_INT(bnchmrk::serializeToStringVariantUint64);
 }
 
 void serializeVarInt_loop(benchmark::State& state) {
-    SERIALIZE_VAR_INT(bl2::serializeToStringVariantUint64_loop);
+    SERIALIZE_VAR_INT(bnchmrk::serializeToStringVariantUint64_loop);
 }
 
 static void deserializeVarInt(benchmark::State& state) {
-    DESERIALIZE_VAR_INT(bl2::deserializeFromStringVariantUint64);
+    DESERIALIZE_VAR_INT(bnchmrk::deserializeFromStringVariantUint64);
 }
 
 static void deserializeVarInt_loop(benchmark::State& state) {
-    DESERIALIZE_VAR_INT(bl2::deserializeFromStringVariantUint64_loop);
+    DESERIALIZE_VAR_INT(bnchmrk::deserializeFromStringVariantUint64_loop);
 }
 
-#define SERIALIZE_FIXED_64(FUNC) SERIALIZE_GENERIC(uint64_t, bl2::serializeToStringFixedUint64, FUNC)
-#define DESERIALIZE_FIXED_64(FUNC) DESERIALIZE_GENERIC(uint64_t, bl2::serializeToStringFixedUint64, FUNC)
+#define SERIALIZE_FIXED_64(FUNC) SERIALIZE_GENERIC(uint64_t, bnchmrk::serializeToStringFixedUint64, FUNC)
+#define DESERIALIZE_FIXED_64(FUNC) DESERIALIZE_GENERIC(uint64_t, bnchmrk::serializeToStringFixedUint64, FUNC)
 
 void serializeFixed64(benchmark::State& state) {
-    SERIALIZE_FIXED_64(bl2::serializeToStringFixedUint64);
+    SERIALIZE_FIXED_64(bnchmrk::serializeToStringFixedUint64);
 }
 
 void serializeFixed64_2(benchmark::State& state) {
-    SERIALIZE_FIXED_64(bl2::serializeToStringFixedUint64_2);
+    SERIALIZE_FIXED_64(bnchmrk::serializeToStringFixedUint64_2);
 }
 
 void serializeFixed64_little(benchmark::State& state) {
-    SERIALIZE_FIXED_64(bl2::serializeToStringFixedUint64_little);
+    SERIALIZE_FIXED_64(bnchmrk::serializeToStringFixedUint64_little);
 }
 
 void serializeFixed64_loop(benchmark::State& state) {
-    SERIALIZE_FIXED_64(bl2::serializeToStringFixedUint64_loop);
+    SERIALIZE_FIXED_64(bnchmrk::serializeToStringFixedUint64_loop);
 }
 
 void serializeFixed64_loop2(benchmark::State& state) {
-    SERIALIZE_FIXED_64(bl2::serializeToStringFixedUint64_loop2);
+    SERIALIZE_FIXED_64(bnchmrk::serializeToStringFixedUint64_loop2);
 }
 
 static void deserializeFixed64(benchmark::State& state) {
-    DESERIALIZE_FIXED_64(bl2::deserializeFromStringFixedUint64);
+    DESERIALIZE_FIXED_64(bnchmrk::deserializeFromStringFixedUint64);
 }
 
 static void deserializeFixed64_2(benchmark::State& state) {
-    DESERIALIZE_FIXED_64(bl2::deserializeFromStringFixedUint64_2);
+    DESERIALIZE_FIXED_64(bnchmrk::deserializeFromStringFixedUint64_2);
 }
 
 static void deserializeFixed64_3(benchmark::State& state) {
-    DESERIALIZE_FIXED_64(bl2::deserializeFromStringFixedUint64_3);
+    DESERIALIZE_FIXED_64(bnchmrk::deserializeFromStringFixedUint64_3);
 }
 
 static void deserializeFixed64_little(benchmark::State& state) {
-    DESERIALIZE_FIXED_64(bl2::deserializeFromStringFixedUint64_little);
+    DESERIALIZE_FIXED_64(bnchmrk::deserializeFromStringFixedUint64_little);
 }
 
 static void deserializeFixed64_loop(benchmark::State& state) {
-    DESERIALIZE_FIXED_64(bl2::deserializeFromStringFixedUint64_loop);
+    DESERIALIZE_FIXED_64(bnchmrk::deserializeFromStringFixedUint64_loop);
 }
 
-#define SERIALIZE_FIXED_32(FUNC) SERIALIZE_GENERIC(uint32_t, bl2::serializeToStringFixedUint32, FUNC)
-#define DESERIALIZE_FIXED_32(FUNC) DESERIALIZE_GENERIC(uint32_t, bl2::serializeToStringFixedUint32, FUNC)
+#define SERIALIZE_FIXED_32(FUNC) SERIALIZE_GENERIC(uint32_t, bnchmrk::serializeToStringFixedUint32, FUNC)
+#define DESERIALIZE_FIXED_32(FUNC) DESERIALIZE_GENERIC(uint32_t, bnchmrk::serializeToStringFixedUint32, FUNC)
 
 void serializeFixed32(benchmark::State& state) {
-    SERIALIZE_FIXED_32(bl2::serializeToStringFixedUint32);
+    SERIALIZE_FIXED_32(bnchmrk::serializeToStringFixedUint32);
 }
 
 static void serializeFixed32_2(benchmark::State& state) {
-    SERIALIZE_FIXED_32(bl2::serializeToStringFixedUint32_2);
+    SERIALIZE_FIXED_32(bnchmrk::serializeToStringFixedUint32_2);
 }
 
 static void serializeFixed32_little(benchmark::State& state) {
-    SERIALIZE_FIXED_32(bl2::serializeToStringFixedUint32_little);
+    SERIALIZE_FIXED_32(bnchmrk::serializeToStringFixedUint32_little);
 }
 
 static void serializeFixed32_loop(benchmark::State& state) {
-    SERIALIZE_FIXED_32(bl2::serializeToStringFixedUint32_loop);
+    SERIALIZE_FIXED_32(bnchmrk::serializeToStringFixedUint32_loop);
 }
 
 static void serializeFixed32_loop2(benchmark::State& state) {
-    SERIALIZE_FIXED_32(bl2::serializeToStringFixedUint32_loop2);
+    SERIALIZE_FIXED_32(bnchmrk::serializeToStringFixedUint32_loop2);
 }
 
 static void deserializeFixed32(benchmark::State& state) {
-    DESERIALIZE_FIXED_32(bl2::deserializeFromStringFixedUint32);
+    DESERIALIZE_FIXED_32(bnchmrk::deserializeFromStringFixedUint32);
 }
 
 static void deserializeFixed32_2(benchmark::State& state) {
-    DESERIALIZE_FIXED_32(bl2::deserializeFromStringFixedUint32_2);
+    DESERIALIZE_FIXED_32(bnchmrk::deserializeFromStringFixedUint32_2);
 }
 
 static void deserializeFixed32_3(benchmark::State& state) {
-    DESERIALIZE_FIXED_32(bl2::deserializeFromStringFixedUint32_3);
+    DESERIALIZE_FIXED_32(bnchmrk::deserializeFromStringFixedUint32_3);
 }
 
 static void deserializeFixed32_little(benchmark::State& state) {
-    DESERIALIZE_FIXED_32(bl2::deserializeFromStringFixedUint32_little);
+    DESERIALIZE_FIXED_32(bnchmrk::deserializeFromStringFixedUint32_little);
 }
 
 static void deserializeFixed32_loop(benchmark::State& state) {
-    DESERIALIZE_FIXED_32(bl2::deserializeFromStringFixedUint32_loop);
+    DESERIALIZE_FIXED_32(bnchmrk::deserializeFromStringFixedUint32_loop);
 }
 
-static void serializeString(benchmark::State& state) {
-
-    vector<string> data = constructDataString();
-    while (state.KeepRunning()) {
-        FILE* out = fopen("string.protobuf.bin", "w+b");
-        OProtobufStream os(out);
-        for (size_t i = 0; i != data.size(); ++i) {
-            os.writeString(i, data[i]);
-        }
-        fclose(out);
-    }
-}
-
-static void bl2_serializeString(benchmark::State& state) {
-
-    vector<string> data = constructDataString();
-    while (state.KeepRunning()) {
-
-        FILE* out = fopen("string2.protobuf.bin", "w+b");
-
-        typedef bl2::OProtobufStream<bl2::FileWriter> OS;
-
-        uint8_t baseBuff[bigBuffSize];
-        bl2::FileWriter wr(out);
-        OS os(baseBuff, bigBuffSize, wr);
-        for (size_t i = 0; i != data.size(); ++i) {
-            os.writeString(i, data[i]);
-        }
-        os.flush();
-        fclose(out);
-    }
-}
-
-static void deserializeString(benchmark::State& state) {
-
-    while (state.KeepRunning()) {
-
-        uint8_t baseBuff[bigBuffSize];
-        FILE* in = fopen("string.protobuf.bin", "rb");
-        size_t sz = fread(baseBuff, 1, bigBuffSize, in);
-        assert(sz < bigBuffSize);
-
-
-        IProtobufStream is(baseBuff, sz);
-        int field;
-        int type;
-        string value;
-        while (!is.isEndOfStream()) {
-            if (is.readFieldTypeAndID(type, field));
-                is.readString(value);
-        }
-
-        fclose(in);
-    }
-}
-
-static void bl2_deserializeString(benchmark::State& state) {
-
-    typedef bl2::IProtobufStream<bl2::FileReader> IS;
-
-    while (state.KeepRunning()) {
-
-        uint8_t baseBuff[bigBuffSize];
-        FILE* in = fopen("string.protobuf.bin", "rb");
-
-        bl2::FileReader rd(in);
-        bl2::IProtobufBuffer<bl2::FileReader> buff(baseBuff, bigBuffSize, rd);
-        IS is(buff);
-        int field;
-        int type;
-        string value;
-        while (!is.isEndOfStream()) {
-            if (is.readFieldTypeAndID(type, field))
-                is.readString(value);
-        }
-
-        fclose(in);
-    }
-}
 
 BENCHMARK(serializeVarInt);
 BENCHMARK(serializeVarInt_loop);
@@ -384,24 +305,6 @@ BENCHMARK(deserializeFixed32_2);
 BENCHMARK(deserializeFixed32_3);
 BENCHMARK(deserializeFixed32_loop);
 
-//BENCHMARK(serializeString);
-//BENCHMARK(serializeString);
-//BENCHMARK(bl2_serializeString);
-
-//BENCHMARK(deserializeString)->Repetitions(10);
-//BENCHMARK(bl2_deserializeString)->Repetitions(10);
 
 BENCHMARK_MAIN();
 
-/*
-int main()
-{
-    vector<int64_t> data = constructData64();
-    FILE* out = fopen("baselib2.protobuf.bin", "w+b");
-    bl2::OProtobufStream os(out);
-    for (size_t i = 0; i != data.size(); ++i) {
-        os.writeInt(i, data[i]);
-    }
-//    fclose(out);
-}
-*/

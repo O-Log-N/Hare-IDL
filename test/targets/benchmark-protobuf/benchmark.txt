@@ -1,0 +1,196 @@
+Using built-in specs.
+COLLECT_GCC=gcc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/5/lto-wrapper
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu 5.2.1-22ubuntu2' --with-bugurl=file:///usr/share/doc/gcc-5/README.Bugs --enable-languages=c,ada,c++,java,go,d,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-5 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-libmpx --enable-plugin --with-system-zlib --disable-browser-plugin --enable-java-awt=gtk --enable-gtk-cairo --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-5-amd64/jre --enable-java-home --with-jvm-root-dir=/usr/lib/jvm/java-1.5.0-gcj-5-amd64 --with-jvm-jar-dir=/usr/lib/jvm-exports/java-1.5.0-gcj-5-amd64 --with-arch-directory=amd64 --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --enable-objc-gc --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu
+Thread model: posix
+gcc version 5.2.1 20151010 (Ubuntu 5.2.1-22ubuntu2)
+
+
+
+ubuntu@ip-172-31-14-122:~/Hare-IDL/build$ ./benchmarkProtobuf
+Run on (2 X 2793.38 MHz CPU s)
+2016-09-22 18:29:26
+Benchmark                          Time           CPU Iterations
+----------------------------------------------------------------
+serializeVarInt_loop          102223 ns     102222 ns       6844
+serializeVarInt                52872 ns      52870 ns      13231
+serializeFixed64_little        15807 ns      15807 ns      44329
+serializeFixed64_2             35933 ns      35932 ns      19483
+serializeFixed64_loop          35897 ns      35897 ns      19512
+serializeFixed64               35931 ns      35930 ns      19500
+serializeFixed64_loop2         35927 ns      35927 ns      19496
+serializeFixed32_little        30779 ns      30779 ns      22761
+serializeFixed32               41234 ns      41234 ns      16974
+serializeFixed32_2             41268 ns      41268 ns      16979
+serializeFixed32_loop          41272 ns      41270 ns      16952
+serializeFixed32_loop2         41257 ns      41258 ns      16960
+deserializeVarInt             113430 ns     113428 ns       6167
+deserializeVarInt_loop        107683 ns     107683 ns       6498
+deserializeFixed64_little      23331 ns      23330 ns      30018
+deserializeFixed64             47018 ns      47018 ns      14888
+deserializeFixed64_3           23343 ns      23343 ns      29974
+deserializeFixed64_2           46985 ns      46984 ns      14888
+deserializeFixed64_loop        46992 ns      46990 ns      14876
+deserializeFixed32_little      53188 ns      53187 ns      13158
+deserializeFixed32             62101 ns      62101 ns      11260
+deserializeFixed32_3           46561 ns      46560 ns      15035
+deserializeFixed32_2           62162 ns      62160 ns      11253
+deserializeFixed32_loop        61973 ns      61973 ns      11278
+
+
+ubuntu@ip-172-31-14-122:~/Hare-IDL/build$ ./benchmarkProtobuf
+Run on (2 X 2793.38 MHz CPU s)
+2016-09-22 19:04:53
+Benchmark                          Time           CPU Iterations
+----------------------------------------------------------------
+serializeVarInt                52912 ns      52910 ns      13217
+serializeVarInt_loop          102046 ns     102046 ns       6858
+serializeFixed64_little        15798 ns      15798 ns      44314
+serializeFixed64               35815 ns      35815 ns      19532
+serializeFixed64_2             35826 ns      35825 ns      19544
+serializeFixed64_loop          35819 ns      35819 ns      19540
+serializeFixed64_loop2         35820 ns      35820 ns      19540
+serializeFixed32_little        30771 ns      30771 ns      22755
+serializeFixed32               41364 ns      41362 ns      16918
+serializeFixed32_2             41383 ns      41382 ns      16916
+serializeFixed32_loop          41384 ns      41384 ns      16914
+serializeFixed32_loop2         41396 ns      41395 ns      16922
+deserializeVarInt             113495 ns     113493 ns       6166
+deserializeVarInt_loop        107737 ns     107736 ns       6499
+deserializeFixed64_little      23294 ns      23293 ns      30051
+deserializeFixed64             46866 ns      46865 ns      14921
+deserializeFixed64_2           46915 ns      46915 ns      14918
+deserializeFixed64_3           23326 ns      23326 ns      30037
+deserializeFixed64_loop        46874 ns      46874 ns      14915
+deserializeFixed32_little      53215 ns      53214 ns      13163
+deserializeFixed32             61547 ns      61545 ns      11364
+deserializeFixed32_2           62200 ns      62199 ns      11278
+deserializeFixed32_3           46630 ns      46628 ns      15019
+deserializeFixed32_loop        62241 ns      62240 ns      11250
+
+
+Windows 64bits
+
+C:\Projects\o-log-n\build\benchmark-ninja>benchmarkProtobuf.exe
+Run on (4 X 2394 MHz CPU s)
+09/22/16 16:33:51
+Benchmark                          Time           CPU Iterations
+----------------------------------------------------------------
+serializeVarInt                65407 ns      65569 ns      11200
+serializeVarInt_loop           67944 ns      68359 ns      11200
+serializeFixed64_little         7362 ns       7324 ns      89600
+serializeFixed64               34228 ns      33692 ns      21333
+serializeFixed64_2             33841 ns      33900 ns      16593
+serializeFixed64_loop          33141 ns      33482 ns      22400
+serializeFixed64_loop2         73385 ns      73242 ns       8960
+serializeFixed32_little        19727 ns      19496 ns      34462
+serializeFixed32               49730 ns      50000 ns      10000
+serializeFixed32_2             36154 ns      34390 ns      15448
+serializeFixed32_loop          40766 ns      40458 ns      22400
+serializeFixed32_loop2         58000 ns      59375 ns      10000
+deserializeVarInt              88107 ns      88937 ns       8960
+deserializeVarInt_loop        104440 ns     102539 ns       6400
+deserializeFixed64_little      18940 ns      18834 ns      37333
+deserializeFixed64             40692 ns      40806 ns      17231
+deserializeFixed64_2           43692 ns      43945 ns      16000
+deserializeFixed64_3           43605 ns      42969 ns      16000
+deserializeFixed64_loop        88183 ns      85794 ns       7467
+deserializeFixed32_little      36536 ns      36830 ns      18667
+deserializeFixed32             58656 ns      58594 ns      11200
+deserializeFixed32_2           59258 ns      58594 ns      11200
+deserializeFixed32_3           58418 ns      57199 ns      11200
+deserializeFixed32_loop       131152 ns     131138 ns       5600
+
+C:\Projects\o-log-n\build\benchmark-ninja>benchmarkProtobuf.exe
+Run on (4 X 2394 MHz CPU s)
+09/22/16 16:34:52
+Benchmark                          Time           CPU Iterations
+----------------------------------------------------------------
+serializeVarInt                66610 ns      66267 ns       8960
+serializeVarInt_loop           67918 ns      68359 ns      11200
+serializeFixed64_little         7220 ns       7150 ns      89600
+serializeFixed64               31447 ns      31390 ns      22400
+serializeFixed64_2             32856 ns      32226 ns      20364
+serializeFixed64_loop          31828 ns      32226 ns      20364
+serializeFixed64_loop2         68812 ns      68011 ns       8960
+serializeFixed32_little        14577 ns      14439 ns      49778
+serializeFixed32               32482 ns      32227 ns      21333
+serializeFixed32_2             31684 ns      31459 ns      20364
+serializeFixed32_loop          32172 ns      32087 ns      22400
+serializeFixed32_loop2         58877 ns      58594 ns      11200
+deserializeVarInt              86971 ns      87887 ns       7467
+deserializeVarInt_loop        105274 ns     104627 ns       7467
+deserializeFixed64_little      18915 ns      19252 ns      37333
+deserializeFixed64             40559 ns      40981 ns      17920
+deserializeFixed64_2           43379 ns      43945 ns      16000
+deserializeFixed64_3           44079 ns      43945 ns      16000
+deserializeFixed64_loop        86406 ns      85794 ns       7467
+deserializeFixed32_little      36864 ns      36098 ns      19478
+deserializeFixed32             58534 ns      58594 ns      11200
+deserializeFixed32_2           59163 ns      59375 ns      10000
+deserializeFixed32_3           58918 ns      58594 ns      11200
+deserializeFixed32_loop       130675 ns     131830 ns       4978
+
+
+
+
+Windows 32bits
+Run on (4 X 2394 MHz CPU s)
+09/26/16 12:44:30
+Benchmark                          Time           CPU Iterations
+----------------------------------------------------------------
+serializeVarInt               156987 ns     157286 ns       4073
+serializeVarInt_loop          149457 ns     146484 ns       4480
+serializeFixed64_little        11216 ns      11230 ns      64000
+serializeFixed64               62502 ns      62779 ns      11200
+serializeFixed64_2             48800 ns      48652 ns      14452
+serializeFixed64_loop          50316 ns      50000 ns      10000
+serializeFixed64_loop2         97792 ns      97656 ns       6400
+serializeFixed32_little        15169 ns      15381 ns      49778
+serializeFixed32               33446 ns      32959 ns      21333
+serializeFixed32_2             31695 ns      31495 ns      21333
+serializeFixed32_loop          33852 ns      34180 ns      22400
+serializeFixed32_loop2         71929 ns      72545 ns      11200
+deserializeVarInt             158645 ns     160079 ns       4978
+deserializeVarInt_loop        299792 ns     304813 ns       2358
+deserializeFixed64_little      36608 ns      36901 ns      19478
+deserializeFixed64            128402 ns     128348 ns       5600
+deserializeFixed64_2          155716 ns     153450 ns       4073
+deserializeFixed64_3          137561 ns     138108 ns       4978
+deserializeFixed64_loop       304778 ns     299944 ns       2240
+deserializeFixed32_little      52389 ns      51618 ns      11200
+deserializeFixed32             60130 ns      59989 ns      11200
+deserializeFixed32_2           59057 ns      57813 ns      10000
+deserializeFixed32_3           59352 ns      59989 ns      11200
+deserializeFixed32_loop       123020 ns     124512 ns       6400
+
+C:\Projects\o-log-n\build\benchmark-ninja>benchmarkProtobuf.exe
+Run on (4 X 2394 MHz CPU s)
+09/26/16 12:45:22
+Benchmark                          Time           CPU Iterations
+----------------------------------------------------------------
+serializeVarInt               156325 ns     153460 ns       4480
+serializeVarInt_loop          147446 ns     147524 ns       4978
+serializeFixed64_little        11577 ns      11440 ns      56000
+serializeFixed64               62281 ns      62779 ns      11200
+serializeFixed64_2             48791 ns      48652 ns      14452
+serializeFixed64_loop          49437 ns      50000 ns      10000
+serializeFixed64_loop2        101566 ns     102534 ns       7467
+serializeFixed32_little        14723 ns      14648 ns      44800
+serializeFixed32               32345 ns      32959 ns      21333
+serializeFixed32_2             31863 ns      32227 ns      21333
+serializeFixed32_loop          33771 ns      33761 ns      20364
+serializeFixed32_loop2         71458 ns      72545 ns      11200
+deserializeVarInt             155023 ns     156948 ns       4480
+deserializeVarInt_loop        296431 ns     298187 ns       2358
+deserializeFixed64_little      36697 ns      36621 ns      17920
+deserializeFixed64            127227 ns     125558 ns       5600
+deserializeFixed64_2          157989 ns     160435 ns       4480
+deserializeFixed64_3          134940 ns     134969 ns       4978
+deserializeFixed64_loop       305012 ns     306920 ns       2240
+deserializeFixed32_little      53101 ns      53125 ns      10000
+deserializeFixed32             58151 ns      57199 ns      11200
+deserializeFixed32_2           61906 ns      62779 ns      11200
+deserializeFixed32_3           60921 ns      61384 ns      11200
+deserializeFixed32_loop       118821 ns     117188 ns       5600
