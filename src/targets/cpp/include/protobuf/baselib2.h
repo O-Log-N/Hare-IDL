@@ -136,8 +136,43 @@ constexpr size_t getFixedSize(float) { return 4; }
 constexpr size_t getFixedSize(double) { return 8; }
 
 
+/*
+    mb: Input / output stream using pool of buffers.
+    General idea is to aisolate / syncronize io threads from event queue thread
+    using a pool of fixed size buffers.
+    A pool of fixed size buffers allow to have them preallocated and reused them, 
+    but requires some tricks when a message does not fit in a single buffer and needs
+    to be splitted.
+
+    This implementation tries to minimize copy, based on following facts:
+    1. The encoding functions for a single value need a max buffer size of 
+        8 bytes for fixed64 or 10 bytes for varint.
+    2. Each element at protobuf is encoded as a varint tag followed by the value.
+        So the max size for encoding a non-string is 20 bytes.
+    3. To encoding / decoding strings need to copy to / from buffer the content
+        of the string anyway.
+
+    So, the general idea of the encoder is to verify we have 20 bytes left at the current buffer,
+    if we don't, begging with a new one.
+    The decoder will also check we have at least 20 bytes left in the current buffer,
+    if we don't, we copy the bytes left on the current buffer 'before' the first byte of the next buffer.
+    To do so, decoder buffers need to have a 'gap' at the front for this.
+    Strings are handled in special case, and always copy the content to as many buffers as needed.
+
+    This will allow to handle arbitrary size messages using one or more fixed size buffers,
+    and encoding / decoding on the buffer, without extra copy.
+
+    General working concept:
+    On the encoding side, encoding is made on the main loop thread over a set of empty buffers,
+    when encoding is done, the set of buffers is pased to the io thread for sending.
+    On the receive side, io thread receives a message on a set of empty buffers and passes them
+    to the main loop thread for decoding.
+    In this concept, the buffers are the main object shared between io and main loop threads,
+    and the main syncronization point. It should allow a very simple, robust and performing interface.
+*/
+
 const size_t MIN_BUFFER_LEFT = 20;
-const size_t VAR_INT_MAX_SIZE = 10;
+
 
 class FileWriter
 {
@@ -269,10 +304,9 @@ public:
 const size_t BUFFER_SIZE = 1024;
 
 struct BufferData {
-    static const size_t ReservedSize = MIN_BUFFER_LEFT + 1;
-
-    uint8_t* const buffer;
-    const size_t bufferSize;
+public:
+    uint8_t* buffer;
+    size_t bufferSize;
     uint8_t* beginPtr;
     uint8_t* endPtr;
     bool isLast;
@@ -282,6 +316,8 @@ struct BufferData {
         beginPtr(buffer + MIN_BUFFER_LEFT),
         endPtr(buffer + bufferSize - 1),
         isLast(false) {}
+
+    BufferData& operator=(const BufferData& other) = default;
 
     void reset() {
         beginPtr = buffer + MIN_BUFFER_LEFT;
@@ -387,6 +423,14 @@ public:
         else
             return alreadyRead + (dataPtr - current.beginPtr) == last;
     }
+
+    bool isGood(int value) const {
+        return current.endPtr - dataPtr >= value;
+    }
+
+    size_t getAlreadyRead() const {
+        return alreadyRead + (dataPtr - current.beginPtr);
+    }
 };
 
 
@@ -394,12 +438,15 @@ class IProtobufStream
 {
 private:
     IProtobufBuffer& buffer;
-    size_t last = SIZE_MAX;
+    const size_t last;
 
 public:
     IProtobufStream(IProtobufBuffer& buffer) :
-        buffer(buffer) {}
-
+        buffer(buffer), last(SIZE_MAX) {}
+private:
+    IProtobufStream(IProtobufBuffer& buffer, size_t last) :
+        buffer(buffer), last(last) {}
+public:
     //mb: need to diferentiate a 'clean' end of stream (at the end of a field),
     // from a stream ending in the middle of a read.
     bool isEndOfStream() const
@@ -413,7 +460,7 @@ public:
 
         buffer.dataPtr = deserializeHeaderFromString(fieldNumber, type, buffer.dataPtr);
         
-        return buffer.dataPtr <= buffer.dataEnd; //read past the end of buffer
+        return buffer.isGood(0); //read past the end of buffer
     }
 
     bool readVariantInt64(int64_t& x)
@@ -424,7 +471,7 @@ public:
         buffer.dataPtr = deserializeFromStringVariantUint64(preValue, buffer.dataPtr);
         x = uint64ToSint64(preValue);
 
-        return buffer.dataPtr <= buffer.dataEnd; //read past the end of buffer
+        return buffer.isGood(0); //read past the end of buffer
     }
 
 
@@ -434,14 +481,14 @@ public:
 
         buffer.dataPtr = deserializeFromStringVariantUint64(x, buffer.dataPtr);
 
-        return buffer.dataPtr <= buffer.dataEnd; //read past the end of buffer
+        return buffer.isGood(0); //read past the end of buffer
     }
 
     bool readFixed64Bit(double& x)
     {
         buffer.preRead();
 
-        if (buffer.dataEnd - buffer.dataPtr >= 8) {
+        if (buffer.isGood(8)) {
             uint64_t tmp;
             deserializeFromStringFixedUint64(tmp, buffer.dataPtr);
             x = *reinterpret_cast<double*>(&tmp);
@@ -456,7 +503,7 @@ public:
     {
         buffer.preRead();
 
-        if (buffer.dataEnd - buffer.dataPtr >= 4) {
+        if (buffer.isGood(4)) {
             uint32_t tmp;
             deserializeFromStringFixedUint32(tmp, buffer.dataPtr);
             x = *reinterpret_cast<float*>(&tmp);
@@ -478,30 +525,18 @@ public:
             return false;
     }
 
-    bool setAsSubStream(size_t subSize)
-    {
-        size_t current = buffer.alreadyRead + (buffer.dataPtr - buffer.buffer);
-
-        if (current + subSize <= last) {
-            last = current + subSize;
-            return true;
-        }
-        else
-            return false;
-    }
-
     IProtobufStream makeSubStream(bool& ok, size_t subSize)
     {
-        IProtobufStream sub(*this);
-        ok = sub.setAsSubStream(subSize);
+        size_t current = buffer.getAlreadyRead();
+        IProtobufStream sub(buffer, current + subSize);
+        ok = current + subSize <= last; 
         return sub;
     }
 
 };
 
 //mb
-template<class T>
-bool discardUnexpectedField(int fieldType, IProtobufStream<T>& i) {
+bool discardUnexpectedField(int fieldType, IProtobufStream& i) {
 
     // Unexpected field, just read and discard
     switch (fieldType)
@@ -524,7 +559,7 @@ bool discardUnexpectedField(int fieldType, IProtobufStream<T>& i) {
         bool readOk = i.readVariantUInt64(sz);
         if (!readOk)
             return false;
-        IProtobufStream<T> is = i.makeSubStream(readOk, sz);
+        IProtobufStream is = i.makeSubStream(readOk, sz);
         if (!readOk)
             return false;
 
