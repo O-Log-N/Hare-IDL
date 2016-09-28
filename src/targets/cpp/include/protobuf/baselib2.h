@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <deque>
 #include <assert.h>
 #include <stdio.h>
 #include <string>
@@ -73,14 +74,10 @@ int64_t uint64ToSint64(uint64_t src)
 }
 
 
-//uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff);
 uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff);
 
 
 ///////////////////////////   WIRE_TYPE::VARINT      ////////////////////////////////////
-
-uint8_t* serializeToStringVariantUint64_loop(uint64_t value, uint8_t* buff);
-uint8_t* deserializeFromStringVariantUint64_loop(uint64_t& value, uint8_t* buff);
 
 /*
     mb: serializeToStringVariantUint64 will read at most 10 bytes from buffer
@@ -94,34 +91,13 @@ uint8_t* deserializeFromStringVariantUint64(uint64_t& value, uint8_t* buff);
 
 ///////////////////////////   WIRE_TYPE::FIXED_64_BIT      ////////////////////////////////////
 
-uint8_t* serializeToStringFixedUint64_little(uint64_t value, uint8_t* buff);
-uint8_t* deserializeFromStringFixedUint64_little(uint64_t& value, uint8_t* buff);
-
 uint8_t* serializeToStringFixedUint64(uint64_t value, uint8_t* buff);
-uint8_t* serializeToStringFixedUint64_2(uint64_t value, uint8_t* buff);
 uint8_t* deserializeFromStringFixedUint64(uint64_t& value, uint8_t* buff);
-uint8_t* deserializeFromStringFixedUint64_2(uint64_t& value, uint8_t* buff);
-uint8_t* deserializeFromStringFixedUint64_3(uint64_t& value, uint8_t* buff);
-
-uint8_t* serializeToStringFixedUint64_loop(uint64_t value, uint8_t* buff);
-uint8_t* deserializeFromStringFixedUint64_loop(uint64_t& value, uint8_t* buff);
-uint8_t* serializeToStringFixedUint64_loop2(uint64_t value, uint8_t* buff);
 
 ///////////////////////////     WIRE_TYPE::FIXED_32_BIT    ////////////////////////////////////
 
-uint8_t* serializeToStringFixedUint32_little(uint32_t value, uint8_t* buff);
-uint8_t* deserializeFromStringFixedUint32_little(uint32_t& value, uint8_t* buff);
-
 uint8_t* serializeToStringFixedUint32(uint32_t value, uint8_t* buff);
 uint8_t* deserializeFromStringFixedUint32(uint32_t& value, uint8_t* buff);
-
-uint8_t* serializeToStringFixedUint32_2(uint32_t value, uint8_t* buff);
-uint8_t* deserializeFromStringFixedUint32_2(uint32_t& value, uint8_t* buff);
-uint8_t* deserializeFromStringFixedUint32_3(uint32_t& value, uint8_t* buff);
-
-uint8_t* serializeToStringFixedUint32_loop(uint32_t value, uint8_t* buff);
-uint8_t* deserializeFromStringFixedUint32_loop(uint32_t& value, uint8_t* buff);
-uint8_t* serializeToStringFixedUint32_loop2(uint32_t value, uint8_t* buff);
 
 ///////////////////////////     WIRE_TYPE::LENGTH_DELIMITED    ////////////////////////////////////
 
@@ -175,16 +151,7 @@ public:
         fwrite(buffer, size, 1, file);
     }
 };
-class NullWriter
-{
-public:
-    NullWriter() {}
 
-    void write(const void* buffer, size_t size)
-    {
-        ;//do-nothing
-    }
-};
 
 //MB end
 
@@ -197,19 +164,32 @@ protected:
     uint8_t* dataPtr;
     WR& wr;
 
-    void writeData(const string& data)
+    void writeData(const void* data, size_t size)
     {
-        flush();
-        wr.write(data.c_str(), data.size());
+        size_t left = size;
+        const void* ptr = data;
+
+        while (left > buffer + bufferSize - dataPtr) {
+            size_t sz = buffer + bufferSize - dataPtr;
+            mempcpy(dataPtr, ptr, sz);
+            left -= sz;
+            ptr += sz;
+            flush();
+            assert(left > 0);
+        }
+
+        assert(left <= buffer + bufferSize - dataPtr);
+        mempcpy(dataPtr, ptr, left);
+        assert(data + size == currentDataPtr + left);
+        postWrite();
     }
 
-    void write()
+    void postWrite()
     {
-        if(buffer + bufferSize - dataPtr > MIN_BUFFER_LEFT)
-            return;
-
-        flush();
+        if (buffer + bufferSize - dataPtr <= MIN_BUFFER_LEFT)
+            flush();
     }
+
 public:
     OProtobufStream(uint8_t* buffer, size_t bufferSize, WR& wr) :
         buffer(buffer), bufferSize(bufferSize), dataPtr(buffer), wr(wr) {}
@@ -247,136 +227,177 @@ public:
     void writeString(int fieldNumber, const std::string& x)
     {
         dataPtr = serializeLengthDelimitedHeaderToString(fieldNumber, x.size(), dataPtr);
-        writeData(x);
+        writeData(data.c_str(), data.size());
     }
 
     void writeObjectTagAndSize(int fieldNumber, size_t sz)
     {
         dataPtr = serializeLengthDelimitedHeaderToString(fieldNumber, sz, dataPtr);
-        write();
+        postWrite();
     }
 
     void writePackedSignedVarInt(int64_t x)
     {
         uint64_t unsig = sint64ToUint64(x);
         dataPtr = serializeToStringVariantUint64(unsig, dataPtr);
-        write();
+        postWrite();
     }
 
     void writePackedUnsignedVarInt(uint64_t x)
     {
         dataPtr = serializeToStringVariantUint64(x, dataPtr);
-        write();
+        postWrite();
     }
 
     void writePackedDouble(double x)
     {
         dataPtr = serializeToStringFixedUint64(*(uint64_t*)(&x), dataPtr);
-        write();
+        postWrite();
     }
 
     void writePackedFloat(float x)
     {
         dataPtr = serializeToStringFixedUint32(*(uint32_t*)(&x), dataPtr);
-        write();
+        postWrite();
     }
 };
 
-class FileReader
+/*
+    Every buffer must have MIN_BUFFER_LEFT empty bytes at the begging and
+    1 byte at the end
+*/
+const size_t BUFFER_SIZE = 1024;
+
+struct BufferData {
+    static const size_t ReservedSize = MIN_BUFFER_LEFT + 1;
+
+    uint8_t* const buffer;
+    const size_t bufferSize;
+    uint8_t* beginPtr;
+    uint8_t* endPtr;
+    bool isLast;
+
+    BufferData(uint8_t* buffer, size_t bufferSize) :
+        buffer(buffer), bufferSize(bufferSize),
+        beginPtr(buffer + MIN_BUFFER_LEFT),
+        endPtr(buffer + bufferSize - 1),
+        isLast(false) {}
+
+    void reset() {
+        beginPtr = buffer + MIN_BUFFER_LEFT;
+        endPtr = buffer + bufferSize - 1;
+        isLast = false;
+    }
+
+    bool needReplace(const uint8_t* dataPtr) const {
+        assert(dataPtr != 0);
+        size_t left = endPtr - dataPtr;
+        return !isLast && left < MIN_BUFFER_LEFT;
+    }
+
+    void copyLastFragment(const BufferData& other, const uint8_t* dataPtr) {
+        size_t left = other.endPtr - dataPtr;
+        assert(left < MIN_BUFFER_LEFT);
+
+        beginPtr -= left;
+
+        memcpy(beginPtr, dataPtr, left);
+    }
+
+    void setEnd(size_t dataSize, bool last) {
+        isLast = last;
+        endPtr = beginPtr + dataSize;
+        *endPtr = 0; //null terminate to avoid varint overrun
+    }
+
+};
+
+
+deque<BufferData> readFile(FILE* file)
 {
-private:
-    FILE* file;
-public:
-    FileReader(FILE* file) :file(file) {}
+    deque<BufferData> bufferPool;
+    bool isLast = false;
+    while (!isLast) {
+        uint8_t* ptr = static_cast<uint8_t*>(malloc(BUFFER_SIZE));
 
-    size_t read(const void* buffer, size_t size)
-    {
-        return fread(const_cast<void*>(buffer), 1, size, file);
+        BufferData buffer(ptr, BUFFER_SIZE);
+        size_t maxRead = buffer.endPtr - buffer.beginPtr;
+        size_t sz = fread(buffer.beginPtr, 1, maxRead, file);
+        isLast = sz != maxRead;
+        buffer.setEnd(sz, isLast);
+
+        bufferPool.push_back(buffer);
     }
-};
 
-template<class RD>
+    return bufferPool;
+}
+
 class IProtobufBuffer
 {
 public:
-    uint8_t* const buffer;
-    const size_t bufferSize;
+    deque<BufferData> bufferPool;
+    BufferData current;
     uint8_t* dataPtr;
-    uint8_t* dataEnd;
-    size_t discardedData = 0;
-    bool endOfInput = false;
-    RD& rd;
+    size_t alreadyRead = 0;
 
 
-    IProtobufBuffer(uint8_t* buffer, size_t bufferSize, RD& rd) :
-        buffer(buffer), bufferSize(bufferSize), dataPtr(buffer), dataEnd(buffer), rd(rd) {}
+    IProtobufBuffer(deque<BufferData> bp) :
+        bufferPool(bp), current(bp.front()), dataPtr(bp.front().beginPtr)
+    {
+        bufferPool.pop_front();
+    }
+
 
     void preRead()
     {
-        assert(dataPtr != 0);
-        size_t left = dataEnd - dataPtr;
-        if (left > MIN_BUFFER_LEFT || endOfInput)
-            return;
-
-        discardedData += dataPtr - buffer;
-        memcpy(buffer, dataPtr, left);
-        dataPtr = buffer;
-        dataEnd = buffer + left;
-
-        size_t toRead = bufferSize - 1 - left;
-
-        size_t sz = rd.read(dataEnd, toRead);
-
-        endOfInput = sz != toRead;
-        dataEnd += sz;
-        *dataEnd = 0; //to force stop reading VarInt past end of buffer
-
-        return;
+        if (current.needReplace(dataPtr)) {
+            alreadyRead += dataPtr - current.beginPtr;
+            BufferData next = bufferPool.front();
+            next.copyLastFragment(current, dataPtr);
+            current = next;
+            dataPtr = current.beginPtr;
+        }
     }
 
-    bool readData(std::string& data, size_t size)
+    bool readData(char* target, size_t size)
     {
-        data.resize(size);
 
-        size_t left = dataEnd - dataPtr;
-        if (size <= left) {
-            memcpy(const_cast<char*>(data.data()), dataPtr, size);
-            dataPtr += size;
-            return true;
+        size_t left = size;
+        while (left > current.endPtr - dataPtr) {
+            memcpy(target, dataPtr, current.endPtr - dataPtr);
+            dataPtr += current.endPtr - dataPtr;
+            left -= current.endPtr - dataPtr;
+            
+            if (current.isLast)
+                return false;
+
+            preRead();
         }
-        else {
-            memcpy(const_cast<char*>(data.data()), dataPtr, left);
-            discardedData += dataEnd - buffer; // dataPtr + left - buffer 
-            dataPtr = buffer;
-            dataEnd = buffer;
 
-            size_t toRead = size - left;
-            size_t sz = rd.read(data.data() + left, toRead);
-            discardedData += sz;
-            endOfInput = sz != toRead;
+        assert(left <= current.endPtr - dataPtr);
+        memcpy(target, dataPtr, left);
+        dataPtr += left;
 
-            return endOfInput;
-        }
+        return true;
     }
 
     bool isEndOfStream(size_t last) const {
         if (last == SIZE_MAX)
-            return (endOfInput && dataPtr == dataEnd);
+            return (current.isLast && dataPtr == current.endPtr);
         else
-            return discardedData + (dataPtr - buffer) == last;
+            return alreadyRead + (dataPtr - current.beginPtr) == last;
     }
 };
 
 
-template<class RD>
 class IProtobufStream
 {
 private:
-    IProtobufBuffer<RD>& buffer;
+    IProtobufBuffer& buffer;
     size_t last = SIZE_MAX;
 
 public:
-    IProtobufStream(IProtobufBuffer<RD>& buffer) :
+    IProtobufStream(IProtobufBuffer& buffer) :
         buffer(buffer) {}
 
     //mb: need to diferentiate a 'clean' end of stream (at the end of a field),
@@ -449,15 +470,17 @@ public:
     bool readString(std::string& x)
     {
         uint64_t size;
-        if (readVariantUInt64(size))
-            return buffer.readData(x, size);
+        if (readVariantUInt64(size)) {
+            x.resize(size);
+            return buffer.readData(const_cast<char*>(x.data()), size);
+        }
         else
             return false;
     }
 
     bool setAsSubStream(size_t subSize)
     {
-        size_t current = buffer.discardedData + (buffer.dataPtr - buffer.buffer);
+        size_t current = buffer.alreadyRead + (buffer.dataPtr - buffer.buffer);
 
         if (current + subSize <= last) {
             last = current + subSize;
