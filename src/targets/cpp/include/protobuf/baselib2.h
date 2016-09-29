@@ -182,7 +182,7 @@ const size_t BUFFER_SIZE = 1024;
     1 byte at the end.
 */
 
-struct BufferData {
+struct BufferDescriptor {
 public:
     uint8_t* buffer;
     size_t bufferSize;
@@ -190,22 +190,18 @@ public:
     uint8_t* endPtr;
     bool isLast;
 
-    BufferData(uint8_t* buffer, size_t bufferSize) :
+    BufferDescriptor(uint8_t* buffer, size_t bufferSize) :
         buffer(buffer), bufferSize(bufferSize),
         beginPtr(buffer + MIN_BUFFER_LEFT),
         endPtr(buffer + bufferSize - 1),
         isLast(false) {}
 
-    //    BufferData& operator=(const BufferData& other) = default;
-    BufferData() : BufferData(0, 0) {}
+    //    BufferDescriptor& operator=(const BufferDescriptor& other) = default;
+    BufferDescriptor() : buffer(0), bufferSize(0),
+        beginPtr(0), endPtr(0), isLast(false) {}
 
     bool isValid() const {
         return buffer != 0;
-    }
-    void reset() {
-        beginPtr = buffer + MIN_BUFFER_LEFT;
-        endPtr = buffer + bufferSize - 1;
-        isLast = false;
     }
 
     bool needReplace(const uint8_t* dataPtr) const {
@@ -214,7 +210,7 @@ public:
         return !isLast && left < MIN_BUFFER_LEFT;
     }
 
-    void copyLastFragment(const BufferData& other, const uint8_t* dataPtr) {
+    void copyLastFragment(const BufferDescriptor& other, const uint8_t* dataPtr) {
         size_t left = other.endPtr - dataPtr;
         assert(left < MIN_BUFFER_LEFT);
 
@@ -232,40 +228,33 @@ public:
 };
 
 class FakeBufferManager {
-    list<BufferData> buffersInUse;
-    list<BufferData> buffersFree;
+    list<void*> buffersInUse;
+    list<void*> buffersFree;
 public:
-    BufferData getFreeBuffer() {
+    BufferDescriptor getFreeBuffer() {
         if (buffersFree.empty()) {
-            uint8_t* ptr = static_cast<uint8_t*>(malloc(BUFFER_SIZE));
-
-            BufferData b(ptr, BUFFER_SIZE);
-
-            buffersInUse.push_back(b);
-
-            return b;
+            void* ptr = malloc(BUFFER_SIZE);
+            buffersFree.push_back(ptr);
         }
-        else {
-            BufferData b = buffersFree.front();
-            buffersFree.pop_front();
-            buffersInUse.push_back(b);
-            return b;
-        }
+
+        void* ptr = buffersFree.front();
+        buffersFree.pop_front();
+        buffersInUse.push_back(ptr);
+        return BufferDescriptor(static_cast<uint8_t*>(ptr), BUFFER_SIZE);
     }
 
-    void releaseBuffers(const deque<BufferData>& toRelease) {
+    void releaseBuffers(const deque<BufferDescriptor>& toRelease) {
         for (auto each : toRelease) {
-            buffersInUse.remove(each);
-            each.reset();
-            buffersFree.push_back(each);
+            buffersInUse.remove(each.buffer);
+            buffersFree.push_back(each.buffer);
         }
     }
 
     ~FakeBufferManager() {
         for (auto each : buffersInUse)
-            free(each.buffer);
+            free(each);
         for (auto each : buffersFree)
-            free(each.buffer);
+            free(each);
     }
 };
 
@@ -274,8 +263,8 @@ class OProtobufStream
 {
 protected:
     FakeBufferManager& manager;
-    deque<BufferData> bufferSet;
-    BufferData current;
+    deque<BufferDescriptor> bufferSet;
+    BufferDescriptor current;
     uint8_t* dataPtr = nullptr;
 
 
@@ -326,6 +315,7 @@ public:
             current.setEnd(dataPtr - current.beginPtr, true);
             bufferSet.push_back(current);
             //invalidate buffer
+            current = BufferDescriptor();
             dataPtr = nullptr;
         }
     }
@@ -333,6 +323,11 @@ public:
     void finish()
     {
         flush();
+    }
+
+    const deque<BufferDescriptor>& getBufferSet() const
+    {
+        return bufferSet;
     }
 
     void writeInt(int fieldNumber, int64_t x)
@@ -397,7 +392,7 @@ public:
     }
 };
 
-void writeFile(FILE* file, const deque<BufferData>& buffSet)
+void writeFile(FILE* file, const deque<BufferDescriptor>& buffSet)
 {
     for (auto each : buffSet) {
         fwrite(each.beginPtr, each.endPtr - each.beginPtr, 1, file);
@@ -405,14 +400,14 @@ void writeFile(FILE* file, const deque<BufferData>& buffSet)
 }
 
 
-deque<BufferData> readFile(FILE* file, FakeBufferManager& manager)
+deque<BufferDescriptor> readFile(FILE* file, FakeBufferManager& manager)
 {
-    deque<BufferData> bufferPool;
+    deque<BufferDescriptor> bufferPool;
     bool isLast = false;
     while (!isLast) {
         uint8_t* ptr = static_cast<uint8_t*>(malloc(BUFFER_SIZE));
 
-        BufferData buffer = manager.getFreeBuffer();
+        BufferDescriptor buffer = manager.getFreeBuffer();
         size_t maxRead = buffer.endPtr - buffer.beginPtr;
         size_t sz = fread(buffer.beginPtr, 1, maxRead, file);
         isLast = sz != maxRead;
@@ -427,26 +422,46 @@ deque<BufferData> readFile(FILE* file, FakeBufferManager& manager)
 class IProtobufBuffer
 {
 public:
-    deque<BufferData> bufferPool;
-    BufferData current;
-    uint8_t* dataPtr;
+    deque<BufferDescriptor>::const_iterator bpIt;
+    const deque<BufferDescriptor>::const_iterator bpItEnd;
+    BufferDescriptor current;
+    uint8_t* dataPtr = nullptr;
     size_t alreadyRead = 0;
 
-    IProtobufBuffer(deque<BufferData> bp) :
-        bufferPool(bp), current(bp.front()), dataPtr(bp.front().beginPtr)
-    {
-        bufferPool.pop_front();
-    }
+    IProtobufBuffer(const deque<BufferDescriptor>& bp) :
+        bpIt(bp.begin()), bpItEnd(bp.end()) {}
 
+    bool next()
+    {
+        if (bpIt != bpItEnd) {
+            preRead();
+            return true;
+        }
+        else
+            return false;
+    }
 
     void preRead()
     {
-        if (current.needReplace(dataPtr)) {
-            alreadyRead += dataPtr - current.beginPtr;
-            BufferData next = bufferPool.front();
-            next.copyLastFragment(current, dataPtr);
-            current = next;
+        /*
+            Think how to handle when last buffer is not really the last,
+            general buffer set inconsistency
+        */
+        if (dataPtr != nullptr) {
+            if (current.needReplace(dataPtr)) {
+                alreadyRead += dataPtr - current.beginPtr;
+                BufferDescriptor next = *bpIt;
+                next.copyLastFragment(current, dataPtr);
+                current = next;
+                ++bpIt;
+                dataPtr = current.beginPtr;
+            }
+        }
+        else if (bpIt != bpItEnd) {
+            current = *bpIt;
+            ++bpIt;
             dataPtr = current.beginPtr;
+            alreadyRead = 0;
         }
     }
 
