@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <memory>
 #include <vector>
 #include <deque>
+#include <list>
 #include <assert.h>
 #include <stdio.h>
 #include <string>
@@ -169,139 +170,17 @@ constexpr size_t getFixedSize(double) { return 8; }
     to the main loop thread for decoding.
     In this concept, the buffers are the main object shared between io and main loop threads,
     and the main syncronization point. It should allow a very simple, robust and performing interface.
+
+    However all this buffer managment adds extra work and performance should be checked
 */
 
 const size_t MIN_BUFFER_LEFT = 20;
-
-
-class FileWriter
-{
-private:
-    FILE* file;
-public:
-    FileWriter(FILE* file) :file(file) {}
-
-    void write(const void* buffer, size_t size)
-    {
-        fwrite(buffer, size, 1, file);
-    }
-};
-
-
-//MB end
-
-template<class WR>
-class OProtobufStream
-{
-protected:
-    uint8_t* const buffer;
-    const size_t bufferSize;
-    uint8_t* dataPtr;
-    WR& wr;
-
-    void writeData(const void* data, size_t size)
-    {
-        size_t left = size;
-        const void* ptr = data;
-
-        while (left > buffer + bufferSize - dataPtr) {
-            size_t sz = buffer + bufferSize - dataPtr;
-            mempcpy(dataPtr, ptr, sz);
-            left -= sz;
-            ptr += sz;
-            flush();
-            assert(left > 0);
-        }
-
-        assert(left <= buffer + bufferSize - dataPtr);
-        mempcpy(dataPtr, ptr, left);
-        assert(data + size == currentDataPtr + left);
-        postWrite();
-    }
-
-    void postWrite()
-    {
-        if (buffer + bufferSize - dataPtr <= MIN_BUFFER_LEFT)
-            flush();
-    }
-
-public:
-    OProtobufStream(uint8_t* buffer, size_t bufferSize, WR& wr) :
-        buffer(buffer), bufferSize(bufferSize), dataPtr(buffer), wr(wr) {}
-
-    void flush()
-    {
-        wr.write(buffer, dataPtr - buffer);
-        dataPtr = buffer;
-    }
-
-    void writeInt(int fieldNumber, int64_t x)
-    {
-        dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::VARINT, dataPtr);
-        writePackedSignedVarInt(x);
-    }
-    
-    void writeUInt(int fieldNumber, uint64_t x)
-    {
-        dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::VARINT, dataPtr);
-        writePackedUnsignedVarInt(x);
-    }
-
-    void writeDouble(int fieldNumber, double x)
-    {
-        dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::FIXED_64_BIT, dataPtr);
-        writePackedDouble(x);
-    }
-
-    void writeFloat(int fieldNumber, float x)
-    {
-        dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::FIXED_32_BIT, dataPtr);
-        writePackedFloat(x);
-    }
-
-    void writeString(int fieldNumber, const std::string& x)
-    {
-        dataPtr = serializeLengthDelimitedHeaderToString(fieldNumber, x.size(), dataPtr);
-        writeData(data.c_str(), data.size());
-    }
-
-    void writeObjectTagAndSize(int fieldNumber, size_t sz)
-    {
-        dataPtr = serializeLengthDelimitedHeaderToString(fieldNumber, sz, dataPtr);
-        postWrite();
-    }
-
-    void writePackedSignedVarInt(int64_t x)
-    {
-        uint64_t unsig = sint64ToUint64(x);
-        dataPtr = serializeToStringVariantUint64(unsig, dataPtr);
-        postWrite();
-    }
-
-    void writePackedUnsignedVarInt(uint64_t x)
-    {
-        dataPtr = serializeToStringVariantUint64(x, dataPtr);
-        postWrite();
-    }
-
-    void writePackedDouble(double x)
-    {
-        dataPtr = serializeToStringFixedUint64(*(uint64_t*)(&x), dataPtr);
-        postWrite();
-    }
-
-    void writePackedFloat(float x)
-    {
-        dataPtr = serializeToStringFixedUint32(*(uint32_t*)(&x), dataPtr);
-        postWrite();
-    }
-};
+const size_t BUFFER_SIZE = 1024;
 
 /*
-    Every buffer must have MIN_BUFFER_LEFT empty bytes at the begging and
-    1 byte at the end
+    Every buffer must has MIN_BUFFER_LEFT unused bytes at the begging and
+    1 byte at the end.
 */
-const size_t BUFFER_SIZE = 1024;
 
 struct BufferData {
 public:
@@ -317,8 +196,12 @@ public:
         endPtr(buffer + bufferSize - 1),
         isLast(false) {}
 
-    BufferData& operator=(const BufferData& other) = default;
+    //    BufferData& operator=(const BufferData& other) = default;
+    BufferData() : BufferData(0, 0) {}
 
+    bool isValid() const {
+        return buffer != 0;
+    }
     void reset() {
         beginPtr = buffer + MIN_BUFFER_LEFT;
         endPtr = buffer + bufferSize - 1;
@@ -348,15 +231,188 @@ public:
 
 };
 
+class FakeBufferManager {
+    list<BufferData> buffersInUse;
+    list<BufferData> buffersFree;
+public:
+    BufferData getFreeBuffer() {
+        if (buffersFree.empty()) {
+            uint8_t* ptr = static_cast<uint8_t*>(malloc(BUFFER_SIZE));
 
-deque<BufferData> readFile(FILE* file)
+            BufferData b(ptr, BUFFER_SIZE);
+
+            buffersInUse.push_back(b);
+
+            return b;
+        }
+        else {
+            BufferData b = buffersFree.front();
+            buffersFree.pop_front();
+            buffersInUse.push_back(b);
+            return b;
+        }
+    }
+
+    void releaseBuffers(const deque<BufferData>& toRelease) {
+        for (auto each : toRelease) {
+            buffersInUse.remove(each);
+            each.reset();
+            buffersFree.push_back(each);
+        }
+    }
+
+    ~FakeBufferManager() {
+        for (auto each : buffersInUse)
+            free(each.buffer);
+        for (auto each : buffersFree)
+            free(each.buffer);
+    }
+};
+
+
+class OProtobufStream
+{
+protected:
+    FakeBufferManager& manager;
+    deque<BufferData> bufferSet;
+    BufferData current;
+    uint8_t* dataPtr = nullptr;
+
+
+    void writeData(const uint8_t* data, size_t size)
+    {
+        size_t left = size;
+        const uint8_t* ptr = data;
+
+        while (left > current.endPtr - dataPtr) {
+            size_t sz = current.endPtr - dataPtr;
+            memcpy(dataPtr, ptr, sz);
+            left -= sz;
+            ptr += sz;
+            preWrite();
+            assert(left > 0);
+        }
+
+        assert(left <= current.endPtr - dataPtr);
+        memcpy(dataPtr, ptr, left);
+        assert(data + size == ptr + left);
+    }
+
+
+    void preWrite()
+    {
+        if (dataPtr != nullptr) {
+            if (current.needReplace(dataPtr)) {
+                current.setEnd(dataPtr - current.beginPtr, false);
+                bufferSet.push_back(current);
+                current = manager.getFreeBuffer();
+                dataPtr = current.beginPtr;
+            }
+        }
+        else {
+            current = manager.getFreeBuffer();
+            dataPtr = current.beginPtr;
+        }
+    }
+
+
+public:
+    OProtobufStream(FakeBufferManager& manager) :
+        manager(manager) {}
+    
+    void flush()
+    {
+        if (dataPtr != nullptr) {
+            current.setEnd(dataPtr - current.beginPtr, true);
+            bufferSet.push_back(current);
+            //invalidate buffer
+            dataPtr = nullptr;
+        }
+    }
+
+    void finish()
+    {
+        flush();
+    }
+
+    void writeInt(int fieldNumber, int64_t x)
+    {
+        dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::VARINT, dataPtr);
+        writePackedSignedVarInt(x);
+    }
+    
+    void writeUInt(int fieldNumber, uint64_t x)
+    {
+        dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::VARINT, dataPtr);
+        writePackedUnsignedVarInt(x);
+    }
+
+    void writeDouble(int fieldNumber, double x)
+    {
+        dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::FIXED_64_BIT, dataPtr);
+        writePackedDouble(x);
+    }
+
+    void writeFloat(int fieldNumber, float x)
+    {
+        dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::FIXED_32_BIT, dataPtr);
+        writePackedFloat(x);
+    }
+
+    void writeString(int fieldNumber, const std::string& x)
+    {
+        dataPtr = serializeLengthDelimitedHeaderToString(fieldNumber, x.size(), dataPtr);
+        writeData(reinterpret_cast<const uint8_t*>(x.c_str()), x.size());
+    }
+
+    void writeObjectTagAndSize(int fieldNumber, size_t sz)
+    {
+        preWrite();
+        dataPtr = serializeLengthDelimitedHeaderToString(fieldNumber, sz, dataPtr);
+    }
+
+    void writePackedSignedVarInt(int64_t x)
+    {
+        preWrite();
+        uint64_t unsig = sint64ToUint64(x);
+        dataPtr = serializeToStringVariantUint64(unsig, dataPtr);
+    }
+
+    void writePackedUnsignedVarInt(uint64_t x)
+    {
+        preWrite();
+        dataPtr = serializeToStringVariantUint64(x, dataPtr);
+    }
+
+    void writePackedDouble(double x)
+    {
+        preWrite();
+        dataPtr = serializeToStringFixedUint64(*(uint64_t*)(&x), dataPtr);
+    }
+
+    void writePackedFloat(float x)
+    {
+        preWrite();
+        dataPtr = serializeToStringFixedUint32(*(uint32_t*)(&x), dataPtr);
+    }
+};
+
+void writeFile(FILE* file, const deque<BufferData>& buffSet)
+{
+    for (auto each : buffSet) {
+        fwrite(each.beginPtr, each.endPtr - each.beginPtr, 1, file);
+    }
+}
+
+
+deque<BufferData> readFile(FILE* file, FakeBufferManager& manager)
 {
     deque<BufferData> bufferPool;
     bool isLast = false;
     while (!isLast) {
         uint8_t* ptr = static_cast<uint8_t*>(malloc(BUFFER_SIZE));
 
-        BufferData buffer(ptr, BUFFER_SIZE);
+        BufferData buffer = manager.getFreeBuffer();
         size_t maxRead = buffer.endPtr - buffer.beginPtr;
         size_t sz = fread(buffer.beginPtr, 1, maxRead, file);
         isLast = sz != maxRead;
@@ -375,7 +431,6 @@ public:
     BufferData current;
     uint8_t* dataPtr;
     size_t alreadyRead = 0;
-
 
     IProtobufBuffer(deque<BufferData> bp) :
         bufferPool(bp), current(bp.front()), dataPtr(bp.front().beginPtr)
