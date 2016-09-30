@@ -283,7 +283,7 @@ void protobufSerialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-N
 @@END-TEMPLATE NAME="DESERIALIZATION-GENERATE-DECLARATIONS"
 
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-DECLARE-FN-ONLY"
-bool deserialize@PARAM-NAME@( @PARAM-MAPPING-NAME@& s, IProtobufStream& i );
+bool deserialize@PARAM-NAME@( @PARAM-MAPPING-NAME@& s, IProtobufStream& i, size_t eos = SIZE_MAX );
 @@END-TEMPLATE NAME="DESERIALIZE-DECLARE-FN-ONLY"
 
 
@@ -307,7 +307,7 @@ bool deserialize@PARAM-NAME@( @PARAM-MAPPING-NAME@& s, IProtobufStream& i );
 
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-DU"
 @@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
-bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i ) {
+bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i, size_t eos ) {
 
   @@LET LOCAL-MEMBERS-MAP=FUNCTION-CREATE-DU-MEMBERS-MAP(PARAM-DU)
 
@@ -336,11 +336,11 @@ bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, I
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-DU-OWNING-PTR"
 @@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
 @@ASSERT PARAM-DU.GET-MAPPING-ANNOTATION( "OWNING-PTR" ).HAS-VALUE()
-bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i ) {
+bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i, size_t eos ) {
 
     s.reset();
 
-    if( i.isEndOfStream() )
+    if( i.isEndOfStream( eos ) )
       return true;
 
     int fieldType;
@@ -357,7 +357,7 @@ bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, I
     readOk = i.readVariantUInt64( sz );
     if ( !readOk )
       return false;
-    IProtobufStream is = i.makeSubStream( readOk, sz );
+    size_t eos = i.makeSubStream( readOk, eos, sz );
     if ( !readOk )
       return false;
 
@@ -372,7 +372,7 @@ bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, I
       case @LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() )@:
       {
         std::unique_ptr<@LOCAL-POLY-PTR@> ptr( new @LOCAL-POLY-PTR@ );
-        readOk = deserialize@LOCAL-POLY-PTR@( *ptr, is );
+        readOk = deserialize@LOCAL-POLY-PTR@( *ptr, i, eos );
         s = std::move( ptr );
       }
       break;
@@ -382,18 +382,18 @@ bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, I
       default:
       {
         string temp;
-        readOk = is.readString( temp );
+        readOk = i.readString( temp );
       }
     }
 
-    return readOk && i.isEndOfStream();
+    return readOk && i.isEndOfStream( eos );
 }
 @@END-TEMPLATE NAME="DESERIALIZE-DU-OWNING-PTR"
 
 
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-STRUCT"
 @@ASSERT IS-SERIALIZABLE-STRUCT(PARAM-STRUCT)
-bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i ) {
+bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i, size_t eos ) {
 
   @@INCLUDE TEMPLATE="DESERIALIZE-DU-OR-STRUCT-COMMON" PARAM-DU-OR-STRUCT=PARAM-STRUCT
 
@@ -421,7 +421,7 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
   
   bool readOk = true;
 
-  while(!i.isEndOfStream())
+  while( !i.isEndOfStream( eos ) )
   {
     int fieldType;
     int fieldNumber;
@@ -504,10 +504,10 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
       readOk = i.readVariantUInt64( sz );
       if ( !readOk )
         return false;
-      IProtobufStream is = i.makeSubStream( readOk, sz );
+      size_t sub = i.makeSubStream( readOk, eos, sz );
       if ( !readOk )
         return false;
-      readOk = deserialize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@(@PARAM-NAME@, is);
+      readOk = deserialize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@( @PARAM-NAME@, i, sub );
 @@ELIF PARAM-TYPE.IS-ENUM()
       if( fieldType != VARINT ) return false;
       uint64_t temp = 0;
@@ -526,12 +526,12 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
       readOk = i.readVariantUInt64(sz);
       if ( !readOk )
         return false;
-      IProtobufStream is = i.makeSubStream( readOk, sz );
+      size_t eos = i.makeSubStream( readOk, eos, sz );
       if ( !readOk )
         return false;
-      IProtobufStream& i = is;
+      //IProtobufStream& i = is;
 
-      while(!i.isEndOfStream()) {
+      while( !i.isEndOfStream( eos ) ) {
 
       @@INCLUDE TEMPLATE="DESERIALIZE-PACKED-TYPE" PARAM-NAME=PARAM-NAME PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
       
@@ -630,15 +630,15 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
   readOk = i.readVariantUInt64( sz );
   if ( !readOk )
     return false;
-  IProtobufStream is = i.makeSubStream( readOk, sz );
+  size_t eos = i.makeSubStream( readOk, eos, sz );
   if ( !readOk )
     return false;
-  IProtobufStream& i = is;
+  //IProtobufStream& i = is;
   @PARAM-TYPE.COLLECTION-TYPE2().ENCODING-MEMBER-TYPE()@ key;
   @PARAM-TYPE.COLLECTION-TYPE().ENCODING-MEMBER-TYPE()@ value;
   bool initFlags[2] = { false };
 
-  while(!i.isEndOfStream())
+  while( !i.isEndOfStream( eos ) )
   {
     int fieldType;
     int fieldNumber;

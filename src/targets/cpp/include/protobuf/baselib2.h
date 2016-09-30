@@ -419,7 +419,7 @@ deque<BufferDescriptor> readFile(FILE* file, FakeBufferManager& manager)
     return bufferPool;
 }
 
-class IProtobufBuffer
+class IProtobufStream
 {
 public:
     deque<BufferDescriptor>::const_iterator bpIt;
@@ -428,7 +428,7 @@ public:
     uint8_t* dataPtr = nullptr;
     size_t alreadyRead = 0;
 
-    IProtobufBuffer(const deque<BufferDescriptor>& bp) :
+    IProtobufStream(const deque<BufferDescriptor>& bp) :
         bpIt(bp.begin()), bpItEnd(bp.end()) {}
 
     bool next()
@@ -501,6 +501,7 @@ public:
     size_t getAlreadyRead() const {
         return alreadyRead + (dataPtr - current.beginPtr);
     }
+/*
 };
 
 
@@ -523,46 +524,46 @@ public:
     {
         return buffer.isEndOfStream(last);
     }
-
+*/
     bool readFieldTypeAndID(int& type, int& fieldNumber)
     {
-        buffer.preRead();
+        preRead();
 
-        buffer.dataPtr = deserializeHeaderFromString(fieldNumber, type, buffer.dataPtr);
+        dataPtr = deserializeHeaderFromString(fieldNumber, type, dataPtr);
         
-        return buffer.isGood(0); //read past the end of buffer
+        return isGood(0); //read past the end of buffer
     }
 
     bool readVariantInt64(int64_t& x)
     {
-        buffer.preRead();
+        preRead();
 
         uint64_t preValue;
-        buffer.dataPtr = deserializeFromStringVariantUint64(preValue, buffer.dataPtr);
+        dataPtr = deserializeFromStringVariantUint64(preValue, dataPtr);
         x = uint64ToSint64(preValue);
 
-        return buffer.isGood(0); //read past the end of buffer
+        return isGood(0); //read past the end of buffer
     }
 
 
     bool readVariantUInt64(uint64_t& x)
     {
-        buffer.preRead();
+        preRead();
 
-        buffer.dataPtr = deserializeFromStringVariantUint64(x, buffer.dataPtr);
+        dataPtr = deserializeFromStringVariantUint64(x, dataPtr);
 
-        return buffer.isGood(0); //read past the end of buffer
+        return isGood(0); //read past the end of buffer
     }
 
     bool readFixed64Bit(double& x)
     {
-        buffer.preRead();
+        preRead();
 
-        if (buffer.isGood(8)) {
+        if (isGood(8)) {
             uint64_t tmp;
-            deserializeFromStringFixedUint64(tmp, buffer.dataPtr);
+            deserializeFromStringFixedUint64(tmp, dataPtr);
             x = *reinterpret_cast<double*>(&tmp);
-            buffer.dataPtr += 8;
+            dataPtr += 8;
             return true;
         }
         else
@@ -571,13 +572,13 @@ public:
 
     bool readFixed32Bit(float& x)
     {
-        buffer.preRead();
+        preRead();
 
-        if (buffer.isGood(4)) {
+        if (isGood(4)) {
             uint32_t tmp;
-            deserializeFromStringFixedUint32(tmp, buffer.dataPtr);
+            deserializeFromStringFixedUint32(tmp, dataPtr);
             x = *reinterpret_cast<float*>(&tmp);
-            buffer.dataPtr += 4;
+            dataPtr += 4;
             return true;
         }
         else
@@ -589,18 +590,17 @@ public:
         uint64_t size;
         if (readVariantUInt64(size)) {
             x.resize(size);
-            return buffer.readData(const_cast<char*>(x.data()), size);
+            return readData(const_cast<char*>(x.data()), size);
         }
         else
             return false;
     }
 
-    IProtobufStream makeSubStream(bool& ok, size_t subSize)
+    size_t makeSubStream(bool& ok, size_t currentEos, size_t subSize)
     {
-        size_t current = buffer.getAlreadyRead();
-        IProtobufStream sub(buffer, current + subSize);
-        ok = current + subSize <= last; 
-        return sub;
+        size_t current = getAlreadyRead();
+        ok = current + subSize <= currentEos;
+        return current + subSize;
     }
 
 };
@@ -625,16 +625,17 @@ bool discardUnexpectedField(int fieldType, IProtobufStream& i) {
     break;
     case LENGTH_DELIMITED:
     {
+/* TODO test
         uint64_t sz;
         bool readOk = i.readVariantUInt64(sz);
         if (!readOk)
             return false;
-        IProtobufStream is = i.makeSubStream(readOk, sz);
+        size_t eos = i.makeSubStream(readOk, eos, sz);
         if (!readOk)
             return false;
-
+*/
         string temp;
-        return is.readString(temp);
+        return i.readString(temp);
     }
     break;
     case FIXED_32_BIT:
