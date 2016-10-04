@@ -27,6 +27,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 using namespace std;
 
+typedef bool _Bool;
+
 #ifdef _MSC_VER
 #define LIKELY_BRANCH_( X ) (X)
 #else
@@ -48,9 +50,6 @@ using namespace std;
 #define ALIGN(n)
 #warning ALIGN, FORCE_INLINE and NOINLINE may not be properly defined
 #endif
-
-namespace bl2
-{
 
 enum WIRE_TYPE
 {
@@ -227,10 +226,41 @@ public:
 
 };
 
+typedef deque<BufferDescriptor> BufferGroup;
+
+template<class T>
+bool areEqual(const BufferGroup& left, T itBegin, T itEnd)
+{
+    BufferGroup::const_iterator leftIt = left.begin();
+    if (leftIt == left.end())
+        return itBegin == itEnd;
+    uint8_t* dataPtr = leftIt->beginPtr;
+    while (itBegin != itEnd) {
+        if (dataPtr == leftIt->endPtr) {
+            ++leftIt;
+            if (leftIt == left.end())
+                return false;
+            uint8_t* dataPtr = leftIt->beginPtr;
+        }
+        if (*dataPtr != *itBegin)
+            return false;
+
+        ++dataPtr;
+        ++itBegin;
+    }
+
+    return dataPtr == leftIt->endPtr && ++leftIt == left.end();
+}
+    
+
 class FakeBufferManager {
+    const size_t bufferSize;
     list<void*> buffersInUse;
     list<void*> buffersFree;
 public:
+
+    FakeBufferManager(size_t bufferSize) : bufferSize(bufferSize) {}
+
     BufferDescriptor getFreeBuffer() {
         if (buffersFree.empty()) {
             void* ptr = malloc(BUFFER_SIZE);
@@ -243,7 +273,7 @@ public:
         return BufferDescriptor(static_cast<uint8_t*>(ptr), BUFFER_SIZE);
     }
 
-    void releaseBuffers(const deque<BufferDescriptor>& toRelease) {
+    void releaseBuffers(const BufferGroup& toRelease) {
         for (auto each : toRelease) {
             buffersInUse.remove(each.buffer);
             buffersFree.push_back(each.buffer);
@@ -263,7 +293,7 @@ class OProtobufStream
 {
 protected:
     FakeBufferManager& manager;
-    deque<BufferDescriptor> bufferSet;
+    BufferGroup bufferSet;
     BufferDescriptor current;
     uint8_t* dataPtr = nullptr;
 
@@ -276,6 +306,7 @@ protected:
         while (left > current.endPtr - dataPtr) {
             size_t sz = current.endPtr - dataPtr;
             memcpy(dataPtr, ptr, sz);
+            dataPtr += sz;
             left -= sz;
             ptr += sz;
             preWrite();
@@ -284,6 +315,7 @@ protected:
 
         assert(left <= current.endPtr - dataPtr);
         memcpy(dataPtr, ptr, left);
+        dataPtr += left;
         assert(data + size == ptr + left);
     }
 
@@ -325,37 +357,43 @@ public:
         flush();
     }
 
-    const deque<BufferDescriptor>& getBufferSet() const
+    const BufferGroup& getBufferSet() const
     {
         return bufferSet;
     }
 
     void writeInt(int fieldNumber, int64_t x)
     {
+        preWrite();
         dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::VARINT, dataPtr);
-        writePackedSignedVarInt(x);
+        uint64_t unsig = sint64ToUint64(x);
+        dataPtr = serializeToStringVariantUint64(unsig, dataPtr);
     }
     
     void writeUInt(int fieldNumber, uint64_t x)
     {
+        preWrite();
         dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::VARINT, dataPtr);
-        writePackedUnsignedVarInt(x);
+        dataPtr = serializeToStringVariantUint64(x, dataPtr);
     }
 
     void writeDouble(int fieldNumber, double x)
     {
+        preWrite();
         dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::FIXED_64_BIT, dataPtr);
-        writePackedDouble(x);
+        dataPtr = serializeToStringFixedUint64(*(uint64_t*)(&x), dataPtr);
     }
 
     void writeFloat(int fieldNumber, float x)
     {
+        preWrite();
         dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::FIXED_32_BIT, dataPtr);
-        writePackedFloat(x);
+        dataPtr = serializeToStringFixedUint32(*(uint32_t*)(&x), dataPtr);
     }
 
     void writeString(int fieldNumber, const std::string& x)
     {
+        preWrite();
         dataPtr = serializeLengthDelimitedHeaderToString(fieldNumber, x.size(), dataPtr);
         writeData(reinterpret_cast<const uint8_t*>(x.c_str()), x.size());
     }
@@ -392,7 +430,8 @@ public:
     }
 };
 
-void writeFile(FILE* file, const deque<BufferDescriptor>& buffSet)
+inline
+void writeFile(FILE* file, const BufferGroup& buffSet)
 {
     for (auto each : buffSet) {
         fwrite(each.beginPtr, each.endPtr - each.beginPtr, 1, file);
@@ -400,9 +439,10 @@ void writeFile(FILE* file, const deque<BufferDescriptor>& buffSet)
 }
 
 
-deque<BufferDescriptor> readFile(FILE* file, FakeBufferManager& manager)
+inline
+BufferGroup readFile(FILE* file, FakeBufferManager& manager)
 {
-    deque<BufferDescriptor> bufferPool;
+    BufferGroup bufferPool;
     bool isLast = false;
     while (!isLast) {
         uint8_t* ptr = static_cast<uint8_t*>(malloc(BUFFER_SIZE));
@@ -422,13 +462,13 @@ deque<BufferDescriptor> readFile(FILE* file, FakeBufferManager& manager)
 class IProtobufStream
 {
 public:
-    deque<BufferDescriptor>::const_iterator bpIt;
-    const deque<BufferDescriptor>::const_iterator bpItEnd;
+    BufferGroup::const_iterator bpIt;
+    const BufferGroup::const_iterator bpItEnd;
     BufferDescriptor current;
     uint8_t* dataPtr = nullptr;
     size_t alreadyRead = 0;
 
-    IProtobufStream(const deque<BufferDescriptor>& bp) :
+    IProtobufStream(const BufferGroup& bp) :
         bpIt(bp.begin()), bpItEnd(bp.end()) {}
 
     bool next()
@@ -589,7 +629,7 @@ public:
     {
         uint64_t size;
         if (readVariantUInt64(size)) {
-            x.resize(size);
+            x.resize(static_cast<size_t>(size));
             return readData(const_cast<char*>(x.data()), size);
         }
         else
@@ -606,6 +646,7 @@ public:
 };
 
 //mb
+inline
 bool discardUnexpectedField(int fieldType, IProtobufStream& i) {
 
     // Unexpected field, just read and discard
@@ -648,8 +689,6 @@ bool discardUnexpectedField(int fieldType, IProtobufStream& i) {
         return false;
     }
 }
-
-} //namespace bl
 
 #endif // BASELIB_H
 

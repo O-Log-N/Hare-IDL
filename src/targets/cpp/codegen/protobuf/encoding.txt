@@ -393,7 +393,7 @@ bool protobufDeserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME(
       case @LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() )@:
       {
         std::unique_ptr<@LOCAL-POLY-PTR@> ptr( new @LOCAL-POLY-PTR@ );
-        readOk = deserialize@LOCAL-POLY-PTR@( *ptr, i, sub );
+        readOk = protobufDeserialize@LOCAL-POLY-PTR@( *ptr, i, sub );
         s = std::move( ptr );
       }
       break;
@@ -528,7 +528,7 @@ bool protobufDeserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRU
       size_t sub = i.makeSubStream( readOk, eos, sz );
       if ( !readOk )
         return false;
-      readOk = deserialize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@( @PARAM-NAME@, i, sub );
+      readOk = protobufDeserialize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@( @PARAM-NAME@, i, sub );
 @@ELIF PARAM-TYPE.IS-ENUM()
       if( fieldType != VARINT ) return false;
       uint64_t temp = 0;

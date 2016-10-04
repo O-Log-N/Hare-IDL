@@ -11,12 +11,10 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
-#include <protobuf/baselib2.h>
+#include <protobuf/baselib.h>
 
 #define BASELIB_LITTLE_ENDIAN
 
-namespace bl2
-{
 
 uint8_t* deserializeHeaderFromString(int& fieldNumber, int& type, uint8_t* buff)
 {
@@ -230,9 +228,4 @@ uint8_t* serializeLengthDelimitedHeaderToString(int fieldNumber, size_t valueSiz
     return serializeToStringVariantUint64(valueSize, buff);
 }
 
-
-
-//MB
-
-} //namespace bl
 

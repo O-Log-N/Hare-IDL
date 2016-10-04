@@ -25,6 +25,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 using namespace std;
 
+typedef bool _Bool; //mb: FIX
+
 #ifdef _MSC_VER
 #define LIKELY_BRANCH_( X ) (X)
 #else
@@ -142,7 +144,7 @@ protected:
 public:
     OProtobufStream(FILE* outStr) : outstr(outStr) {}
 
-    void flush()
+    void finish()
     {
         ;//do nothing
     }
@@ -378,8 +380,16 @@ public:
 
     //mb: need to diferentiate a 'clean' end of stream (at the end of a field),
     // from a stream ending in the middle of a read.
-    FORCE_INLINE bool isEndOfStream() const {
-        return readPos == buffSz;
+    FORCE_INLINE bool isEndOfStream(size_t last) const {
+        if (last == SIZE_MAX)
+            return readPos == buffSz;
+        else
+            return readPos == last;
+    }
+
+    bool next()
+    {
+        return true;//do nothing
     }
 
     bool readFieldTypeAndID(int& type, int& fieldNumber)
@@ -579,30 +589,11 @@ public:
     }
 
     //MB check!
-    IProtobufStream makeSubStream(size_t cnt)
+    size_t makeSubStream(bool& ok, size_t currentEos, size_t subSize)
     {
-        
-        if (readPos + cnt > buffSz)
-            cnt = buffSz - readPos;
-
-        size_t oldReadPos = readPos;
-        readPos += cnt;
-        return IProtobufStream(instr + oldReadPos, cnt);
+        ok = readPos + subSize <= currentEos;
+        return readPos + subSize;
     }
-
-    //MB check!
-    IProtobufStream makeSubStream(bool& ok, size_t cnt)
-    {
-        ok = readPos + cnt <= buffSz;
-
-        if (!ok) {
-            cnt = buffSz - readPos;
-        }
-        size_t oldReadPos = readPos;
-        readPos += cnt;
-        return IProtobufStream(instr + oldReadPos, cnt);
-    }
-
 };
 
 #endif // 0

@@ -347,6 +347,7 @@ bool discardUnexpectedField( int fieldType, IProtobufStream& i ) {
     break;
   case LENGTH_DELIMITED:
     {
+      /* TODO test
       uint64_t sz;
       bool readOk = i.readVariantUInt64( sz );
       if( !readOk )
@@ -354,9 +355,10 @@ bool discardUnexpectedField( int fieldType, IProtobufStream& i ) {
       IProtobufStream is = i.makeSubStream( readOk, sz );
       if ( !readOk )
         return false;
-
+        */
       string temp;
-      return is.readString( temp );
+      return i.readString( temp );
+
     }
     break;
   case FIXED_32_BIT:
