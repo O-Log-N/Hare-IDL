@@ -23,70 +23,58 @@ Copyright (C) 2016 OLogN Technologies AG
 using namespace std;
 
 template<class T>
-void testHelper(const T& root, size_t(*serialize)(const T&, OProtobufStream& os), bool(*deserialize)(T&, IProtobufStream& os),
+void testHelper(const T& root, size_t(*serialize)(const T&, OProtobufStream& os), bool(*deserialize)(T&, IProtobufStream& os, size_t),
     void(*assertEqual)(const T&, const T&), const char* fileName, const vector<uint8_t>& result)
 {
-    string fullName(fileName);
-    fullName += ".protobuf.bin";
+    FakeBufferManager manager(4096);
 
-    FILE* f = fopen(fullName.c_str(), "w+b");
-    ASSERT_NE(f, nullptr);
-    OProtobufStream o(f);
+    OProtobufStream o(manager);
 
     size_t sz = serialize(root, o);
 
-
-    vector<uint8_t> toRead(sz);
-
-    rewind(f);
-    size_t readSize = fread(&toRead[0], sizeof(toRead[0]), toRead.size(), f);
-
-    ASSERT_EQ(readSize, sz);
-    ASSERT_EQ(fgetc(f), EOF);
-
-    fclose(f);
+    const BufferGroup& buff = o.getBufferSet();
 
     if(!result.empty()) {
-        ASSERT_EQ(readSize, result.size());
-        for(size_t i = 0; i < result.size(); ++i) {
-            EXPECT_EQ(result[i], toRead[i]);
-        }
+        ASSERT_TRUE(areEqual(buff, result.begin(), result.end()));
+    }
+    else {
+        string fullName(fileName);
+        fullName += ".protobuf.bin";
+
+        FILE* f = fopen(fullName.c_str(), "w+b");
+        ASSERT_NE(f, nullptr);
+
+        writeFile(f, buff);
     }
 
-    IProtobufStream i(&toRead[0], toRead.size());
+    IProtobufStream i(buff);
     T deserialized;
 
-    ASSERT_TRUE(deserialize(deserialized, i));
+    ASSERT_TRUE(deserialize(deserialized, i, SIZE_MAX));
     assertEqual(root, deserialized);
 }
 
 template<class T>
 void testHelper(const T& root, size_t(*serialize)(const T&, OProtobufStream& os), const char* fileName, const vector<uint8_t>& result)
 {
-    string fullName(fileName);
-    fullName += ".protobuf.bin";
+    FakeBufferManager manager(4096);
 
-    FILE* f = fopen(fullName.c_str(), "w+b");
-    ASSERT_NE(f, nullptr);
-    OProtobufStream o(f);
+    OProtobufStream o(manager);
 
     size_t sz = serialize(root, o);
 
-
-    vector<uint8_t> toRead(sz);
-
-    rewind(f);
-    size_t readSize = fread(&toRead[0], sizeof(toRead[0]), toRead.size(), f);
-
-    ASSERT_EQ(readSize, sz);
-    ASSERT_EQ(fgetc(f), EOF);
-
-    fclose(f);
+    const BufferGroup& buff = o.getBufferSet();
 
     if(!result.empty()) {
-        ASSERT_EQ(readSize, result.size());
-        for(size_t i = 0; i < result.size(); ++i) {
-            EXPECT_EQ(result[i], toRead[i]);
-        }
+        ASSERT_TRUE(buff, result.begin(), result.end());
+    }
+    else {
+        string fullName(fileName);
+        fullName += ".protobuf.bin";
+
+        FILE* f = fopen(fullName.c_str(), "w+b");
+        ASSERT_NE(f, nullptr);
+
+        writeFile(f, buff);
     }
 }

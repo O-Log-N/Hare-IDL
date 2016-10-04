@@ -31,6 +31,7 @@ size_t serialize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, OProtobufStream& o 
   std::deque<size_t> stk;
   size_t sz = protobufGetSize@PARAM-NAME@( s, stk );
   protobufSerialize@PARAM-NAME@( s, o, stk );
+  o.finish();
   return sz;
 }
 @@END-TEMPLATE NAME="SERIALIZE-INLINE-GENERATE"
@@ -271,6 +272,26 @@ void protobufSerialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-N
 
 @@--------   DESERIALIZATION   --------
 
+@@BEGIN-TEMPLATE NAME="DESERIALIZATION-GENERATE-INLINE-API"
+@@ASSERT IS-ROOT(PARAM-ROOT)
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-STRUCTS()
+     @@INCLUDE TEMPLATE="DESERIALIZE-INLINE-GENERATE" PARAM-NAME=LOCAL-PS-IT.STRUCT-NAME() PARAM-MAPPING-NAME=LOCAL-PS-IT.MAPPING-STRUCT-NAME()
+  @@FOR-EACH END
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-DISCRIMINATED-UNIONS()
+     @@INCLUDE TEMPLATE="DESERIALIZE-INLINE-GENERATE" PARAM-NAME=LOCAL-PS-IT.STRUCT-NAME() PARAM-MAPPING-NAME=LOCAL-PS-IT.MAPPING-STRUCT-NAME()
+  @@FOR-EACH END
+@@END-TEMPLATE NAME="DESERIALIZATION-GENERATE-INLINE-API"
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-INLINE-GENERATE"
+inline
+bool deserialize@PARAM-NAME@( @PARAM-MAPPING-NAME@& s, IProtobufStream& i )
+{
+  if( i.next() )
+    return protobufDeserialize@PARAM-NAME@( s, i, SIZE_MAX );
+  else
+    return false;
+}
+@@END-TEMPLATE NAME="DESERIALIZE-INLINE-GENERATE"
 
 @@BEGIN-TEMPLATE NAME="DESERIALIZATION-GENERATE-DECLARATIONS"
 @@ASSERT IS-ROOT(PARAM-ROOT)
@@ -283,7 +304,7 @@ void protobufSerialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-N
 @@END-TEMPLATE NAME="DESERIALIZATION-GENERATE-DECLARATIONS"
 
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-DECLARE-FN-ONLY"
-bool deserialize@PARAM-NAME@( @PARAM-MAPPING-NAME@& s, IProtobufStream& i, size_t eos = SIZE_MAX );
+bool protobufDeserialize@PARAM-NAME@( @PARAM-MAPPING-NAME@& s, IProtobufStream& i, size_t eos );
 @@END-TEMPLATE NAME="DESERIALIZE-DECLARE-FN-ONLY"
 
 
@@ -307,7 +328,7 @@ bool deserialize@PARAM-NAME@( @PARAM-MAPPING-NAME@& s, IProtobufStream& i, size_
 
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-DU"
 @@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
-bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i, size_t eos ) {
+bool protobufDeserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i, size_t eos ) {
 
   @@LET LOCAL-MEMBERS-MAP=FUNCTION-CREATE-DU-MEMBERS-MAP(PARAM-DU)
 
@@ -336,7 +357,7 @@ bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, I
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-DU-OWNING-PTR"
 @@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
 @@ASSERT PARAM-DU.GET-MAPPING-ANNOTATION( "OWNING-PTR" ).HAS-VALUE()
-bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i, size_t eos ) {
+bool protobufDeserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i, size_t eos ) {
 
     s.reset();
 
@@ -357,7 +378,7 @@ bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, I
     readOk = i.readVariantUInt64( sz );
     if ( !readOk )
       return false;
-    size_t eos = i.makeSubStream( readOk, eos, sz );
+    size_t sub = i.makeSubStream( readOk, eos, sz );
     if ( !readOk )
       return false;
 
@@ -372,7 +393,7 @@ bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, I
       case @LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() )@:
       {
         std::unique_ptr<@LOCAL-POLY-PTR@> ptr( new @LOCAL-POLY-PTR@ );
-        readOk = deserialize@LOCAL-POLY-PTR@( *ptr, i, eos );
+        readOk = deserialize@LOCAL-POLY-PTR@( *ptr, i, sub );
         s = std::move( ptr );
       }
       break;
@@ -393,7 +414,7 @@ bool deserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, I
 
 @@BEGIN-TEMPLATE NAME="DESERIALIZE-STRUCT"
 @@ASSERT IS-SERIALIZABLE-STRUCT(PARAM-STRUCT)
-bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i, size_t eos ) {
+bool protobufDeserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i, size_t eos ) {
 
   @@INCLUDE TEMPLATE="DESERIALIZE-DU-OR-STRUCT-COMMON" PARAM-DU-OR-STRUCT=PARAM-STRUCT
 
@@ -526,7 +547,8 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
       readOk = i.readVariantUInt64(sz);
       if ( !readOk )
         return false;
-      size_t eos = i.makeSubStream( readOk, eos, sz );
+      size_t sub = i.makeSubStream( readOk, eos, sz );
+      size_t eos = sub;
       if ( !readOk )
         return false;
       //IProtobufStream& i = is;
@@ -630,7 +652,8 @@ bool deserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME(
   readOk = i.readVariantUInt64( sz );
   if ( !readOk )
     return false;
-  size_t eos = i.makeSubStream( readOk, eos, sz );
+  size_t sub = i.makeSubStream( readOk, eos, sz );
+  size_t eos = sub;
   if ( !readOk )
     return false;
   //IProtobufStream& i = is;
