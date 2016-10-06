@@ -15,10 +15,12 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "output_declare.h"
 #include "output.h"
-#include "dbg_helpers.h"
 #include "../test_helper.h"
+#include "dbg_helpers.h"
 
 
 using namespace std;

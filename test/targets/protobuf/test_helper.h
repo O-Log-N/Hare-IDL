@@ -22,6 +22,8 @@ Copyright (C) 2016 OLogN Technologies AG
 
 using namespace std;
 
+
+
 template<class T>
 void testHelper(const T& root, size_t(*serialize)(const T&, OProtobufStream& os), bool(*deserialize)(T&, IProtobufStream& os),
     void(*assertEqual)(const T&, const T&), const char* fileName, const vector<uint8_t>& result)

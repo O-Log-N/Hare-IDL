@@ -15,10 +15,12 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "test.h"
 #include "output.h"
-#include "dbg_helpers.h"
 #include "../test_helper.h"
+#include "dbg_helpers.h"
 
 
 TEST(PackedSequence, UnpackedStrings)
@@ -41,8 +43,8 @@ TEST(PackedSequence, PackedVarInts)
     tc.packedVarInts.push_back(0);
     tc.packedVarInts.push_back(1000);
     tc.packedVarInts.push_back(-1000);
-    tc.packedVarInts.push_back(100000);
-    tc.packedVarInts.push_back(-100000);
+    tc.packedVarInts.push_back(10000);
+    tc.packedVarInts.push_back(-10000);
 
     testHelper(tc, &serializeTestClass, &deserializeTestClass, &assertEqualTestClass, "file2", {
         0x12, 0x0b,
