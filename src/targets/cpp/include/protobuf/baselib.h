@@ -25,8 +25,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 using namespace std;
 
-typedef bool _Bool; //mb: FIX
-
 #ifdef _MSC_VER
 #define LIKELY_BRANCH_( X ) (X)
 #else
