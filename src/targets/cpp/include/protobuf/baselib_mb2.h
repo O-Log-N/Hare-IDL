@@ -152,6 +152,8 @@ constexpr size_t getFixedSize(double) { return 8; }
 
     So, the general idea of the encoder is to verify we have 20 bytes left at the current buffer,
     if we don't, begging with a new one.
+
+
     The decoder will also check we have at least 20 bytes left in the current buffer,
     if we don't, we copy the bytes left on the current buffer 'before' the first byte of the next buffer.
     To do so, decoder buffers need to have a 'gap' at the front for this.
@@ -186,45 +188,22 @@ struct BufferDescriptor {
 public:
     uint8_t* buffer;
     size_t bufferSize;
-    uint8_t* beginPtr;
-    uint8_t* endPtr;
-    uint8_t* overrunEndPtr;
-    bool isLast;
+    size_t dataSize = 0;
 
     BufferDescriptor(uint8_t* buffer, size_t bufferSize) :
-        buffer(buffer), bufferSize(bufferSize),
-        beginPtr(buffer + BUFFER_GAP_BEGIN),
-        endPtr(buffer + bufferSize - BUFFER_GAP_END),
-        isLast(false) {}
+        buffer(buffer), bufferSize(bufferSize) {}
 
     //    BufferDescriptor& operator=(const BufferDescriptor& other) = default;
-    BufferDescriptor() : buffer(0), bufferSize(0),
-        beginPtr(0), endPtr(0), isLast(false) {}
+//    BufferDescriptor() : buffer(0), bufferSize(0),
+//        beginPtr(0), endPtr(0), isLast(false) {}
 
-    bool isValid() const {
-        return buffer != 0;
+    void setDataSize(size_t dataSize) {
+        HAREASSERT(dataSize <= getMaxDataSize());
+        this->dataSize = dataSize;
     }
 
-    bool needReplace(const uint8_t* dataPtr) const {
-        HAREASSERT(dataPtr != 0);
-        size_t left = endPtr - dataPtr;
-        return !isLast && left < BUFFER_GAP_BEGIN;
-    }
-
-    void copyLastFragment(const BufferDescriptor& other, const uint8_t* dataPtr) {
-        size_t left = other.endPtr - dataPtr;
-        HAREASSERT(left < BUFFER_GAP_BEGIN);
-
-        beginPtr -= left;
-
-        memcpy(beginPtr, dataPtr, left);
-    }
-
-    void setEnd(size_t dataSize, bool last) {
-        isLast = last;
-        HAREASSERT(beginPtr + dataSize <= endPtr);
-        endPtr = beginPtr + dataSize;
-        memset(endPtr, 0, BUFFER_GAP_END);
+    size_t getMaxDataSize() const {
+        return bufferSize - (BUFFER_GAP_BEGIN + BUFFER_GAP_END); 
     }
 
 };
@@ -297,46 +276,48 @@ class OProtobufStream
 protected:
     FakeBufferManager& manager;
     BufferGroup bufferSet;
-    BufferDescriptor current;
+
+    uint8_t* beginPtr = nullptr;
     uint8_t* dataPtr = nullptr;
+    uint8_t* softEndPtr = nullptr;
+    uint8_t* hardEndPtr = nullptr;
 
 
     void writeData(const uint8_t* data, size_t size)
     {
         size_t left = size;
         const uint8_t* ptr = data;
-        HAREASSERT(dataPtr <= current.endPtr);
 
-        while (left > static_cast<size_t>(current.endPtr - dataPtr)) {
-            size_t sz = current.endPtr - dataPtr;
+        while (left > static_cast<size_t>(softEndPtr - dataPtr)) {
+            size_t sz = softEndPtr - dataPtr;
             memcpy(dataPtr, ptr, sz);
-            dataPtr += sz;
             left -= sz;
             ptr += sz;
-            preWrite();
+            dataPtr = softEndPtr;
+            changeBuffer();
         }
 
-        HAREASSERT(dataPtr <= current.endPtr);
-        HAREASSERT(left <= static_cast<size_t>(current.endPtr - dataPtr));
+        HAREASSERT(left <= static_cast<size_t>(softEndPtr - dataPtr));
         memcpy(dataPtr, ptr, left);
         dataPtr += left;
         HAREASSERT(data + size == ptr + left);
     }
 
 
-    void preWrite()
+    void changeBuffer()
     {
-        if (dataPtr != nullptr) {
-            if (current.needReplace(dataPtr)) {
-                current.setEnd(dataPtr - current.beginPtr, false);
-                bufferSet.push_back(current);
-                current = manager.getFreeBuffer();
-                dataPtr = current.beginPtr;
-            }
-        }
-        else {
-            current = manager.getFreeBuffer();
-            dataPtr = current.beginPtr;
+        if (softEndPtr <= dataPtr) {
+            HAREASSERT(dataPtr < hardEndPtr);
+            if(!bufferSet.empty())
+                bufferSet.back().setDataSize(dataPtr - beginPtr);
+
+            BufferDescriptor& current = manager.getFreeBuffer();
+            beginPtr = current.buffer;
+            dataPtr = beginPtr;
+            softEndPtr = beginPtr + current.getMaxDataSize();
+            hardEndPtr = beginPtr + current.bufferSize;
+
+            bufferSet.push_back(current);
         }
     }
 
@@ -347,13 +328,13 @@ public:
     
     void flush()
     {
-        if (dataPtr != nullptr) {
-            current.setEnd(dataPtr - current.beginPtr, true);
-            bufferSet.push_back(current);
-            //invalidate buffer
-            current = BufferDescriptor();
-            dataPtr = nullptr;
-        }
+        if(!bufferSet.empty())
+            bufferSet.back().setDataSize(dataPtr - beginPtr);
+
+        beginPtr = nullptr;
+        dataPtr = nullptr;
+        softEndPtr = nullptr;
+        hardEndPtr = nullptr;
     }
 
     void finish()
@@ -463,13 +444,43 @@ BufferGroup readFile(FILE* file, FakeBufferManager& manager)
     return bufferPool;
 }
 
+
+/*
+    Other options, experimental.
+    General idea is to avoid buffer size checks as much as possible,
+    To do so, we need to tackle two issues.
+    First one is normal (good working) buffer swap, when one element is split,
+    with the begging in current buffer and the last part in the next buffer.
+    Second problem is how to prevent a read after the end of the buffer (on broken packet).
+
+    This implementation handles both cases using extra free space at the end of the buffers.
+
+    We use two 'gaps' at the end of each buffer.
+    The real place where valid data from each buffer ends is called 'SoftEnd',
+    After this we copy some bytes from the beggining of next buffer, we call this 'HardEnd',
+    So data between 'SoftEnd' and 'HardEnd' is duplicate from next buffer,
+    so an element we start decoding in current buffer, will always
+    end in this same buffer, without need to swap buffers in the middle.
+    After the 'HardEnd' we write a block of zero '0' to prevent decoder from reading after
+    the end of the buffer on a broken packet.
+
+    Algorithm is as follow, it is always safe to begin to decode.
+    After decoding a value, we check our data pointer.
+    If it is before 'SoftEnd', nothing to do. If it is between 'SoftEnd' and 'HardEnd'
+    we need to change buffers. If it is after 'HardEnd' the data was broken.
+*/
+
+
 class IProtobufStream
 {
 public:
     BufferGroup::const_iterator bpIt;
     const BufferGroup::const_iterator bpItEnd;
-    BufferDescriptor current;
+
+    uint8_t* beginPtr = nullptr;
     uint8_t* dataPtr = nullptr;
+    uint8_t* softEndPtr = nullptr;
+    uint8_t* hardEndPtr = nullptr;
     size_t alreadyRead = 0;
 
     IProtobufStream(const BufferGroup& bp) :
@@ -477,109 +488,91 @@ public:
 
     bool next()
     {
-        if (bpIt != bpItEnd) {
-            preRead();
+        return changeBuffer();
+    }
+
+    bool changeBuffer() {
+        if(bpIt != bpItEnd) {
+            HAREASSERT(softEndPtr < dataPtr);
+            HAREASSERT(dataPtr <= hardEndPtr);
+
+            alreadyRead += dataPtr - beginPtr;
+            size_t extra = dataPtr - softEndPtr;
+
+            beginPtr = bpIt->beginPtr + extra;
+            dataPtr = beginPtr;
+            softEndPtr = bpIt->beginPtr + bpIt->dataSize;
+
+            ++bpIt;
+
+            if(bpIt != bpItEnd) {
+                size_t gap = min(BUFFER_GAP_BEGIN, bpIt->dataSize)
+                memcpy(softEndPtr, bpIt->beginPtr, gap);
+                hardEndPtr = softEndPtr + gap;
+            }
+            else {
+                hardEndPtr = softEndPtr;
+            }
+            memset(hardEndPtr, 0, BUFFER_GAP_END);
             return true;
-        }
         else
             return false;
     }
 
-    void preRead()
+
+    bool isEndOfStream(size_t last) const
     {
-        /*
-            Think how to handle when last buffer is not really the last,
-            general buffer set inconsistency
-        */
-        if (dataPtr != nullptr) {
-            if (current.needReplace(dataPtr)) {
-                alreadyRead += dataPtr - current.beginPtr;
-                BufferDescriptor next = *bpIt;
-                next.copyLastFragment(current, dataPtr);
-                current = next;
-                ++bpIt;
-                dataPtr = current.beginPtr;
-            }
+        if (last == SIZE_MAX)
+            return bpIt == bpItEnd && dataPtr == softEndPtr;
+        else
+            return alreadyRead + (dataPtr - beginPtr) == last;
+    }
+
+    bool isGood()
+    {
+        if (dataPtr <= softEndPtr)
+            return true;
+        else if(hardEndPtr < dataPtr) {
+            // TODO invalidate
+            return false;
         }
-        else if (bpIt != bpItEnd) {
-            current = *bpIt;
-            ++bpIt;
-            dataPtr = current.beginPtr;
-            alreadyRead = 0;
-        }
+        else // softEndPtr < dataPtr <= hardEndPtr
+            return changeBuffer();
     }
 
     bool readData(char* target, size_t size)
     {
 
         size_t left = size;
-        HAREASSERT(dataPtr <= current.endPtr);
-        while (left > static_cast<size_t>(current.endPtr - dataPtr)) {
-            memcpy(target, dataPtr, current.endPtr - dataPtr);
-            dataPtr += current.endPtr - dataPtr;
-            left -= current.endPtr - dataPtr;
-            
-            if (current.isLast)
+        HAREASSERT(dataPtr <= hardEndPtr);
+        while (left > static_cast<size_t>(hardEndPtr - dataPtr)) {
+            size_t sz = hardEndPtr - dataPtr;
+            memcpy(target, dataPtr, sz);
+            left -= sz;
+            dataPtr += sz;
+
+            if (!changeBuffer())
                 return false;
 
-            preRead();
         }
 
-        HAREASSERT(dataPtr <= current.endPtr);
-        HAREASSERT(left <= static_cast<size_t>(current.endPtr - dataPtr));
+        HAREASSERT(left <= static_cast<size_t>(hardEndPtr - dataPtr));
         memcpy(target, dataPtr, left);
+        //left -= left
         dataPtr += left;
 
-        return true;
+        return isGood();
     }
 
-    bool isEndOfStream(size_t last) const {
-        if (last == SIZE_MAX)
-            return (current.isLast && dataPtr == current.endPtr);
-        else
-            return alreadyRead + (dataPtr - current.beginPtr) == last;
-    }
-
-    bool isGood() const {
-        return dataPtr <= current.endPtr;
-    }
-/*
-};
-
-
-class IProtobufStream
-{
-private:
-    IProtobufBuffer& buffer;
-    const size_t last;
-
-public:
-    IProtobufStream(IProtobufBuffer& buffer) :
-        buffer(buffer), last(SIZE_MAX) {}
-private:
-    IProtobufStream(IProtobufBuffer& buffer, size_t last) :
-        buffer(buffer), last(last) {}
-public:
-    //mb: need to diferentiate a 'clean' end of stream (at the end of a field),
-    // from a stream ending in the middle of a read.
-    bool isEndOfStream() const
-    {
-        return buffer.isEndOfStream(last);
-    }
-*/
     bool readFieldTypeAndID(int& type, int& fieldNumber)
     {
-        preRead();
-
         dataPtr = deserializeHeaderFromString(fieldNumber, type, dataPtr);
-        
+
         return isGood(); //read past the end of buffer
     }
 
     bool readVariantInt64(int64_t& x)
     {
-        preRead();
-
         uint64_t preValue;
         dataPtr = deserializeFromStringVariantUint64(preValue, dataPtr);
         x = uint64ToSint64(preValue);
@@ -590,8 +583,6 @@ public:
 
     bool readVariantUInt64(uint64_t& x)
     {
-        preRead();
-
         dataPtr = deserializeFromStringVariantUint64(x, dataPtr);
 
         return isGood(); //read past the end of buffer
@@ -599,21 +590,19 @@ public:
 
     bool readFixed64Bit(double& x)
     {
-        preRead();
-
         uint64_t tmp;
         dataPtr = deserializeFromStringFixedUint64(tmp, dataPtr);
         x = *reinterpret_cast<double*>(&tmp);
+
         return isGood();
     }
 
     bool readFixed32Bit(float& x)
     {
-        preRead();
-
         uint32_t tmp;
         dataPtr = deserializeFromStringFixedUint32(tmp, dataPtr);
         x = *reinterpret_cast<float*>(&tmp);
+
         return isGood();
     }
 
@@ -632,14 +621,12 @@ public:
 
     size_t makeSubStream(bool& ok, size_t currentEos, size_t subSize)
     {
-        size_t currentIndex = alreadyRead + (dataPtr - current.beginPtr);
+        size_t currentIndex = alreadyRead + (dataPtr - beginPtr);
         ok = currentIndex + subSize <= currentEos;
         return currentIndex + subSize;
     }
 
 };
-
-
 
 //mb
 bool discardUnexpectedField(int fieldType, IProtobufStream& i);
