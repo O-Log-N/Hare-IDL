@@ -32,11 +32,10 @@ include_directories(
   ../../../../3rdparty/protobuf/src
 )
 
-add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-
 target_link_libraries(testGpbSequenceLoop
   gtest
   libprotobuf
+  cppformat
 )
 
 set_property(TARGET testGpbSequenceLoop PROPERTY CXX_STANDARD 11)

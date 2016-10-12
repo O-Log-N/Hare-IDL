@@ -11,7 +11,7 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
-#include <protobuf/baselib_mb2.h>
+#include "protobuf/baselib.h"
 
 #define BASELIB_LITTLE_ENDIAN
 
@@ -230,8 +230,8 @@ uint8_t* serializeLengthDelimitedHeaderToString(int fieldNumber, size_t valueSiz
 
 
 //mb
-bool discardUnexpectedField(int fieldType, IProtobufStream& i) {
-
+bool discardUnexpectedField(int fieldType, IProtobufStream& i)
+{
     // Unexpected field, just read and discard
     switch (fieldType)
     {

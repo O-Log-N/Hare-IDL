@@ -22,7 +22,7 @@ Copyright (C) 2016 OLogN Technologies AG
 
 using namespace std;
 
-
+#ifndef BASELIB_MB
 
 template<class T>
 void testHelper(const T& root, size_t(*serialize)(const T&, OProtobufStream& os), bool(*deserialize)(T&, IProtobufStream& os),
@@ -92,3 +92,65 @@ void testHelper(const T& root, size_t(*serialize)(const T&, OProtobufStream& os)
         }
     }
 }
+
+#else
+
+
+template<class T>
+void testHelper(const T& root, size_t(*serialize)(const T&, OProtobufStream& os), bool(*deserialize)(T&, IProtobufStream& os),
+    void(*assertEqual)(const T&, const T&), const char* fileName, const vector<uint8_t>& result)
+{
+    FakeBufferManager manager(4096);
+
+    OProtobufStream o(manager);
+
+    size_t sz = serialize(root, o);
+
+    BufferGroup buff = o.getBufferSet();
+
+    if(!result.empty()) {
+        ASSERT_TRUE(areEqual(buff, result.begin(), result.end()));
+    }
+    else {
+        string fullName(fileName);
+        fullName += ".protobuf.bin";
+
+        FILE* f = fopen(fullName.c_str(), "w+b");
+        ASSERT_NE(f, nullptr);
+
+        writeFile(f, buff);
+    }
+
+    IProtobufStream i(buff);
+    T deserialized;
+
+    ASSERT_TRUE(deserialize(deserialized, i));
+    assertEqual(root, deserialized);
+}
+
+template<class T>
+void testHelper(const T& root, size_t(*serialize)(const T&, OProtobufStream& os), const char* fileName, const vector<uint8_t>& result)
+{
+    FakeBufferManager manager(4096);
+
+    OProtobufStream o(manager);
+
+    size_t sz = serialize(root, o);
+
+    BufferGroup buff = o.getBufferSet();
+
+    if(!result.empty()) {
+        ASSERT_TRUE(areEqual(buff, result.begin(), result.end()));
+    }
+    else {
+        string fullName(fileName);
+        fullName += ".protobuf.bin";
+
+        FILE* f = fopen(fullName.c_str(), "w+b");
+        ASSERT_NE(f, nullptr);
+
+        writeFile(f, buff);
+    }
+}
+
+#endif // BASELIB_MB

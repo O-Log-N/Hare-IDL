@@ -21,20 +21,19 @@ add_executable(testDiscriminatedUnion
   output.h
   output.cpp
   dbg_helpers.h
-  ../../../../src/targets/cpp/include/protobuf/baselib.h
-  ../../../../src/targets/cpp/libsrc/protobuf/baselib.cpp
+  ${BASELIB_INCLUDE}/protobuf/baselib.h
+  ${BASELIB_CPP}/protobuf/baselib.cpp
 )
 
 include_directories(
   ../../../../src
-  ../../../../src/targets/cpp/include
+  ${BASELIB_INCLUDE}
   ../../../../3rdparty/googletest/googletest/include
 )
 
-add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-
 target_link_libraries(testDiscriminatedUnion
   gtest
+  cppformat
 )
 
 set_property(TARGET testDiscriminatedUnion PROPERTY CXX_STANDARD 11)

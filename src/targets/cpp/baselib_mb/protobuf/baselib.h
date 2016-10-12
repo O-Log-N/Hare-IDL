@@ -22,10 +22,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <cstdio>
 #include <string>
 #include <cstring>
+#include <algorithm>
 
 #include "hare/hare.h"
 
 using namespace std;
+
+#define BASELIB_MB
 
 #ifdef _MSC_VER
 #define LIKELY_BRANCH_( X ) (X)
@@ -150,27 +153,29 @@ constexpr size_t getFixedSize(double) { return 8; }
     3. To encoding / decoding strings need to copy to / from buffer the content
         of the string anyway.
 
-    So, the general idea of the encoder is to verify we have 20 bytes left at the current buffer,
-    if we don't, begging with a new one.
+    
+    To avoid extra checks at encoding, we always verify we have 20 bytes left at the current buffer,
+    so we can be sure current element will fit inside current buffer.
+    If we don't have 20 bytes, we just beging with a new buffer.
 
+    At decoding we need to handle two situations, one is normal (good working) buffer swap,
+    when one element to be read begins in current buffer and ends in the next one.
+    Second problem is how to prevent a read after the end of the buffer on a broken packet.
 
-    The decoder will also check we have at least 20 bytes left in the current buffer,
-    if we don't, we copy the bytes left on the current buffer 'before' the first byte of the next buffer.
-    To do so, decoder buffers need to have a 'gap' at the front for this.
-    Strings are handled in special case, and always copy the content to as many buffers as needed.
+    To do so, at decoding we copy the first 20 bytes from next buffer at the end of the current buffer,
+    And keep marks where this buffer data ends (softEndPtr), and where 'extended' data from next buffer
+    ends (hardEndPtr).
+    After 'hardEndPtr', we write a 'buffer stop' of zeros to stop decoder from overrun.
+    If current data pointer is before 'softEndPtr', we can be sure current element can be read from
+    current (possible extended) buffer. 
+    If current data pointer is between 'softEndPtr' and 'hardEndPtr' we are reading into data copied from
+    next buffer, so we can just change our pointer into next buffer and go on.
+    If current data pointer is after 'hardEndPtr' the previous data was broken, and decoder stoped
+    because of zeros at the end.
 
     This will allow to handle arbitrary size messages using one or more fixed size buffers,
     and encoding / decoding on the buffer, without extra copy.
 
-    General working concept:
-    On the encoding side, encoding is made on the main loop thread over a set of empty buffers,
-    when encoding is done, the set of buffers is pased to the io thread for sending.
-    On the receive side, io thread receives a message on a set of empty buffers and passes them
-    to the main loop thread for decoding.
-    In this concept, the buffers are the main object shared between io and main loop threads,
-    and the main syncronization point. It should allow a very simple, robust and performing interface.
-
-    However all this buffer managment adds extra work and performance should be checked
 */
 
 const size_t BUFFER_GAP_BEGIN = 20;
@@ -179,9 +184,8 @@ const size_t BUFFER_SIZE = 1024;
 const size_t MAX_STRING_SIZE = std::string().max_size();
 
 /*
-    Every buffer must has BUFFER_GAP_BEGIN unused bytes at the begging and
-    BUFFER_GAP_END byte free at the end to avoid broken packages from
-    reading out of allocated buffer.
+    Every buffer must has BUFFER_GAP_BEGIN plus BUFFER_GAP_END unused bytes at the end,
+    to allow for required manipulation on the buffers
 */
 
 struct BufferDescriptor {
@@ -193,19 +197,32 @@ public:
     BufferDescriptor(uint8_t* buffer, size_t bufferSize) :
         buffer(buffer), bufferSize(bufferSize) {}
 
-    //    BufferDescriptor& operator=(const BufferDescriptor& other) = default;
-//    BufferDescriptor() : buffer(0), bufferSize(0),
-//        beginPtr(0), endPtr(0), isLast(false) {}
-
-    void setDataSize(size_t dataSize) {
+    void setDataSize(size_t dataSize)
+    {
         HAREASSERT(dataSize <= getMaxDataSize());
         this->dataSize = dataSize;
     }
 
-    size_t getMaxDataSize() const {
-        return bufferSize - (BUFFER_GAP_BEGIN + BUFFER_GAP_END); 
+    size_t getMaxDataSize() const
+    {
+        return bufferSize - BUFFER_GAP_BEGIN - BUFFER_GAP_END; 
     }
 
+    size_t copyBufferOverlapAndMakeBufferStop(const BufferDescriptor& other)
+    {
+        HAREASSERT(dataSize + BUFFER_GAP_BEGIN + BUFFER_GAP_END <= bufferSize);
+        size_t gap = min(BUFFER_GAP_BEGIN, other.dataSize);
+        memcpy(&buffer[dataSize], other.buffer, gap);
+        memset(&buffer[dataSize + gap], 0, BUFFER_GAP_END);
+        
+        return gap;
+    }
+
+    void makeBufferStop()
+    {
+        HAREASSERT(dataSize + BUFFER_GAP_BEGIN + BUFFER_GAP_END <= bufferSize);
+        memset(&buffer[dataSize], 0, BUFFER_GAP_END);
+    }
 };
 
 typedef deque<BufferDescriptor> BufferGroup;
@@ -216,13 +233,15 @@ bool areEqual(const BufferGroup& left, T itBegin, T itEnd)
     BufferGroup::const_iterator leftIt = left.begin();
     if (leftIt == left.end())
         return itBegin == itEnd;
-    uint8_t* dataPtr = leftIt->beginPtr;
+    uint8_t* dataPtr = leftIt->buffer;
+    uint8_t* endPtr = leftIt->buffer + leftIt->dataSize;
     while (itBegin != itEnd) {
-        if (dataPtr == leftIt->endPtr) {
+        if (dataPtr == endPtr) {
             ++leftIt;
             if (leftIt == left.end())
                 return false;
-            uint8_t* dataPtr = leftIt->beginPtr;
+            dataPtr = leftIt->buffer;
+            endPtr = leftIt->buffer + leftIt->dataSize;
         }
         if (*dataPtr != *itBegin)
             return false;
@@ -231,7 +250,7 @@ bool areEqual(const BufferGroup& left, T itBegin, T itEnd)
         ++itBegin;
     }
 
-    return dataPtr == leftIt->endPtr && ++leftIt == left.end();
+    return dataPtr == endPtr && ++leftIt == left.end();
 }
     
 
@@ -273,14 +292,13 @@ public:
 
 class OProtobufStream
 {
-protected:
+private:
     FakeBufferManager& manager;
     BufferGroup bufferSet;
 
     uint8_t* beginPtr = nullptr;
     uint8_t* dataPtr = nullptr;
-    uint8_t* softEndPtr = nullptr;
-    uint8_t* hardEndPtr = nullptr;
+    uint8_t* endPtr = nullptr;
 
 
     void writeData(const uint8_t* data, size_t size)
@@ -288,34 +306,33 @@ protected:
         size_t left = size;
         const uint8_t* ptr = data;
 
-        while (left > static_cast<size_t>(softEndPtr - dataPtr)) {
-            size_t sz = softEndPtr - dataPtr;
+        while (left > static_cast<size_t>(endPtr - dataPtr)) {
+            size_t sz = endPtr - dataPtr;
             memcpy(dataPtr, ptr, sz);
             left -= sz;
             ptr += sz;
-            dataPtr = softEndPtr;
+            dataPtr += sz;
             changeBuffer();
         }
 
-        HAREASSERT(left <= static_cast<size_t>(softEndPtr - dataPtr));
+        //HAREASSERT(left <= static_cast<size_t>(endPtr - dataPtr));
+        HAREASSERT(data + size == ptr + left);
+
         memcpy(dataPtr, ptr, left);
         dataPtr += left;
-        HAREASSERT(data + size == ptr + left);
     }
 
 
     void changeBuffer()
     {
-        if (softEndPtr <= dataPtr) {
-            HAREASSERT(dataPtr < hardEndPtr);
+        if (endPtr <= dataPtr) {
             if(!bufferSet.empty())
                 bufferSet.back().setDataSize(dataPtr - beginPtr);
 
             BufferDescriptor& current = manager.getFreeBuffer();
             beginPtr = current.buffer;
             dataPtr = beginPtr;
-            softEndPtr = beginPtr + current.getMaxDataSize();
-            hardEndPtr = beginPtr + current.bufferSize;
+            endPtr = beginPtr + current.getMaxDataSize();
 
             bufferSet.push_back(current);
         }
@@ -333,8 +350,7 @@ public:
 
         beginPtr = nullptr;
         dataPtr = nullptr;
-        softEndPtr = nullptr;
-        hardEndPtr = nullptr;
+        endPtr = nullptr;
     }
 
     void finish()
@@ -349,7 +365,7 @@ public:
 
     void writeInt(int fieldNumber, int64_t x)
     {
-        preWrite();
+        changeBuffer();
         dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::VARINT, dataPtr);
         uint64_t unsig = sint64ToUint64(x);
         dataPtr = serializeToStringVariantUint64(unsig, dataPtr);
@@ -357,60 +373,61 @@ public:
     
     void writeUInt(int fieldNumber, uint64_t x)
     {
-        preWrite();
+        changeBuffer();
         dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::VARINT, dataPtr);
         dataPtr = serializeToStringVariantUint64(x, dataPtr);
     }
 
     void writeDouble(int fieldNumber, double x)
     {
-        preWrite();
+        changeBuffer();
         dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::FIXED_64_BIT, dataPtr);
         dataPtr = serializeToStringFixedUint64(*(uint64_t*)(&x), dataPtr);
     }
 
     void writeFloat(int fieldNumber, float x)
     {
-        preWrite();
+        changeBuffer();
         dataPtr = serializeHeaderToString(fieldNumber, WIRE_TYPE::FIXED_32_BIT, dataPtr);
         dataPtr = serializeToStringFixedUint32(*(uint32_t*)(&x), dataPtr);
     }
 
     void writeString(int fieldNumber, const std::string& x)
     {
-        preWrite();
-        dataPtr = serializeLengthDelimitedHeaderToString(fieldNumber, x.size(), dataPtr);
-        writeData(reinterpret_cast<const uint8_t*>(x.c_str()), x.size());
+        changeBuffer();
+        size_t sz = min(x.size(), MAX_STRING_SIZE);
+        dataPtr = serializeLengthDelimitedHeaderToString(fieldNumber, sz, dataPtr);
+        writeData(reinterpret_cast<const uint8_t*>(x.c_str()), sz);
     }
 
     void writeObjectTagAndSize(int fieldNumber, size_t sz)
     {
-        preWrite();
+        changeBuffer();
         dataPtr = serializeLengthDelimitedHeaderToString(fieldNumber, sz, dataPtr);
     }
 
     void writePackedSignedVarInt(int64_t x)
     {
-        preWrite();
+        changeBuffer();
         uint64_t unsig = sint64ToUint64(x);
         dataPtr = serializeToStringVariantUint64(unsig, dataPtr);
     }
 
     void writePackedUnsignedVarInt(uint64_t x)
     {
-        preWrite();
+        changeBuffer();
         dataPtr = serializeToStringVariantUint64(x, dataPtr);
     }
 
     void writePackedDouble(double x)
     {
-        preWrite();
+        changeBuffer();
         dataPtr = serializeToStringFixedUint64(*(uint64_t*)(&x), dataPtr);
     }
 
     void writePackedFloat(float x)
     {
-        preWrite();
+        changeBuffer();
         dataPtr = serializeToStringFixedUint32(*(uint32_t*)(&x), dataPtr);
     }
 };
@@ -419,7 +436,7 @@ inline
 void writeFile(FILE* file, const BufferGroup& buffSet)
 {
     for (auto each : buffSet) {
-        fwrite(each.beginPtr, each.endPtr - each.beginPtr, 1, file);
+        fwrite(each.buffer, each.dataSize, 1, file);
     }
 }
 
@@ -433,10 +450,10 @@ BufferGroup readFile(FILE* file, FakeBufferManager& manager)
         uint8_t* ptr = static_cast<uint8_t*>(malloc(BUFFER_SIZE));
 
         BufferDescriptor buffer = manager.getFreeBuffer();
-        size_t maxRead = buffer.endPtr - buffer.beginPtr;
-        size_t sz = fread(buffer.beginPtr, 1, maxRead, file);
+        size_t maxRead = buffer.getMaxDataSize();
+        size_t sz = fread(buffer.buffer, 1, maxRead, file);
         isLast = sz != maxRead;
-        buffer.setEnd(sz, isLast);
+        buffer.setDataSize(sz);
 
         bufferPool.push_back(buffer);
     }
@@ -473,9 +490,9 @@ BufferGroup readFile(FILE* file, FakeBufferManager& manager)
 
 class IProtobufStream
 {
-public:
-    BufferGroup::const_iterator bpIt;
-    const BufferGroup::const_iterator bpItEnd;
+private:
+    BufferGroup::iterator bpIt;
+    const BufferGroup::iterator bpItEnd;
 
     uint8_t* beginPtr = nullptr;
     uint8_t* dataPtr = nullptr;
@@ -483,49 +500,34 @@ public:
     uint8_t* hardEndPtr = nullptr;
     size_t alreadyRead = 0;
 
-    IProtobufStream(const BufferGroup& bp) :
-        bpIt(bp.begin()), bpItEnd(bp.end()) {}
-
-    bool next()
-    {
-        return changeBuffer();
-    }
-
     bool changeBuffer() {
+        HAREASSERT(dataPtr <= hardEndPtr);
         if(bpIt != bpItEnd) {
-            HAREASSERT(softEndPtr < dataPtr);
-            HAREASSERT(dataPtr <= hardEndPtr);
 
             alreadyRead += dataPtr - beginPtr;
             size_t extra = dataPtr - softEndPtr;
 
-            beginPtr = bpIt->beginPtr + extra;
+            beginPtr = bpIt->buffer + extra;
             dataPtr = beginPtr;
-            softEndPtr = bpIt->beginPtr + bpIt->dataSize;
+            softEndPtr = bpIt->buffer + bpIt->dataSize;
+            hardEndPtr = softEndPtr;
 
+            auto currentIt = bpIt;
             ++bpIt;
 
             if(bpIt != bpItEnd) {
-                size_t gap = min(BUFFER_GAP_BEGIN, bpIt->dataSize)
-                memcpy(softEndPtr, bpIt->beginPtr, gap);
-                hardEndPtr = softEndPtr + gap;
+                hardEndPtr += currentIt->copyBufferOverlapAndMakeBufferStop(*bpIt);
             }
             else {
-                hardEndPtr = softEndPtr;
+                currentIt->makeBufferStop();
             }
-            memset(hardEndPtr, 0, BUFFER_GAP_END);
+
             return true;
-        else
+        }
+        else {
+       
             return false;
-    }
-
-
-    bool isEndOfStream(size_t last) const
-    {
-        if (last == SIZE_MAX)
-            return bpIt == bpItEnd && dataPtr == softEndPtr;
-        else
-            return alreadyRead + (dataPtr - beginPtr) == last;
+        }
     }
 
     bool isGood()
@@ -562,6 +564,27 @@ public:
         dataPtr += left;
 
         return isGood();
+    }
+
+public:
+
+    IProtobufStream(BufferGroup& bp) :
+        bpIt(bp.begin()), bpItEnd(bp.end())
+        {
+            changeBuffer();       
+        }
+
+    bool next()
+    {
+        return true;
+    }
+
+    bool isEndOfStream(size_t last) const
+    {
+        if (last == SIZE_MAX)
+            return bpIt == bpItEnd && dataPtr == softEndPtr;
+        else
+            return alreadyRead + (dataPtr - beginPtr) == last;
     }
 
     bool readFieldTypeAndID(int& type, int& fieldNumber)

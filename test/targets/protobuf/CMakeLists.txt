@@ -10,10 +10,16 @@ SET(protobuf_BUILD_TESTS OFF CACHE BOOL "Build tests")
 SET(protobuf_MSVC_STATIC_RUNTIME OFF CACHE BOOL "Link static runtime libraries")
 add_subdirectory(../../../3rdparty/protobuf/cmake protobuf)
 
+add_subdirectory(../../../3rdparty/cppformat cppformat)
+
+SET(BASELIB_INCLUDE ../../../../src/targets/cpp/baselib_mb)
+SET(BASELIB_CPP ../../../../src/targets/cpp/baselib_mb)
+
+
 add_subdirectory(basic-types)
 add_subdirectory(discriminated-union)
-add_subdirectory(gpb-loop)
-add_subdirectory(gpb-sequence-loop)
+#add_subdirectory(gpb-loop)
+#add_subdirectory(gpb-sequence-loop)
 add_subdirectory(idl-primitive)
 add_subdirectory(packed-sequence)
 add_subdirectory(poly-ptr)
