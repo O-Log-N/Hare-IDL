@@ -15,7 +15,6 @@ Copyright (C) 2016 OLogN Technologies AG
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
-#include "protobuf/baselib.h"
 #include "baselib_func_benchmark.h"
 
 #include "benchmark/benchmark.h"
@@ -111,22 +110,28 @@ vector<string> constructDataString()
     not only validates the functions are working correctly, but also
     prevents compiler from doing to much optimization and removing the
     loop completely
+
+    We leave one unused byte between each value we encode, this is to
+    force values to be misaligned as they will probably be in a real
+    message
 */
 
 #define SERIALIZE_GENERIC(T, REF_SERIALIZE, FUNC) \
     vector<T> data = constructData_##T(); \
-    uint8_t baseBuff[bigBuffSize]; \
+    uint8_t baseBuff[bigBuffSize] = {0}; \
     uint8_t* dataPtr = baseBuff; \
     while (state.KeepRunning()) { \
         dataPtr = baseBuff; \
         for (auto each : data) { \
             dataPtr = FUNC(each, dataPtr); \
+            ++dataPtr; \
         } \
     } \
-    uint8_t baseBuff2[bigBuffSize]; \
+    uint8_t baseBuff2[bigBuffSize] = {0}; \
     uint8_t* dataPtr2 = baseBuff2; \
     for (auto each : data) { \
         dataPtr2 = REF_SERIALIZE(each, dataPtr2); \
+        ++dataPtr2; \
     } \
     if(dataPtr2 - baseBuff2 != dataPtr - baseBuff) { \
         state.SkipWithError("Wrong data size"); \
@@ -145,6 +150,7 @@ vector<string> constructDataString()
     uint8_t* dataPtr = baseBuff; \
     for (auto each : data) { \
         dataPtr = REF_SERIALIZE(each, dataPtr); \
+        ++dataPtr; \
     } \
     vector<T> result; \
     result.reserve(data.size()); \
@@ -155,6 +161,7 @@ vector<string> constructDataString()
         while (ptr != dataPtr) { \
             ptr = FUNC(value, ptr); \
             result.push_back(value); \
+            ++ptr; \
         } \
     } \
     if(data.size() != result.size()) { \
@@ -169,8 +176,99 @@ vector<string> constructDataString()
     } \
 
 
-#define SERIALIZE_VAR_INT(FUNC) SERIALIZE_GENERIC(uint64_t, serializeToStringVariantUint64, FUNC)
-#define DESERIALIZE_VAR_INT(FUNC) DESERIALIZE_GENERIC(uint64_t, serializeToStringVariantUint64, FUNC)
+#define SERIALIZE_GENERIC_REF(T, REF_SERIALIZE, FUNC) \
+    vector<T> data = constructData_##T(); \
+    uint8_t baseBuff[bigBuffSize] = {0}; \
+    uint8_t* dataPtr = baseBuff; \
+    while (state.KeepRunning()) { \
+        dataPtr = baseBuff; \
+        for (auto each : data) { \
+            FUNC(each, dataPtr); \
+            ++dataPtr; \
+        } \
+    } \
+    uint8_t baseBuff2[bigBuffSize] = {0}; \
+    uint8_t* dataPtr2 = baseBuff2; \
+    for (auto each : data) { \
+        dataPtr2 = REF_SERIALIZE(each, dataPtr2); \
+        ++dataPtr2; \
+    } \
+    if(dataPtr2 - baseBuff2 != dataPtr - baseBuff) { \
+        state.SkipWithError("Wrong data size"); \
+        return; \
+    } \
+    for (size_t i = 0; i != dataPtr - baseBuff; ++i) { \
+        if(baseBuff[i] != baseBuff2[i]) { \
+            state.SkipWithError("Wrong data"); \
+            return; \
+        } \
+    } \
+
+#define DESERIALIZE_GENERIC_REF(T, REF_SERIALIZE, FUNC) \
+    vector<T> data = constructData_##T(); \
+    uint8_t baseBuff[bigBuffSize]; \
+    uint8_t* encPtr = baseBuff; \
+    for (auto each : data) { \
+        encPtr = REF_SERIALIZE(each, encPtr); \
+        ++encPtr; \
+    } \
+    vector<T> result; \
+    result.reserve(data.size()); \
+    while (state.KeepRunning()) { \
+        result.clear(); \
+        uint8_t* ptr = baseBuff; \
+        T value = 0; \
+        bool ok = true; \
+        while (ptr != encPtr) { \
+            auto value = FUNC(ptr, ok); \
+            result.push_back(value); \
+            ++ptr; \
+        } \
+    } \
+    if(data.size() != result.size()) { \
+        state.SkipWithError("Wrong data size"); \
+        return; \
+    } \
+    for (size_t i = 0; i != data.size(); ++i) { \
+        if(data[i] != result[i]) { \
+            state.SkipWithError("Wrong data"); \
+            return; \
+        } \
+    } \
+
+#define DESERIALIZE_GENERIC_REF_FIXED(T, REF_SERIALIZE, FUNC) \
+    vector<T> data = constructData_##T(); \
+    uint8_t baseBuff[bigBuffSize]; \
+    uint8_t* encPtr = baseBuff; \
+    for (auto each : data) { \
+        encPtr = REF_SERIALIZE(each, encPtr); \
+        ++encPtr; \
+    } \
+    vector<T> result; \
+    result.reserve(data.size()); \
+    while (state.KeepRunning()) { \
+        result.clear(); \
+        uint8_t* ptr = baseBuff; \
+        T value = 0; \
+        while (ptr != encPtr) { \
+            auto value = FUNC(ptr); \
+            result.push_back(value); \
+            ++ptr; \
+        } \
+    } \
+    if(data.size() != result.size()) { \
+        state.SkipWithError("Wrong data size"); \
+        return; \
+    } \
+    for (size_t i = 0; i != data.size(); ++i) { \
+        if(data[i] != result[i]) { \
+            state.SkipWithError("Wrong data"); \
+            return; \
+        } \
+    } \
+
+#define SERIALIZE_VAR_INT(FUNC) SERIALIZE_GENERIC(uint64_t, bnchmrk::serializeToStringVariantUint64, FUNC)
+#define DESERIALIZE_VAR_INT(FUNC) DESERIALIZE_GENERIC(uint64_t, bnchmrk::serializeToStringVariantUint64, FUNC)
 
 void serializeVarInt(benchmark::State& state) {
     SERIALIZE_VAR_INT(bnchmrk::serializeToStringVariantUint64);
@@ -180,6 +278,10 @@ void serializeVarInt_loop(benchmark::State& state) {
     SERIALIZE_VAR_INT(bnchmrk::serializeToStringVariantUint64_loop);
 }
 
+void serializeVarInt_ref(benchmark::State& state) {
+    SERIALIZE_GENERIC_REF(uint64_t, bnchmrk::serializeToStringVariantUint64, bnchmrk::serializeToStringVariantUint64_ref);
+}
+
 static void deserializeVarInt(benchmark::State& state) {
     DESERIALIZE_VAR_INT(bnchmrk::deserializeFromStringVariantUint64);
 }
@@ -187,6 +289,11 @@ static void deserializeVarInt(benchmark::State& state) {
 static void deserializeVarInt_loop(benchmark::State& state) {
     DESERIALIZE_VAR_INT(bnchmrk::deserializeFromStringVariantUint64_loop);
 }
+
+static void deserializeVarInt_ref(benchmark::State& state) {
+    DESERIALIZE_GENERIC_REF(uint64_t, bnchmrk::serializeToStringVariantUint64, bnchmrk::deserializeFromStringVariantUint64_ref);
+}
+
 
 #define SERIALIZE_FIXED_64(FUNC) SERIALIZE_GENERIC(uint64_t, bnchmrk::serializeToStringFixedUint64, FUNC)
 #define DESERIALIZE_FIXED_64(FUNC) DESERIALIZE_GENERIC(uint64_t, bnchmrk::serializeToStringFixedUint64, FUNC)
@@ -223,8 +330,16 @@ static void deserializeFixed64_3(benchmark::State& state) {
     DESERIALIZE_FIXED_64(bnchmrk::deserializeFromStringFixedUint64_3);
 }
 
+static void deserializeFixed64_3_ref(benchmark::State& state) {
+    DESERIALIZE_GENERIC_REF_FIXED(uint64_t, bnchmrk::serializeToStringFixedUint64, bnchmrk::deserializeFromStringFixedUint64_3_ref);
+}
+
 static void deserializeFixed64_little(benchmark::State& state) {
     DESERIALIZE_FIXED_64(bnchmrk::deserializeFromStringFixedUint64_little);
+}
+
+static void deserializeFixed64_little_ref(benchmark::State& state) {
+    DESERIALIZE_GENERIC_REF_FIXED(uint64_t, bnchmrk::serializeToStringFixedUint64, bnchmrk::deserializeFromStringFixedUint64_little_ref);
 }
 
 static void deserializeFixed64_loop(benchmark::State& state) {
@@ -266,8 +381,16 @@ static void deserializeFixed32_3(benchmark::State& state) {
     DESERIALIZE_FIXED_32(bnchmrk::deserializeFromStringFixedUint32_3);
 }
 
+static void deserializeFixed32_3_ref(benchmark::State& state) {
+    DESERIALIZE_GENERIC_REF_FIXED(uint32_t, bnchmrk::serializeToStringFixedUint32, bnchmrk::deserializeFromStringFixedUint32_3_ref);
+}
+
 static void deserializeFixed32_little(benchmark::State& state) {
     DESERIALIZE_FIXED_32(bnchmrk::deserializeFromStringFixedUint32_little);
+}
+
+static void deserializeFixed32_little_ref(benchmark::State& state) {
+    DESERIALIZE_GENERIC_REF_FIXED(uint32_t, bnchmrk::serializeToStringFixedUint32, bnchmrk::deserializeFromStringFixedUint32_little_ref);
 }
 
 static void deserializeFixed32_loop(benchmark::State& state) {
@@ -276,6 +399,7 @@ static void deserializeFixed32_loop(benchmark::State& state) {
 
 
 BENCHMARK(serializeVarInt);
+BENCHMARK(serializeVarInt_ref);
 BENCHMARK(serializeVarInt_loop);
 
 BENCHMARK(serializeFixed64_little);
@@ -291,18 +415,23 @@ BENCHMARK(serializeFixed32_loop);
 BENCHMARK(serializeFixed32_loop2);
 
 BENCHMARK(deserializeVarInt);
+BENCHMARK(deserializeVarInt_ref);
 BENCHMARK(deserializeVarInt_loop);
 
 BENCHMARK(deserializeFixed64_little);
+BENCHMARK(deserializeFixed64_little_ref);
 BENCHMARK(deserializeFixed64);
 BENCHMARK(deserializeFixed64_2);
 BENCHMARK(deserializeFixed64_3);
+BENCHMARK(deserializeFixed64_3_ref);
 BENCHMARK(deserializeFixed64_loop);
 
 BENCHMARK(deserializeFixed32_little);
+BENCHMARK(deserializeFixed32_little_ref);
 BENCHMARK(deserializeFixed32);
 BENCHMARK(deserializeFixed32_2);
 BENCHMARK(deserializeFixed32_3);
+BENCHMARK(deserializeFixed32_3_ref);
 BENCHMARK(deserializeFixed32_loop);
 
 

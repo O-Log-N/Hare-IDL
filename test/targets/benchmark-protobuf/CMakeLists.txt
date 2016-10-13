@@ -33,10 +33,6 @@ add_executable(benchmarkProtobuf
   main.cpp
   baselib_func_benchmark.h
   baselib_func_benchmark.cpp
-  ../../../src/targets/cpp/include/protobuf/baselib.h
-  ../../../src/targets/cpp/libsrc/protobuf/baselib.cpp
-  ../../../src/targets/cpp/include/protobuf/baselib2.h
-  ../../../src/targets/cpp/libsrc/protobuf/baselib2.cpp
 )
 
 include_directories(
