@@ -198,7 +198,63 @@ uint8_t* deserializeFromStringVariantUint64(uint64_t& value, uint8_t* buff)
     return buff;
 }
 
-uint64_t deserializeFromStringVariantUint64_ref(uint8_t*& buff, bool& ok)
+const uint8_t* deserializeFromStringVariantUint64_const(uint64_t& value, const uint8_t* buff)
+{
+    value = 0;
+    {
+        value |= uint64_t(*buff & 0x7f);
+        if (*buff & 0x80)
+        {
+            ++buff;
+            value |= uint64_t(*buff & 0x7f) << 7;
+            if (*buff & 0x80)
+            {
+                ++buff;
+                value |= uint64_t(*buff & 0x7f) << 14;
+                if (*buff & 0x80)
+                {
+                    ++buff;
+                    value |= uint64_t(*buff & 0x7f) << 21;
+                    if (*buff & 0x80)
+                    {
+                        ++buff;
+                        value |= uint64_t(*buff & 0x7f) << 28;
+                        if (*buff & 0x80)
+                        {
+                            ++buff;
+                            value |= uint64_t(*buff & 0x7f) << 35;
+                            if (*buff & 0x80)
+                            {
+                                ++buff;
+                                value |= uint64_t(*buff & 0x7f) << 42;
+                                if (*buff & 0x80)
+                                {
+                                    ++buff;
+                                    value |= uint64_t(*buff & 0x7f) << 49;
+                                    if (*buff & 0x80)
+                                    {
+                                        ++buff;
+                                        value |= uint64_t(*buff & 0x7f) << 56;
+                                        if (*buff & 0x80)
+                                        {
+                                            ++buff;
+                                            value |= uint64_t(*buff & 0x7f) << 63;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    ++buff;
+    return buff;
+}
+
+uint64_t deserializeFromStringVariantUint64_ref(const uint8_t*& buff, bool& ok)
 {
     uint64_t value = 0;
     {
@@ -271,9 +327,9 @@ uint8_t* deserializeFromStringFixedUint64_little(uint64_t& value, uint8_t* buff)
     return buff + 8;
 }
 
-uint64_t deserializeFromStringFixedUint64_little_ref(uint8_t*& buff)
+uint64_t deserializeFromStringFixedUint64_little_ref(const uint8_t*& buff)
 {
-    uint64_t value = *reinterpret_cast<uint64_t*>(buff);
+    uint64_t value = *reinterpret_cast<const uint64_t*>(buff);
     buff += 8;
     return value;
 }
@@ -360,7 +416,7 @@ uint8_t* deserializeFromStringFixedUint64_3(uint64_t& value, uint8_t* buff)
     return buff + 8;
 }
 
-uint64_t deserializeFromStringFixedUint64_3_ref(uint8_t*& buff)
+uint64_t deserializeFromStringFixedUint64_3_ref(const uint8_t*& buff)
 {
     uint64_t value0 = uint64_t(buff[0]);
     uint64_t value1 = uint64_t(buff[1]) << 8;
@@ -427,9 +483,9 @@ uint8_t* deserializeFromStringFixedUint32_little(uint32_t& value, uint8_t* buff)
     return buff + 4;
 }
 
-uint32_t deserializeFromStringFixedUint32_little_ref(uint8_t*& buff)
+uint32_t deserializeFromStringFixedUint32_little_ref(const uint8_t*& buff)
 {
-    uint32_t value = *reinterpret_cast<uint32_t*>(buff);
+    uint32_t value = *reinterpret_cast<const uint32_t*>(buff);
     buff += 4;
     return value;
 }
@@ -492,7 +548,7 @@ uint8_t* deserializeFromStringFixedUint32_3(uint32_t& value, uint8_t* buff)
     return buff + 4;
 }
 
-uint32_t deserializeFromStringFixedUint32_3_ref(uint8_t*& buff)
+uint32_t deserializeFromStringFixedUint32_3_ref(const uint8_t*& buff)
 {
     uint32_t value0 = uint32_t(buff[0]);
     uint32_t value1 = uint32_t(buff[1]) << 8;

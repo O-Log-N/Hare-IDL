@@ -176,6 +176,37 @@ vector<string> constructDataString()
     } \
 
 
+#define DESERIALIZE_GENERIC_CONST(T, REF_SERIALIZE, FUNC) \
+    vector<T> data = constructData_##T(); \
+    uint8_t baseBuff[bigBuffSize]; \
+    uint8_t* dataPtr = baseBuff; \
+    for (auto each : data) { \
+        dataPtr = REF_SERIALIZE(each, dataPtr); \
+        ++dataPtr; \
+    } \
+    vector<T> result; \
+    result.reserve(data.size()); \
+    while (state.KeepRunning()) { \
+        result.clear(); \
+        const uint8_t* ptr = baseBuff; \
+        T value = 0; \
+        while (ptr != dataPtr) { \
+            ptr = FUNC(value, ptr); \
+            result.push_back(value); \
+            ++ptr; \
+        } \
+    } \
+    if(data.size() != result.size()) { \
+        state.SkipWithError("Wrong data size"); \
+        return; \
+    } \
+    for (size_t i = 0; i != data.size(); ++i) { \
+        if(data[i] != result[i]) { \
+            state.SkipWithError("Wrong data"); \
+            return; \
+        } \
+    } \
+
 #define SERIALIZE_GENERIC_REF(T, REF_SERIALIZE, FUNC) \
     vector<T> data = constructData_##T(); \
     uint8_t baseBuff[bigBuffSize] = {0}; \
@@ -216,7 +247,7 @@ vector<string> constructDataString()
     result.reserve(data.size()); \
     while (state.KeepRunning()) { \
         result.clear(); \
-        uint8_t* ptr = baseBuff; \
+        const uint8_t* ptr = baseBuff; \
         T value = 0; \
         bool ok = true; \
         while (ptr != encPtr) { \
@@ -248,7 +279,7 @@ vector<string> constructDataString()
     result.reserve(data.size()); \
     while (state.KeepRunning()) { \
         result.clear(); \
-        uint8_t* ptr = baseBuff; \
+        const uint8_t* ptr = baseBuff; \
         T value = 0; \
         while (ptr != encPtr) { \
             auto value = FUNC(ptr); \
@@ -294,6 +325,9 @@ static void deserializeVarInt_ref(benchmark::State& state) {
     DESERIALIZE_GENERIC_REF(uint64_t, bnchmrk::serializeToStringVariantUint64, bnchmrk::deserializeFromStringVariantUint64_ref);
 }
 
+static void deserializeVarInt_const(benchmark::State& state) {
+    DESERIALIZE_GENERIC_CONST(uint64_t, bnchmrk::serializeToStringVariantUint64, bnchmrk::deserializeFromStringVariantUint64_const);
+}
 
 #define SERIALIZE_FIXED_64(FUNC) SERIALIZE_GENERIC(uint64_t, bnchmrk::serializeToStringFixedUint64, FUNC)
 #define DESERIALIZE_FIXED_64(FUNC) DESERIALIZE_GENERIC(uint64_t, bnchmrk::serializeToStringFixedUint64, FUNC)
@@ -415,6 +449,7 @@ BENCHMARK(serializeFixed32_loop);
 BENCHMARK(serializeFixed32_loop2);
 
 BENCHMARK(deserializeVarInt);
+BENCHMARK(deserializeVarInt_const);
 BENCHMARK(deserializeVarInt_ref);
 BENCHMARK(deserializeVarInt_loop);
 
