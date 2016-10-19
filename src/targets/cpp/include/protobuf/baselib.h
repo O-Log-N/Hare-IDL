@@ -592,6 +592,11 @@ public:
         ok = readPos + subSize <= currentEos;
         return readPos + subSize;
     }
+
+    size_t makeSubEos(size_t subSize)
+    {
+        return readPos + subSize;
+    }
 };
 
 #endif // 0

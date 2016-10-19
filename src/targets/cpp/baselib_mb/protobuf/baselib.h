@@ -195,7 +195,10 @@ public:
     size_t dataSize = 0;
 
     BufferDescriptor(uint8_t* buffer, size_t bufferSize) :
-        buffer(buffer), bufferSize(bufferSize) {}
+        buffer(buffer), bufferSize(bufferSize)
+        {
+        	HAREASSERT(bufferSize > BUFFER_GAP_BEGIN + BUFFER_GAP_END);
+        }
 
     void setDataSize(size_t dataSize)
     {
@@ -642,10 +645,9 @@ public:
         return false;
     }
 
-    size_t makeSubStream(bool& ok, size_t currentEos, size_t subSize)
+    size_t makeSubEos(size_t subSize)
     {
         size_t currentIndex = alreadyRead + (dataPtr - beginPtr);
-        ok = currentIndex + subSize <= currentEos;
         return currentIndex + subSize;
     }
 

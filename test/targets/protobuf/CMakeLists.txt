@@ -12,8 +12,11 @@ add_subdirectory(../../../3rdparty/protobuf/cmake protobuf)
 
 add_subdirectory(../../../3rdparty/cppformat cppformat)
 
-SET(BASELIB_INCLUDE ../../../../src/targets/cpp/baselib_mb)
-SET(BASELIB_CPP ../../../../src/targets/cpp/baselib_mb)
+#SET(BASELIB_INCLUDE ../../../../src/targets/cpp/baselib_mb)
+#SET(BASELIB_CPP ../../../../src/targets/cpp/baselib_mb)
+
+SET(BASELIB_INCLUDE ../../../../src/targets/cpp/include)
+SET(BASELIB_CPP ../../../../src/targets/cpp/libsrc)
 
 
 add_subdirectory(basic-types)
