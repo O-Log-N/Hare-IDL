@@ -27,13 +27,29 @@ Copyright (C) 2016 OLogN Technologies AG
 
 using namespace std;
 
-struct Publishable {
-    enum TYPE { Abc = 1, Def = 2, Ghi = 3, Klm = 4 } disc;
-    std::string name;
-    int8_t value1;
-    int16_t value2;
-    int32_t value3;
+
+struct BasicTypes {
+
+  uint32_t max_u32 = 0;
+  uint64_t max_u64 = 0;
+
+  int32_t max_s32 = 0;
+  int64_t max_s64 = 0;
+
+  float aFloat = 0;
+  double aDouble = 0;
+
+  string description;
+
+  // enum and bool map to unsigned var int
+
+  enum Values {Nothing = 0, First = 1, Second = 2};
+
+  Values aValue = Nothing;
+
+  bool flag = false;
 };
+
 
 
 #endif // SAMPLE_H

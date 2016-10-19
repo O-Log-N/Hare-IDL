@@ -41,8 +41,6 @@ include_directories(
   ../../../3rdparty/benchmark/include
 )
 
-add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-
 target_link_libraries(benchmarkProtobuf
   benchmark
 )

@@ -6,7 +6,6 @@
 #include <ostream>
 
 #include "output.h"
-#include "output.pb.h"
 
 #ifndef EXPECT_TRUE
 #define EXPECT_TRUE assert
@@ -16,105 +15,53 @@
 #define EXPECT_EQ(left, right) assert(left == right)
 #endif
 
-void dbgPrintDiscriminatedUnion( const DiscriminatedUnion& s, std::ostream& o, size_t offset );
+void dbgPrintBasicTypes( const BasicTypes& s, std::ostream& o, size_t offset );
 
-inline void assertEqualDiscriminatedUnion( const DiscriminatedUnion& left, const DiscriminatedUnion& right );
+inline void assertEqualBasicTypes( const BasicTypes& left, const BasicTypes& right );
 
-
-inline void assertEqualDiscriminatedUnion( const DiscriminatedUnion& left, const pb::DiscriminatedUnion& right );
 
 // PRINT
-
-void dbgPrintDiscriminatedUnion( const DiscriminatedUnion& s, std::ostream& o, size_t offset ) {
+void dbgPrintBasicTypes( const BasicTypes& s, std::ostream& o, size_t offset ) {
 
   std::string sp( 2 * offset, ' ' );
   std::string sp1( 2 * offset + 2, ' ');
 
- o << "DISCRIMINATED-UNION DiscriminatedUnion:\n";
+  o << "PUBLISHABLE-STRUCT BasicTypes:\n";
 
-   //uint8_t disc = (s.disc);
-
-  uint8_t disc = s.disc;
-  
-  o << sp << "disc = " << disc << "\n";
-
-  switch ( disc )
-  {
-    case 0:
-    {
-    o << sp << "name = ";
-  o << "\"" << s.name << "\"\n";
-    o << sp << "value1 = ";
-  o << s.value1 << "\n";
-    }
-    break;
-    case 1:
-    {
-    o << sp << "name = ";
-  o << "\"" << s.name << "\"\n";
-    o << sp << "value1 = ";
-  o << s.value1 << "\n";
-    }
-    break;
-    case 2:
-    {
-    o << sp << "name = ";
-  o << "\"" << s.name << "\"\n";
-    o << sp << "value2 = ";
-  o << s.value2 << "\n";
-    }
-    break;
-    case 3:
-    {
-    o << sp << "name = ";
-  o << "\"" << s.name << "\"\n";
-    o << sp << "value3 = ";
-  o << s.value3 << "\n";
-    }
-    break;
-    default:
-      assert( false );
-  }
+    o << sp << "max_u32 = ";
+  o << s.max_u32 << "\n";
+    o << sp << "max_u64 = ";
+  o << s.max_u64 << "\n";
+    o << sp << "max_s32 = ";
+  o << s.max_s32 << "\n";
+    o << sp << "max_s64 = ";
+  o << s.max_s64 << "\n";
+    o << sp << "aFloat = ";
+  o << s.aFloat << "\n";
+    o << sp << "aDouble = ";
+  o << s.aDouble << "\n";
+    o << sp << "description = ";
+  o << "\"" << s.description << "\"\n";
+    o << sp << "aValue = ";
+  o << s.aValue << "\n";
+    o << sp << "flag = ";
+  o << s.flag << "\n";
 }
+
 
 // ASSERT-EQUAL
-
-// ASSERT-EQUAL-2-GPB
-inline void assertEqualDiscriminatedUnion( const DiscriminatedUnion& left, const pb::DiscriminatedUnion& right ) {
-
-  uint8_t disc = (left.disc);
-  EXPECT_TRUE(disc == right.discriminator());
-
-  switch(disc)
-  {
-    case 0:
-    {
-    EXPECT_EQ(left.name, right.name());
-    EXPECT_EQ(left.value1, right.value1());
-    }
-    break;
-    case 1:
-    {
-    EXPECT_EQ(left.name, right.name());
-    EXPECT_EQ(left.value1, right.value1());
-    }
-    break;
-    case 2:
-    {
-    EXPECT_EQ(left.name, right.name());
-    EXPECT_EQ(left.value2, right.value2());
-    }
-    break;
-    case 3:
-    {
-    EXPECT_EQ(left.name, right.name());
-    EXPECT_EQ(left.value3, right.value3());
-    }
-    break;
-    default:
-      EXPECT_TRUE(false);
-  }
+inline void assertEqualBasicTypes( const BasicTypes& left, const BasicTypes& right ) {
+    EXPECT_EQ(left.max_u32, right.max_u32);
+    EXPECT_EQ(left.max_u64, right.max_u64);
+    EXPECT_EQ(left.max_s32, right.max_s32);
+    EXPECT_EQ(left.max_s64, right.max_s64);
+    EXPECT_EQ(left.aFloat, right.aFloat);
+    EXPECT_EQ(left.aDouble, right.aDouble);
+    EXPECT_EQ(left.description, right.description);
+    EXPECT_EQ(left.aValue, right.aValue);
+    EXPECT_EQ(left.flag, right.flag);
 }
+
 
 #endif // DBG_HELPERS_H_INCLUDED
   

@@ -6,6 +6,14 @@ project("dbg-protobuf")
 SET(protobuf_BUILD_TESTS OFF CACHE BOOL "Build tests")
 SET(protobuf_MSVC_STATIC_RUNTIME OFF CACHE BOOL "Link static runtime libraries")
 add_subdirectory(../../3rdparty/protobuf/cmake protobuf)
+add_subdirectory(../../3rdparty/cppformat cppformat)
+
+SET(BASELIB_INCLUDE ../../src/targets/cpp/baselib_mb)
+SET(BASELIB_CPP ../../src/targets/cpp/baselib_mb)
+
+#SET(BASELIB_INCLUDE ../../src/targets/cpp/include)
+#SET(BASELIB_CPP ../../src/targets/cpp/libsrc)
+
 
 add_executable(dbgProtobuf
   main.cpp
@@ -15,23 +23,20 @@ add_executable(dbgProtobuf
   output.pb.h
   output.pb.cc
   dbg_helpers.h
-  ../../src/front-back/idl_tree.h
-  ../../src/front-back/idl_tree_serializer.cpp
-  ../../src/front-back/idl_tree_serializer.h
-  ../../src/targets/cpp/include/protobuf/baselib.h
-  ../../src/targets/cpp/libsrc/protobuf/baselib.cpp
+  dbg_proto_helpers.h
+  ${BASELIB_INCLUDE}/protobuf/baselib.h
+  ${BASELIB_CPP}/protobuf/baselib.cpp
 )
 
 include_directories(
   ../../src
-  ../../src/targets/cpp/include
+  ${BASELIB_INCLUDE}
   ../../3rdparty/protobuf/src
 )
 
-add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-
 target_link_libraries(dbgProtobuf
   libprotobuf
+  cppformat
 )
 
 set_property(TARGET dbgProtobuf PROPERTY CXX_STANDARD 11)

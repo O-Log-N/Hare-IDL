@@ -5,21 +5,19 @@
 #include <iomanip>
 #include <limits>
 
+#include "protobuf/baselib.h"
 #include "sample.h"
-#include "front-back/idl_tree.h"
 #include "output.pb.h"
 #include "output.h"
 
-#include "protobuf/baselib.h"
 
 //#include "front-back/idl_tree_serializer.h"
 
-#include "dbg_assert_equal.h"
-#include "dbg_print.h"
+#include "dbg_helpers.h"
 
 using namespace std;
 
-
+/*
 void protobufReadAndReply(istream& is, ostream& os, const Root& our)
 {
     pb::Root root;
@@ -96,8 +94,35 @@ unique_ptr<Root> deserializeFile(const char* fileName) {
 //
 //    return root;
 //}
+*/
+
+BasicTypes makeBasicTypes()
+{
+    BasicTypes bt;
+
+    bt.max_u32 = UINT32_MAX;
+    bt.max_u64 = UINT64_MAX;
+
+    bt.max_s32 = INT32_MIN;
+    bt.max_s64 = INT64_MIN;
+
+    bt.aFloat = 1.0;
+    bt.aDouble = 2.0;
+
+    bt.description = "Hello world!";
+
+    // enum and bool map to unsigned var int
+
+    //enum Values { Nothing = 0, First = 1, Second = 2 };
+
+    bt.aValue = BasicTypes::Second;
+
+    bt.flag = true;
 
 
+
+    return bt;
+}
 
 void dumpStream(istream& is)
 {
@@ -110,26 +135,23 @@ int main(int argc, char* argv[])
 {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-  const char* sendFile = "character.send.bin";
-  const char* recvFile = "character.recv.bin";
+  FakeBufferManager manager(4096);
 
-  unique_ptr<Root> toSend = deserializeFile("../../Hare-IDL/src/front-back/idl_tree.h.idlbin");
-//  unique_ptr<Root> toSend = deserializeFile("idl_tree.h.idlbin");
-//  unique_ptr<Root> toSend = createSample();
-  assert(toSend);
-  protobufSerializeToFile(sendFile, *toSend);
+  OProtobufStream o(manager);
 
-  fstream is(sendFile, ios::in | ios::binary);
-  fstream os(recvFile, ios::out | ios::trunc | ios::binary);
+  BasicTypes bt = makeBasicTypes();
+  size_t sz = serializeBasicTypes(bt, o);
 
-  protobufReadAndReply(is, os, *toSend);
+  BufferGroup buff = o.getBufferSet();
 
-  unique_ptr<Root> recv = protobufDeserializeFromFile(sendFile);
+  IProtobufStream i(buff);
 
-  assert(recv);
-  assertEqualRoot(*toSend, *recv);
+  BasicTypes deserialized;
 
-  dbgPrintRoot(*toSend, cout, 0);
+  bool ok = deserializeBasicTypes(deserialized, i);
+  assert(ok);
+
+  assertEqualBasicTypes(bt, deserialized);
 
   google::protobuf::ShutdownProtobufLibrary();
 
