@@ -586,11 +586,19 @@ public:
 #endif // 1/0
     }
 
-    //MB check!
-    size_t makeSubStream(bool& ok, size_t currentEos, size_t subSize)
+    FORCE_INLINE bool discardData(size_t cnt)
     {
-        ok = readPos + subSize <= currentEos;
-        return readPos + subSize;
+        if (readPos + cnt <= buffSz)
+        {
+            readPos += cnt;
+            return true;
+        }
+        else
+        {
+            cnt = buffSz - readPos;
+            readPos += cnt;
+            return false;
+        }
     }
 
     size_t makeSubEos(size_t subSize)

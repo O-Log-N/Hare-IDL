@@ -347,18 +347,13 @@ bool discardUnexpectedField( int fieldType, IProtobufStream& i ) {
     break;
   case LENGTH_DELIMITED:
     {
-      /* TODO test
-      uint64_t sz;
-      bool readOk = i.readVariantUInt64( sz );
-      if( !readOk )
+        uint64_t size;
+        if (i.readVariantUInt64(size)) {
+            if (size <= SIZE_MAX) {
+                return i.discardData(static_cast<size_t>(size));
+            }
+        }
         return false;
-      IProtobufStream is = i.makeSubStream( readOk, sz );
-      if ( !readOk )
-        return false;
-        */
-      string temp;
-      return i.readString( temp );
-
     }
     break;
   case FIXED_32_BIT:

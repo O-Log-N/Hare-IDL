@@ -388,10 +388,7 @@ bool protobufDeserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME(
     @@FOR-EACH END
   @@FOR-EACH END
       default:
-      {
-        string temp;
-        readOk = i.readString( temp );
-      }
+        readOk = i.discardData( sub );
     }
 
     return readOk && i.isEndOfStream( eos );

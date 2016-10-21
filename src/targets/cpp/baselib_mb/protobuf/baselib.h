@@ -547,14 +547,17 @@ private:
 
     bool readData(char* target, size_t size)
     {
-
         size_t left = size;
+        char* ptr = target;
+
         HAREASSERT(dataPtr <= hardEndPtr);
         while (left > static_cast<size_t>(hardEndPtr - dataPtr)) {
             size_t sz = hardEndPtr - dataPtr;
-            memcpy(target, dataPtr, sz);
+            if(target)
+                memcpy(ptr, dataPtr, sz);
             left -= sz;
             dataPtr += sz;
+            ptr += sz;
 
             if (!changeBuffer())
                 return false;
@@ -562,7 +565,8 @@ private:
         }
 
         HAREASSERT(left <= static_cast<size_t>(hardEndPtr - dataPtr));
-        memcpy(target, dataPtr, left);
+        if(target)
+            memcpy(ptr, dataPtr, left);
         //left -= left
         dataPtr += left;
 
@@ -643,6 +647,11 @@ public:
         }
 
         return false;
+    }
+
+    bool discardData(size_t sz)
+    {
+        return readData(nullptr, sz);
     }
 
     size_t makeSubEos(size_t subSize)
