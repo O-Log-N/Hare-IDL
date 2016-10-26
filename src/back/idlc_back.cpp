@@ -173,7 +173,7 @@ void idlcBackEnd(Root& root, const string& path, const vector<string>& files, bo
             return;
         }
         int line = 0; // TODO: switch to File/Line addressing for error reporting
-        fmt::print("Processing {}...", current);
+        fmt::print("Loading {}...", current);
         if (!loadTemplates(tf, nodeSpace, line))
             return;
         fmt::print("  done\n");

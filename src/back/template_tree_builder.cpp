@@ -509,7 +509,7 @@ bool loadTemplates( FILE* tf, TemplateNodeSpace& nodeSpace, int& currentLineNum 
 		size_t flidx = 0;
 		bool isFunctionNode = false;
 		ret = buildTemplateTree( rootNode, templateLines, flidx, isFunctionNode );
-		fmt::print( "line {}: {}: {}\n", currentLineNum, rootNode.name, rootNode.isFunction ? "FUNCTION" : "TEMPLATE" );
+//		fmt::print( "line {}: {}: {}\n", currentLineNum, rootNode.name, rootNode.isFunction ? "FUNCTION" : "TEMPLATE" );
 		if ( isFunctionNode )
 			postProcessReturningTemplate( rootNode );
 		nodeSpace.templates.push_back( rootNode );
