@@ -26,7 +26,7 @@ using namespace std;
 struct TemplateNode
 {
 	NODE_TYPE type;
-	int srcLineNum;
+	FileLine srcLineNum;
 	vector<TemplateNode> childNodes;
 
 	map<AttributeName, vector<ExpressionElement>> attributes;
@@ -37,7 +37,7 @@ struct TemplateNode
 struct TemplateRootNode
 {
 	bool isFunction;
-	int srcLineNum;
+    FileLine srcLineNum;
 	string name;
 	vector<TemplateNode> childNodes;
 	vector<AttributeName> params;
@@ -51,6 +51,11 @@ class TemplateNodeSpace
 public:
 	// TODO: internals of this class might be havily revised; its interface should hopefully survive
 	vector<TemplateRootNode> templates;
+    const vector<string> inputFileNames; // store the names, we later use 'const char*' pointing here
+
+    TemplateNodeSpace(const vector<string>& inputFileNames) :
+        inputFileNames(inputFileNames) {}
+
 	void dbgValidateTemplateSpace()
 	{
 		// TODO (at least):
@@ -69,7 +74,7 @@ public:
 	}
 };
 
-bool loadTemplates( FILE* tf, TemplateNodeSpace& nodeSpace, int& currentLineNum );
+bool loadTemplates( FILE* tf, TemplateNodeSpace& nodeSpace, const char* currentFileName );
 void dbgPrintTemplateTrees( TemplateNodeSpace& nodeSpace );
 
 #endif // TEMPLATE_TREE_BUILDER_H

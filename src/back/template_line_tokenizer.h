@@ -231,6 +231,18 @@ public:
 	}
 };
 
+struct FileLine
+{
+    const char* fileName;
+    int lineNumber;
+    FileLine() :
+        fileName(nullptr), lineNumber(0) {}
+    FileLine(const char* fileName, int lineNumber) :
+        fileName(fileName), lineNumber(lineNumber) {}
+
+    string toString() const;
+};
+
 struct TemplateLine
 {
 	enum LINE_TYPE {
@@ -260,13 +272,13 @@ struct TemplateLine
 	};
 
 	LINE_TYPE type;
-	int srcLineNum;
+    FileLine srcLineNum;
 	map<AttributeName, vector<ExpressionElement>> attributes;
 	vector<AttributeName> args;
 	vector<ExpressionElement> expression; // used only for NODE_TYPE::IF(ELIF) and NODE_TYPE::ASSERT
 };
 
-bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& currentLineNum );
+bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& currentLineNum, const char* fileName);
 
 
 #endif // TEMPLATE_LINE_TOKENIZER_H

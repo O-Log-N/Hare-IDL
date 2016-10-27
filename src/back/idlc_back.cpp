@@ -25,6 +25,7 @@ Copyright (C) 2016 OLogN Technologies AG
 
 using namespace std;
 
+/*
 void addTestData( Root& root )
 {
 	for ( auto& it:root.structures )
@@ -95,9 +96,9 @@ void idlcBackEnd( Root& root2 )
 		fmt::print( "failed to open template file\n" );
 		return;
 	}
-	line = 0;
-	fmt::print( "Processing {}...", "main.txt" );
-	if ( !loadTemplates( tf, nodeSpace, line ) )
+
+    fmt::print( "Processing {}...", "main.txt" );
+	if ( !loadTemplates( tf, nodeSpace, "main.txt" ) )
 		return;
 	fmt::print( "  done\n" );
 //	fmt::print( "\n\n" );
@@ -114,9 +115,9 @@ void idlcBackEnd( Root& root2 )
 		fmt::print( "failed to open template file\n" );
 		return;
 	}
-	line = 0;
+
 	fmt::print( "Processing {}...", "mapping.txt" );
-	if ( !loadTemplates( tf, nodeSpace, line ) )
+	if ( !loadTemplates( tf, nodeSpace, "mapping.txt" ) )
 		return;
 	fmt::print( "  done\n" );
 //	fmt::print( "\n\n" );
@@ -133,9 +134,9 @@ void idlcBackEnd( Root& root2 )
 		fmt::print( "failed to open template file\n" );
 		return;
 	}
-	line = 0;
+
 	fmt::print( "Processing {}...", "encoding.txt" );
-	if ( !loadTemplates( tf, nodeSpace, line ) )
+	if ( !loadTemplates( tf, nodeSpace, "encoding.txt" ) )
 		return;
 	fmt::print( "  done\n" );
 	fmt::print( "\n\n" );
@@ -145,6 +146,7 @@ void idlcBackEnd( Root& root2 )
 //	apply( backRoot, nodeSpace );
 	processStructures( backRoot, nodeSpace );
 }
+*/
 
 void idlcBackEnd(Root& root, const string& path, const vector<string>& files, bool dbgDump)
 {
@@ -158,13 +160,13 @@ void idlcBackEnd(Root& root, const string& path, const vector<string>& files, bo
 
     finalizeTree(backRoot, scenario);
 
-    TemplateNodeSpace nodeSpace;
+    TemplateNodeSpace nodeSpace(files);
 
     // NOTE: our target goal is a possibility to specify multiple files; for a while we imitate it manually
     //       exact details are to be developed
     // TODO: implement
 
-    for (const string& current : files) {
+    for (const string& current : nodeSpace.inputFileNames) {
         string pathName = path + current;
         FILE* tf = fopen(pathName.c_str(), "rb");
         if (tf == NULL)
@@ -172,9 +174,10 @@ void idlcBackEnd(Root& root, const string& path, const vector<string>& files, bo
             fmt::print("failed to open template file {}\n", current);
             return;
         }
-        int line = 0; // TODO: switch to File/Line addressing for error reporting
+        
+        // TODO: switch to File/Line addressing for error reporting
         fmt::print("Loading {}...", current);
-        if (!loadTemplates(tf, nodeSpace, line))
+        if (!loadTemplates(tf, nodeSpace, current.c_str()))
             return;
         fmt::print("  done\n");
     }

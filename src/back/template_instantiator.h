@@ -175,15 +175,15 @@ protected:
 protected:
 	void execBuiltinFunction( Stack& stack, PredefindedFunction fn );
 	bool calcConditionOfIfNode( TemplateNode& ifNode );
-	void evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack );
+	void evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack, const FileLine& fileLine);
 	bool applyNode( TemplateRootNode& node );
 	bool applyNode( TemplateNode& node );
 	bool applyIncludeNode( TemplateNode& node, bool isReturning );
 	TemplateRootNode* prepareDataForTemplateInclusion( TemplateInstantiator* instantiator, map<string, ExpressionObject::StackElement>& resolvedParamPlaceholdersToUse, TemplateNode& node, bool isReturning );
-	string resolveLinePartsToString( const vector<LinePart2>& lineParts );
-	string specialNameAsString( SpecialName ph );
+	string resolveLinePartsToString( const vector<LinePart2>& lineParts, const FileLine& fileLine);
+	string specialNameAsString( SpecialName ph, const FileLine& fileLine);
 	virtual string context();
-	virtual ExpressionObject::StackElement placeholder( SpecialName ph );
+	virtual ExpressionObject::StackElement placeholder( SpecialName ph, const FileLine& fileLine);
 
 public:
 	TemplateInstantiator( TemplateNodeSpace& templateSpace_, FILE* outStr ) : templateSpace( templateSpace_ ), outstr( outStr ) {}

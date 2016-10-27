@@ -35,9 +35,9 @@ string ExpressionObject::context()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-string TemplateInstantiator::specialNameAsString( SpecialName ph )
+string TemplateInstantiator::specialNameAsString( SpecialName ph, const FileLine& fileLine)
 {
-	StackElement& se = placeholder( ph );
+	StackElement& se = placeholder( ph, fileLine );
 	// TODO: here we may need to perform type convergence
 	switch ( se.argtype )
 	{
@@ -64,7 +64,7 @@ string TemplateInstantiator::specialNameAsString( SpecialName ph )
 	}
 }
 
-string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart2>& lineParts )
+string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart2>& lineParts, const FileLine& fileLine)
 {
 	string ret;
 	for ( auto lp:lineParts )
@@ -74,14 +74,14 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart2>& 
 		else if ( lp.expr.size() )
 		{
 			Stack stack;
-			evaluateExpression( lp.expr, stack );
+			evaluateExpression( lp.expr, stack, fileLine);
 			assert( stack.size() == 1 );
 			if ( stack[0].argtype == ARGTYPE::STRING )
 			{
 				if ( stack[0].lineParts.size() == 1 && stack[0].lineParts[0].isVerbatim )
 					ret += stack[0].lineParts[0].verbatim;
 				else
-					ret += resolveLinePartsToString( stack[0].lineParts );
+					ret += resolveLinePartsToString( stack[0].lineParts, fileLine);
 			}
 			else if ( stack[0].argtype == ARGTYPE::NUMBER )
 			{
@@ -302,7 +302,7 @@ void TemplateInstantiator::execBuiltinFunction( Stack& stack, PredefindedFunctio
 	}
 }
 
-void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack )
+void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& expression, Stack& stack, const FileLine& fileLine )
 {
 	for ( auto it:expression )
 	{
@@ -318,7 +318,7 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 					{
 						LinePart2 part;
 						part.isVerbatim = true;
-						part.verbatim = resolveLinePartsToString( it.lineParts );
+						part.verbatim = resolveLinePartsToString( it.lineParts, fileLine);
 						se.lineParts.push_back( part );
 						break;
 					}
@@ -334,7 +334,7 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 					}
 					case ARGTYPE::PLACEHOLDER:
 					{
-						se = placeholder( it. ph );
+						se = placeholder( it.ph, fileLine );
 						break;
 					}
 					default:
@@ -353,7 +353,7 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 				auto arg1 = stack.begin() + stack.size() - 2;
 				auto arg2 = stack.begin() + stack.size() - 1;
 				if ( arg1->argtype == ARGTYPE::STRING && arg2->argtype == ARGTYPE::STRING )
-					res = resolveLinePartsToString( arg1->lineParts ) == resolveLinePartsToString( arg2->lineParts );
+					res = resolveLinePartsToString( arg1->lineParts, fileLine) == resolveLinePartsToString( arg2->lineParts, fileLine);
 				else if ( arg1->argtype == ARGTYPE::NUMBER && arg2->argtype == ARGTYPE::NUMBER )
 					res = arg1->numberValue == arg2->numberValue;
 				else if ( arg1->argtype == ARGTYPE::BOOL && arg2->argtype == ARGTYPE::BOOL )
@@ -377,7 +377,7 @@ void TemplateInstantiator::evaluateExpression( const vector<ExpressionElement>& 
 				auto arg1 = stack.begin() + stack.size() - 2;
 				auto arg2 = stack.begin() + stack.size() - 1;
 				if ( arg1->argtype == ARGTYPE::STRING && arg2->argtype == ARGTYPE::STRING )
-					res = resolveLinePartsToString( arg1->lineParts ) != resolveLinePartsToString( arg2->lineParts );
+					res = resolveLinePartsToString( arg1->lineParts, fileLine ) != resolveLinePartsToString( arg2->lineParts, fileLine);
 				else if ( arg1->argtype == ARGTYPE::NUMBER && arg2->argtype == ARGTYPE::NUMBER )
 					res = arg1->numberValue != arg2->numberValue;
 				else if ( arg1->argtype == ARGTYPE::BOOL && arg2->argtype == ARGTYPE::BOOL )
@@ -518,7 +518,7 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	assert(ifNode.type == NODE_TYPE::IF || ifNode.type == NODE_TYPE::ASSERT);
 
 	Stack stack;
-	evaluateExpression( ifNode.expression, stack );
+	evaluateExpression( ifNode.expression, stack, ifNode.srcLineNum);
 	assert( stack.size() == 1 );
 	if ( stack[0].argtype == ARGTYPE::BOOL )
 		return stack[0].boolValue;
@@ -530,7 +530,7 @@ bool TemplateInstantiator::calcConditionOfIfNode(TemplateNode& ifNode)
 	{
 		// TODO: consider type conversion as a standard operation
 		assert( ifNode.expression[0].argtype == ARGTYPE::STRING ); // limitation of a current version; TODO: further development
-		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts );
+		string lstr = resolveLinePartsToString( ifNode.expression[0].lineParts, ifNode.srcLineNum );
 		return !(lstr == "0" || lstr == "FALSE");
 	}
 }
@@ -556,7 +556,7 @@ TemplateRootNode* TemplateInstantiator::prepareDataForTemplateInclusion( Templat
 	auto attr = node.attributes.find( {ATTRIBUTE::TEMPLATE, ""} );
 	assert( attr != node.attributes.end() );
 	auto& expr = attr->second;
-	evaluateExpression( expr, stack );
+	evaluateExpression( expr, stack, node.srcLineNum);
 	assert( stack.size() == 1 );
 	assert( stack[0].argtype == ARGTYPE::STRING );
 	string templateName = stack[0].lineParts[0].verbatim;
@@ -577,7 +577,7 @@ TemplateRootNode* TemplateInstantiator::prepareDataForTemplateInclusion( Templat
 		{
 			auto& expr1 = it.second;
 			Stack stack1;
-			evaluateExpression( expr1, stack1 );
+			evaluateExpression( expr1, stack1, node.srcLineNum);
 			assert( stack1.size() == 1 );
 			resolvedParamPlaceholdersToUse.insert( make_pair( it.first.ext, move(stack1[0]) ) );
 		}
@@ -586,9 +586,10 @@ TemplateRootNode* TemplateInstantiator::prepareDataForTemplateInclusion( Templat
 
 bool TemplateInstantiator::applyNode( TemplateRootNode& node )
 {
-	for ( auto& nodeIt: node.childNodes )
-		if ( !applyNode( nodeIt ) )
-			return false;
+    for (auto& nodeIt : node.childNodes)
+        if (!applyNode(nodeIt))
+            return false;
+
 	return true;
 }
 
@@ -598,20 +599,26 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 	{
 		case NODE_TYPE::CONTENT:
 		{
-			if ( outstr == nullptr )
-			{
-				fmt::print("Instantiation error at template line{}: no output file", node.srcLineNum );
-				assert(0); // TODO: replace by throwing an exception or alike
-			}
 			auto attr = node.attributes.find( {ATTRIBUTE::TEXT, ""} );
 			assert( attr != node.attributes.end() );
 			auto& expr = attr->second;
 			Stack stack;
-			evaluateExpression( expr, stack );
+			evaluateExpression( expr, stack, node.srcLineNum);
 			assert( stack.size() == 1 );
 			assert( stack[0].argtype == ARGTYPE::STRING );
-			fmt::print( outstr, "{}", stack[0].lineParts[0].verbatim.c_str() );
-			fmt::print( outstr, "\n" );
+
+            if (outstr != nullptr)
+            {
+                fmt::print(outstr, "{}\n", stack[0].lineParts[0].verbatim);
+            }
+            //most common cause is white line at MAIN level,
+            //outside OPEN-OUTPUT-FILE. just ignore 
+            //else
+            //{
+            //    fmt::print("Instantiation error at template {}: no output file", node.srcLineNum.toString() );
+            //    assert(0); // TODO: replace by throwing an exception or alike
+            //}
+
 			break;
 		}
 		case NODE_TYPE::IF_TRUE_BRANCH:
@@ -629,7 +636,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 		{
 			if ( outstr != nullptr )
 			{
-				fmt::print("Instantiation error at template line{}: output file is already open", node.srcLineNum );
+				fmt::print("Instantiation error at template {}: output file is already open", node.srcLineNum.toString() );
 				assert(0); // TODO: replace by throwing an exception or alike
 			}
 			// prepare file name string
@@ -637,7 +644,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 			assert( attr != node.attributes.end() );
 			auto& expr = attr->second;
 			Stack stack;
-			evaluateExpression( expr, stack );
+			evaluateExpression( expr, stack, node.srcLineNum);
 			assert( stack.size() == 1 );
 			assert( stack[0].argtype == ARGTYPE::STRING );
 			string fileName = stack[0].lineParts[0].verbatim;
@@ -694,15 +701,15 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 				{
 					auto& expr = attr->second;
 					Stack stack;
-					evaluateExpression( expr, stack );
+					evaluateExpression( expr, stack, node.srcLineNum);
 					assert( stack.size() == 1 );
 					assert( stack[0].argtype == ARGTYPE::STRING );
 					msg = stack[0].lineParts[0].verbatim;
-					fmt::print("Instantiation Error: Assertion failed: Line {}, message: {}\n", node.srcLineNum, msg );
+					fmt::print("Instantiation Error: Assertion failed: {}, message: {}\n", node.srcLineNum.toString(), msg );
 				}
 				else
 				{
-					fmt::print("Instantiation Error: Assertion failed: Line {}\n", node.srcLineNum );
+					fmt::print("Instantiation Error: Assertion failed: {}\n", node.srcLineNum.toString());
 				}
 			}
 			break;
@@ -710,23 +717,23 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 		case NODE_TYPE::DBG_PRINT:
 		{
 			Stack stack;
-			evaluateExpression( node.expression, stack );
+			evaluateExpression( node.expression, stack, node.srcLineNum);
 			assert( stack.size() == 1 );
 			if ( stack[0].argtype == ARGTYPE::STRING )
 			{
 				string msg = stack[0].lineParts[0].verbatim;
-				fmt::print("Line {}: message: {}\n", node.srcLineNum, msg );
+				fmt::print("{}: message: {}\n", node.srcLineNum.toString(), msg );
 			}
 			else
 			{
-				fmt::print("Line {}: message <Error: expression cannot be evaluated to string>\n", node.srcLineNum );
+				fmt::print("{}: message <Error: expression cannot be evaluated to string>\n", node.srcLineNum.toString());
 			}
 			break;
 		}
 		case NODE_TYPE::RETURN:
 		{
 			Stack stack;
-			evaluateExpression( node.expression, stack );
+			evaluateExpression( node.expression, stack, node.srcLineNum);
 			assert( stack.size() == 1 );
 			fromTemplate = stack[0];
 			return false;
@@ -757,7 +764,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 				{
 					auto& expr1 = it.second;
 					Stack stack;
-					evaluateExpression( expr1, stack );
+					evaluateExpression( expr1, stack, node.srcLineNum);
 					assert( stack.size() == 1 );
 					resolvedLocalPlaceholders.erase( it.first.ext );
 					auto& insret = resolvedLocalPlaceholders.insert( make_pair( it.first.ext, std::move( stack[0] ) ) );
@@ -769,7 +776,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 		case NODE_TYPE::FOR_EACH:
 		{
 			Stack stack;
-			evaluateExpression( node.expression, stack );
+			evaluateExpression( node.expression, stack, node.srcLineNum);
 			assert( stack.size() == 1 ); // TODO: error reporting
 			assert( stack[0].argtype == ARGTYPE::ANY_LIST ); // TODO: error reporting
 			assert( node.attributes.size() == 1 );
@@ -793,7 +800,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 			for (;;)
 			{
 				Stack stack;
-				evaluateExpression( node.expression, stack );
+				evaluateExpression( node.expression, stack, node.srcLineNum );
 				assert( stack.size() == 1 ); // TODO: error reporting
 				assert( stack[0].argtype == ARGTYPE::BOOL ); // TODO: error reporting
 				if ( !stack[0].boolValue )
@@ -817,7 +824,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 	return true;
 }
 
-TemplateInstantiator::StackElement TemplateInstantiator::placeholder( SpecialName ph )
+TemplateInstantiator::StackElement TemplateInstantiator::placeholder( SpecialName ph, const FileLine& fileLine)
 {
 	if ( ph.id == PLACEHOLDER::PARAM_MINUS )
 	{
@@ -825,18 +832,22 @@ TemplateInstantiator::StackElement TemplateInstantiator::placeholder( SpecialNam
 		if ( findres != resolvedParamPlaceholders.end() )
 //			return move(findres->second);
 			return findres->second;
-	}
+        else
+            fmt::print("{}: error: placeholder 'PARAM-{}' not found.\n", fileLine.toString(), ph.specific);
+    }
 	else if ( ph.id == PLACEHOLDER::LOCAL_MINUS )
 	{
 		auto findres = resolvedLocalPlaceholders.find( ph.specific );
 		if ( findres != resolvedLocalPlaceholders.end() )
 //			return move(findres->second);
 			return findres->second;
-	}
+        else
+            fmt::print("{}: error: placeholder 'LOCAL-{}' not found.\n", fileLine.toString(), ph.specific);
+    }
+    else
+        fmt::print("{}: error: placeholder '{}-{}'.\n", fileLine.toString(), static_cast<int>(ph.id), ph.specific);
 
-	fmt::print( "\n" );
-	fmt::print("error_placeholder {}\n", static_cast<int>(ph.id) );
-	assert( 0 );
+    assert( 0 );
 	StackElement se;
 	return move(se);
 }

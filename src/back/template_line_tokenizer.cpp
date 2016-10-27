@@ -19,6 +19,11 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "template_line_tokens.h"
 #include <assert.h> // for assert()
 
+string FileLine::toString() const
+{
+    return fmt::format("{}:{}", fileName, lineNumber);
+}
+
 void findSpaces( const string& line, size_t& contentStart )
 {
 	while ( contentStart < line.size() && (!(line[contentStart] == ' ' || line[contentStart] == '\t')) ) contentStart++;
@@ -716,7 +721,7 @@ void readInputParameters( const string& line, size_t& pos, TemplateLine& tl, int
 	}
 }
 
-bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& currentLineNum )
+bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& currentLineNum, const char* fileName )
 {
 //	bool startFound = false;
 	bool inFn = false;
@@ -727,7 +732,7 @@ bool tokenizeTemplateLines( FILE* tf, vector<TemplateLine>& templateLines, int& 
 	for( ;;)
 	{
 		TemplateLine tl;
-		tl.srcLineNum = currentLineNum;
+		tl.srcLineNum = FileLine(fileName, currentLineNum);
 
 		line.clear();
 		if ( useNext )			

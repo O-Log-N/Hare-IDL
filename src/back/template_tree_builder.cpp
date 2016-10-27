@@ -103,7 +103,7 @@ void dbgPrintAttributes( map<AttributeName, vector<ExpressionElement>>& attribut
 void dbgPrintNode_( TemplateNode& node, int depth )
 {
 	dbgPrintIndent( depth );
-	fmt::print( "[{}] {} ", node.srcLineNum, nodeTypesToString( node.type ) );
+	fmt::print( "[{}] {} ", node.srcLineNum.toString(), nodeTypesToString( node.type ) );
 	if ( node.type == NODE_TYPE::CONTENT )
 	{
 		assert( node.attributes.size() == 1 );
@@ -122,7 +122,7 @@ void dbgPrintNode_( TemplateNode& node, int depth )
 void dbgPrintRootNode( TemplateRootNode& node, int depth )
 {
 	dbgPrintIndent( depth );
-	fmt::print( "[{}] {} ", node.srcLineNum, node.isFunction ? "FUNCTION-NODE" : "TEMPLATE-NODE" );
+	fmt::print( "[{}] {} ", node.srcLineNum.toString(), node.isFunction ? "FUNCTION-NODE" : "TEMPLATE-NODE" );
 	fmt::print( "NAME= \"{}\" ", node.name );
 	for ( auto p:node.params )
 	{
@@ -164,7 +164,7 @@ bool getTemplateOrFunctionName( const TemplateLine& line, string& templateName)
 			templateName = expr[0].lineParts[0].verbatim;
 		if ( !nameOK )
 		{
-			fmt::print( "line {}: error: template/function has bad or no name\n", line.srcLineNum );
+			fmt::print( "{}: error: template/function has bad or no name\n", line.srcLineNum.toString());
 			assert( 0 );
 			return false;
 		}
@@ -227,7 +227,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				}
 				if ( lines[flidx].type != TemplateLine::LINE_TYPE::ENDIF )
 				{
-					fmt::print( "line {}: error: ENDIF expected\n", lines[flidx].srcLineNum );
+					fmt::print( "{}: error: ENDIF expected\n", lines[flidx].srcLineNum.toString());
 					assert( 0 );
 					return false;
 				}
@@ -266,13 +266,13 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				node.srcLineNum = lines[flidx].srcLineNum;
 				if ( lines[flidx].expression.size() == 0 )
 				{
-					fmt::print( "line {}: error: expression required\n", lines[flidx].srcLineNum );
+					fmt::print( "{}: error: expression required\n", lines[flidx].srcLineNum.toString());
 					assert( 0 );
 					return false;
 				}
 				if ( lines[flidx].attributes.size() )
 				{
-					fmt::print( "line {}: error: attributes are not expected\n", lines[flidx].srcLineNum );
+					fmt::print( "{}: error: attributes are not expected\n", lines[flidx].srcLineNum.toString());
 					assert( 0 );
 					return false;
 				}
@@ -316,7 +316,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 					return false;
 				if ( lines[flidx].type != TemplateLine::LINE_TYPE::CLOSE_OUTPUT_FILE )
 				{
-					fmt::print( "line {}: error: CLOSE-OUTPUT-FILE expected\n", lines[flidx].srcLineNum );
+					fmt::print( "{}: error: CLOSE-OUTPUT-FILE expected\n", lines[flidx].srcLineNum.toString());
 					assert( 0 );
 					return false;
 				}
@@ -332,7 +332,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 
 				if ( lines[flidx].expression.size() == 0 )
 				{
-					fmt::print( "line {}: error: {} expression expected\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+					fmt::print( "{}: error: {} expression expected\n", lines[flidx].srcLineNum.toString(), mainKeywordToString( ltype ) );
 					assert( 0 );
 					return false;
 				}
@@ -348,7 +348,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 					{
 						if ( varCnt )
 						{
-							fmt::print( "line {}: error: {} assumes only a single iterator variable\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+							fmt::print( "{}: error: {} assumes only a single iterator variable\n", lines[flidx].srcLineNum.toString(), mainKeywordToString( ltype ) );
 							assert( 0 );
 							return false;
 						}
@@ -359,7 +359,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 
 				if ( varCnt == 0 )
 				{
-					fmt::print( "line {}: error: {} requires an iterator variable to be specified\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+					fmt::print( "{}: error: {} requires an iterator variable to be specified\n", lines[flidx].srcLineNum.toString(), mainKeywordToString( ltype ) );
 					assert( 0 );
 					return false;
 				}
@@ -371,7 +371,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 				bool isEnd1 = lines[flidx].attributes.find( {ATTRIBUTE::END, ""} ) != lines[flidx].attributes.end();
 				if ( !isEnd1 )
 				{
-					fmt::print( "line {}: error: {} END expected\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+					fmt::print( "{}: error: {} END expected\n", lines[flidx].srcLineNum.toString(), mainKeywordToString( ltype ) );
 					assert( 0 );
 					return false;
 				}
@@ -384,13 +384,13 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 			{
 				if ( lines[flidx].attributes.size() )
 				{
-					fmt::print( "line {}: error: {} does not have attributes\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+					fmt::print( "{}: error: {} does not have attributes\n", lines[flidx].srcLineNum.toString(), mainKeywordToString( ltype ) );
 					assert( 0 );
 					return false;
 				}
 				if ( lines[flidx].expression.size() == 0 )
 				{
-					fmt::print( "line {}: error: {} requires expression\n", lines[flidx].srcLineNum, mainKeywordToString( ltype ) );
+					fmt::print( "{}: error: {} requires expression\n", lines[flidx].srcLineNum.toString(), mainKeywordToString( ltype ) );
 					assert( 0 );
 					return false;
 				}
@@ -405,7 +405,7 @@ bool buildTemplateTree( TemplateNode& root, vector<TemplateLine>& lines, size_t&
 					return false;
 				if ( lines[flidx].type != TemplateLine::LINE_TYPE::ENDWHILE )
 				{
-					fmt::print( "line {}: error: {} expected\n", lines[flidx].srcLineNum, mainKeywordToString( TemplateLine::LINE_TYPE::ENDWHILE ) );
+					fmt::print( "{}: error: {} expected\n", lines[flidx].srcLineNum.toString(), mainKeywordToString( TemplateLine::LINE_TYPE::ENDWHILE ) );
 					assert( 0 );
 					return false;
 				}
@@ -431,7 +431,7 @@ bool buildTemplateTree( TemplateRootNode& root, vector<TemplateLine>& lines, siz
 			case TemplateLine::LINE_TYPE::BEGIN_TEMPLATE:
 			case TemplateLine::LINE_TYPE::BEGIN_FUNCTION:
 			{
-				int lnStart = lines[flidx].srcLineNum;
+				int lnStart = lines[flidx].srcLineNum.lineNumber;
 				string templateName;
 				bool nameOK = getTemplateOrFunctionName( lines[flidx], templateName);
 
@@ -442,7 +442,7 @@ bool buildTemplateTree( TemplateRootNode& root, vector<TemplateLine>& lines, siz
 					SpecialName sn = parseStandardName( templateName, contentStart );
 					if ( sn.id != PLACEHOLDER::FUNCTION_MINUS )
 					{
-						fmt::print( "line {}: error: name of a user-defined function must be of a form FUNCTION-XXX\n", lines[flidx].srcLineNum );
+						fmt::print( "{}: error: name of a user-defined function must be of a form FUNCTION-XXX\n", lines[flidx].srcLineNum.toString());
 						assert( 0 );
 						return false;
 					}
@@ -462,7 +462,7 @@ bool buildTemplateTree( TemplateRootNode& root, vector<TemplateLine>& lines, siz
 				auto terminator = ltype == TemplateLine::LINE_TYPE::BEGIN_FUNCTION ? TemplateLine::LINE_TYPE::END_FUNCTION : TemplateLine::LINE_TYPE::END_TEMPLATE;
 				if ( lines[flidx].type != terminator )
 				{
-					fmt::print( "line {}: error: {} expected\n", lines[flidx].srcLineNum, mainKeywordToString( terminator ) );
+					fmt::print( "{}: error: {} expected\n", lines[flidx].srcLineNum.toString(), mainKeywordToString( terminator ) );
 					assert( 0 );
 					return false;
 				}
@@ -473,14 +473,14 @@ bool buildTemplateTree( TemplateRootNode& root, vector<TemplateLine>& lines, siz
 				{
 					if ( templateName != closingTemplateName )
 					{
-						fmt::print( "line {}: error: template/function name at template begin (see line {}) does not coincide with that at template/function end\n", lines[flidx].srcLineNum, lnStart );
+						fmt::print( "{}: error: template/function name at template begin (see line {}) does not coincide with that at template/function end\n", lines[flidx].srcLineNum.toString(), lnStart );
 						assert( 0 );
 						return false;
 					}
 				}
 				else
 				{
-					fmt::print( "line {}: error: template has bad or no name\n", lines[flidx].srcLineNum );
+					fmt::print( "{}: error: template has bad or no name\n", lines[flidx].srcLineNum.toString());
 					assert( 0 );
 					return false;
 				}
@@ -497,13 +497,14 @@ bool buildTemplateTree( TemplateRootNode& root, vector<TemplateLine>& lines, siz
 }
 
 
-bool loadTemplates( FILE* tf, TemplateNodeSpace& nodeSpace, int& currentLineNum )
+bool loadTemplates( FILE* tf, TemplateNodeSpace& nodeSpace, const char* currentFileName)
 {
+    int currentLineNum = 0;
 	for (;;)
 	{
 		TemplateRootNode rootNode;
 		vector<TemplateLine> templateLines;
-		bool ret = tokenizeTemplateLines( tf, templateLines, currentLineNum );
+		bool ret = tokenizeTemplateLines( tf, templateLines, currentLineNum, currentFileName);
 		if ( !ret )
 			break;
 		size_t flidx = 0;
