@@ -90,7 +90,8 @@ string TemplateInstantiator::resolveLinePartsToString( const vector<LinePart2>& 
 			else
 			{
 				fmt::print( "\n" );
-				fmt::print("error: cannot convert type {} to string\n", static_cast<int>(stack[0].argtype) );
+				fmt::print("{}: error: cannot convert type '{}' to string\n", fileLine.toString(), 
+                    ARGTYPEtoString(stack[0].argtype) );
 				assert( 0 );
 			}
 		}
@@ -609,7 +610,7 @@ bool TemplateInstantiator::applyNode( TemplateNode& node )
 
             if (outstr != nullptr)
             {
-                fmt::print(outstr, "{}\n", stack[0].lineParts[0].verbatim);
+                fmt::print(outstr, "{}\n", stack[0].lineParts[0].verbatim.c_str());
             }
             //most common cause is white line at MAIN level,
             //outside OPEN-OUTPUT-FILE. just ignore 

@@ -191,6 +191,30 @@ enum class ARGTYPE
 	ANY_LIST,
 };
 
+inline std::string ARGTYPEtoString(ARGTYPE argType)
+{
+    switch (argType) {
+    case ARGTYPE::NO_ARGTYPE:
+        return "NoType";
+    case ARGTYPE::NUMBER:
+        return "Number";
+    case ARGTYPE::STRING:
+        return "String";
+    case ARGTYPE::BOOL:
+        return "Bool";
+    case ARGTYPE::PLACEHOLDER:
+        return "PlaceHolder";
+    case ARGTYPE::OBJPTR:
+        return "ObjPtr";
+    case ARGTYPE::ANY_MAP:
+        return "AnyMap";
+    case ARGTYPE::ANY_LIST:
+        return "AnyList";
+    default:
+        return "Unknown";
+    }
+}
+
 struct ExpressionElement;
 struct LinePart2
 {
