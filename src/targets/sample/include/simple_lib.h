@@ -114,6 +114,7 @@ public:
 	bool read_int32_t( int32_t& x ) {	return readData( reinterpret_cast<uint8_t*>(&x), 4 ) == 4; }
 	bool read_int64_t( int64_t& x ) {	return readData( reinterpret_cast<uint8_t*>(&x), 8 ) == 8; }
 	// unsigned ints
+	bool read_uint8_t( bool& x ) { return read_bool(x); }
 	bool read_uint8_t( uint8_t& x )   {return readData( reinterpret_cast<uint8_t*>(&x), 1 ) == 1; }
 	bool read_uint16_t( uint16_t& x ) {return readData( reinterpret_cast<uint8_t*>(&x), 2 ) == 2; }
 	bool read_uint32_t( uint32_t& x ) {return readData( reinterpret_cast<uint8_t*>(&x), 4 ) == 4; }

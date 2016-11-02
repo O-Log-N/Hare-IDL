@@ -1,0 +1,158 @@
+
+
+@@------- MAIN ENTRY POINT -------
+
+@@BEGIN-TEMPLATE NAME="MAIN"
+@@ASSERT IS-ROOT(PARAM-ROOT)
+@@OPEN-OUTPUT-FILE FILENAME="output_declare.h"
+
+#ifndef OUTPUT_DECLARE_H_INCLUDED
+#define OUTPUT_DECLARE_H_INCLUDED
+
+//include-here
+#include <string>
+#include <vector>
+
+// DECLARATIONS
+@@INCLUDE TEMPLATE="FORWARD-DECLARING" PARAM-ROOT=PARAM-ROOT
+
+@@INCLUDE TEMPLATE="SMART-DECLARING-ENTRY" PARAM-ROOT=PARAM-ROOT
+  
+#endif // OUTPUT_DECLARE_H_INCLUDED
+
+@@CLOSE-OUTPUT-FILE
+@@OPEN-OUTPUT-FILE FILENAME="output.h"
+
+#ifndef OUTPUT_H_INCLUDED
+#define OUTPUT_H_INCLUDED
+
+//include-here
+#include <string>
+#include <vector>
+#include <deque>
+
+#include "front-back/idl_tree.h"
+
+class OProtobufStream;
+class IProtobufStream;
+
+namespace harepb {
+
+// declarations
+@@INCLUDE TEMPLATE="GENERATE-DECLARATIONS" PARAM-ROOT=PARAM-ROOT
+
+} // namespace harepb
+
+#endif // OUTPUT_H_INCLUDED
+
+@@CLOSE-OUTPUT-FILE
+@@OPEN-OUTPUT-FILE FILENAME="output.cpp"
+
+#include "output.h"
+#include "protobuf/baselib.h"
+
+//include-here
+
+namespace harepb {
+
+// IMPLEMENTATIONS
+
+
+// GET-SIZE
+@@INCLUDE TEMPLATE="GET-SIZE-GENERATE-IMPLEMENTATIONS" PARAM-ROOT=PARAM-ROOT
+
+// SERIALIZATION
+@@INCLUDE TEMPLATE="SERIALIZATION-GENERATE-IMPLEMENTATIONS" PARAM-ROOT=PARAM-ROOT
+  
+// DESERIALIZATION
+@@INCLUDE TEMPLATE="DESERIALIZATION-GENERATE-IMPLEMENTATIONS" PARAM-ROOT=PARAM-ROOT
+  
+} // namespace harepb
+
+@@CLOSE-OUTPUT-FILE
+@@OPEN-OUTPUT-FILE FILENAME="output.proto"
+
+syntax="proto2";
+package pb;
+
+// PROTO MESSAGES
+@@INCLUDE TEMPLATE="PROTO-GENERATE" PARAM-ROOT=PARAM-ROOT
+
+
+@@CLOSE-OUTPUT-FILE
+@@OPEN-OUTPUT-FILE FILENAME="dbg_helpers.h"
+
+#ifndef DBG_HELPERS_H_INCLUDED
+#define DBG_HELPERS_H_INCLUDED
+
+#include <cassert>
+#include <ostream>
+
+#include "output.h"
+
+#ifndef EXPECT_TRUE
+#define EXPECT_TRUE assert
+#endif
+
+#ifndef EXPECT_EQ
+#define EXPECT_EQ(left, right) assert(left == right)
+#endif
+
+namespace harepb {
+
+@@INCLUDE TEMPLATE="PRINT-GENERATE-DECLARATIONS" PARAM-ROOT=PARAM-ROOT
+
+@@INCLUDE TEMPLATE="ASSERT-EQUAL-GENERATE-DECLARATIONS" PARAM-ROOT=PARAM-ROOT
+
+// PRINT
+@@INCLUDE TEMPLATE="PRINT-GENERATE-IMPLEMENTATIONS" PARAM-ROOT=PARAM-ROOT
+
+// ASSERT-EQUAL
+@@INCLUDE TEMPLATE="ASSERT-EQUAL-GENERATE-IMPLEMENTATIONS" PARAM-ROOT=PARAM-ROOT
+
+} // namespace harepb
+
+#endif // DBG_HELPERS_H_INCLUDED
+  
+@@CLOSE-OUTPUT-FILE
+@@OPEN-OUTPUT-FILE FILENAME="dbg_proto_helpers.h"
+
+#ifndef DBG_PROTO_HELPERS_H_INCLUDED
+#define DBG_PROTO_HELPERS_H_INCLUDED
+
+#include <cassert>
+
+#include "output.h"
+#include "output.pb.h"
+
+#ifndef EXPECT_TRUE
+#define EXPECT_TRUE assert
+#endif
+
+#ifndef EXPECT_EQ
+#define EXPECT_EQ(left, right) assert(left == right)
+#endif
+
+namespace harepb {
+
+@@INCLUDE TEMPLATE="ASSERT-EQUAL-2-GPB-GENERATE-DECLARATIONS" PARAM-ROOT=PARAM-ROOT
+
+// ASSERT-EQUAL-2-GPB
+@@INCLUDE TEMPLATE="ASSERT-EQUAL-2-GPB-GENERATE-IMPLEMENTATIONS" PARAM-ROOT=PARAM-ROOT
+
+} // namespace harepb
+
+#endif // DBG_PROTO_HELPERS_H_INCLUDED
+  
+@@CLOSE-OUTPUT-FILE
+
+@@-OPEN-OUTPUT-FILE FILENAME="dbg_dump.txt"
+
+@@-INCLUDE TEMPLATE="PRINT-DUMP" PARAM-ROOT=PARAM-ROOT
+
+@@-CLOSE-OUTPUT-FILE
+
+@@END-TEMPLATE NAME="MAIN"
+
+
+

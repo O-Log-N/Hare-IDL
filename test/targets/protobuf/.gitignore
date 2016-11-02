@@ -2,11 +2,5 @@
 *.h.idlbin
 *.obj
 *.exe
-output.h
-output_declare.h
-output.cpp
-output.proto
-output.pb.h
-output.pb.cc
-dbg_helpers.h
-dbg_proto_helpers.h
+output*
+dbg_*

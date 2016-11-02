@@ -17,7 +17,7 @@ Copyright (C) 2016 OLogN Technologies AG
 
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "idl_tree.h"
+#include "front-back/idl_tree.h"
 #include "output.h"
 #include "output.pb.h"
 
@@ -26,6 +26,7 @@ Copyright (C) 2016 OLogN Technologies AG
 #include "dbg_proto_helpers.h"
 #include "protobuf/baselib.h"
 
+#include "front-back/idl_tree_serializer.h"
 
 #include <iostream>
 #include <sstream>
@@ -42,7 +43,7 @@ void protobufTestLoop(const Root& toSend, const char* fileName)
     ASSERT_NE(out, nullptr);
     OProtobufStream o(out);
 
-    serializeRoot(toSend, o);
+    harepb::serializeRoot(toSend, o);
     fclose(out);
 
     fstream is(fullName, ios::in | ios::binary);
@@ -50,7 +51,7 @@ void protobufTestLoop(const Root& toSend, const char* fileName)
     pb::Root gpb;
     ASSERT_TRUE(gpb.ParseFromIstream(&is));
 
-    assertEqualRoot(toSend, gpb);
+    harepb::assertEqualRoot(toSend, gpb);
 
     stringstream os;
     ASSERT_TRUE(gpb.SerializeToOstream(&os));
@@ -59,9 +60,9 @@ void protobufTestLoop(const Root& toSend, const char* fileName)
     IProtobufStream ipbs(reinterpret_cast<const uint8_t*>(buff.c_str()), buff.size());
 
     unique_ptr<Root> recv(new Root);
-    ASSERT_TRUE(deserializeRoot(*recv, ipbs));
+    ASSERT_TRUE(harepb::deserializeRoot(*recv, ipbs));
 
-    assertEqualRoot(toSend, *recv);
+    harepb::assertEqualRoot(toSend, *recv);
 }
 
 
@@ -74,28 +75,19 @@ TEST(GpbLoop, Test10)
 
 TEST(GpbLoop, Test11)
 {
+    uint8_t baseBuff[0x10000];
+    FILE* in = fopen( "idl_tree.h.idlbin", "rb" );
+    ASSERT_TRUE(in != nullptr);
+
+    size_t sz = fread( baseBuff, 1, 0x10000, in );
+    fclose( in );
+    IStream i( baseBuff, sz );
+
+
     Root tc;
-/*
-    tc.max_u8 = UINT8_MAX;
-    tc.max_u16 = UINT16_MAX;
-    tc.max_u32 = UINT32_MAX;
-    tc.max_u64 = UINT64_MAX;
-
-    tc.max_s8 = INT8_MIN;
-    tc.max_s16 = INT16_MIN;
-    tc.max_s32 = INT32_MIN;
-    tc.max_s64 = INT64_MIN;
-
-    tc.aFloat = 1.0;
-    tc.aDouble = 2.0;
-
-    tc.description = "Hello world!";
-
-    tc.aValue = TestClass::Second;
-
-    tc.flag = true;
-*/
+    ASSERT_TRUE(deserializeRoot( tc, i ));
     protobufTestLoop(tc, "file11");
+
 }
 
 int main(int argc, char **argv) {

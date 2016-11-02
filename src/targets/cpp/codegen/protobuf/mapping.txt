@@ -94,14 +94,20 @@ struct @LOCAL-OBJ.STRUCT-NAME()@;
   @@ENDIF
 @@FOR-EACH END
 @@IF LOCAL-ALL-CNT == 0
-  @@DBG-PRINT "    =================================================="
-  @@DBG-PRINT "    =====   SMART-DECLARING-RECURSIVE : OK     ======="
+  @@DBG-PRINT "    ===================================================="
+  @@DBG-PRINT "    =====   SMART-DECLARING-RECURSIVE : OK       ======="
+  @@DBG-PRINT "    ===================================================="
 @@ELSE
   @@IF LOCAL-PROC-CNT == 0
-    @@DBG-PRINT "    =================================================="
-    @@DBG-PRINT "    =====   SMART-DECLARING-RECURSIVE : FAILED ======="
+    @@DBG-PRINT "    ****************************************************"
+    @@DBG-PRINT "    *****   SMART-DECLARING-RECURSIVE : FAILED   *******"
+    @@DBG-PRINT "    ****************************************************"
+    @@FOR-EACH LOCAL-OBJ IN PARAM-OBJECTS
+      @@DBG-PRINT "    =====   @LOCAL-OBJ.STRUCT-NAME()@"
+    @@FOR-EACH END
     @@ASSERT 0
   @@ELSE
+    @@DBG-PRINT "   ----------------------------------------------------"
     @@INCLUDE TEMPLATE="SMART-DECLARING-RECURSIVE" PARAM-PROCESSED=LOCAL-PROCESSED-OBJECTS PARAM-OBJECTS=LOCAL-REMAINING-OBJECTS PARAM-ALL-NAMES=PARAM-ALL-NAMES
   @@ENDIF
 @@ENDIF
@@ -113,7 +119,7 @@ struct @LOCAL-OBJ.STRUCT-NAME()@;
 @@FOR-EACH LOCAL-MEMBER IN PARAM-DU-OR-STRUCT.MEMBERS()
   @@LET LOCAL-RETVAL=FUNCTION-TEST-READINESS-TYPE( LOCAL-MEMBER.MEMBER-TYPE(), PARAM-PROCESSED, PARAM-ALL-NAMES )
   @@IF LOCAL-RETVAL == 0
-    @@-DBG-PRINT "@PARAM-DU-OR-STRUCT.STRUCT-NAME()@.@LOCAL-MEMBER.MAPPING-MEMBER-NAME()@ of type @LOCAL-MEMBER.MEMBER-TYPE().MAPPING-MEMBER-TYPE()@ : FAILED"
+    @@DBG-PRINT "           @PARAM-DU-OR-STRUCT.STRUCT-NAME()@.@LOCAL-MEMBER.MAPPING-MEMBER-NAME()@"
     @@RETURN 0
   @@ENDIF
 @@FOR-EACH END
