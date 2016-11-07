@@ -76,7 +76,7 @@ TEST(GpbLoop, Test10)
 TEST(GpbLoop, Test11)
 {
     uint8_t baseBuff[0x10000];
-    FILE* in = fopen( "idl_tree.h.idlbin", "rb" );
+    FILE* in = fopen( "idl_tree.h.data", "rb" );
     ASSERT_TRUE(in != nullptr);
 
     size_t sz = fread( baseBuff, 1, 0x10000, in );

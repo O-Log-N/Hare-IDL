@@ -8,6 +8,7 @@ add_custom_command(OUTPUT
                    ${CMAKE_CURRENT_SOURCE_DIR}/output.pb.h
                    ${CMAKE_CURRENT_SOURCE_DIR}/dbg_helpers.h
                    ${CMAKE_CURRENT_SOURCE_DIR}/dbg_proto_helpers.h
+                   ${CMAKE_CURRENT_SOURCE_DIR}/idl_tree.h.data
                    BYPRODUCTS
                    ${CMAKE_CURRENT_SOURCE_DIR}/output_declare.h
                    ${CMAKE_CURRENT_SOURCE_DIR}/output.proto
@@ -45,7 +46,7 @@ target_link_libraries(testGpbIdlTree
   cppformat
 )
 
-file(COPY idl_tree.h.idlbin DESTINATION .)
+file(COPY idl_tree.h.data DESTINATION .)
 
 set_property(TARGET testGpbIdlTree PROPERTY CXX_STANDARD 11)
 set_property(TARGET testGpbIdlTree PROPERTY CXX_STANDARD_REQUIRED ON)
