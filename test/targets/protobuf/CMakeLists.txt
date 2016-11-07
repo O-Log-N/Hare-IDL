@@ -27,3 +27,5 @@ add_subdirectory(gpb-sequence-loop)
 add_subdirectory(idl-primitive)
 add_subdirectory(packed-sequence)
 add_subdirectory(poly-ptr)
+
+file(COPY run_all.bat DESTINATION .)
