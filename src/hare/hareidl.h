@@ -26,42 +26,70 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <map>
 
 
-//#define HAREIDL_USE_GCC_ANNOTATE
-//#define HAREIDL_USE_CXX11_ATTRIBUTE
-
-#ifdef HAREIDL_USE_GCC_ANNOTATE
-#define HAREIDL(X) __attribute__((annotate("hare::" #X )))
-#else
+// HAREIDL_USE_CXX11_ATTRIBUTE is internally defined by C++2HareIdl tool
 
 #ifdef HAREIDL_USE_CXX11_ATTRIBUTE
 #define HAREIDL(X) [[hare:: X ]]
+#define HARE_MAPPING(X) [[hare::mapping(X)]]
 #else
 #define HAREIDL(X)
+#define HARE_MAPPING(X)
 #endif
 
 #endif
 
-typedef uint8_t hare_uint8_t;
-typedef int8_t hare_int8_t;
-typedef uint16_t hare_uint16_t;
-typedef int16_t hare_int16_t;
-typedef uint32_t hare_uint32_t;
-typedef int32_t hare_int32_t;
-typedef uint64_t hare_uint64_t;
-typedef int64_t hare_int64_t;
-typedef bool hare_bool;
-typedef float hare_float;
-typedef double hare_double;
-typedef std::string hare_string;
 
-typedef std::unique_ptr<int> hare_sequence_unique_ptr;
-typedef std::vector<int> hare_sequence_vector;
-typedef std::list<int> hare_sequence_list;
+typedef uint8_t hare_mapping_uint8_t;
+typedef int8_t hare_mapping_int8_t;
+typedef uint16_t hare_mapping_uint16_t;
+typedef int16_t hare_mapping_int16_t;
+typedef uint32_t hare_mapping_uint32_t;
+typedef int32_t hare_mapping_int32_t;
+typedef uint64_t hare_mapping_uint64_t;
+typedef int64_t hare_mapping_int64_t;
 
-typedef std::map<int,int> hare_dictionary_map;
+typedef bool hare_mapping_bool;
+typedef float hare_mapping_float;
+typedef double hare_mapping_double;
+typedef std::string hare_mapping_string;
 
-//template < class T, class Allocator >
-//using hare_sequence_vector = std::vector<T, Allocator>;
+// std::vector<bool> is specialized so it needs special treatment
+typedef std::vector<bool> hare_vectorbool_vector;
 
+typedef std::unique_ptr<void*> hare_owning_ptr_unique_ptr;
+
+typedef std::vector<void*> hare_sequence_vector;
+typedef std::list<void*> hare_sequence_list;
+
+typedef std::map<void*, void*> hare_dictionary_map;
+
+
+/*
+Use this type alias samples, to allow to use std:: namespace
+
+
+using hare_mapping_uint8_t = uint8_t;
+using hare_mapping_int8_t = int8_t;
+using hare_mapping_uint16_t = uint16_t;
+using hare_mapping_int16_t = int16_t;
+using hare_mapping_uint32_t = uint32_t;
+using hare_mapping_int32_t = int32_t;
+using hare_mapping_uint64_t = uint64_t;
+using hare_mapping_int64_t = int64_t;
+using hare_mapping_bool = bool;
+using hare_mapping_float = float;
+using hare_mapping_double = double;
+using hare_mapping_string HARE_MAPPING("std::string") = std::string;
+
+// std::vector<bool> is specialized so it needs special treatment
+using hare_vectorbool_vector HARE_MAPPING("std::vector") = std::vector<bool>;
+
+using hare_owning_ptr_unique_ptr HARE_MAPPING("std::unique_ptr") = std::unique_ptr<void*>;
+
+using hare_sequence_vector HARE_MAPPING("std::vector") = std::vector<void*>;
+using hare_sequence_list = std::list<void*>;
+
+using hare_dictionary_map HARE_MAPPING("std::map") = std::map<void*, void*>;
+*/
 
 #endif // HAREIDL_H_INCLUDED

@@ -31,7 +31,7 @@ static_assert(double(-2147483648. * 4294967296.) == double(INT64_MIN), "");
 
 bool isUniquePtr( DataType& dt )
 {
-	return dt.kind == DataType::KIND::SEQUENCE && dt.name == "unique_ptr";
+	return dt.kind == DataType::KIND::SEQUENCE && (dt.name == "unique_ptr" || dt.name == "std::unique_ptr");
 }
 
 void memberMappingTypeToKind( DataType& type )
@@ -145,13 +145,13 @@ void memberMappingTypeToKind( DataType& type )
 				type.floatingSignificandBits = 24;
 				type.floatingExponentBits = 8;
 			}
-			else if ( type.mappingName == "string" )
+			else if ( type.mappingName == "string" || type.mappingName == "std::string")
 			{
 				type.kind = DataType::KIND::CHARACTER_STRING;
 				type.stringMinSize = 0;
 				type.stringMaxSize = 65536; // TODO: what is a limit??
 			}
-			else if ( type.mappingName == "unique_ptr" ) // NOTE: temporary code!!!
+			else if ( type.mappingName == "unique_ptr" || type.mappingName == "std::unique_ptr") // NOTE: temporary code!!!
 			{
 //				type.kind = DataType::KIND::DISCRIMINATED_UNION;
 				type.kind = DataType::KIND::SEQUENCE;
