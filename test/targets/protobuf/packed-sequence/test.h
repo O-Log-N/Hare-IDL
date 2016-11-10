@@ -39,6 +39,8 @@ struct TestClass {
   vector<double> packedDoubles;
 
   vector<Values> packedEnum;
+
+  vector<bool> packedBool;
 };
 
 #endif // SAMPLE_H

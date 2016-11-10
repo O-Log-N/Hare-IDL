@@ -87,6 +87,21 @@ TEST(PackedSequence, PackedEnum)
     });
 }
 
+TEST(PackedSequence, PackedBool)
+{
+    TestClass tc;
+
+    tc.packedBool.push_back(true);
+    tc.packedBool.push_back(false);
+    tc.packedBool.push_back(true);
+
+    testHelper(tc, &serializeTestClass, &deserializeTestClass, &assertEqualTestClass, "file5", {
+        0x2a, 0x03, 0x01, 0x00, 0x01
+    });
+}
+
+
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
