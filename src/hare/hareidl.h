@@ -36,8 +36,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define HARE_MAPPING(X)
 #endif
 
-#endif
-
 
 typedef uint8_t hare_mapping_uint8_t;
 typedef int8_t hare_mapping_int8_t;
