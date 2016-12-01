@@ -12,9 +12,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 *******************************************************************************/
 
+#ifndef EXTRAPOLATION_H
+#define EXTRAPOLATION_H
 
 /*
-	mb: Estimators are supposed to work in two different scenarios.
+	mb: Extrapolator are supposed to work in two different scenarios.
 
 	First, is when current value can be estimated from previous,
 	in example, character is moving at constant speed, so current position
@@ -23,9 +25,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	Receiver must be able to guess or estimate the value.
 
 	Second, is when receiver did not get a value because of a lost packet.
+
+	In the first use case is imporant that sender replicates the receiver
+	logic. The sender has to know exactly what value the receiver will
+	extrapolate, and make a decision based on that.
+
+
+
 */
 
-class LinearEstimatorDouble {
+class LinearExtrapolatorDouble {
 private:
 	const double epsilonPos;
 	const double epsilonNeg;
@@ -37,7 +46,7 @@ private:
 public:
 	DoubleState(double epsilonAbs) :epsilongPos(epsilonAbs), epsilonNeg(-epsilonAbs) {}
 
-	bool needValue(size_t tick, double value) {
+	bool serializerNeeded(size_t tick, double value) {
 
 		double estimated = estimateInternal(tick);
 		double estError = estimated - value;
@@ -52,13 +61,13 @@ public:
 		}
 	}
 
-	double estimate(size_t tick) {
+	double deserializerExtrapolate(size_t tick) {
 		lastValue = estimateInternal(tick);
 		lastTick = tick;
 		return lastValue;
 	}
 
-	void setValue(size_t tick, double value) {
+	void deserializerReceived(size_t tick, double value) {
 		delta = (tick == lastTick + 1) ? value - lastValue : 0;
 		lastValue = value;
 		lastTick = tick;
@@ -72,3 +81,56 @@ private:
 
 
 };
+
+
+template<class T>
+class LinearExtrapolator {
+private:
+	const T epsilonPos;
+	const T epsilonNeg;
+
+	size_t lastTick = 0;
+	T lastValue = 0;
+	T delta = 0;
+
+public:
+	DoubleState(T epsilonAbs) :epsilongPos(epsilonAbs), epsilonNeg(-epsilonAbs) {}
+
+	bool serializerNeeded(size_t tick, T value) {
+
+		T extrapolated = extrapolateInternal(tick);
+		T extError = extrapolated - value;
+		if( epsilonNeg < extError && extError < epsilonPos ) {
+			lastValue = extrapolated;
+			lastTick = tick;
+			return false;
+		}
+		else {
+			setValue(tick, value);
+			return true;
+		}
+	}
+
+	T deserializerExtrapolate(size_t tick) {
+		lastValue = extrapolateInternal(tick);
+		lastTick = tick;
+		return lastValue;
+	}
+
+	void setValue(size_t tick, T value) {
+		delta = (tick == lastTick + 1) ? value - lastValue : 0;
+		lastValue = value;
+		lastTick = tick;
+	}
+
+private:
+	T extrapolateInternal(size_t tick) {
+		size_t missingTicks = tick - lastTick;
+		return lastValue + (delta * missingTicks);
+	}
+
+
+};
+
+
+#endif //EXTRAPOLATION_H
