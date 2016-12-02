@@ -1,0 +1,932 @@
+
+
+@@--------   COMMON FUNCTIONS   --------
+
+@@BEGIN-FUNCTION NAME="FUNCTION-GET-REF-TO-MEMBER" PARAM-STRUCT-NAME PARAM-MEMBER
+@@ASSERT IS-MEMBER(PARAM-MEMBER)
+@@LET LOCAL-IS-PARENT = PARAM-MEMBER.GET-MAPPING-ANNOTATION( "PARENT" )
+@@IF LOCAL-IS-PARENT.HAS-VALUE()
+   @@RETURN "@PARAM-STRUCT-NAME@"
+@@ENDIF
+   @@RETURN "@PARAM-STRUCT-NAME@.@PARAM-MEMBER.MAPPING-MEMBER-NAME()@"
+@@END-FUNCTION NAME="FUNCTION-GET-REF-TO-MEMBER"
+
+@@--------   DECLARATIONS   --------
+
+
+@@BEGIN-TEMPLATE NAME="GENERATE-DECLARATIONS"
+@@ASSERT IS-ROOT(PARAM-ROOT)
+  // internal use functions
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-STRUCTS()
+     @@INCLUDE TEMPLATE="DECLARE-INTERNAL" PARAM-NAME=LOCAL-PS-IT.STRUCT-NAME() PARAM-MAPPING-NAME=LOCAL-PS-IT.MAPPING-STRUCT-NAME()
+  @@FOR-EACH END
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-DISCRIMINATED-UNIONS()
+     @@INCLUDE TEMPLATE="DECLARE-INTERNAL" PARAM-NAME=LOCAL-PS-IT.STRUCT-NAME() PARAM-MAPPING-NAME=LOCAL-PS-IT.MAPPING-STRUCT-NAME()
+  @@FOR-EACH END
+
+  // public API
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-STRUCTS()
+     @@INCLUDE TEMPLATE="DECLARE-API" PARAM-NAME=LOCAL-PS-IT.STRUCT-NAME() PARAM-MAPPING-NAME=LOCAL-PS-IT.MAPPING-STRUCT-NAME()
+  @@FOR-EACH END
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-DISCRIMINATED-UNIONS()
+     @@INCLUDE TEMPLATE="DECLARE-API" PARAM-NAME=LOCAL-PS-IT.STRUCT-NAME() PARAM-MAPPING-NAME=LOCAL-PS-IT.MAPPING-STRUCT-NAME()
+  @@FOR-EACH END
+
+@@END-TEMPLATE NAME="GENERATE-DECLARATIONS"
+
+
+@@BEGIN-TEMPLATE NAME="DECLARE-API"
+size_t serialize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, OProtobufStream& o, std::deque<bool>& optMask );
+inline
+bool deserialize@PARAM-NAME@( @PARAM-MAPPING-NAME@& s, IProtobufStream& i ) {
+  return protobufDeserialize@PARAM-NAME@( s, i, SIZE_MAX );
+}
+@@END-TEMPLATE NAME="DECLARE-API"
+
+@@BEGIN-TEMPLATE NAME="DECLARE-INTERNAL"
+void protobufSerialize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, OProtobufStream& o, std::deque<size_t>& stk, std::deque<bool>& optMask );
+size_t protobufGetSize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, std::deque<size_t>& stk, std::deque<bool>& optMask );
+bool protobufDeserialize@PARAM-NAME@( @PARAM-MAPPING-NAME@& s, IProtobufStream& i, size_t eos );
+@@END-TEMPLATE NAME="DECLARE-INTERNAL"
+
+@@--------   SERIALIZATION   --------
+
+@@BEGIN-TEMPLATE NAME="SERIALIZATION-GENERATE-IMPLEMENTATIONS"
+@@ASSERT IS-ROOT(PARAM-ROOT)
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-STRUCTS()
+     @@INCLUDE TEMPLATE="SERIALIZE-STRUCT" PARAM-STRUCT=LOCAL-PS-IT
+  @@FOR-EACH END
+
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-DISCRIMINATED-UNIONS()
+    @@IF LOCAL-PS-IT.GET-MAPPING-ANNOTATION( "OWNING-PTR" ).HAS-VALUE()
+      @@INCLUDE TEMPLATE="SERIALIZE-DU-OWNING-PTR" PARAM-DU=LOCAL-PS-IT
+    @@ELSE
+      @@INCLUDE TEMPLATE="SERIALIZE-DU" PARAM-DU=LOCAL-PS-IT
+    @@ENDIF
+  @@FOR-EACH END
+
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-STRUCTS()
+     @@INCLUDE TEMPLATE="SERIALIZE-API-GENERATE" PARAM-NAME=LOCAL-PS-IT.STRUCT-NAME() PARAM-MAPPING-NAME=LOCAL-PS-IT.MAPPING-STRUCT-NAME()
+  @@FOR-EACH END
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-DISCRIMINATED-UNIONS()
+     @@INCLUDE TEMPLATE="SERIALIZE-API-GENERATE" PARAM-NAME=LOCAL-PS-IT.STRUCT-NAME() PARAM-MAPPING-NAME=LOCAL-PS-IT.MAPPING-STRUCT-NAME()
+  @@FOR-EACH END
+@@END-TEMPLATE NAME="SERIALIZATION-GENERATE-IMPLEMENTATIONS"
+
+@@BEGIN-TEMPLATE NAME="SERIALIZE-API-GENERATE"
+size_t serialize@PARAM-NAME@( const @PARAM-MAPPING-NAME@& s, OProtobufStream& o, std::deque<bool>& optMask )
+{
+  std::deque<size_t> stk;
+  std::deque<bool> optMask2(optMask);
+  size_t sz = protobufGetSize@PARAM-NAME@( s, stk, optMask );
+  protobufSerialize@PARAM-NAME@( s, o, stk, optMask2 );
+  o.finish();
+  return sz;
+}
+@@END-TEMPLATE NAME="SERIALIZE-API-GENERATE"
+
+@@BEGIN-FUNCTION NAME="FUNCTION-CREATE-DU-MEMBERS-MAP" PARAM-DU
+@@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
+@@LET LOCAL-MEMBERS=CREATE-MAP()
+@@LET LOCAL-MEMCTR=1
+@@FOR-EACH LOCAL-MEMBER IN PARAM-DU.MEMBERS()
+    @@LET LOCAL-MEMBERS=LOCAL-MEMBERS.ASSIGN( LOCAL-MEMBER.MAPPING-MEMBER-NAME(), LOCAL-MEMCTR )
+    @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
+@@FOR-EACH END
+@@RETURN LOCAL-MEMBERS
+@@END-FUNCTION NAME="FUNCTION-CREATE-DU-MEMBERS-MAP"
+
+@@BEGIN-TEMPLATE NAME="SERIALIZE-DU"
+@@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
+
+void protobufSerialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& s, OProtobufStream& o, std::deque<size_t>& stk, std::deque<bool>& optMask ) {
+
+  @@LET LOCAL-MEMBERS-MAP=FUNCTION-CREATE-DU-MEMBERS-MAP(PARAM-DU)
+  @@LET LOCAL-DISC-MEMCTR=LOCAL-MEMBERS-MAP.FIND-IN-MAP( PARAM-DU.MAPPING-DISCRIMINATOR-NAME() )
+
+  uint8_t disc = s.@PARAM-DU.MAPPING-DISCRIMINATOR-NAME()@;
+  switch ( disc )
+  {
+  @@LET LOCAL-MAX=0
+  @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
+    case @LOCAL-DU-OPTION.MAPPING-DISCRIMINATED-UNION-OPTION-VALUE()@:
+    {
+    o.writeUInt( @LOCAL-DISC-MEMCTR@, @LOCAL-DU-OPTION.ENCODING-DISCRIMINATED-UNION-OPTION-VALUE()@ );
+    @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
+      @@LET LOCAL-OPTIONAL=LOCAL-MEMBER.GET-MAPPING-ANNOTATION( "OPTIONAL" ).HAS-VALUE()
+      @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-NAME=FUNCTION-GET-REF-TO-MEMBER("s", LOCAL-MEMBER) PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-MEMCTR=LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() ) PARAM-OPTIONAL=LOCAL-OPTIONAL
+    @@FOR-EACH END
+    }
+    break;
+    @@LET LOCAL-MAX=LOCAL-MAX+1
+  @@FOR-EACH END
+    default:
+      // TODO use special value to signal error?
+      o.writeUInt( @LOCAL-DISC-MEMCTR@, @LOCAL-MAX@ );
+      // HAREASSERT( false );
+      break;
+  }
+}
+@@END-TEMPLATE NAME="SERIALIZE-DU"
+
+
+@@BEGIN-TEMPLATE NAME="SERIALIZE-DU-OWNING-PTR"
+@@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
+@@ASSERT PARAM-DU.GET-MAPPING-ANNOTATION( "OWNING-PTR" ).HAS-VALUE()
+
+void protobufSerialize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& s, OProtobufStream& o, std::deque<size_t>& stk, std::deque<bool>& optMask ) {
+
+  @@LET LOCAL-MEMBERS-MAP=FUNCTION-CREATE-DU-MEMBERS-MAP(PARAM-DU)
+
+      if( s == nullptr )
+        return;
+  @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
+    @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
+
+      @@ASSERT LOCAL-MEMBER.GET-MAPPING-ANNOTATION( "POLY-POINTER-TYPE" ).HAS-VALUE()
+      @@LET LOCAL-POLY-PTR = LOCAL-MEMBER.MEMBER-TYPE().ENCODING-MEMBER-TYPE()
+      else if ( typeid( *s ) == typeid( @LOCAL-POLY-PTR@ ) ) {
+        auto ptr = dynamic_cast<@LOCAL-POLY-PTR@*>( s.get() );
+        o.writeObjectTagAndSize( @LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() )@, stk.front() );
+        stk.pop_front();
+        protobufSerialize@LOCAL-POLY-PTR@( *ptr, o, stk, optMask );
+      }
+    @@FOR-EACH END
+  @@FOR-EACH END
+      else {
+        // treat as nullptr
+        // HAREASSERT( false );
+        return;
+      }
+}
+@@END-TEMPLATE NAME="SERIALIZE-DU-OWNING-PTR"
+
+@@BEGIN-TEMPLATE NAME="SERIALIZE-STRUCT"
+@@ASSERT IS-SERIALIZABLE-STRUCT(PARAM-STRUCT)
+
+void protobufSerialize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.STRUCT-NAME()@& s, OProtobufStream& o, std::deque<size_t>& stk, std::deque<bool>& optMask ) {
+
+  @@LET LOCAL-MEMCTR=1
+  @@FOR-EACH LOCAL-MEMBER IN PARAM-STRUCT.MEMBERS()
+    @@LET LOCAL-OPTIONAL=LOCAL-MEMBER.GET-MAPPING-ANNOTATION( "OPTIONAL" ).HAS-VALUE()
+    @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-NAME=FUNCTION-GET-REF-TO-MEMBER("s", LOCAL-MEMBER) PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-MEMCTR=LOCAL-MEMCTR PARAM-OPTIONAL=LOCAL-OPTIONAL
+    @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
+  @@FOR-EACH END
+}
+@@END-TEMPLATE NAME="SERIALIZE-STRUCT"
+
+
+@@BEGIN-TEMPLATE NAME="SERIALIZE-TYPE"
+@@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
+
+@@IF PARAM-OPTIONAL
+  @@ASSERT (PARAM-TYPE.IS-INTEGER()) || (PARAM-TYPE.IS-FIXED-POINT()) || (PARAM-TYPE.IS-FLOATING-POINT())
+  if( optMask.empty() || optMask.front() ) {
+    optMask.pop_front();
+@@ENDIF
+@@IF PARAM-TYPE.IS-INTEGER()
+  @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER()
+    o.writeUInt(@PARAM-MEMCTR@, @PARAM-NAME@);
+  @@ELSE
+    o.writeInt(@PARAM-MEMCTR@, @PARAM-NAME@);
+  @@ENDIF
+@@ELIF PARAM-TYPE.IS-FIXED-POINT()
+    o.writeDouble(@PARAM-MEMCTR@, @PARAM-NAME@);
+@@ELIF PARAM-TYPE.IS-FLOATING-POINT()
+  @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(24,8)
+    o.writeFloat(@PARAM-MEMCTR@, @PARAM-NAME@);
+  @@ELIF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
+    o.writeDouble(@PARAM-MEMCTR@, @PARAM-NAME@);
+  @@ELSE
+    @@ASSERT "0" MSG="Cannot process member: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+  @@ENDIF
+@@ELIF PARAM-TYPE.IS-CHARACTER-STRING()
+    o.writeString(@PARAM-MEMCTR@, @PARAM-NAME@);
+@@ELIF (PARAM-TYPE.IS-STRUCTURE()) || (PARAM-TYPE.IS-DISCRIMINATED-UNION())
+    o.writeObjectTagAndSize( @PARAM-MEMCTR@, stk.front() );
+    stk.pop_front();
+    protobufSerialize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@( @PARAM-NAME@, o, stk, optMask );
+@@ELIF PARAM-TYPE.IS-ENUM()
+  @@INCLUDE TEMPLATE="SERIALIZE-ENUM" PARAM-NAME=PARAM-NAME PARAM-TYPE=PARAM-TYPE PARAM-MEMCTR=PARAM-MEMCTR
+@@ELIF PARAM-TYPE.IS-SEQUENCE()
+  @@IF PARAM-TYPE.COLLECTION-TYPE().IS-SEQUENCE()
+    @@ASSERT "0" MSG="Cannot process member for collection serialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
+  @@ELIF FUNCTION-IS-FIXED-SIZE-TYPE(PARAM-TYPE.COLLECTION-TYPE())
+    if(!@PARAM-NAME@.empty()) {
+      o.writeObjectTagAndSize( @PARAM-MEMCTR@, stk.front() );
+      stk.pop_front();
+      for( const auto& item:@PARAM-NAME@ ) {
+        @@INCLUDE TEMPLATE="SERIALIZE-PACKED-TYPE" PARAM-NAME="item" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
+      }
+    }
+  @@ELSE
+    for(const auto& item:@PARAM-NAME@) {
+      @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-MEMCTR=PARAM-MEMCTR PARAM-NAME="item" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE() PARAM-OPTIONAL=0
+    }
+  @@ENDIF
+@@ELIF PARAM-TYPE.IS-DICTIONARY()
+    for(const auto& item:@PARAM-NAME@) {
+      o.writeObjectTagAndSize( @PARAM-MEMCTR@, stk.front() );
+      stk.pop_front();
+      @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item.first" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE2() PARAM-MEMCTR="1" PARAM-OPTIONAL=0
+      @@INCLUDE TEMPLATE="SERIALIZE-TYPE" PARAM-NAME="item.second" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE() PARAM-MEMCTR="2" PARAM-OPTIONAL=0
+    }
+@@ELSE
+  @@ASSERT "0" MSG="Cannot process member for serialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
+@@ENDIF
+@@IF PARAM-OPTIONAL
+  }
+@@ENDIF
+
+@@END-TEMPLATE NAME="SERIALIZE-TYPE"
+
+
+@@BEGIN-TEMPLATE NAME="SERIALIZE-PACKED-TYPE"
+@@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
+@@IF PARAM-TYPE.IS-INTEGER()
+  @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER()
+    o.writePackedUnsignedVarInt(@PARAM-NAME@);
+  @@ELSE
+    o.writePackedSignedVarInt(@PARAM-NAME@);
+  @@ENDIF
+@@ELIF PARAM-TYPE.IS-FIXED-POINT()
+    o.writePackedDouble(@PARAM-NAME@);
+@@ELIF PARAM-TYPE.IS-FLOATING-POINT()
+  @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(24,8)
+    o.writePackedFloat(@PARAM-NAME@);
+  @@ELIF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
+    o.writePackedDouble(@PARAM-NAME@);
+  @@ELSE
+    @@ASSERT "0" MSG="Cannot process member for packed serialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
+  @@ENDIF
+@@ELIF PARAM-TYPE.IS-ENUM()
+  @@INCLUDE TEMPLATE="SERIALIZE-PACKED-ENUM" PARAM-NAME=PARAM-NAME PARAM-TYPE=PARAM-TYPE
+@@ELSE
+  @@ASSERT "0" MSG="Cannot process member for packed serialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
+@@ENDIF
+@@END-TEMPLATE NAME="SERIALIZE-PACKED-TYPE"
+
+@@BEGIN-TEMPLATE NAME="SERIALIZE-ENUM"
+@@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
+@@ASSERT PARAM-TYPE.IS-ENUM()
+    switch ( @PARAM-NAME@ )
+    {
+   @@FOR-EACH LOCAL-ENUM-VAL IN PARAM-TYPE.ENUM-VALUES()
+      case /* @LOCAL-ENUM-VAL.ENUM-VALUE-NAME()@ */ @LOCAL-ENUM-VAL.MAPPING-ENUM-VALUE-VALUE()@: o.writeUInt( @PARAM-MEMCTR@, @LOCAL-ENUM-VAL.ENCODING-ENUM-VALUE-VALUE()@ ); break;
+   @@FOR-EACH END
+      default:
+        // HAREASSERT( false );
+        o.writeUInt( @PARAM-MEMCTR@, 0 );
+        break;
+    }
+@@END-TEMPLATE NAME="SERIALIZE-ENUM"
+
+
+@@BEGIN-TEMPLATE NAME="SERIALIZE-PACKED-ENUM"
+@@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
+@@ASSERT PARAM-TYPE.IS-ENUM()
+        switch ( @PARAM-NAME@ )
+        {
+  @@FOR-EACH LOCAL-ENUM-VAL IN PARAM-TYPE.ENUM-VALUES()
+          case /* @LOCAL-ENUM-VAL.ENUM-VALUE-NAME()@ */ @LOCAL-ENUM-VAL.MAPPING-ENUM-VALUE-VALUE()@: o.writePackedUnsignedVarInt( @LOCAL-ENUM-VAL.ENCODING-ENUM-VALUE-VALUE()@ ); break;
+  @@FOR-EACH END
+          default:
+            // HAREASSERT( false );
+            o.writePackedUnsignedVarInt( 0 );
+            break;
+        }
+@@END-TEMPLATE NAME="SERIALIZE-PACKED-ENUM"
+
+
+
+
+
+@@--------   DESERIALIZATION   --------
+
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZATION-GENERATE-IMPLEMENTATIONS"
+@@ASSERT IS-ROOT(PARAM-ROOT)
+
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-STRUCTS()
+     @@INCLUDE TEMPLATE="DESERIALIZE-STRUCT" PARAM-STRUCT=LOCAL-PS-IT
+  @@FOR-EACH END
+
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-DISCRIMINATED-UNIONS()
+    @@IF LOCAL-PS-IT.GET-MAPPING-ANNOTATION( "OWNING-PTR" ).HAS-VALUE()
+      @@INCLUDE TEMPLATE="DESERIALIZE-DU-OWNING-PTR" PARAM-DU=LOCAL-PS-IT
+    @@ELSE
+      @@INCLUDE TEMPLATE="DESERIALIZE-DU" PARAM-DU=LOCAL-PS-IT
+    @@ENDIF
+  @@FOR-EACH END
+
+@@END-TEMPLATE NAME="DESERIALIZATION-GENERATE-IMPLEMENTATIONS"
+
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-DU"
+@@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
+
+bool protobufDeserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i, size_t eos ) {
+
+  @@LET LOCAL-MEMBERS-MAP=FUNCTION-CREATE-DU-MEMBERS-MAP(PARAM-DU)
+
+  @@INCLUDE TEMPLATE="DESERIALIZE-DU-OR-STRUCT-COMMON" PARAM-DU-OR-STRUCT=PARAM-DU
+
+  if( !initFlags[@LOCAL-MEMBERS-MAP.FIND-IN-MAP( PARAM-DU.MAPPING-DISCRIMINATOR-NAME() )@ - 1] )
+    return false;
+
+  switch (s.@PARAM-DU.MAPPING-DISCRIMINATOR-NAME()@) {
+  @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
+    case @LOCAL-DU-OPTION.MAPPING-DISCRIMINATED-UNION-OPTION-VALUE()@:
+      @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
+        readOk = readOk && initFlags[@LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() )@ - 1];
+      @@FOR-EACH END
+      break;
+  @@FOR-EACH END
+    default:
+      return false;
+  }  
+
+  return readOk;
+}
+@@END-TEMPLATE NAME="DESERIALIZE-DU"
+
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-DU-OWNING-PTR"
+@@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
+@@ASSERT PARAM-DU.GET-MAPPING-ANNOTATION( "OWNING-PTR" ).HAS-VALUE()
+
+bool protobufDeserialize@PARAM-DU.STRUCT-NAME()@( @PARAM-DU.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i, size_t eos ) {
+
+    s.reset();
+
+    if( i.isEndOfStream( eos ) )
+      return true;
+
+    int fieldType;
+    int fieldNumber;
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    
+    if ( !readOk )
+      return false;
+
+    if( fieldType != LENGTH_DELIMITED )
+      return false;
+
+    uint64_t sz;
+    readOk = i.readVariantUInt64( sz );
+    if ( !readOk )
+      return false;
+    size_t sub = i.makeSubEos( sz );
+    if ( sub > eos )
+      return false;
+
+  @@LET LOCAL-MEMBERS-MAP=FUNCTION-CREATE-DU-MEMBERS-MAP(PARAM-DU)
+
+    switch ( fieldNumber )
+    {
+  @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
+    @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
+      @@ASSERT LOCAL-MEMBER.GET-MAPPING-ANNOTATION( "POLY-POINTER-TYPE" ).HAS-VALUE()
+      @@LET LOCAL-POLY-PTR = LOCAL-MEMBER.MEMBER-TYPE().ENCODING-MEMBER-TYPE()
+      case @LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() )@:
+      {
+        std::unique_ptr<@LOCAL-POLY-PTR@> ptr( new @LOCAL-POLY-PTR@ );
+        readOk = protobufDeserialize@LOCAL-POLY-PTR@( *ptr, i, sub );
+        s = std::move( ptr );
+      }
+      break;
+
+    @@FOR-EACH END
+  @@FOR-EACH END
+      default:
+        readOk = i.discardData( sub );
+    }
+
+    return readOk && i.isEndOfStream( eos );
+}
+@@END-TEMPLATE NAME="DESERIALIZE-DU-OWNING-PTR"
+
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-STRUCT"
+@@ASSERT IS-SERIALIZABLE-STRUCT(PARAM-STRUCT)
+
+bool protobufDeserialize@PARAM-STRUCT.STRUCT-NAME()@( @PARAM-STRUCT.MAPPING-STRUCT-NAME()@& s, IProtobufStream& i, size_t eos ) {
+
+  @@INCLUDE TEMPLATE="DESERIALIZE-DU-OR-STRUCT-COMMON" PARAM-DU-OR-STRUCT=PARAM-STRUCT
+
+  for ( size_t i = 0; i != memcnt; i++ )
+    readOk = readOk && initFlags[i];
+
+  return readOk;
+}
+@@END-TEMPLATE NAME="DESERIALIZE-STRUCT"
+
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-DU-OR-STRUCT-COMMON"
+@@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU-OR-STRUCT) || IS-SERIALIZABLE-STRUCT(PARAM-DU-OR-STRUCT)
+@@LET LOCAL-MEMCTR=0
+@@FOR-EACH LOCAL-MEMBER IN PARAM-DU-OR-STRUCT.MEMBERS()
+  @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
+@@FOR-EACH END
+   const size_t memcnt = @LOCAL-MEMCTR@;
+   bool initFlags[memcnt] = { false };
+@@LET LOCAL-MEMCTR=0
+@@FOR-EACH LOCAL-MEMBER IN PARAM-DU-OR-STRUCT.MEMBERS()
+  @@LET LOCAL-OPTIONAL=LOCAL-MEMBER.GET-MAPPING-ANNOTATION( "OPTIONAL" ).HAS-VALUE()
+  @@INCLUDE TEMPLATE="DESERIALIZE-TYPE-INIT" PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-FLAG="initFlags[@LOCAL-MEMCTR@]" PARAM-OPTIONAL=LOCAL-OPTIONAL
+@@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
+@@FOR-EACH END
+  
+  bool readOk = true;
+
+  while( !i.isEndOfStream( eos ) )
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    if ( !readOk )
+      return false;
+    switch ( fieldNumber )
+    {
+  @@LET LOCAL-MEMCTR=1
+  @@FOR-EACH LOCAL-MEMBER IN PARAM-DU-OR-STRUCT.MEMBERS()
+    case @LOCAL-MEMCTR@:
+    {
+      @@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME=FUNCTION-GET-REF-TO-MEMBER("s", LOCAL-MEMBER) PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE()
+    }
+    initFlags[@LOCAL-MEMCTR@ - 1] = true;
+    break;
+
+   @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
+   @@FOR-EACH END
+    default:
+      readOk = discardUnexpectedField( fieldType, i );
+    }
+    if( !readOk )
+      return false;
+  }
+@@END-TEMPLATE NAME="DESERIALIZE-DU-OR-STRUCT-COMMON"
+
+
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-TYPE-INIT"
+@@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
+@@IF PARAM-OPTIONAL || (PARAM-TYPE.IS-SEQUENCE()) || (PARAM-TYPE.IS-DICTIONARY())
+  @PARAM-FLAG@ = true;
+@@ENDIF
+@@END-TEMPLATE NAME="DESERIALIZE-TYPE-INIT"
+
+
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-TYPE"
+@@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
+@@IF PARAM-TYPE.IS-INTEGER()
+  if( fieldType != VARINT ) return false;
+  @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER()
+    @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(64)
+      uint64_t temp = 0;
+      readOk = i.readVariantUInt64( temp );
+      @PARAM-NAME@ = static_cast<@PARAM-TYPE.MAPPING-MEMBER-TYPE()@>( temp );
+    @@ELSE
+      @@ASSERT "0" MSG="Cannot process member for deserialize: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+    @@ENDIF
+  @@ELSE
+    @@IF PARAM-TYPE.IS-SIGNED-INTEGER-FITTING-INT(64)
+      int64_t temp = 0;
+      readOk = i.readVariantInt64( temp );
+      @PARAM-NAME@ = static_cast<@PARAM-TYPE.MAPPING-MEMBER-TYPE()@>( temp );
+    @@ELSE
+      @@ASSERT "0" MSG="Cannot process member for deserialize: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+    @@ENDIF
+  @@ENDIF
+@@ELIF PARAM-TYPE.IS-FIXED-POINT()
+      if( fieldType != FIXED_64_BIT ) return false;
+      readOk = i.readFixed64Bit( @PARAM-NAME@ );
+@@ELIF PARAM-TYPE.IS-FLOATING-POINT()
+  @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(24,8)
+      if( fieldType != FIXED_32_BIT ) return false;
+      readOk = i.readFixed32Bit( @PARAM-NAME@ );
+  @@ELIF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
+      if( fieldType != FIXED_64_BIT ) return false;
+      readOk = i.readFixed64Bit( @PARAM-NAME@ );
+  @@ELSE
+    @@ASSERT "0" MSG="Cannot process member for deserialize: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+  @@ENDIF
+@@ELIF PARAM-TYPE.IS-CHARACTER-STRING()
+      if( fieldType != LENGTH_DELIMITED ) return false;
+      readOk = i.readString( @PARAM-NAME@ );
+@@ELIF (PARAM-TYPE.IS-STRUCTURE()) || (PARAM-TYPE.IS-DISCRIMINATED-UNION())
+      if( fieldType != LENGTH_DELIMITED ) return false;
+      uint64_t sz;
+      readOk = i.readVariantUInt64( sz );
+      if ( !readOk )
+        return false;
+      size_t sub = i.makeSubEos( sz );
+      if ( sub > eos )
+        return false;
+      readOk = protobufDeserialize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@( @PARAM-NAME@, i, sub );
+@@ELIF PARAM-TYPE.IS-ENUM()
+      if( fieldType != VARINT ) return false;
+      uint64_t temp = 0;
+      readOk = i.readVariantUInt64( temp );
+      switch ( temp )
+      {
+      @@INCLUDE TEMPLATE="DESERIALIZE-ENUM" PARAM-NAME=PARAM-NAME PARAM-TYPE=PARAM-TYPE
+        default: return false;
+      }
+@@ELIF PARAM-TYPE.IS-SEQUENCE()
+  @@IF PARAM-TYPE.COLLECTION-TYPE().IS-SEQUENCE()
+    @@ASSERT "0" MSG="Cannot process member for deserialize: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
+  @@ELIF FUNCTION-IS-FIXED-SIZE-TYPE(PARAM-TYPE.COLLECTION-TYPE())
+    if( fieldType == LENGTH_DELIMITED ) {
+      uint64_t sz;
+      readOk = i.readVariantUInt64(sz);
+      if ( !readOk )
+        return false;
+      size_t sub = i.makeSubEos( sz );
+      if ( sub > eos )
+        return false;
+      size_t eos = sub;
+
+      while( !i.isEndOfStream( eos ) ) {
+
+      @@INCLUDE TEMPLATE="DESERIALIZE-PACKED-TYPE" PARAM-NAME=PARAM-NAME PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
+      
+      if ( !readOk )
+        return false;
+      }
+    } 
+    else
+    // fall back to non packed
+    {
+      @@IF (PARAM-TYPE.COLLECTION-TYPE().IS-INTEGER()) || (PARAM-TYPE.COLLECTION-TYPE().IS-ENUM())
+          if( fieldType != VARINT ) return false;
+      @@ELIF PARAM-TYPE.COLLECTION-TYPE().IS-FLOATING-POINT()
+        @@IF PARAM-TYPE.COLLECTION-TYPE().IS-FLOATING-POINT-FITTING-FLOAT(24,8)
+          if( fieldType != FIXED_32_BIT ) return false;
+        @@ELIF PARAM-TYPE.COLLECTION-TYPE().IS-FLOATING-POINT-FITTING-FLOAT(53,11)
+          if( fieldType != FIXED_64_BIT ) return false;
+        @@ELSE
+          @@ASSERT "0" MSG="Cannot process member for deserialize: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+        @@ENDIF
+      @@ELSE
+        @@ASSERT "0" MSG="Cannot process member for deserialize: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+      @@ENDIF
+      @@INCLUDE TEMPLATE="DESERIALIZE-PACKED-TYPE" PARAM-NAME=PARAM-NAME PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
+    }
+  @@ELSE
+    @PARAM-TYPE.COLLECTION-TYPE().MAPPING-MEMBER-TYPE()@ temp2;
+    @@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="temp2" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
+    @PARAM-NAME@.push_back( std::move( temp2 ) );
+  @@ENDIF
+@@ELIF PARAM-TYPE.IS-DICTIONARY()
+  @@INCLUDE TEMPLATE="DESERIALIZE-DICTIONARY" PARAM-NAME=PARAM-NAME PARAM-TYPE=PARAM-TYPE
+@@ELSE
+  @@ASSERT "0" MSG="Cannot process member for deserialize: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
+@@ENDIF
+@@END-TEMPLATE NAME="DESERIALIZE-TYPE"
+
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-PACKED-TYPE"
+@@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
+@@IF PARAM-TYPE.IS-INTEGER()
+  @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER()
+    @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(1)
+      uint64_t temp = 0;
+      readOk = i.readVariantUInt64( temp );
+      @PARAM-NAME@.push_back( static_cast<bool>( temp ) );
+    @@ELIF PARAM-TYPE.IS-UNSIGNED-INTEGER-FITTING-UINT(64)
+      uint64_t temp = 0;
+      readOk = i.readVariantUInt64( temp );
+      @PARAM-NAME@.push_back( temp );
+    @@ELSE
+      @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+    @@ENDIF
+  @@ELSE
+    @@IF PARAM-TYPE.IS-SIGNED-INTEGER-FITTING-INT(64)
+      int64_t temp = 0;
+      readOk = i.readVariantInt64( temp );
+      @PARAM-NAME@.push_back( static_cast<@PARAM-TYPE.MAPPING-MEMBER-TYPE()@>( temp ) );
+    @@ELSE
+      @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+    @@ENDIF
+  @@ENDIF
+@@ELIF PARAM-TYPE.IS-FIXED-POINT()
+   @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
+@@ELIF PARAM-TYPE.IS-FLOATING-POINT()
+  @@IF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(24,8)
+      float temp = 0;
+      readOk = i.readFixed32Bit( temp );
+      @PARAM-NAME@.push_back( temp );
+  @@ELIF PARAM-TYPE.IS-FLOATING-POINT-FITTING-FLOAT(53,11)
+      double temp = 0;
+      readOk = i.readFixed64Bit( temp );
+      @PARAM-NAME@.push_back( temp );
+  @@ELSE
+    @@ASSERT "0" MSG="Cannot process member for declaring: type=@PARAM-TYPE.MAPPING-MEMBER-TYPE()@"
+  @@ENDIF
+@@ELIF PARAM-TYPE.IS-ENUM()
+      uint64_t temp = 0;
+      readOk = i.readVariantUInt64( temp );
+      switch ( temp )
+      {
+      @@INCLUDE TEMPLATE="DESERIALIZE-PACKED-ENUM" PARAM-NAME=PARAM-NAME PARAM-TYPE=PARAM-TYPE
+        default: return false;
+      }
+@@ELSE
+  @@ASSERT "0" MSG="Cannot process member for deserialization: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
+@@ENDIF
+@@END-TEMPLATE NAME="DESERIALIZE-PACKED-TYPE"
+
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-DICTIONARY"
+@@ASSERT PARAM-TYPE.IS-DICTIONARY()
+  if( fieldType != LENGTH_DELIMITED )
+    return false;
+  uint64_t sz;
+  readOk = i.readVariantUInt64( sz );
+  if ( !readOk )
+    return false;
+  size_t sub = i.makeSubEos( sz );
+  if ( sub > eos )
+    return false;
+  size_t eos = sub;
+  @PARAM-TYPE.COLLECTION-TYPE2().ENCODING-MEMBER-TYPE()@ key;
+  @PARAM-TYPE.COLLECTION-TYPE().ENCODING-MEMBER-TYPE()@ value;
+  bool initFlags[2] = { false };
+
+  while( !i.isEndOfStream( eos ) )
+  {
+    int fieldType;
+    int fieldNumber;
+
+    bool readOk = i.readFieldTypeAndID( fieldType, fieldNumber );
+    if ( !readOk )
+      return false;
+  
+    switch ( fieldNumber )
+    {
+        case 1:
+    {
+@@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="key" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE2()
+    }
+     initFlags[0] = true;
+     break;
+
+    case 2:
+    {
+@@INCLUDE TEMPLATE="DESERIALIZE-TYPE" PARAM-NAME="value" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
+    }
+     initFlags[1] = true;
+      break;
+
+    default:
+      readOk = discardUnexpectedField( fieldType, i );
+    }
+
+    if ( !readOk )
+      return false;
+   }
+   
+   readOk = initFlags[0] && initFlags[1];
+   if(readOk)
+     @PARAM-NAME@[key] = value;
+
+@@END-TEMPLATE NAME="DESERIALIZE-DICTIONARY"
+
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-ENUM"
+@@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
+   @@FOR-EACH LOCAL-ENUM-VALUE IN PARAM-TYPE.ENUM-VALUES()
+        case @LOCAL-ENUM-VALUE.ENCODING-ENUM-VALUE-VALUE()@: @PARAM-NAME@ = s.@LOCAL-ENUM-VALUE.ENUM-VALUE-NAME()@; break;
+  @@FOR-EACH END
+ @@END-TEMPLATE NAME="DESERIALIZE-ENUM"
+
+@@BEGIN-TEMPLATE NAME="DESERIALIZE-PACKED-ENUM"
+@@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
+   @@FOR-EACH LOCAL-ENUM-VALUE IN PARAM-TYPE.ENUM-VALUES()
+        case @LOCAL-ENUM-VALUE.ENCODING-ENUM-VALUE-VALUE()@: @PARAM-NAME@.push_back( s.@LOCAL-ENUM-VALUE.ENUM-VALUE-NAME()@ ); break;
+  @@FOR-EACH END
+ @@END-TEMPLATE NAME="DESERIALIZE-PACKED-ENUM"
+
+
+@@--------   GET-SIZE   --------
+
+
+@@BEGIN-TEMPLATE NAME="GET-SIZE-GENERATE-IMPLEMENTATIONS"
+@@ASSERT IS-ROOT(PARAM-ROOT)
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-STRUCTS()
+     @@INCLUDE TEMPLATE="GET-SIZE-STRUCT" PARAM-STRUCT=LOCAL-PS-IT
+  @@FOR-EACH END
+
+  @@FOR-EACH LOCAL-PS-IT IN PARAM-ROOT.PUBLISHABLE-DISCRIMINATED-UNIONS()
+    @@IF LOCAL-PS-IT.GET-MAPPING-ANNOTATION( "OWNING-PTR" ).HAS-VALUE()
+      @@INCLUDE TEMPLATE="GET-SIZE-DU-OWNING-PTR" PARAM-DU=LOCAL-PS-IT
+    @@ELSE
+      @@INCLUDE TEMPLATE="GET-SIZE-DU" PARAM-DU=LOCAL-PS-IT
+    @@ENDIF
+  @@FOR-EACH END
+@@END-TEMPLATE NAME="GET-SIZE-GENERATE-IMPLEMENTATIONS"
+
+
+
+@@BEGIN-TEMPLATE NAME="GET-SIZE-DU"
+@@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
+
+size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& s, std::deque<size_t>& stk, std::deque<bool>& optMask ) {
+
+  @@LET LOCAL-MEMBERS-MAP=FUNCTION-CREATE-DU-MEMBERS-MAP(PARAM-DU)
+  @@LET LOCAL-DISC-MEMCTR=LOCAL-MEMBERS-MAP.FIND-IN-MAP( PARAM-DU.MAPPING-DISCRIMINATOR-NAME() )
+
+  size_t sz = 0;
+  uint8_t disc = s.@PARAM-DU.MAPPING-DISCRIMINATOR-NAME()@;
+  switch ( disc )
+  {
+  @@LET LOCAL-MAX=0
+  @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
+    case @LOCAL-DU-OPTION.MAPPING-DISCRIMINATED-UNION-OPTION-VALUE()@:
+    {
+    sz += getTagSize( @LOCAL-DISC-MEMCTR@ );
+    sz += getUnsignedVarIntSize( @LOCAL-DU-OPTION.ENCODING-DISCRIMINATED-UNION-OPTION-VALUE()@ );
+
+    @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
+      @@LET LOCAL-OPTIONAL=LOCAL-MEMBER.GET-MAPPING-ANNOTATION( "OPTIONAL" ).HAS-VALUE()
+      @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-NAME=FUNCTION-GET-REF-TO-MEMBER("s", LOCAL-MEMBER) PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-MEMCTR=LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() ) PARAM-OPTIONAL=LOCAL-OPTIONAL
+    @@FOR-EACH END
+    }
+    break;
+    @@LET LOCAL-MAX=LOCAL-MAX+1
+  @@FOR-EACH END
+    default:
+      // TODO use special value to signal error?
+      sz += getTagSize( @LOCAL-DISC-MEMCTR@ );
+      sz += getUnsignedVarIntSize( @LOCAL-MAX@ );
+      // HAREASSERT( false );
+      break;
+  }
+
+  return sz;
+}
+@@END-TEMPLATE NAME="GET-SIZE-DU"
+
+@@BEGIN-TEMPLATE NAME="GET-SIZE-DU-OWNING-PTR"
+@@ASSERT IS-SERIALIZABLE-DISCRIMINATED-UNION(PARAM-DU)
+@@ASSERT PARAM-DU.GET-MAPPING-ANNOTATION( "OWNING-PTR" ).HAS-VALUE()
+
+size_t protobufGetSize@PARAM-DU.STRUCT-NAME()@( const @PARAM-DU.MAPPING-STRUCT-NAME()@& s, std::deque<size_t>& stk, std::deque<bool>& optMask ) {
+
+  @@LET LOCAL-MEMBERS-MAP=FUNCTION-CREATE-DU-MEMBERS-MAP(PARAM-DU)
+
+  if( s == nullptr )
+    return 0;
+  @@FOR-EACH LOCAL-DU-OPTION IN PARAM-DU.DISCRIMINATED-UNION-OPTIONS()
+    @@FOR-EACH LOCAL-MEMBER IN LOCAL-DU-OPTION.MEMBERS()
+      @@ASSERT LOCAL-MEMBER.GET-MAPPING-ANNOTATION( "POLY-POINTER-TYPE" ).HAS-VALUE()
+      @@LET LOCAL-POLY-PTR = LOCAL-MEMBER.MEMBER-TYPE().ENCODING-MEMBER-TYPE()
+      else if ( typeid( *s ) == typeid( @LOCAL-POLY-PTR@ ) ) {
+
+        auto i = stk.size();
+        stk.push_back(0);
+        auto ptr = dynamic_cast<@LOCAL-POLY-PTR@*>( s.get() );
+        auto sz = protobufGetSize@LOCAL-POLY-PTR@( *ptr, stk, optMask );
+        stk[i] = sz;
+
+        sz += getUnsignedVarIntSize( sz );
+        sz += getTagSize( @LOCAL-MEMBERS-MAP.FIND-IN-MAP( LOCAL-MEMBER.MAPPING-MEMBER-NAME() )@ );
+
+        return sz;
+      }
+    @@FOR-EACH END
+  @@FOR-EACH END
+  else {
+    // treat as nullptr
+    // HAREASSERT( false );
+    return 0;
+  }
+}
+@@END-TEMPLATE NAME="GET-SIZE-DU-OWNING-PTR"
+
+@@BEGIN-TEMPLATE NAME="GET-SIZE-STRUCT"
+@@ASSERT IS-SERIALIZABLE-STRUCT(PARAM-STRUCT)
+
+size_t protobufGetSize@PARAM-STRUCT.STRUCT-NAME()@( const @PARAM-STRUCT.MAPPING-STRUCT-NAME()@& s, std::deque<size_t>& stk, std::deque<bool>& optMask ) {
+  size_t sz = 0;
+  @@LET LOCAL-MEMCTR=1
+  @@FOR-EACH LOCAL-MEMBER IN PARAM-STRUCT.MEMBERS()
+    @@LET LOCAL-OPTIONAL=LOCAL-MEMBER.GET-MAPPING-ANNOTATION( "OPTIONAL" ).HAS-VALUE()
+    @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-NAME=FUNCTION-GET-REF-TO-MEMBER("s", LOCAL-MEMBER) PARAM-TYPE=LOCAL-MEMBER.MEMBER-TYPE() PARAM-MEMCTR=LOCAL-MEMCTR PARAM-OPTIONAL=LOCAL-OPTIONAL
+    @@LET LOCAL-MEMCTR=1+LOCAL-MEMCTR
+  @@FOR-EACH END
+   
+  return sz;
+}
+
+@@END-TEMPLATE NAME="GET-SIZE-STRUCT"
+
+
+@@BEGIN-TEMPLATE NAME="GET-SIZE-TYPE"
+@@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
+@@IF PARAM-OPTIONAL
+  @@ASSERT (PARAM-TYPE.IS-INTEGER()) || (PARAM-TYPE.IS-FIXED-POINT()) || (PARAM-TYPE.IS-FLOATING-POINT())
+  if( optMask.empty() || optMask.front() ) {
+    optMask.pop_front();
+@@ENDIF
+@@IF PARAM-TYPE.IS-INTEGER()
+  sz += getTagSize(@PARAM-MEMCTR@);
+  @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER()
+  sz += getUnsignedVarIntSize(@PARAM-NAME@);
+  @@ELSE
+  sz += getSignedVarIntSize(@PARAM-NAME@);
+  @@ENDIF
+@@ELIF PARAM-TYPE.IS-FIXED-POINT()
+  sz += getTagSize(@PARAM-MEMCTR@);
+  sz += getFixedSize(@PARAM-NAME@);
+@@ELIF PARAM-TYPE.IS-FLOATING-POINT()
+  sz += getTagSize(@PARAM-MEMCTR@);
+  sz += getFixedSize(@PARAM-NAME@);
+@@ELIF PARAM-TYPE.IS-CHARACTER-STRING()
+  sz += getTagSize(@PARAM-MEMCTR@);
+  sz += getUnsignedVarIntSize(@PARAM-NAME@.size());
+  sz += @PARAM-NAME@.size();
+@@ELIF (PARAM-TYPE.IS-STRUCTURE()) || (PARAM-TYPE.IS-DISCRIMINATED-UNION())
+  {
+  auto i = stk.size();
+  stk.push_back(0);
+  auto sz_@PARAM-MEMCTR@ = protobufGetSize@PARAM-TYPE.ENCODING-MEMBER-TYPE()@( @PARAM-NAME@, stk, optMask );
+  stk[i] = sz_@PARAM-MEMCTR@;
+  sz += getTagSize(@PARAM-MEMCTR@);
+  sz += getUnsignedVarIntSize(sz_@PARAM-MEMCTR@);
+  sz += sz_@PARAM-MEMCTR@;
+  }
+@@ELIF PARAM-TYPE.IS-ENUM()
+  sz += getTagSize(@PARAM-MEMCTR@);
+  sz += getUnsignedVarIntSize(@PARAM-NAME@);
+@@ELIF PARAM-TYPE.IS-SEQUENCE()
+  @@IF PARAM-TYPE.COLLECTION-TYPE().IS-SEQUENCE()
+    @@ASSERT "0" MSG="Cannot process member for size: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
+  @@ELIF FUNCTION-IS-FIXED-SIZE-TYPE(PARAM-TYPE.COLLECTION-TYPE())
+    if( !@PARAM-NAME@.empty() ) {
+      auto i = stk.size();
+      stk.push_back(0);
+      size_t sz_begin_@PARAM-MEMCTR@ = sz;
+      @@INCLUDE TEMPLATE="GET-PACKED-SEQUENCE-SIZE" PARAM-NAME=PARAM-NAME PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE()
+      stk[i] = sz - sz_begin_@PARAM-MEMCTR@;
+      sz += getTagSize(@PARAM-MEMCTR@);
+      sz += getUnsignedVarIntSize(sz - sz_begin_@PARAM-MEMCTR@);
+    }
+  @@ELSE
+    for(const auto& item:@PARAM-NAME@) {
+      @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-MEMCTR=PARAM-MEMCTR PARAM-NAME="item" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE() PARAM-OPTIONAL=0
+      }
+  @@ENDIF
+@@ELIF PARAM-TYPE.IS-DICTIONARY()
+    for(const auto& item:@PARAM-NAME@) {
+      auto i = stk.size();
+      stk.push_back(0);
+      size_t sz_begin_@PARAM-MEMCTR@ = sz;
+      @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-NAME="item.first" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE2() PARAM-MEMCTR="1" PARAM-OPTIONAL=0
+      @@INCLUDE TEMPLATE="GET-SIZE-TYPE" PARAM-NAME="item.second" PARAM-TYPE=PARAM-TYPE.COLLECTION-TYPE() PARAM-MEMCTR="2" PARAM-OPTIONAL=0
+      stk[i] = sz - sz_begin_@PARAM-MEMCTR@;
+      sz += getTagSize(@PARAM-MEMCTR@);
+      sz += getUnsignedVarIntSize(sz - sz_begin_@PARAM-MEMCTR@);
+    }
+@@ELSE
+  @@ASSERT "0" MSG="Cannot process member for size: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
+@@ENDIF
+@@IF PARAM-OPTIONAL
+  }
+@@ENDIF
+@@END-TEMPLATE NAME="GET-SIZE-TYPE"
+
+
+@@BEGIN-TEMPLATE NAME="GET-PACKED-SEQUENCE-SIZE"
+@@ASSERT IS-MEMBER-TYPE(PARAM-TYPE)
+@@ASSERT FUNCTION-IS-FIXED-SIZE-TYPE(PARAM-TYPE)
+@@IF PARAM-TYPE.IS-INTEGER()
+  @@IF PARAM-TYPE.IS-UNSIGNED-INTEGER()
+    for( const auto& item:@PARAM-NAME@ ) {
+      sz += getUnsignedVarIntSize( item );
+    }
+  @@ELSE
+    for( const auto& item:@PARAM-NAME@ ) {
+      sz += getSignedVarIntSize( item );
+    }
+  @@ENDIF
+@@ELIF PARAM-TYPE.IS-ENUM()
+  for( const auto& item:@PARAM-NAME@ ) {
+    sz += getUnsignedVarIntSize( item );
+  }
+@@ELIF (PARAM-TYPE.IS-FIXED-POINT()) || (PARAM-TYPE.IS-FLOATING-POINT())
+  sz += @PARAM-NAME@.size() != 0 ? @PARAM-NAME@.size() * getFixedSize( @PARAM-NAME@.front() ) : 0;
+@@ELSE
+  @@ASSERT "0" MSG="Cannot process member for packed size: name=@PARAM-NAME@, type=@PARAM-TYPE.ENCODING-MEMBER-TYPE()@"
+@@ENDIF
+@@END-TEMPLATE NAME="GET-PACKED-SEQUENCE-SIZE"
+
+
+
+
+
+
+

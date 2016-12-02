@@ -34,102 +34,47 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 */
 
-class LinearExtrapolatorDouble {
-private:
-	const double epsilonPos;
-	const double epsilonNeg;
-
-	size_t lastTick = 0;
-	double lastValue = 0;
-	double delta = 0;
-
-public:
-	DoubleState(double epsilonAbs) :epsilongPos(epsilonAbs), epsilonNeg(-epsilonAbs) {}
-
-	bool serializerNeeded(size_t tick, double value) {
-
-		double estimated = estimateInternal(tick);
-		double estError = estimated - value;
-		if( epsilonNeg < estError && estError < epsilonPos ) {
-			lastValue = estimated;
-			lastTick = tick;
-			return false;
-		}
-		else {
-			setValue(tick, value);
-			return true;
-		}
-	}
-
-	double deserializerExtrapolate(size_t tick) {
-		lastValue = estimateInternal(tick);
-		lastTick = tick;
-		return lastValue;
-	}
-
-	void deserializerReceived(size_t tick, double value) {
-		delta = (tick == lastTick + 1) ? value - lastValue : 0;
-		lastValue = value;
-		lastTick = tick;
-	}
-
-private:
-	double estimateInternal(size_t tick) {
-		size_t missingTicks = tick - lastTick;
-		return lastValue + (delta * missingTicks);
-	}
-
-
-};
-
 
 template<class T>
 class LinearExtrapolator {
 private:
 	const T epsilonPos;
 	const T epsilonNeg;
+	const size_t maxGap;
 
 	size_t lastTick = 0;
 	T lastValue = 0;
 	T delta = 0;
 
 public:
-	DoubleState(T epsilonAbs) :epsilongPos(epsilonAbs), epsilonNeg(-epsilonAbs) {}
+	LinearExtrapolator(T epsilonAbs, size_t maxGap)
+		:epsilonPos(epsilonAbs), epsilonNeg(-epsilonAbs), maxGap(maxGap) {}
 
-	bool serializerNeeded(size_t tick, T value) {
+	bool getMask(size_t tick, T value) {
 
-		T extrapolated = extrapolateInternal(tick);
-		T extError = extrapolated - value;
-		if( epsilonNeg < extError && extError < epsilonPos ) {
-			lastValue = extrapolated;
-			lastTick = tick;
-			return false;
+		size_t missingTicks = tick - lastTick;
+		if (missingTicks < maxGap) {
+			T extrapolated = extrapolate(tick);
+			T extError = extrapolated - value;
+			if( epsilonNeg < extError && extError < epsilonPos ) {
+				return false;
+			}
 		}
-		else {
-			setValue(tick, value);
-			return true;
-		}
+		setValue(tick, value);
+		return true;
 	}
 
-	T deserializerExtrapolate(size_t tick) {
-		lastValue = extrapolateInternal(tick);
-		lastTick = tick;
-		return lastValue;
-	}
-
-	void setValue(size_t tick, T value) {
-		delta = (tick == lastTick + 1) ? value - lastValue : 0;
-		lastValue = value;
-		lastTick = tick;
-	}
-
-private:
-	T extrapolateInternal(size_t tick) {
+	T extrapolate(size_t tick) {
 		size_t missingTicks = tick - lastTick;
 		return lastValue + (delta * missingTicks);
 	}
 
-
+	void setValue(size_t tick, T value) {
+		// mb: we only calculate delta with two consecutive samples
+		delta = (tick == lastTick + 1) ? value - lastValue : 0;
+		lastValue = value;
+		lastTick = tick;
+	}
 };
 
 
