@@ -3,6 +3,8 @@ cd basic-types
 testBasicTypes.exe
 cd ..\discriminated-union
 testDiscriminatedUnion.exe
+cd ..\extrapolation
+testExtrapolation.exe
 cd ..\gpb-idl-tree
 testGpbIdlTree.exe
 cd ..\gpb-loop

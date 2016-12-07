@@ -708,6 +708,22 @@ void expandInheritanceData( BackRoot& root )
 		}
 }
 
+void tempAddOptionalMarker(BackRoot& root)
+{
+    //mb: work in progress, see test/extrapolation
+    /*
+    for (auto& it : root.structuresMapping) {
+        size_t memberCnt = it->getChildCount();
+        for (size_t j = 0; j < memberCnt; j++) {
+            BackDataMember* member = dynamic_cast<BackDataMember*>(it->getMember(j));
+            if (member != NULL && member->name.substr(0, 3) == "opt") {
+                member->annotation.insert(make_pair("OPTIONAL", "yes"));
+            }
+        }
+    }
+    */
+}
+
 BackStructure* getTypeDescriptionWhenTypeIsStruct( BackRoot& root, const string& name )
 {
 	for ( auto& it:root.structuresMapping )
@@ -949,6 +965,7 @@ void finalizeTree( BackRoot& root, TREE_DATA_COMPLETION_SCENARIO scenario )
 		case TREE_DATA_COMPLETION_SCENARIO::MAP_ONLY:
 		{
 			expandInheritanceData( root );
+			tempAddOptionalMarker( root );
 //			inheritanceTreeToDUs( root );
 			traverseStructTreesForDataMatchingOrOverridding( root.structuresMapping, Structure::DECLTYPE::MAPPING, root.structuresIdl, Structure::DECLTYPE::IDL, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );
 			traverseStructTreesForDataMatchingOrOverridding( root.structuresIdl, Structure::DECLTYPE::IDL, root.structuresEncoding, Structure::DECLTYPE::ENCODING, TREE_DATA_COMPLETION_OPERATION::OVERRIDE );

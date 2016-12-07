@@ -29,7 +29,7 @@ class Extrapolator {
     LinearExtrapolator<float> optFloat;
     LinearExtrapolator<double> optDouble;
 public:
-    Extrapolator() :
+    Extrapolator():
         optInteger(1, 8),
         optFloat(0.01, 8),
         optDouble(0.01, 8)
@@ -75,33 +75,44 @@ public:
 };
 
 
-vector<uint8_t> serialize(const char* fileName, const TestExtrapolation& tc, Extrapolator& ext) {
+void serialize(vector<uint8_t>& toRead, const char* fileName, const TestExtrapolation& tc, deque<bool> mask) {
 
     string fullName(fileName);
     fullName += ".protobuf.bin";
 
     FILE* f = fopen(fullName.c_str(), "w+b");
- //   ASSERT_NE(f, nullptr);
+    ASSERT_NE(f, nullptr);
     OProtobufStream o(f);
 
-    deque<bool> mask1 = ext.getOptMask(tc);
-    size_t sz = serializeTestExtrapolation(tc, o, mask1);
+    size_t sz = serializeTestExtrapolation(tc, o, mask);
 
-
-    vector<uint8_t> toRead(sz);
+    toRead.clear();
+    toRead.resize(sz);
 
     rewind(f);
-    size_t readSize = fread(&toRead[0], sizeof(toRead[0]), toRead.size(), f);
+    size_t readSize = fread(&toRead[0], 1, sz, f);
 
-//    ASSERT_EQ(readSize, sz);
-//    ASSERT_EQ(fgetc(f), EOF);
+    ASSERT_EQ(readSize, sz);
+    ASSERT_EQ(fgetc(f), EOF);
 
     fclose(f);
-
-    return toRead;
 }
 
+void encodedCompare(const vector<uint8_t>& read, const vector<uint8_t>& expected)
+{
+    ASSERT_EQ(read.size(), expected.size());
+    for(size_t i = 0; i < expected.size(); ++i) {
+        EXPECT_EQ(read[i], expected[i]);
+    }
+}
 
+void assertNear(const TestExtrapolation& send, const TestExtrapolation& recv)
+{
+    ASSERT_EQ(send.tick, recv.tick);
+    ASSERT_EQ(send.optInteger, recv.optInteger);
+    ASSERT_NEAR(send.optFloat, recv.optFloat, 0.01);
+    ASSERT_NEAR(send.optDouble, recv.optDouble, 0.01);
+}
 
 TEST(Extrapolation, StandStill)
 {
@@ -124,9 +135,15 @@ TEST(Extrapolation, StandStill)
     tc3.optFloat = 20;
     tc3.optDouble = 30;
 
-    vector<uint8_t> buff1 = serialize("file10", tc1, ext);
-    vector<uint8_t> buff2 = serialize("file11", tc2, ext);
-    vector<uint8_t> buff3 = serialize("file12", tc3, ext);
+    vector<uint8_t> buff1;
+    serialize(buff1, "file10", tc1, ext.getOptMask(tc1));
+    vector<uint8_t> buff2;
+    serialize(buff2, "file11", tc2, ext.getOptMask(tc2));
+    vector<uint8_t> buff3;
+    serialize(buff3, "file12", tc3, ext.getOptMask(tc3));
+
+
+    encodedCompare(buff3, {0x08, 0x03});
 
 
     IProtobufStream i1(&buff1[0], buff1.size());
@@ -134,33 +151,25 @@ TEST(Extrapolation, StandStill)
     ext.extrapolate(de1);
     ASSERT_TRUE(deserializeTestExtrapolation(de1, i1));
 
-    if(!ext.ckeckExtrapolatedTick(de1))
-        ASSERT_TRUE(false);
+    ASSERT_TRUE(ext.ckeckExtrapolatedTick(de1));
 
     IProtobufStream i2(&buff2[0], buff2.size());
     TestExtrapolation de2;
     ext.extrapolate(de2);
     ASSERT_TRUE(deserializeTestExtrapolation(de2, i2));
 
-    if(!ext.ckeckExtrapolatedTick(de2))
-        ASSERT_TRUE(false);
-
+    ASSERT_TRUE(ext.ckeckExtrapolatedTick(de2));
 
     IProtobufStream i3(&buff3[0], buff3.size());
     TestExtrapolation de3;
     ext.extrapolate(de3);
     ASSERT_TRUE(deserializeTestExtrapolation(de3, i3));
 
-    if(!ext.ckeckExtrapolatedTick(de3))
-        ASSERT_TRUE(false);
+    ASSERT_TRUE(ext.ckeckExtrapolatedTick(de3));
 
-
-/*
-    testHelper(tc, &serializeTestUnsigned, &deserializeTestUnsigned, &assertEqualTestUnsigned, "file10", {
-        0x08, 0x00,
-        0x10, 0x00
-    });
-*/
+    assertNear(tc1, de1);
+    assertNear(tc2, de2);
+    assertNear(tc3, de3);
 }
 
 
